@@ -205,3 +205,4 @@ CONSTRAINT fk_idcompra FOREIGN KEY (idcompra) REFERENCES compras (idcompra),
 CONSTRAINT fk_idproducto_2 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
 CONSTRAINT chk_detallecompra CHECK (cantidad > 0 AND preciocompra > 0)
 )ENGINE = INNODB;
+          
