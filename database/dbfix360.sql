@@ -117,7 +117,9 @@ idproducto		INT 				NOT NULL,
 fecha				DATE 				NOT NULL,
 stockmin			INT 				NOT NULL,
 stockmax			INT 				NULL,
-CONSTRAINT fk_idproducto FOREIGN KEY (idproducto) REFERENCES productos (idproducto)
+CONSTRAINT fk_idproducto FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
+CHECK (stockmin >= 0 AND (stockmax IS NULL OR stockmax >= 0))
+
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS tipomovimientos;
@@ -168,8 +170,8 @@ idventa 			INT 				NOT NULL,
 cantidad 		INT 				NOT NULL,
 precioventa 	DECIMAL(7,2)	NOT NULL,
 descuento 		DECIMAL(5,2)  	DEFAULT 0,
-created_at  	TIMESTAMP 		DEFAULT CURRENT_TIMESTAMP,  
-updated_at  	TIMESTAMP 		DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
 CONSTRAINT fk_idproducto_1 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
 CONSTRAINT fk_idventa FOREIGN KEY(idventa) REFERENCES ventas (idventa),
 CONSTRAINT chk_detalleventa CHECK (cantidad > 0 AND precioventa > 0)
@@ -187,6 +189,8 @@ tipocom 			VARCHAR(30)		NOT NULL,
 numserie 		VARCHAR(10) 	NOT NULL,
 numcom 			VARCHAR(10) 	NOT NULL,
 moneda 			VARCHAR(20)		NOT NULL,
+created_at  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+updated_at  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idproveedor FOREIGN KEY (idproveedor) REFERENCES proveedores (idproveedor),
 CONSTRAINT fk_idcolaborador_1 FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT uq_compra UNIQUE (idproveedor, tipocom, numserie, numcom)
@@ -201,8 +205,10 @@ idproducto 		INT 				NOT NULL,
 cantidad 		INT 				NOT NULL,
 preciocompra   DECIMAL(7,2)	NOT NULL,
 descuento 		DECIMAL(5,2)   DEFAULT 0,
+created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
 CONSTRAINT fk_idcompra FOREIGN KEY (idcompra) REFERENCES compras (idcompra),
 CONSTRAINT fk_idproducto_2 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
 CONSTRAINT chk_detallecompra CHECK (cantidad > 0 AND preciocompra > 0)
+
 )ENGINE = INNODB;
-          
