@@ -41,7 +41,10 @@ idempresa 		INT,
 idpersona 		INT,
 CONSTRAINT fk_idempresa_1 FOREIGN KEY (idempresa) REFERENCES empresas (idempresa),
 CONSTRAINT fk_idpersona FOREIGN KEY (idpersona) REFERENCES personas (idpersona),
-CONSTRAINT chk_cliente CHECK (idempresa IS NOT NULL OR idpersona IS NOT NULL)
+CONSTRAINT chk_cliente CHECK (
+        (idempresa IS NOT NULL AND idpersona IS NULL) OR 
+        (idempresa IS NULL AND idpersona IS NOT NULL)
+    )
 ) ENGINE = INNODB;
 
 DROP TABLE IF EXISTS roles;
