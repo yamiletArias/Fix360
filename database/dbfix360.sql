@@ -195,7 +195,8 @@ CONSTRAINT fk_idproveedor FOREIGN KEY (idproveedor) REFERENCES proveedores (idpr
 CONSTRAINT fk_idcolaborador_1 FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT uq_compra UNIQUE (idproveedor, tipocom, numserie, numcom)
 
-)ENGINE = INNODB;
+)ENGINE = INN
+ODB;
 
 DROP TABLE IF EXISTS detallecompra;
 CREATE TABLE detallecompra(
