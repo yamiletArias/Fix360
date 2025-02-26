@@ -120,17 +120,17 @@ INSERT INTO proveedores (idempresa) VALUES
 SELECT * from proveedores;
 
 INSERT INTO clientes (idempresa, idpersona) VALUES
-(1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
-(6, 6), (7, 7), (8, 8), (9, 9), (10, 10),
-(11, 11), (12, 12), (13, 13), (14, 14), (15, 15),
-(16, 16), (17, 17), (18, 18), (19, 19), (20, 20),
-(21, 21), (22, 22), (23, 23), (24, 24), (25, 25), 
-(26, 26), (27, 27), (28, 28), (29, 29), (30, 30), 
-(31, 31), (32, 32), (33, 33), (34, 34), (35, 35), 
-(36, 36), (37, 37), (38, 38), (39, 39), (40, 40), 
-(41, 41),(42, 42), (43, 43), (44, 44), (45, 45), 
-(46, 46),(47, 47), (48, 48), (49, 49), (50, 50);
-SELECT * from clientes;
+(1, NULL), (NULL, 2), (3, NULL), (NULL, 4), (5, NULL),
+(6, NULL), (NULL, 7), (8, NULL), (NULL, 9), (10, NULL),
+(11, NULL), (NULL, 12), (13, NULL), (NULL, 14), (15, NULL),
+(16, NULL), (NULL, 17), (18, NULL), (NULL, 19), (20, NULL),
+(21, NULL), (NULL, 22), (23, NULL), (NULL, 24), (25, NULL), 
+(26, NULL), (NULL, 27), (28, NULL), (NULL, 29), (30, NULL), 
+(31, NULL), (NULL, 32), (33, NULL), (NULL, 34), (35, NULL), 
+(36, NULL), (NULL, 37), (38, NULL), (NULL, 39), (40, NULL), 
+(41, NULL), (NULL, 42), (43, NULL), (NULL, 44), (45, NULL), 
+(46, NULL), (NULL, 47), (48, NULL), (NULL, 49), (50, NULL);
+SELECT * FROM clientes;
 
 INSERT INTO roles (rol) VALUES
 ('Admin'), ('Vendedor'), ('Gerente'), ('Soporte'), ('Contable'),
