@@ -43,16 +43,17 @@ class Persona extends Conexion{
 
     try{
       //Consulta - T-SQL / STORE PROCEDURE
-      $query = "INSERT INTO personas (apellidos, nombres, dni, fechanac, direccion, telefono) VALUES (?,?,?,?,?,?)";
+      $query = "INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telefono) VALUES (?,?,?,?,?,?,?)";
       //Preparar la consulta
       $cmd = $this->pdo->prepare($query);
       //Ejecutar la consulta y pasarle parámetros (opcional)
       $cmd->execute(array(
-        $params["apellidos"],
         $params["nombres"],
-        $params["dni"],
-        $params["fechanac"],
+        $params["apellidos"],
+        $params["tipodoc"],
+        $params["numdoc"],
         $params["direccion"],
+        $params["correo"],
         $params["telefono"]
       ));
 
