@@ -1,0 +1,2 @@
+Controladores de la aplicación
+USUARIO > VISTA > CONTROLADOR > MODEL > BD > CONTROLADOR > VISTA
