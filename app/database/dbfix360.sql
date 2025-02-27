@@ -41,10 +41,7 @@ idempresa 		INT,
 idpersona 		INT,
 CONSTRAINT fk_idempresa_1 FOREIGN KEY (idempresa) REFERENCES empresas (idempresa),
 CONSTRAINT fk_idpersona FOREIGN KEY (idpersona) REFERENCES personas (idpersona),
-CONSTRAINT chk_cliente CHECK (
-        (idempresa IS NOT NULL AND idpersona IS NULL) OR 
-        (idempresa IS NULL AND idpersona IS NOT NULL)
-    )
+CONSTRAINT chk_cliente CHECK (idempresa IS NOT NULL OR idpersona IS NOT NULL)
 ) ENGINE = INNODB;
 
 DROP TABLE IF EXISTS roles;
@@ -76,7 +73,7 @@ CREATE TABLE colaboradores(
 idcolaborador	INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idcontrato 		INT 				NOT NULL,
 namuser			VARCHAR(50)		NOT NULL,
-passuser			VARCHAR(255)	NOT NULL,
+passuser		VARCHAR(255)	NOT NULL,
 estado 			BOOLEAN 			DEFAULT TRUE,
 CONSTRAINT fk_idcontrato FOREIGN KEY (idcontrato) REFERENCES contratos (idcontrato),
 CONSTRAINT uq_namuser UNIQUE (namuser)
