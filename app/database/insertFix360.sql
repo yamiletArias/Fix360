@@ -133,7 +133,7 @@ INSERT INTO clientes (idempresa, idpersona) VALUES
 SELECT * FROM clientes;
 
 INSERT INTO roles (rol) VALUES
-('Admin'), ('Vendedor'), ('Gerente'), ('Soporte'), ('Contable'),
+('Admin'), ('Vendedor'), ('Gerente'), ('Soporte'), ('Mecanico'),
 ('Director'), ('Operador'), ('Jefe de Ventas'), ('Supervisor');
 SELECT * from roles;
 
@@ -246,7 +246,7 @@ SELECT * FROM contratos;
 
 INSERT INTO colaboradores (idcontrato, namuser, passuser) VALUES
 (1, 'juan.perez', 'juan1234'),
-(2, 'maria.gomez', 'maria5678'),
+(2, 'maria.gomez', 'maria567 8'),
 (3, 'carlos.diaz', 'carlosabcd'),
 (4, 'ana.martinez', 'ana4321'),
 (5, 'luis.rodriguez', 'luis9876'),
@@ -295,6 +295,9 @@ INSERT INTO colaboradores (idcontrato, namuser, passuser) VALUES
 (48, 'natalia.delgado', 'natalia5432'),
 (49, 'cesar.mejia', 'cesarqwert'),
 (50, 'lorena.aguilar', 'lorena2345');
+UPDATE colaboradores SET passuser = "$2y$10$p67kigUduporkDUSPbS27u6dg1oX/oSGsItVV62OGlcMrBxEzWLRK" WHERE idcolaborador = 1;
+UPDATE colaboradores SET passuser = "$2y$10$5PTigIH.qa1hLaHopCGMROuM27W.v4IezEeTN5J.v8MShfu8yiTAm" WHERE idcolaborador = 3;
+UPDATE colaboradores SET passuser = "$2y$10$9CYGBoq3D.m6fGaNosadA.NWUDjb5dNPWRsZI.O5LO3FXKOX212Ve" WHERE idcolaborador = 5;
 
 INSERT INTO categorias (nombre) VALUES
 ('Repuestos de Motor'), 

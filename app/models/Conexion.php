@@ -16,6 +16,10 @@ class Conexion{
     }
   }
 
+  public static function getData($storeProcedure):array{
+    return [];
+  }
+
   //Inyecciones SQL
   public static function limpiarCadena($cadena){
     $cadena = trim($cadena);
