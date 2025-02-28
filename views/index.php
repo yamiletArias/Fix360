@@ -1,3 +1,8 @@
+<?php
+require_once "./app/config/Server.php";
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
