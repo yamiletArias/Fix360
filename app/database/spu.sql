@@ -377,6 +377,7 @@ END $$
 
 DELIMITER ;
 
+
 /* SPU PARA ROLES*/
 
 DELIMITER $$
