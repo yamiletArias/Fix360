@@ -1,58 +1,20 @@
 <?php
 
-require_once "../config/Server.php";
+require_once __DIR__ . "/../config/Server.php";
 
-class Conexion{
+class Conexion {
 
-  //Singleton
-  protected static function getConexion(){
-    try{
-      $pdo = new PDO(SGBD, USER, PASS);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      return $pdo;
+    protected static function getConexion() {
+        try {
+            $pdo = new PDO(SGBD, USER, PASS);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $pdo;
+        } catch (Exception $e) {
+            die("Error de conexión: " . $e->getMessage());
+        }
     }
-    catch(Exception $e){
-      die($e->getMessage());
+
+    public static function limpiarCadena($cadena) {
+        return htmlspecialchars(trim($cadena), ENT_QUOTES, 'UTF-8');
     }
-  }
-
-  public static function getData($storeProcedure):array{
-    return [];
-  }
-
-  //Inyecciones SQL
-  public static function limpiarCadena($cadena){
-    $cadena = trim($cadena);
-    $cadena = stripslashes($cadena);
-    $cadena = str_ireplace("<script>", "", $cadena);
-    $cadena = str_ireplace("</script>", "", $cadena);
-    $cadena = str_ireplace("<script src", "", $cadena);
-    $cadena = str_ireplace("<script type", "", $cadena);
-    $cadena = str_ireplace("SELECT * FROM", "", $cadena);
-    $cadena = str_ireplace("DELETE FROM", "", $cadena);
-    $cadena = str_ireplace("INSERT INTO", "", $cadena);
-    $cadena = str_ireplace("DROP TABLE", "", $cadena);
-    $cadena = str_ireplace("DROP DATABASE", "", $cadena);
-    $cadena = str_ireplace("TRUNCATE TABLE", "", $cadena);
-    $cadena = str_ireplace("SHOW TABLES", "", $cadena);
-    $cadena = str_ireplace("SHOW DATABASES", "", $cadena);
-    $cadena = str_ireplace("<?php", "", $cadena);
-    $cadena = str_ireplace("?>", "", $cadena);
-    $cadena = str_ireplace("--", "", $cadena);
-    $cadena = str_ireplace(">", "", $cadena);
-    $cadena = str_ireplace("<", "", $cadena);
-    $cadena = str_ireplace("[", "", $cadena);
-    $cadena = str_ireplace("]", "", $cadena);
-    $cadena = str_ireplace("^", "", $cadena);
-    $cadena = str_ireplace("==", "", $cadena);
-    $cadena = str_ireplace(";", "", $cadena);
-    $cadena = str_ireplace("::", "", $cadena);
-    $cadena = str_ireplace("alert(", "", $cadena);
-    $cadena = str_ireplace(")", "", $cadena);
-    $cadena = stripslashes($cadena);
-    $cadena = trim($cadena);
-    return $cadena;
-  }
-
 }
-

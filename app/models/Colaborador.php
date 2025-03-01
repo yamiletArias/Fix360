@@ -10,14 +10,14 @@ class Colaborador extends Conexion {
         $this->pdo = parent::getConexion();
     }
 
-    public function login($params = []): array {
+    public function login($namuser) {
         try {
-            $cmd = $this->pdo->prepare("CALL spu_colaboradores_login(?);");
-            $cmd->execute([$params['namuser']]);
-            return $cmd->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log("Error Login: " . $e->getMessage());
-            return [];
+            $stmt = $this->pdo->prepare("CALL spu_colaboradores_login(:namuser)");
+            $stmt->bindParam(":namuser", $namuser, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return ["esCorrecto" => false, "mensaje" => "Error en login: " . $e->getMessage()];
         }
-    }
+    }    
 }

@@ -1,6 +1,6 @@
 <?php
 
-const SERVER = "http://localhost/Fix360/";
+const SERVER = "localhost";
 const DB = "dbfix360";
 const USER = "root";
 const PASS = "";
