@@ -1,6 +1,6 @@
 <?php
 
-require_once "../models/Personas.php";
+require_once "../models/PersonaModel.php";
 header('Content-Type: application/json');
 
 $persona = new Persona();
@@ -21,7 +21,8 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                     "numdoc" => Conexion::limpiarCadena($_POST["numdoc"]),
                     "direccion" => Conexion::limpiarCadena($_POST["direccion"]),
                     "correo" => Conexion::limpiarCadena($_POST["correo"]),
-                    "telefono" => Conexion::limpiarCadena($_POST["telefono"])
+                    "telprincipal" => Conexion::limpiarCadena($_POST["telprincipal"]),
+                    "telalternativo" => Conexion::limpiarCadena($_POST["telalternativo"])
                 ]);
                 echo json_encode($result);
                 break;
@@ -35,7 +36,8 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                     "numdoc" => Conexion::limpiarCadena($_POST["numdoc"]),
                     "direccion" => Conexion::limpiarCadena($_POST["direccion"]),
                     "correo" => Conexion::limpiarCadena($_POST["correo"]),
-                    "telefono" => Conexion::limpiarCadena($_POST["telefono"])
+                    "telprincipal" => Conexion::limpiarCadena($_POST["telprincipal"]),
+                    "telalternativo" => Conexion::limpiarCadena($_POST["telalternativo"])
                 ]);
                 echo json_encode($result);
                 break;

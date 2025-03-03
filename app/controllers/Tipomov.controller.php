@@ -1,9 +1,9 @@
 <?php
 
-require_once "../models/ProveedoresModel.php";
+require_once "../models/Tipomovimiento.php";
 header('Content-Type: application/json');
 
-$proveedor = new Proveedores();
+$tipomovimiento = new Tipomovimiento();
 
 switch ($_SERVER["REQUEST_METHOD"]) {
     case "POST":
@@ -14,23 +14,25 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
         switch ($_POST["operation"]) {
             case "register":
-                $result = $proveedor->add(
-                    Conexion::limpiarCadena($_POST["idempresa"])
-                );
+                $result = $tipomovimiento->add([
+                    "flujo" => Conexion::limpiarCadena($_POST["flujo"]),
+                    "tipomov" => Conexion::limpiarCadena($_POST["tipomov"])
+                ]);
                 echo json_encode($result);
                 break;
 
             case "update":
-                $result = $proveedor->update(
-                    Conexion::limpiarCadena($_POST["idproveedor"]),
-                    Conexion::limpiarCadena($_POST["idempresa"])
-                );
+                $result = $tipomovimiento->update([
+                    "idtipomov" => Conexion::limpiarCadena($_POST["idtipomov"]),
+                    "flujo" => Conexion::limpiarCadena($_POST["flujo"]),
+                    "tipomov" => Conexion::limpiarCadena($_POST["tipomov"])
+                ]);
                 echo json_encode($result);
                 break;
 
             case "delete":
-                $idproveedor = Conexion::limpiarCadena($_POST["idproveedor"]);
-                echo json_encode($proveedor->delete($idproveedor));
+                $idtipomov = Conexion::limpiarCadena($_POST["idtipomov"]);
+                echo json_encode($tipomovimiento->delete($idtipomov));
                 break;
 
             default:
@@ -39,12 +41,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;
 
     case "GET":
-        if (isset($_GET["idproveedor"])) {
-            $idproveedor = Conexion::limpiarCadena($_GET["idproveedor"]);
-            echo json_encode($proveedor->find($idproveedor));
-        } else {
-            echo json_encode($proveedor->getAll());
-        }
+        echo json_encode($tipomovimiento->getAll());
         break;
     
     default:

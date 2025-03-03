@@ -1,9 +1,9 @@
 <?php
 
-require_once "../models/RolesModel.php";
+require_once "../models/Producto.php";
 header('Content-Type: application/json');
 
-$rol = new Roles();
+$producto = new Producto();
 
 switch ($_SERVER["REQUEST_METHOD"]) {
     case "POST":
@@ -14,20 +14,15 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
         switch ($_POST["operation"]) {
             case "register":
-                $result = $rol->add(Conexion::limpiarCadena($_POST["rol"]));
-                echo json_encode($result);
+                echo json_encode($producto->add($_POST));
                 break;
 
             case "update":
-                $result = $rol->update(
-                    Conexion::limpiarCadena($_POST["idrol"]),
-                    Conexion::limpiarCadena($_POST["rol"])
-                );
-                echo json_encode($result);
+                echo json_encode($producto->update($_POST));
                 break;
 
             case "delete":
-                echo json_encode($rol->delete(Conexion::limpiarCadena($_POST["idrol"])));
+                echo json_encode($producto->delete($_POST["idproducto"]));
                 break;
 
             default:
@@ -36,10 +31,10 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;
 
     case "GET":
-        if (isset($_GET["idrol"])) {
-            echo json_encode($rol->find(Conexion::limpiarCadena($_GET["idrol"])));
+        if (isset($_GET["idproducto"])) {
+            echo json_encode($producto->find($_GET["idproducto"]));
         } else {
-            echo json_encode($rol->getAll());
+            echo json_encode($producto->getAll());
         }
         break;
     

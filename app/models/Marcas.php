@@ -3,10 +3,10 @@
 require_once "../models/Conexion.php";
 
 /**
- * Clase RolesModel
- * Maneja las operaciones CRUD de la tabla 'roles'
+ * Clase MarcasModel
+ * Maneja las operaciones CRUD de la tabla 'marcas'
  */
-class Roles extends Conexion {
+class Marcas extends Conexion {
 
   protected $pdo;
 
@@ -19,12 +19,12 @@ class Roles extends Conexion {
   }
 
   /**
-   * Obtener todos los roles
-   * @return array Lista de roles
+   * Obtener todas las marcas
+   * @return array Lista de marcas
    */
   public function getAll() {
     try {
-      $query = "CALL spListRoles()";
+      $query = "CALL spListMarcas()";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute();
       return $cmd->fetchAll(PDO::FETCH_ASSOC);
@@ -34,18 +34,19 @@ class Roles extends Conexion {
   }
 
   /**
-   * Registrar un nuevo rol
-   * @param string $rol Nombre del rol
+   * Registrar una nueva marca
+   * @param string $nombre Nombre de la marca
+   * @param string $tipo Tipo de la marca
    * @return array Resultado de la operación
    */
-  public function add($rol) {
+  public function add($nombre, $tipo) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spRegisterRol(?)";
+      $query = "CALL spRegisterMarca(?, ?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$rol]);
+      $cmd->execute([$nombre, $tipo]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol registrado correctamente";
+      $resultado["message"] = "Marca registrada correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {
@@ -54,15 +55,15 @@ class Roles extends Conexion {
   }
 
   /**
-   * Buscar un rol por su ID
-   * @param int $idrol ID del rol
-   * @return array Datos del rol encontrado
+   * Buscar una marca por su ID
+   * @param int $idmarca ID de la marca
+   * @return array Datos de la marca encontrada
    */
-  public function find($idrol) {
+  public function find($idmarca) {
     try {
-      $query = "CALL spGetRolById(?)";
+      $query = "CALL spGetMarcaById(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol]);
+      $cmd->execute([$idmarca]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
@@ -70,19 +71,20 @@ class Roles extends Conexion {
   }
 
   /**
-   * Actualizar un rol
-   * @param int $idrol ID del rol a actualizar
-   * @param string $rol Nuevo nombre del rol
+   * Actualizar una marca
+   * @param int $idmarca ID de la marca a actualizar
+   * @param string $nombre Nuevo nombre de la marca
+   * @param string $tipo Nuevo tipo de la marca
    * @return array Resultado de la operación
    */
-  public function update($idrol, $rol) {
+  public function update($idmarca, $nombre, $tipo) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spUpdateRol(?, ?)";
+      $query = "CALL spUpdateMarca(?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol, $rol]);
+      $cmd->execute([$idmarca, $nombre, $tipo]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol actualizado correctamente";
+      $resultado["message"] = "Marca actualizada correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {
@@ -91,18 +93,18 @@ class Roles extends Conexion {
   }
 
   /**
-   * Eliminar un rol
-   * @param int $idrol ID del rol a eliminar
+   * Eliminar una marca
+   * @param int $idmarca ID de la marca a eliminar
    * @return array Resultado de la operación
    */
-  public function delete($idrol) {
+  public function delete($idmarca) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spDeleteRol(?)";
+      $query = "CALL spDeleteMarca(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol]);
+      $cmd->execute([$idmarca]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol eliminado correctamente";
+      $resultado["message"] = "Marca eliminada correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {

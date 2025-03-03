@@ -10,10 +10,6 @@ class Persona extends Conexion {
     $this->pdo = parent::getConexion();
   }
 
-  /**
-   * Retorna todos los registros activos de personas
-   * @return array retorna un arreglo
-   */
   public function getAll() {
     try {
       $query = "CALL spListPersonas()";
@@ -31,7 +27,7 @@ class Persona extends Conexion {
       "message" => ""
     ];
     try {
-      $query = "CALL spRegisterPersona(?, ?, ?, ?, ?, ?, ?)";
+      $query = "CALL spRegisterPersona(?, ?, ?, ?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["nombres"],
@@ -40,7 +36,8 @@ class Persona extends Conexion {
         $params["numdoc"],
         $params["direccion"],
         $params["correo"],
-        $params["telefono"]
+        $params["telprincipal"],
+        $params["telalternativo"]
       ]);
       $resultado["status"] = true;
       $resultado["message"] = "El proceso finalizó correctamente";
@@ -53,7 +50,7 @@ class Persona extends Conexion {
 
   public function find($numdoc) {
     try {
-      $query = "CALL spGetPersonaBynumdoc(?)";
+      $query = "CALL spGetPersonaByNumdoc(?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([$numdoc]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
@@ -68,7 +65,7 @@ class Persona extends Conexion {
       "message" => ""
     ];
     try {
-      $query = "CALL spUpdatePersona(?, ?, ?, ?, ?, ?, ?, ?)";
+      $query = "CALL spUpdatePersona(?, ?, ?, ?, ?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["idpersona"],
@@ -78,7 +75,8 @@ class Persona extends Conexion {
         $params["numdoc"],
         $params["direccion"],
         $params["correo"],
-        $params["telefono"]
+        $params["telprincipal"],
+        $params["telalternativo"]
       ]);
       $resultado["status"] = true;
       $resultado["message"] = "Registro actualizado correctamente";

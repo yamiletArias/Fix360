@@ -1,52 +1,60 @@
 <?php
 
-require_once "../models/Empresas.php";
-require_once "../models/Conexion.php";
-
-header("Content-Type: application/json");
+require_once "../models/EmpresaModel.php";
+header('Content-Type: application/json');
 
 $empresa = new Empresa();
-$response = ["status" => false, "message" => "Solicitud no válida"];
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $action = isset($_POST["action"]) ? Conexion::limpiarCadena($_POST["action"]) : "";
+switch ($_SERVER["REQUEST_METHOD"]) {
+    case "POST":
+        if (!isset($_POST["operation"])) {
+            echo json_encode(["status" => false, "message" => "Operación no especificada"]);
+            exit;
+        }
 
-    switch ($action) {
-        case "listar":
-            $response = $empresa->getAll();
-            break;
+        switch ($_POST["operation"]) {
+            case "register":
+                $result = $empresa->add([
+                    "nomcomercial" => Conexion::limpiarCadena($_POST["nomcomercial"]),
+                    "razonsocial" => Conexion::limpiarCadena($_POST["razonsocial"]),
+                    "telefono" => Conexion::limpiarCadena($_POST["telefono"]),
+                    "correo" => Conexion::limpiarCadena($_POST["correo"]),
+                    "ruc" => Conexion::limpiarCadena($_POST["ruc"])
+                ]);
+                echo json_encode($result);
+                break;
 
-        case "registrar":
-            $params = [
-                "razonsocial" => Conexion::limpiarCadena($_POST["razonsocial"] ?? ""),
-                "telefono"    => Conexion::limpiarCadena($_POST["telefono"] ?? ""),
-                "correo"      => Conexion::limpiarCadena($_POST["correo"] ?? ""),
-                "ruc"         => Conexion::limpiarCadena($_POST["ruc"] ?? "")
-            ];
-            $response = $empresa->add($params);
-            break;
+            case "update":
+                $result = $empresa->update([
+                    "idempresa" => Conexion::limpiarCadena($_POST["idempresa"]),
+                    "nomcomercial" => Conexion::limpiarCadena($_POST["nomcomercial"]),
+                    "razonsocial" => Conexion::limpiarCadena($_POST["razonsocial"]),
+                    "telefono" => Conexion::limpiarCadena($_POST["telefono"]),
+                    "correo" => Conexion::limpiarCadena($_POST["correo"]),
+                    "ruc" => Conexion::limpiarCadena($_POST["ruc"])
+                ]);
+                echo json_encode($result);
+                break;
 
-        case "buscar":
-            $ruc = Conexion::limpiarCadena($_POST["ruc"] ?? "");
-            $response = $empresa->find($ruc);
-            break;
+            case "delete":
+                $idempresa = Conexion::limpiarCadena($_POST["idempresa"]);
+                echo json_encode($empresa->delete($idempresa));
+                break;
 
-        case "actualizar":
-            $params = [
-                "idempresa"   => Conexion::limpiarCadena($_POST["idempresa"] ?? ""),
-                "razonsocial" => Conexion::limpiarCadena($_POST["razonsocial"] ?? ""),
-                "telefono"    => Conexion::limpiarCadena($_POST["telefono"] ?? ""),
-                "correo"      => Conexion::limpiarCadena($_POST["correo"] ?? ""),
-                "ruc"         => Conexion::limpiarCadena($_POST["ruc"] ?? "")
-            ];
-            $response = $empresa->update($params);
-            break;
+            default:
+                echo json_encode(["status" => false, "message" => "Operación no válida"]);
+        }
+        break;
 
-        case "eliminar":
-            $idempresa = Conexion::limpiarCadena($_POST["idempresa"] ?? "");
-            $response = $empresa->delete($idempresa);
-            break;
-    }
+    case "GET":
+        if (isset($_GET["ruc"])) {
+            $ruc = Conexion::limpiarCadena($_GET["ruc"]);
+            echo json_encode($empresa->find($ruc));
+        } else {
+            echo json_encode($empresa->getAll());
+        }
+        break;
+    
+    default:
+        echo json_encode(["status" => false, "message" => "Método no permitido"]);
 }
-
-echo json_encode($response);

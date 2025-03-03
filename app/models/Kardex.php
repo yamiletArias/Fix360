@@ -3,10 +3,10 @@
 require_once "../models/Conexion.php";
 
 /**
- * Clase RolesModel
- * Maneja las operaciones CRUD de la tabla 'roles'
+ * Clase Kardex
+ * Maneja las operaciones CRUD de la tabla 'kardex'
  */
-class Roles extends Conexion {
+class Kardex extends Conexion {
 
   protected $pdo;
 
@@ -19,12 +19,12 @@ class Roles extends Conexion {
   }
 
   /**
-   * Obtener todos los roles
-   * @return array Lista de roles
+   * Obtener todo el historial de Kardex
+   * @return array Lista de registros en Kardex
    */
   public function getAll() {
     try {
-      $query = "CALL spListRoles()";
+      $query = "CALL spGetAllKardex()";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute();
       return $cmd->fetchAll(PDO::FETCH_ASSOC);
@@ -34,18 +34,23 @@ class Roles extends Conexion {
   }
 
   /**
-   * Registrar un nuevo rol
-   * @param string $rol Nombre del rol
+   * Registrar un nuevo registro en Kardex
+   * @param array $params Datos del Kardex
    * @return array Resultado de la operación
    */
-  public function add($rol) {
+  public function add($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spRegisterRol(?)";
+      $query = "CALL spRegisterKardex(?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$rol]);
+      $cmd->execute([
+        $params["idproducto"],
+        $params["fecha"],
+        $params["stockmin"],
+        $params["stockmax"]
+      ]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol registrado correctamente";
+      $resultado["message"] = "Registro de Kardex añadido correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {
@@ -54,15 +59,15 @@ class Roles extends Conexion {
   }
 
   /**
-   * Buscar un rol por su ID
-   * @param int $idrol ID del rol
-   * @return array Datos del rol encontrado
+   * Buscar un registro en Kardex por ID de producto
+   * @param int $idproducto ID del producto
+   * @return array Datos del Kardex encontrado
    */
-  public function find($idrol) {
+  public function find($idproducto) {
     try {
-      $query = "CALL spGetRolById(?)";
+      $query = "CALL spFindKardex(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol]);
+      $cmd->execute([$idproducto]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
@@ -70,19 +75,24 @@ class Roles extends Conexion {
   }
 
   /**
-   * Actualizar un rol
-   * @param int $idrol ID del rol a actualizar
-   * @param string $rol Nuevo nombre del rol
+   * Actualizar un registro en Kardex
+   * @param array $params Datos del Kardex
    * @return array Resultado de la operación
    */
-  public function update($idrol, $rol) {
+  public function update($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spUpdateRol(?, ?)";
+      $query = "CALL spUpdateKardex(?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol, $rol]);
+      $cmd->execute([
+        $params["idkardex"],
+        $params["idproducto"],
+        $params["fecha"],
+        $params["stockmin"],
+        $params["stockmax"]
+      ]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol actualizado correctamente";
+      $resultado["message"] = "Registro de Kardex actualizado correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {
@@ -91,18 +101,18 @@ class Roles extends Conexion {
   }
 
   /**
-   * Eliminar un rol
-   * @param int $idrol ID del rol a eliminar
+   * Eliminar un registro de Kardex
+   * @param int $idkardex ID del registro en Kardex a eliminar
    * @return array Resultado de la operación
    */
-  public function delete($idrol) {
+  public function delete($idkardex) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spDeleteRol(?)";
+      $query = "CALL spDeleteKardex(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol]);
+      $cmd->execute([$idkardex]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol eliminado correctamente";
+      $resultado["message"] = "Registro de Kardex eliminado correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {
