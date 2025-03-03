@@ -919,7 +919,55 @@ END;
 
 /* SPU PARA TIPOS DE MOVIMIENTOS */
 
+-- Registrar un tipo de movimiento
+DROP PROCEDURE IF EXISTS spRegisterTipomovimiento;
+CREATE PROCEDURE spRegisterTipomovimiento(
+    IN _flujo ENUM('entrada', 'salida'),
+    IN _tipomov VARCHAR(40)
+)
+BEGIN
+    INSERT INTO tipomovimientos (flujo, tipomov)
+    VALUES (_flujo, _tipomov);
+END;
 
+-- Actualizar un tipo de movimiento
+DROP PROCEDURE IF EXISTS spUpdateTipomovimiento;
+CREATE PROCEDURE spUpdateTipomovimiento(
+    IN _idtipomov INT,
+    IN _flujo ENUM('entrada', 'salida'),
+    IN _tipomov VARCHAR(40)
+)
+BEGIN
+    UPDATE tipomovimientos SET 
+    flujo = _flujo, 
+    tipomov = _tipomov
+    WHERE idtipomov = _idtipomov;
+END;
+
+-- Eliminar un tipo de movimiento
+DROP PROCEDURE IF EXISTS spDeleteTipomovimiento;
+CREATE PROCEDURE spDeleteTipomovimiento(
+    IN _idtipomov INT
+)
+BEGIN
+    DELETE FROM tipomovimientos WHERE idtipomov = _idtipomov;
+END;
+
+-- Listar todos los tipos de movimiento
+DROP PROCEDURE IF EXISTS spGetAllTipomovimientos;
+CREATE PROCEDURE spGetAllTipomovimientos()
+BEGIN
+    SELECT * FROM tipomovimientos;
+END;
+
+-- Buscar un tipo de movimiento por ID
+DROP PROCEDURE IF EXISTS spFindTipomovimiento;
+CREATE PROCEDURE spFindTipomovimiento(
+    IN _idtipomov INT
+)
+BEGIN
+    SELECT * FROM tipomovimientos WHERE idtipomov = _idtipomov;
+END;
 
 /* SPU PARA MOVIMIENTOS*/
 
