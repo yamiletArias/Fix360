@@ -23,3 +23,19 @@ BEGIN
         SET MESSAGE_TEXT = 'stockmin no puede ser mayor que stockmax';
     END IF;
 END;
+
+
+/* TRIGGER PARA EVITAR DUPLICADOS*/
+DROP TRIGGER IF EXISTS tr_prevent_duplicate_tipomovimientos;
+CREATE TRIGGER tr_prevent_duplicate_tipomovimientos
+BEFORE INSERT ON tipomovimientos
+FOR EACH ROW
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM tipomovimientos 
+        WHERE flujo = NEW.flujo AND tipomov = NEW.tipomov
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El tipo de movimiento ya existe con este flujo.';
+    END IF;
+END;
