@@ -48,11 +48,13 @@ class Persona extends Conexion {
     }
   }
 
-  public function find($numdoc) {
+  public function find($params = []) {
     try {
       $query = "CALL spGetPersonaByNumdoc(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$numdoc]);
+      $cmd->execute([
+        $params["numdoc"]
+      ]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
@@ -87,7 +89,7 @@ class Persona extends Conexion {
     }
   }
 
-  public function delete($idpersona) {
+  public function delete($params = []) {
     $resultado = [
       "status"  => false,
       "message" => ""
@@ -95,7 +97,9 @@ class Persona extends Conexion {
     try {
       $query = "CALL spDeletePersona(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idpersona]);
+      $cmd->execute([
+        $params["idpersona"]
+      ]);
       $resultado["status"] = true;
       $resultado["message"] = "Registro eliminado correctamente";
     } catch (Exception $e) {

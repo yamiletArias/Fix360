@@ -61,11 +61,13 @@ class Tipomovimiento extends Conexion {
    * @param int $idtipomov ID del tipo de movimiento
    * @return array Datos encontrados
    */
-  public function find($idtipomov) {
+  public function find($params = []) {
     try {
       $query = "CALL spFindTipomovimiento(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idtipomov]);
+      $cmd->execute([
+        $params["idtipomov"]
+      ]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
@@ -101,12 +103,14 @@ class Tipomovimiento extends Conexion {
    * @param int $idtipomov ID del tipo de movimiento a eliminar
    * @return array Resultado de la operación
    */
-  public function delete($idtipomov) {
+  public function delete($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
       $query = "CALL spDeleteTipomovimiento(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idtipomov]);
+      $cmd->execute([
+        $params["idtipomov"]
+      ]);
       $resultado["status"] = true;
       $resultado["message"] = "Tipo de movimiento eliminado correctamente";
     } catch (Exception $e) {

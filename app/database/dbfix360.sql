@@ -163,11 +163,11 @@ idtipomov 		INT 				NOT NULL,
 fecha 			DATE 				DEFAULT CURRENT_TIMESTAMP,
 cantidad 		INT 				NOT NULL,
 saldorestante  INT 				NOT NULL,
-updated_at  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+updated_at  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idkardex FOREIGN KEY (idkardex) REFERENCES kardex (idkardex),
 CONSTRAINT fk_idtipomov FOREIGN KEY (idtipomov) REFERENCES tipomovimientos (idtipomov),
 CONSTRAINT chk_saldorestante CHECK (cantidad > 0),
-CONSTRAINT chk_movimientos_cantidad CHECK (cantidad > 0)
+CONSTRAINT chk_movimientos_cantidad CHECK (saldorestante > 0)
 
  )ENGINE = INNODB;
  

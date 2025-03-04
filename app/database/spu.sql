@@ -971,8 +971,62 @@ END;
 
 /* SPU PARA MOVIMIENTOS*/
 
+-- Registrar un movimiento
+DROP PROCEDURE IF EXISTS spRegisterMovimiento;
+CREATE PROCEDURE spRegisterMovimiento(
+IN _idkardex INT,
+IN _idtipomov INT,
+IN _cantidad INT,
+IN _saldorestante INT
+)
+BEGIN
+INSERT INTO movimientos(idkardex,idtipomov,fecha,cantidad,saldorestante)
+VALUES(_idkardex,_idtipomov,NOW(),_cantidad,_saldorestante);
+
+END;
+
+-- Actualizar un movimiento
+DROP PROCEDURE IF EXISTS spUpdateMovimiento;
+CREATE PROCEDURE spUpdateMovimiento(
+    IN _idmovimiento INT,
+    IN _idkardex INT,
+    IN _idtipomov INT,
+    IN _cantidad INT,
+    IN _saldorestante INT
+)
+BEGIN 
+    -- Validar que la cantidad y el saldo restante sean positivos
+    IF _cantidad <= 0 OR _saldorestante < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La cantidad debe ser mayor a 0 y el saldo restante no puede ser negativo';
+    END IF;
+
+    UPDATE movimientos SET
+        idkardex = _idkardex,
+        idtipomov = _idtipomov,
+        cantidad = _cantidad,
+        saldorestante = _saldorestante
+    WHERE idmovimiento = _idmovimiento;
+END;
+
+
+-- Listar los movimientos
+DROP PROCEDURE IF EXISTS spGetAllMovimientos;
+CREATE PROCEDURE spGetAllmovimientos()
+BEGIN
+SELECT * FROM movimientos;
+END;
+
+-- Buscar un movimiento
+
+
+
+/* SPU PARA NUMSERIE*/
+
+
 
  /*SPU PARA VENTAS*/
+
 
 
 /* SPU PARA DETALLE DE VENTAS*/
@@ -982,6 +1036,26 @@ END;
 /* SPU PARA COMPRAS */
 
 
- /* SPU PARA EL DETALLE DE COMPRA*/
+
+ /* SPU PARA DETALLECOMPRA*/
+ 
+ 
+ 
+ /* SPU PARA FORMAPAGO*/
+ 
+ 
+ 
+ /* SPU PARA AMORTIZACIONES*/
+ 
+ 
+ 
+ /* SPU PARA COTIZACIONES*/
+ 
+ 
+ 
+ /* SPU PARA DETALLECOTIZACION*/
+ 
+ 
+ 
  
 
