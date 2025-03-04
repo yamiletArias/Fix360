@@ -2,17 +2,25 @@
 
 require_once "../models/Conexion.php";
 
+/**
+ * Clase EmpresaModel
+ * Maneja las operaciones CRUD de la tabla 'empresas'
+ */
 class Empresa extends Conexion {
 
   protected $pdo;
 
+  /**
+   * Constructor
+   * Obtiene la conexión a la base de datos.
+   */
   public function __CONSTRUCT() {
     $this->pdo = parent::getConexion();
   }
 
   /**
-   * Retorna todas las empresas registradas
-   * @return array
+   * Obtener todas las empresas
+   * @return array Lista de empresas
    */
   public function getAll() {
     try {
@@ -26,16 +34,17 @@ class Empresa extends Conexion {
   }
 
   /**
-   * Agrega una nueva empresa
-   * @param array $params
-   * @return array
+   * Registrar una nueva empresa
+   * @param array $params Datos de la empresa
+   * @return array Resultado de la operación
    */
   public function add($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spRegisterEmpresa(?, ?, ?, ?)";
+      $query = "CALL spRegisterEmpresa(?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
+        $params["nomcomercial"],
         $params["razonsocial"],
         $params["telefono"],
         $params["correo"],
@@ -51,13 +60,13 @@ class Empresa extends Conexion {
   }
 
   /**
-   * Obtiene una empresa por RUC
-   * @param string $ruc
-   * @return array
+   * Buscar empresa por RUC
+   * @param string $ruc Número de RUC
+   * @return array Datos de la empresa encontrada
    */
   public function find($ruc) {
     try {
-      $query = "CALL spGetEmpresaByRuc(?)";
+      $query = "CALL spGetEmpresaByRUC(?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([$ruc]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
@@ -67,17 +76,18 @@ class Empresa extends Conexion {
   }
 
   /**
-   * Actualiza los datos de una empresa
-   * @param array $params
-   * @return array
+   * Actualizar una empresa
+   * @param array $params Datos de la empresa
+   * @return array Resultado de la operación
    */
   public function update($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spUpdateEmpresa(?, ?, ?, ?, ?)";
+      $query = "CALL spUpdateEmpresa(?, ?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["idempresa"],
+        $params["nomcomercial"],
         $params["razonsocial"],
         $params["telefono"],
         $params["correo"],
@@ -93,9 +103,9 @@ class Empresa extends Conexion {
   }
 
   /**
-   * Elimina una empresa por ID
-   * @param int $idempresa
-   * @return array
+   * Eliminar una empresa
+   * @param int $idempresa ID de la empresa a eliminar
+   * @return array Resultado de la operación
    */
   public function delete($idempresa) {
     $resultado = ["status" => false, "message" => ""];

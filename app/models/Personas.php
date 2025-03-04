@@ -10,10 +10,6 @@ class Persona extends Conexion {
     $this->pdo = parent::getConexion();
   }
 
-  /**
-   * Retorna todos los registros activos de personas
-   * @return array retorna un arreglo
-   */
   public function getAll() {
     try {
       $query = "CALL spListPersonas()";
@@ -31,7 +27,7 @@ class Persona extends Conexion {
       "message" => ""
     ];
     try {
-      $query = "CALL spRegisterPersona(?, ?, ?, ?, ?, ?, ?)";
+      $query = "CALL spRegisterPersona(?, ?, ?, ?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["nombres"],
@@ -40,7 +36,8 @@ class Persona extends Conexion {
         $params["numdoc"],
         $params["direccion"],
         $params["correo"],
-        $params["telefono"]
+        $params["telprincipal"],
+        $params["telalternativo"]
       ]);
       $resultado["status"] = true;
       $resultado["message"] = "El proceso finalizó correctamente";
@@ -51,11 +48,13 @@ class Persona extends Conexion {
     }
   }
 
-  public function find($numdoc) {
+  public function find($params = []) {
     try {
-      $query = "CALL spGetPersonaBynumdoc(?)";
+      $query = "CALL spGetPersonaByNumdoc(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$numdoc]);
+      $cmd->execute([
+        $params["numdoc"]
+      ]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
@@ -68,7 +67,7 @@ class Persona extends Conexion {
       "message" => ""
     ];
     try {
-      $query = "CALL spUpdatePersona(?, ?, ?, ?, ?, ?, ?, ?)";
+      $query = "CALL spUpdatePersona(?, ?, ?, ?, ?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["idpersona"],
@@ -78,7 +77,8 @@ class Persona extends Conexion {
         $params["numdoc"],
         $params["direccion"],
         $params["correo"],
-        $params["telefono"]
+        $params["telprincipal"],
+        $params["telalternativo"]
       ]);
       $resultado["status"] = true;
       $resultado["message"] = "Registro actualizado correctamente";
@@ -89,7 +89,7 @@ class Persona extends Conexion {
     }
   }
 
-  public function delete($idpersona) {
+  public function delete($params = []) {
     $resultado = [
       "status"  => false,
       "message" => ""
@@ -97,7 +97,9 @@ class Persona extends Conexion {
     try {
       $query = "CALL spDeletePersona(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idpersona]);
+      $cmd->execute([
+        $params["idpersona"]
+      ]);
       $resultado["status"] = true;
       $resultado["message"] = "Registro eliminado correctamente";
     } catch (Exception $e) {

@@ -3,10 +3,10 @@
 require_once "../models/Conexion.php";
 
 /**
- * Clase RolesModel
- * Maneja las operaciones CRUD de la tabla 'roles'
+ * Clase Tipomovimiento
+ * Maneja las operaciones CRUD de la tabla 'tipomovimientos'
  */
-class Roles extends Conexion {
+class Tipomovimiento extends Conexion {
 
   protected $pdo;
 
@@ -19,12 +19,12 @@ class Roles extends Conexion {
   }
 
   /**
-   * Obtener todos los roles
-   * @return array Lista de roles
+   * Obtener todos los tipos de movimiento
+   * @return array Lista de tipos de movimiento
    */
   public function getAll() {
     try {
-      $query = "CALL spListRoles()";
+      $query = "CALL spGetAllTipomovimientos()";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute();
       return $cmd->fetchAll(PDO::FETCH_ASSOC);
@@ -34,18 +34,21 @@ class Roles extends Conexion {
   }
 
   /**
-   * Registrar un nuevo rol
-   * @param string $rol Nombre del rol
+   * Registrar un nuevo tipo de movimiento
+   * @param array $params Datos del tipo de movimiento
    * @return array Resultado de la operación
    */
-  public function add($rol) {
+  public function add($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spRegisterRol(?)";
+      $query = "CALL spRegisterTipomovimiento(?, ?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$rol]);
+      $cmd->execute([
+        $params["flujo"],
+        $params["tipomov"]
+      ]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol registrado correctamente";
+      $resultado["message"] = "Tipo de movimiento registrado correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {
@@ -54,15 +57,17 @@ class Roles extends Conexion {
   }
 
   /**
-   * Buscar un rol por su ID
-   * @param int $idrol ID del rol
-   * @return array Datos del rol encontrado
+   * Buscar tipo de movimiento por ID
+   * @param int $idtipomov ID del tipo de movimiento
+   * @return array Datos encontrados
    */
-  public function find($idrol) {
+  public function find($params = []) {
     try {
-      $query = "CALL spGetRolById(?)";
+      $query = "CALL spFindTipomovimiento(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol]);
+      $cmd->execute([
+        $params["idtipomov"]
+      ]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
@@ -70,19 +75,22 @@ class Roles extends Conexion {
   }
 
   /**
-   * Actualizar un rol
-   * @param int $idrol ID del rol a actualizar
-   * @param string $rol Nuevo nombre del rol
+   * Actualizar un tipo de movimiento
+   * @param array $params Datos del tipo de movimiento
    * @return array Resultado de la operación
    */
-  public function update($idrol, $rol) {
+  public function update($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spUpdateRol(?, ?)";
+      $query = "CALL spUpdateTipomovimiento(?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol, $rol]);
+      $cmd->execute([
+        $params["idtipomov"],
+        $params["flujo"],
+        $params["tipomov"]
+      ]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol actualizado correctamente";
+      $resultado["message"] = "Tipo de movimiento actualizado correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {
@@ -91,18 +99,20 @@ class Roles extends Conexion {
   }
 
   /**
-   * Eliminar un rol
-   * @param int $idrol ID del rol a eliminar
+   * Eliminar un tipo de movimiento
+   * @param int $idtipomov ID del tipo de movimiento a eliminar
    * @return array Resultado de la operación
    */
-  public function delete($idrol) {
+  public function delete($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spDeleteRol(?)";
+      $query = "CALL spDeleteTipomovimiento(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idrol]);
+      $cmd->execute([
+        $params["idtipomov"]
+      ]);
       $resultado["status"] = true;
-      $resultado["message"] = "Rol eliminado correctamente";
+      $resultado["message"] = "Tipo de movimiento eliminado correctamente";
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     } finally {

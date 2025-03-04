@@ -1,9 +1,9 @@
 <?php
 
-require_once "../models/ProveedoresModel.php";
+require_once "../models/Categoria.php";
 header('Content-Type: application/json');
 
-$proveedor = new Proveedores();
+$categoria = new Categoria();
 
 switch ($_SERVER["REQUEST_METHOD"]) {
     case "POST":
@@ -14,23 +14,23 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
         switch ($_POST["operation"]) {
             case "register":
-                $result = $proveedor->add(
-                    Conexion::limpiarCadena($_POST["idempresa"])
-                );
+                $result = $categoria->add([
+                    "categoria" => Conexion::limpiarCadena($_POST["categoria"])
+                ]);
                 echo json_encode($result);
                 break;
 
             case "update":
-                $result = $proveedor->update(
-                    Conexion::limpiarCadena($_POST["idproveedor"]),
-                    Conexion::limpiarCadena($_POST["idempresa"])
-                );
+                $result = $categoria->update([
+                    "idcategoria" => Conexion::limpiarCadena($_POST["idcategoria"]),
+                    "categoria" => Conexion::limpiarCadena($_POST["categoria"])
+                ]);
                 echo json_encode($result);
                 break;
 
             case "delete":
-                $idproveedor = Conexion::limpiarCadena($_POST["idproveedor"]);
-                echo json_encode($proveedor->delete($idproveedor));
+                $idcategoria = Conexion::limpiarCadena($_POST["idcategoria"]);
+                echo json_encode($categoria->delete($idcategoria));
                 break;
 
             default:
@@ -39,11 +39,11 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;
 
     case "GET":
-        if (isset($_GET["idproveedor"])) {
-            $idproveedor = Conexion::limpiarCadena($_GET["idproveedor"]);
-            echo json_encode($proveedor->find($idproveedor));
+        if (isset($_GET["idcategoria"])) {
+            $idcategoria = Conexion::limpiarCadena($_GET["idcategoria"]);
+            echo json_encode($categoria->find($idcategoria));
         } else {
-            echo json_encode($proveedor->getAll());
+            echo json_encode($categoria->getAll());
         }
         break;
     

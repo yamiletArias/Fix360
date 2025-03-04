@@ -10,7 +10,7 @@ INNER JOIN categorias c ON s.idcategoria = c.idcategoria;
 
 -- SELECT * FROM vwCategoriasSubcategorias; */
 
--- VISTA PARA LA INFORMACIO NDE VENTAS */
+-- VISTA PARA LA INFORMACION DE VENTAS */
 CREATE OR REPLACE VIEW vw_ventas_detalle AS
 SELECT v.idventa, v.fechahora, v.tipocom, v.numserie, v.numcom, 
        c.razonsocial AS cliente, col.razonsocial AS vendedor, 
@@ -52,5 +52,42 @@ JOIN kardex k ON m.idkardex = k.idkardex
 JOIN productos p ON k.idproducto = p.idproducto
 JOIN tipomovimientos tm ON m.idtipomov = tm.idtipomov;
 
--- 
+-- VISTA DE DATOS DE CLIENTE A SI SEA PERSONA O EMPRESA
+
+CREATE OR REPLACE VIEW vw_clientes AS
+SELECT 
+    c.idcliente,
+    p.nombres,
+    p.apellidos,
+    e.nomcomercial AS empresa,
+    ct.contactabilidad
+FROM clientes c
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+JOIN contactabilidad ct ON c.idcontactabilidad = ct.idcontactabilidad;
+
+-- VISTA DETALLADA DE LOS COLABORADORES
+CREATE OR REPLACE VIEW vw_colaboradores AS
+SELECT 
+    col.idcolaborador,
+    col.namuser,
+    col.estado,
+    r.rol,
+    p.nombres,
+    p.apellidos,
+    c.fechainicio,
+    c.fechafin
+FROM colaboradores col
+JOIN contratos c ON col.idcontrato = c.idcontrato
+JOIN roles r ON c.idrol = r.idrol
+JOIN personas p ON c.idpersona = p.idpersona;
+
+
+-- VISTA DEL KARDEX CON DETALLE DEL PRODUCTO
+CREATE OR REPLACE VIEW vwKardex AS
+SELECT k.*, p.descripcion, p.precio
+FROM kardex k
+INNER JOIN productos p ON k.idproducto = p.idproducto;
+
+
 

@@ -1,108 +1,54 @@
 <?php
 
-require_once "../models/Cliente.php";
+require_once "../models/ClientesModel.php";
+header('Content-Type: application/json');
 
-class ClientesController {
-    private $model;
+$cliente = new Clientes();
 
-    public function __CONSTRUCT() {
-        $this->model = new Cliente();
-    }
-
-    /**
-     * Listar todos los clientes
-     */
-    public function getAll() {
-        $response = $this->model->getAll();
-        echo json_encode($response);
-    }
-
-    /**
-     * Registrar un nuevo cliente
-     */
-    public function add() {
-        $idempresa = isset($_POST['idempresa']) ? $_POST['idempresa'] : null;
-        $idpersona = isset($_POST['idpersona']) ? $_POST['idpersona'] : null;
-        $response = $this->model->add($idempresa, $idpersona);
-        echo json_encode($response);
-    }
-
-    /**
-     * Obtener un cliente por ID
-     */
-    public function findById() {
-        if (!isset($_GET['idcliente'])) {
-            echo json_encode(["status" => false, "message" => "ID de cliente requerido"]);
-            return;
+switch ($_SERVER["REQUEST_METHOD"]) {
+    case "POST":
+        if (!isset($_POST["operation"])) {
+            echo json_encode(["status" => false, "message" => "Operación no especificada"]);
+            exit;
         }
-        $idcliente = $_GET['idcliente'];
-        $response = $this->model->findById($idcliente);
-        echo json_encode($response);
-    }
 
-    /**
-     * Obtener un cliente por ID de empresa o persona
-     */
-    public function findByEmpresaOPersona() {
-        $idempresa = isset($_GET['idempresa']) ? $_GET['idempresa'] : null;
-        $idpersona = isset($_GET['idpersona']) ? $_GET['idpersona'] : null;
-        $response = $this->model->findByEmpresaOPersona($idempresa, $idpersona);
-        echo json_encode($response);
-    }
+        switch ($_POST["operation"]) {
+            case "register":
+                $result = $cliente->add(
+                    isset($_POST["idempresa"]) ? Conexion::limpiarCadena($_POST["idempresa"]) : null,
+                    isset($_POST["idpersona"]) ? Conexion::limpiarCadena($_POST["idpersona"]) : null,
+                    Conexion::limpiarCadena($_POST["idcontactabilidad"])
+                );
+                echo json_encode($result);
+                break;
 
-    /**
-     * Actualizar un cliente
-     */
-    public function update() {
-        if (!isset($_POST['idcliente'])) {
-            echo json_encode(["status" => false, "message" => "ID de cliente requerido"]);
-            return;
+            case "update":
+                $result = $cliente->update(
+                    Conexion::limpiarCadena($_POST["idcliente"]),
+                    isset($_POST["idempresa"]) ? Conexion::limpiarCadena($_POST["idempresa"]) : null,
+                    isset($_POST["idpersona"]) ? Conexion::limpiarCadena($_POST["idpersona"]) : null,
+                    Conexion::limpiarCadena($_POST["idcontactabilidad"])
+                );
+                echo json_encode($result);
+                break;
+
+            case "delete":
+                echo json_encode($cliente->delete(Conexion::limpiarCadena($_POST["idcliente"])));
+                break;
+
+            default:
+                echo json_encode(["status" => false, "message" => "Operación no válida"]);
         }
-        $idcliente = $_POST['idcliente'];
-        $idempresa = isset($_POST['idempresa']) ? $_POST['idempresa'] : null;
-        $idpersona = isset($_POST['idpersona']) ? $_POST['idpersona'] : null;
-        $response = $this->model->update($idcliente, $idempresa, $idpersona);
-        echo json_encode($response);
-    }
+        break;
 
-    /**
-     * Eliminar un cliente
-     */
-    public function delete() {
-        if (!isset($_POST['idcliente'])) {
-            echo json_encode(["status" => false, "message" => "ID de cliente requerido"]);
-            return;
+    case "GET":
+        if (isset($_GET["idcliente"])) {
+            echo json_encode($cliente->find(Conexion::limpiarCadena($_GET["idcliente"])));
+        } else {
+            echo json_encode($cliente->getAll());
         }
-        $idcliente = $_POST['idcliente'];
-        $response = $this->model->delete($idcliente);
-        echo json_encode($response);
-    }
-}
-
-// Manejo de solicitudes HTTP
-$controller = new ClientesController();
-$action = isset($_GET['action']) ? $_GET['action'] : ''; 
-
-switch ($action) {
-    case 'getAll':
-        $controller->getAll();
         break;
-    case 'add':
-        $controller->add();
-        break;
-    case 'findById':
-        $controller->findById();
-        break;
-    case 'findByEmpresaOPersona':
-        $controller->findByEmpresaOPersona();
-        break;
-    case 'update':
-        $controller->update();
-        break;
-    case 'delete':
-        $controller->delete();
-        break;
+    
     default:
-        echo json_encode(["status" => false, "message" => "Acción no válida"]);
-        break;
+        echo json_encode(["status" => false, "message" => "Método no permitido"]);
 }
