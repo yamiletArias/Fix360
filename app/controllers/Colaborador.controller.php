@@ -30,11 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
 
         $registroLogin = $colaborador->login($namuser);
 
-        if (empty($registroLogin)) {
-            $estadoLogin["mensaje"] = "Colaborador no existe";
-        } else {
+        if (!empty($registroLogin) && isset($registroLogin[0])) {
             $claveCifrada = $registroLogin[0]['passuser'];
-
+        
             if (password_verify($passuser, $claveCifrada)) {
                 $_SESSION["login"] = [
                     "status"        => true,
@@ -44,13 +42,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
                     "apellidos"     => $registroLogin[0]['apellidos'],
                     "rol"           => $registroLogin[0]['rol']
                 ];
-
+        
                 $estadoLogin["esCorrecto"] = true;
                 $estadoLogin["mensaje"] = "Bienvenido";
             } else {
                 $estadoLogin["mensaje"] = "Contraseña incorrecta";
             }
+        } else {
+            $estadoLogin["mensaje"] = "Colaborador no existe";
         }
+        
 
         echo json_encode($estadoLogin);
         exit;
