@@ -1,7 +1,3 @@
-<?php
-require_once "./app/config/Server.php";
-?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -143,7 +139,9 @@ require_once "./app/config/Server.php";
                 <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i> Messages</a>
                 <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i> Activity</a>
                 <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i> FAQ</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
+                <a class="dropdown-item" id="logoutButton">
+                  <i class="dropdown-item-icon icon-power text-primary"></i>Sign Out
+                </a>
               </div>
             </li>
           </ul>
@@ -817,5 +815,11 @@ require_once "./app/config/Server.php";
     <!-- Custom js for this page -->
     <script src="assets/js/dashboard.js"></script>
     <!-- End custom js for this page -->
+    
+    <script>
+      document.getElementById("logoutButton").addEventListener("click", function() {
+        window.location.href = "logout.php"; // Redirige a un script PHP para cerrar sesión
+      });
+    </script>
   </body>
 </html>
