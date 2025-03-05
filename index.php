@@ -1,10 +1,11 @@
 <?php
 session_start();
 
+require_once "./app/config/app.php";
 require_once "./app/config/Server.php";
 
 if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
-  header("Location: " . SERVER . "views/");
+  header("Location: " . SERVERURL . "views/home/welcome");
   exit(); // <- Agrega esto
 }
 

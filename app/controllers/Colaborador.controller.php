@@ -31,7 +31,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
 
             $registroLogin = $colaborador->login($namuser);
 
-<<<<<<< HEAD
         if (!empty($registroLogin) && isset($registroLogin[0])) {
             $claveCifrada = $registroLogin[0]['passuser'];
         
@@ -54,12 +53,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
             $estadoLogin["mensaje"] = "Colaborador no existe";
         }
         
-=======
             if (empty($registroLogin)) {
                 $estadoLogin["mensaje"] = "Colaborador no existe";
             } else {
                 $claveCifrada = $registroLogin[0]['passuser'];
->>>>>>> 95ec6a1423848a9f90034c96be2b25e1990f71dd
 
                 if (password_verify($passuser, $claveCifrada)) {
                     $_SESSION["login"] = [
