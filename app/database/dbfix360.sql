@@ -211,16 +211,17 @@ DROP TABLE IF EXISTS ordenservicios;
 CREATE TABLE ordenservicios(
 
 idorden 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
-idcolaborador 	INT 				NOT NULL,
+idadmin 			INT 				NOT NULL,
+idmecanico		INT 				NOT NULL,
 idcliente 		INT 				NOT NULL,
 idvehiculo 		INT 				NOT NULL,
+kilometraje 	DECIMAL(10,2)	NOT NULL,
 observaciones 	VARCHAR(255)	NOT NULL,
-isgrua 			BOOLEAN 			NOT NULL,
-tipocom 			ENUM('boleta', 'factura') 		NOT NULL,
-fechahora 		DATETIME 		DEFAULT 			CURRENT_TIMESTAMP,
-numserie 		VARCHAR(10) 	NOT NULL,
-numcom 			VARCHAR(10) 	NOT NULL, 		
-CONSTRAINT fk_idcolaborador FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
+ingresogrua 	BOOLEAN 			NOT NULL,
+fechaingreso 	DATETIME 		DEFAULT 			CURRENT_TIMESTAMP,
+fechasalida 	DATETIME 		NULL, 		
+CONSTRAINT fk_idadmin FOREIGN KEY (idadmin) REFERENCES colaboradores (idcolaborador),
+CONSTRAINT fk_idmecanico FOREIGN KEY (idmecanico) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT fk_idcliente FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
 CONSTRAINT fk_idvehiculo FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo)
 )ENGINE = INNODB;
@@ -354,11 +355,11 @@ CONSTRAINT fk_idsubcategoria_1 FOREIGN KEY (idsubcategoria) REFERENCES subcatego
 
 )ENGINE = INNODB;
 
-DROP TABLE IF EXISTS caracteristicas;
-CREATE TABLE caracteristicas(
+DROP TABLE IF EXISTS componentes;
+CREATE TABLE componentes(
 
-idcaracteristica 	INT 			PRIMARY KEY 	AUTO_INCREMENT,
-caracteristica		VARCHAR(50)	NOT NULL,
+idcomponente 	INT 			PRIMARY KEY 	AUTO_INCREMENT,
+componente		VARCHAR(50)	NOT NULL,
 CONSTRAINT uq_caracteristica UNIQUE(caracteristica)
 
 )ENGINE = INNODB;
@@ -405,15 +406,15 @@ CONSTRAINT uq_numserie UNIQUE(numserie)
 
 
 
-DROP IF EXISTS inventarios;
-CREATE TABLE inventarios(
+DROP IF EXISTS observaciones;
+CREATE TABLE observaciones(
 
-idinventario 		INT 			PRIMARY KEY 	AUTO_INCREMENT,
-idcaracteristica	INT 			NOT NULL,
-idorden 				INT 			NOT NULL,
-isrevisado 			BOOLEAN		NOT NULL,
-estado 				BOOLEAN 		NULL,
-CONSTRAINT fk_idcaracteristica FOREIGN KEY (idcaracteristica) REFERENCES caracteristicas (idcaracteristica),
+idobservacion 		INT 					PRIMARY KEY 	AUTO_INCREMENT,
+idcomponente		INT 					NOT NULL,
+idorden 				INT 					NOT NULL,
+estado	 			BOOLEAN				NOT NULL,
+foto 					VARCHAR(255) 		NULL,
+CONSTRAINT fk_idcomponente FOREIGN KEY (idcomponente) REFERENCES componentes (idcomponente),
 CONSTRAINT fk_idorden FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden)
 
 )ENGINE = INNODB;
