@@ -1,11 +1,11 @@
 USE dbfix360;
 
-INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telefono) VALUES
-('Juan', 'Perez', 'DNI', '12345678', 'Calle Ficticia 123', 'juan.perez@mail.com', '987654321'),
-('Maria', 'Gomez', 'DNI', '23456789', 'Av. Libertador 456', 'maria.gomez@mail.com', '987654322'),
-('Carlos', 'Diaz', 'DNI', '34567890', 'Calle Real 789', 'carlos.diaz@mail.com', '987654323'),
-('Ana', 'Martinez', 'DNI', '45678901', 'Calle 10 123', 'ana.martinez@mail.com', '987654324'),
-('Luis', 'Rodriguez', 'DNI', '56789012', 'Av. 25 de Mayo 456', 'luis.rodriguez@mail.com', '987654325'),
+INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal) VALUES
+('Juan', 'Perez', 'DNI', '12345678', 'Calle Ficticia 123', 'juan.perez@mail.com', '987654321',NULL),
+('Maria', 'Gomez', 'DNI', '23456789', 'Av. Libertador 456', 'maria.gomez@mail.com', '987654322',NULL),
+('Carlos', 'Diaz', 'DNI', '34567890', 'Calle Real 789', 'carlos.diaz@mail.com', '987654323',NULL),
+('Ana', 'Martinez', 'DNI', '45678901', 'Calle 10 123', 'ana.martinez@mail.com', '987654324',NULL),
+('Luis', 'Rodriguez', 'DNI', '56789012', 'Av. 25 de Mayo 456', 'luis.rodriguez@mail.com', '987654325',NULL),
 ('Paula', 'Hernandez', 'DNI', '67890123', 'Calle Nueva 789', 'paula.hernandez@mail.com', '987654326'),
 ('Sofia', 'Lopez', 'DNI', '78901234', 'Av. Pardo 101', 'sofia.lopez@mail.com', '987654327'),
 ('Pedro', 'Sanchez', 'DNI', '89012345', 'Calle Lima 202', 'pedro.sanchez@mail.com', '987654328'),
@@ -53,7 +53,7 @@ INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, te
 ('Lorena', 'Aguilar', 'DNI', '99012347', 'Av. Independencia 3232', 'lorena.aguilar@mail.com', '987654369');
 SELECT * FROM personas;
 
-INSERT INTO empresas (razonsocial, telefono, correo, ruc) VALUES
+INSERT INTO empresas (nomcomercial, razonsocial, telefono, correo, ruc) VALUES
 ('Soluciones Tech', '999888111', 'sistema.SolucionesTech@mail.com', '12345678901'),
 ('Innovatech', '999888222', 'sistema.Innovatech@mail.com', '23456789012'),
 ('Global Retailers', '999888333', 'sistema.GlobalRetailers@mail.com', '34567890123'),

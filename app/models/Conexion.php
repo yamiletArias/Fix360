@@ -1,8 +1,9 @@
 <?php
 
+require_once "../helpers/helper.php";
 require_once __DIR__ . "/../config/Server.php";
 
-class Conexion {
+class Conexion extends Helper{
 
     protected static function getConexion() {
         try {
@@ -13,8 +14,6 @@ class Conexion {
             die("Error de conexión: " . $e->getMessage());
         }
     }
-
-    public static function limpiarCadena($cadena) {
-        return htmlspecialchars(trim($cadena), ENT_QUOTES, 'UTF-8');
+    
     }
-}
+

@@ -1,0 +1,14 @@
+# Configuraciones de servidor
+RewriteEngine On 
+Options All -Indexes
+
+# Suprimir la extension (.php) en la navegacion URL AMIGABLES
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Directivas de acceso 
+ErrorDocument 404 /fix360/views/pages/samples/error-404.php
+ErrorDocument 401 /fix360/views/pages/samples/error-500.php
+ErrorDocument 400 /fix360/views/pages/samples/error-500.php
+ErrorDocument 403 /fix360/views/pages/samples/error-500.php
