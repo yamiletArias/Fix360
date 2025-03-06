@@ -207,6 +207,36 @@ CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100)
 
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS ordenservicios;
+CREATE TABLE ordenservicios(
+
+idorden 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
+idcolaborador 	INT 				NOT NULL,
+idcliente 		INT 				NOT NULL,
+idvehiculo 		INT 				NOT NULL,
+observaciones 	VARCHAR(255)	NOT NULL,
+isgrua 			BOOLEAN 			NOT NULL,
+tipocom 			ENUM('boleta', 'factura') 		NOT NULL,
+fechahora 		DATETIME 		DEFAULT 			CURRENT_TIMESTAMP,
+numserie 		VARCHAR(10) 	NOT NULL,
+numcom 			VARCHAR(10) 	NOT NULL, 		
+CONSTRAINT fk_idcolaborador FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
+CONSTRAINT fk_idcliente FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
+CONSTRAINT fk_idvehiculo FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo)
+)ENGINE = INNODB;
+
+DROP TABLE IF EXISTS detalleordenservicios;
+CREATE TABLE detalleordenservicios(
+
+iddetorden 		INT 					PRIMARY KEY 	AUTO_INCREMENT,
+idorden 			INT 					NOT NULL,
+idservicio 		INT 					NOT NULL,
+precio 			DECIMAL(10,2) 		NOT NULL,
+CONSTRAINT fk_idorden FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden),
+CONSTRAINT fk_idservicio FOREIGN KEY (idservicio) REFERENCES servicios (idservicio)
+
+)ENGINE = INNODB;
+
 DROP TABLE IF EXISTS numseries;
 CREATE TABLE numseries(
 
@@ -268,12 +298,14 @@ DROP TABLE IF EXISTS amortizaciones;
 CREATE TABLE amortizaciones(
 
 idamortizacion 	INT 				PRIMARY KEY AUTO_INCREMENT,
-idventa				INT 				NOT NULL,
+idorden 				INT,
+idventa				INT,
 idformapago			INT 				NOT NULL,
 amortizacion		DECIMAL(10,2)	NOT NULL,
 saldo 				DECIMAL(10,2) 	NOT NULL DEFAULT 0,
 numtransaccion 	VARCHAR(20)		NULL,
 CONSTRAINT fk_idventa_1 FOREIGN KEY (idventa) REFERENCES ventas (idventa),
+CONSTRAINT chk_amortizacion CHECK ((idorden IS NOT NULL AND idventa IS NULL) OR (idventa IS NOT NULL AND idorden IS NULL)),
 CONSTRAINT fk_idformapago FOREIGN KEY (idformapago) REFERENCES formapagos (idformapago),
 CONSTRAINT chk_amortizacion CHECK (amortizacion > 0)
 
@@ -310,4 +342,79 @@ CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100)
 
 )ENGINE = INNODB;
 
+-- Tablas temporales relacionadas a servicios
+
+DROP TABLE IF EXISTS servicios;
+CREATE TABLE servicios(
+
+idservicio			INT 					PRIMARY KEY 		AUTO_INCREMENT,
+idsubcategoria 	INT 					NOT NULL,
+descripcion 		VARCHAR(255)		NOT NULL,
+CONSTRAINT fk_idsubcategoria_1 FOREIGN KEY (idsubcategoria) REFERENCES subcategorias (idsubcategoria)	
+
+)ENGINE = INNODB;
+
+DROP TABLE IF EXISTS caracteristicas;
+CREATE TABLE caracteristicas(
+
+idcaracteristica 	INT 			PRIMARY KEY 	AUTO_INCREMENT,
+caracteristica		VARCHAR(50)	NOT NULL,
+CONSTRAINT uq_caracteristica UNIQUE(caracteristica)
+
+)ENGINE = INNODB;
+
+DROP TABLE IF EXISTS modelos;
+CREATE TABLE modelos(
+
+idmodelo 		INT 				PRIMARY KEY 		AUTO_INCREMENT,
+modelo 			VARCHAR(100)	NOT NULL,
+CONSTRAINT uq_modelo UNIQUE(modelo)
+
+)ENGINE = INNODB;
+
+DROP TABLE IF EXISTS tipovehiculos;
+CREATE TABLE tipovehiculos(
+
+idtipov 		INT 					PRIMARY KEY 		AUTO_INCREMENT,
+tipov 		VARCHAR(100)		NOT NULL,
+CONSTRAINT uq_tipov UNIQUE(tipov)	
+
+)ENGINE = INNODB;
+
+DROP TABLE IF EXISTS vehiculos;
+CREATE TABLE vehiculos(
+
+idvehiculo 		INT 					PRIMARY KEY 		AUTO_INCREMENT,
+idmodelo 		INT 					NOT NULL,
+idtipov			INT 					NOT NULL,
+idmarca 			INT 					NOT NULL,
+idcliente		INT 					NOT NULL,
+placa 			CHAR(7)				NOT NULL,
+anio				CHAR(4)				NOT NULL,
+kilometraje 	DECIMAL(10,2)		NOT NULL,
+numserie 		VARCHAR(20)			NOT NULL,
+color 			VARCHAR(50)			NOT NULL,
+CONSTRAINT fk_idmodelo FOREIGN KEY (idmodelo) REFERENCES modelos (idmodelo),
+CONSTRAINT fk_idtipov FOREIGN KEY (idtipov) REFERENCES tipovehiculos (idtipov),
+CONSTRAINT fk_idmarca_1 FOREIGN KEY (idmarca) REFERENCES marcas (idmarca),
+CONSTRAINT fk_idcliente_3 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
+CONSTRAINT uq_numserie UNIQUE(numserie)
+
+)ENGINE = INNODB;
+
+
+
+
+DROP IF EXISTS inventarios;
+CREATE TABLE inventarios(
+
+idinventario 		INT 			PRIMARY KEY 	AUTO_INCREMENT,
+idcaracteristica	INT 			NOT NULL,
+idorden 				INT 			NOT NULL,
+isrevisado 			BOOLEAN		NOT NULL,
+estado 				BOOLEAN 		NULL,
+CONSTRAINT fk_idcaracteristica FOREIGN KEY (idcaracteristica) REFERENCES caracteristicas (idcaracteristica),
+CONSTRAINT fk_idorden FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden)
+
+)ENGINE = INNODB;
 
