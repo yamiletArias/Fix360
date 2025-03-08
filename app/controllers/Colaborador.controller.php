@@ -5,10 +5,8 @@ require_once "../models/Colaborador.php";
 session_start();
 header("Content-Type: application/json");
 
-// Instancia del modelo
 $colaborador = new Colaborador();
 
-// Inicializar sesión si no existe
 if (!isset($_SESSION['login'])) {
     $_SESSION['login'] = [
         "status"        => false,
@@ -25,47 +23,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
     switch ($_POST['operation']) {
         case "login":
             $namuser = htmlspecialchars($_POST['namuser']); 
-            $passuser = $_POST['passuser']; // No limpiar la contraseña
+            $passuser = $_POST['passuser'];
 
             $estadoLogin = ["esCorrecto" => false, "mensaje" => ""];
 
             $registroLogin = $colaborador->login($namuser);
 
-        if (!empty($registroLogin) && isset($registroLogin[0])) {
-            $claveCifrada = $registroLogin[0]['passuser'];
-        
-            if (password_verify($passuser, $claveCifrada)) {
-                $_SESSION["login"] = [
-                    "status"        => true,
-                    "idcolaborador" => $registroLogin[0]['idcolaborador'],
-                    "namuser"       => $registroLogin[0]['namuser'],
-                    "nombres"       => $registroLogin[0]['nombres'],
-                    "apellidos"     => $registroLogin[0]['apellidos'],
-                    "rol"           => $registroLogin[0]['rol']
-                ];
-        
-                $estadoLogin["esCorrecto"] = true;
-                $estadoLogin["mensaje"] = "Bienvenido";
-            } else {
-                $estadoLogin["mensaje"] = "Contraseña incorrecta";
-            }
-        } else {
-            $estadoLogin["mensaje"] = "Colaborador no existe";
-        }
-        
-            if (empty($registroLogin)) {
-                $estadoLogin["mensaje"] = "Colaborador no existe";
-            } else {
-                $claveCifrada = $registroLogin[0]['passuser'];
+            if ($registroLogin) {
+                $claveCifrada = $registroLogin['passuser'];
 
                 if (password_verify($passuser, $claveCifrada)) {
                     $_SESSION["login"] = [
                         "status"        => true,
-                        "idcolaborador" => $registroLogin[0]['idcolaborador'],
-                        "namuser"       => $registroLogin[0]['namuser'],
-                        "nombres"       => $registroLogin[0]['nombres'],
-                        "apellidos"     => $registroLogin[0]['apellidos'],
-                        "rol"           => $registroLogin[0]['rol']
+                        "idcolaborador" => $registroLogin['idcolaborador'],
+                        "namuser"       => $registroLogin['namuser'],
+                        "nombres"       => $registroLogin['nombres'],
+                        "apellidos"     => $registroLogin['apellidos'],
+                        "rol"           => $registroLogin['rol']
                     ];
 
                     $estadoLogin["esCorrecto"] = true;
@@ -73,6 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
                 } else {
                     $estadoLogin["mensaje"] = "Contraseña incorrecta";
                 }
+            } else {
+                $estadoLogin["mensaje"] = "Colaborador no existe";
             }
 
             echo json_encode($estadoLogin);
@@ -93,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
                 "idcolaborador" => Conexion::limpiarCadena($_POST["idcolaborador"]),
                 "idcontrato"    => Conexion::limpiarCadena($_POST["idcontrato"]),
                 "namuser"       => Conexion::limpiarCadena($_POST["namuser"]),
-                "passuser"      => $_POST["passuser"], // Se encripta en el modelo
+                "passuser"      => $_POST["passuser"], 
                 "estado"        => Conexion::limpiarCadena($_POST["estado"])
             ]);
             echo json_encode($result);
@@ -113,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
                 "apellidos"     => "",
                 "rol"           => ""
             ];
-            echo json_encode(["status" => true, "message" => "Sesión cerrada"]);
+            echo json_encode(["status" => true, "mensaje" => "Sesión cerrada correctamente"]);
             exit;
 
         default:
@@ -121,17 +97,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['operation'])) {
             exit;
     }
 }
-
-// Métodos GET para obtener datos
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    if (isset($_GET["namuser"])) {
-        echo json_encode($colaborador->find($_GET["namuser"]));
-    } else {
-        echo json_encode($colaborador->getAll());
-    }
-    exit;
-}
-
-// Si no se recibe una operación válida
-echo json_encode(["esCorrecto" => false, "mensaje" => "Método no permitido"]);
-exit;

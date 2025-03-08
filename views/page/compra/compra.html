@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Factura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+    background: transparent; /* Hace el fondo transparente */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: none; /* Elimina la sombra si no la quieres */
+    width: 900px;
+    min-height: 600px;
+    margin-left: 200px;
+    margin-top: 50px;
+}
+
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px; 
+            margin-top: 25px;
+            gap: 15px;
+        }
+        .form-group label {
+            margin-right: 10px;
+        }
+        input, select, button {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="text"], select {
+            flex: 1;
+        }
+        input[type="date"] {
+            width: 160px;
+        }
+        .small-input {
+            width: 130px;
+        }
+        .medium-input {
+            width: 200px;
+        }
+        .table-container {
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 10px;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 40px;
+        }
+        .btn-finalizar {
+            background: green;
+            color: white;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .header-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .right-group {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-group">
+            <div class="form-group">
+                <input type="radio" name="tipo" id="factura" checked> <label for="factura">Factura</label>
+                <input type="radio" name="tipo" id="boleta"> <label for="boleta">Boleta</label>
+            </div>
+            <div class="right-group">
+                <input type="text" class="small-input" placeholder="N° serie">
+                <input type="text" class="small-input" placeholder="N° comprobante">
+            </div>
+        </div>
+
+        <!-- Proveedor, fecha y moneda -->
+        <div class="form-group">
+            <select class="medium-input">
+                <option>Proveedor</option>
+            </select>
+            <input type="date">
+            <select class="small-input">
+                <option>PEN</option>
+            </select>
+        </div>
+
+        <!-- Productos -->
+        <div class="form-group">
+            <input type="text" class="medium-input" placeholder="PRODUCTO">
+            <input type="text" class="small-input" placeholder="PRECIO">
+            <input type="text" class="small-input" placeholder="CANTIDAD">
+            <input type="text" class="small-input" placeholder="DESCUENTO">
+            <button>AGREGAR</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>PRODUCTO</th>
+                        <th>PRECIO</th>
+                        <th>CANTIDAD</th>
+                        <th>DSCT</th>
+                        <th>TOTAL</th>
+                        <th>X</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" style="height: 50px;">&nbsp;</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botón Finalizar alineado a la derecha -->
+        <div class="btn-container">
+            <button class="btn-finalizar">FINALIZAR</button>
+        </div>
+    </div>
+
+</body>
+</html>

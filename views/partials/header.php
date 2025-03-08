@@ -1,10 +1,13 @@
 <?php
 
-require_once '../app/config/app.php';
+require_once __DIR__ . "/../../app/config/app.php";
+
 session_start();
 
+/*
 if (!isset($_SESSION["login"]) || $_SESSION["login"]["status"] == false){
-  header("Location" . SERVERURL);
+  header("Location: " . SERVERURL);
+  exit();
 }
 
 $listaPermisos = $_SESSION["login"]["permisos"];
@@ -20,9 +23,11 @@ foreach ($listaPermisos as $permisos){
   }
 }
 
+
 if(!$encontrado){
-  header("Location: " .SERVERURL . "views/home/welcome");
+  header("Location: " .SERVERURL . "views/page/home/welcome");
 }
+*/
 
 ?>
 <!DOCTYPE html>
@@ -210,7 +215,7 @@ if(!$encontrado){
               </a>
             </li>
             <li class="nav-item nav-category"><span class="nav-link">UI Elements</span></li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
               <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
                 <span class="menu-title">Basic UI Elements</span>
                 <i class="icon-layers menu-icon"></i>
@@ -222,7 +227,14 @@ if(!$encontrado){
                   <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Typography</a></li>
                 </ul>
               </div>
+            </li> -->
+            <li class="nav-item">
+              <a class="nav-link" href="pages/Inventario/ventas.html">
+                <span class="menu-title">Ventas</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
             </li>
+
             <li class="nav-item">
               <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
                 <span class="menu-title">Icons</span>

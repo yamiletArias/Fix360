@@ -1,6 +1,7 @@
 <?php
-require_once "./app/config/app.php";
-require_once './views/partials/header.php';
+require_once __DIR__ . "/../../../app/config/app.php";
+require_once __DIR__ . "../../../partials/header.php";
+
 
 ?>
 <!-- partial - WRAPPER MAIN + FOOTER -->
@@ -13,7 +14,7 @@ require_once './views/partials/header.php';
         <h3 class='page-title'> Bienvenido <?= $_SESSION["login"]["nombres"] ?> </h3>
         <nav aria-label='breadcrumb'>
           <ol class='breadcrumb'>
-            <li class='breadcrumb-item'><a href='<?= SERVERURL ?>views/home/welcome'>Inicio</a></li>
+            <li class='breadcrumb-item'><a href='<?= SERVERURL ?>views/page/home/welcome'>Inicio</a></li>
             <li class='breadcrumb-item active' aria-current='page'>Página de inicio</li>
           </ol>
         </nav>
