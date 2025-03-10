@@ -213,6 +213,7 @@ CREATE TABLE ordenservicios(
 idorden 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idadmin 			INT 				NOT NULL,
 idmecanico		INT 				NOT NULL,
+idpropietario  INT 				NOT NULL,
 idcliente 		INT 				NOT NULL,
 idvehiculo 		INT 				NOT NULL,
 kilometraje 	DECIMAL(10,2)	NOT NULL,
@@ -223,7 +224,8 @@ fechasalida 	DATETIME 		NULL,
 CONSTRAINT fk_idadmin FOREIGN KEY (idadmin) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT fk_idmecanico FOREIGN KEY (idmecanico) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT fk_idcliente FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
-CONSTRAINT fk_idvehiculo FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo)
+CONSTRAINT fk_idvehiculo FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo),
+CONSTRAINT fk_idpropietario FOREIGN KEY (idpropietario) REFERENCES propietarios (idpropietario)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS detalleordenservicios;
@@ -350,7 +352,7 @@ CREATE TABLE servicios(
 
 idservicio			INT 					PRIMARY KEY 		AUTO_INCREMENT,
 idsubcategoria 	INT 					NOT NULL,
-descripcion 		VARCHAR(255)		NOT NULL,
+servicio 			VARCHAR(255)		NOT NULL,
 CONSTRAINT fk_idsubcategoria_1 FOREIGN KEY (idsubcategoria) REFERENCES subcategorias (idsubcategoria)	
 
 )ENGINE = INNODB;
@@ -400,6 +402,19 @@ CONSTRAINT fk_idtipov FOREIGN KEY (idtipov) REFERENCES tipovehiculos (idtipov),
 CONSTRAINT fk_idmarca_1 FOREIGN KEY (idmarca) REFERENCES marcas (idmarca),
 CONSTRAINT fk_idcliente_3 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
 CONSTRAINT uq_numserie UNIQUE(numserie)
+
+)ENGINE = INNODB;
+
+DROP TABLE IF EXISTS propietarios;
+CREATE TABLE propietarios(
+
+idpropietario 		INT 			PRIMARY KEY  AUTO_INCREMENT,
+idcliente 			INT 			NOT NULL,
+idvehiculo 			INT 			NOT NULL,
+fechainicio 		DATE 			DEFAULT CURRENT_TIMESTAMP,
+fechafinal 			DATE 			NULL,
+CONSTRAINT fk_idcliente_4 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
+CONSTRAINT fk_idvehiculo_1 FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculos)
 
 )ENGINE = INNODB;
 

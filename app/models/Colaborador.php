@@ -4,8 +4,6 @@ require_once "Conexion.php";
 
 /**
  * Clase Colaborador
- * 
- * Gestiona la información de los colaboradores en la base de datos.
  */
 class Colaborador extends Conexion {
 
@@ -25,7 +23,8 @@ class Colaborador extends Conexion {
             $stmt = $this->pdo->prepare("CALL spu_colaboradores_login(:namuser)");
             $stmt->bindParam(":namuser", $namuser, PDO::PARAM_STR);
             $stmt->execute();
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultado ?: null;
         } catch (PDOException $e) {
             return ["esCorrecto" => false, "mensaje" => "Error en login: " . $e->getMessage()];
         }
@@ -58,7 +57,7 @@ class Colaborador extends Conexion {
             $cmd->execute([
                 $params["idcontrato"],
                 $params["namuser"],
-                password_hash($params["passuser"], PASSWORD_BCRYPT), // Encriptar contraseña
+                password_hash($params["passuser"], PASSWORD_BCRYPT),
                 $params["estado"]
             ]);
             return ["status" => true, "message" => "Colaborador registrado correctamente."];
@@ -96,7 +95,7 @@ class Colaborador extends Conexion {
                 $params["idcolaborador"],
                 $params["idcontrato"],
                 $params["namuser"],
-                password_hash($params["passuser"], PASSWORD_BCRYPT), // Encriptar contraseña
+                password_hash($params["passuser"], PASSWORD_BCRYPT),
                 $params["estado"]
             ]);
             return ["status" => true, "message" => "Colaborador actualizado correctamente."];

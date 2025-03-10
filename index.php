@@ -4,10 +4,12 @@ session_start();
 require_once "./app/config/app.php";
 require_once "./app/config/Server.php";
 
+/*
 if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
-  header("Location: " . SERVERURL . "views/home/welcome");
-  exit(); // <- Agrega esto
+  header("Location: " . SERVERURL . "views/page/home/welcome");
+  exit();
 }
+*/
 
 
 ?>
@@ -49,7 +51,7 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
                 </div>
                 <div class="form-group">
                   <input type="password" class="form-control form-control-lg" 
-                  id="passuser" placeholder="Password" require>
+                  id="passuser" placeholder="Password" required>
                 </div>
                 <div class="mt-3">
                   <button class="btn d-grid btn-primary btn-lg font-weight-medium auth-form-btn" 
@@ -132,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Validar respuesta
       if (data.esCorrecto) {
-        showToast(data.mensaje, "SUCCESS", 200, "./views");
+        showToast(data.mensaje, "SUCCESS", 2000, "./views/page/home/welcome");
       } else {
         showToast(data.mensaje, "WARNING");
       }
