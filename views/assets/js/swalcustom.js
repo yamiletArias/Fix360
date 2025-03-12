@@ -12,8 +12,12 @@ async function ask(pregunta = ``, modulo = `Permisos`){
     showCancelButton: true,
     confirmButtonText: 'Aceptar',
     cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#3498db',
-    footer: 'Permisos App Ver. 1.0'
+    cancelButtonColor: '#ff4d6b',
+    confirmButtonColor: '#56d559',
+    footer: 'Fix 360',
+    timerProgressBar: true,
+    timer: '5000',
+    
   });
 
   return respuesta.isConfirmed;

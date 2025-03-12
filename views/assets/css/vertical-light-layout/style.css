@@ -24830,7 +24830,7 @@ div.tagsinput span.tag a {
   -webkit-transition: width 0.25s ease, background 0.25s ease;
   -moz-transition: width 0.25s ease, background 0.25s ease;
   -ms-transition: width 0.25s ease, background 0.25s ease;
-  background: #181824;
+  background: #01122c;
   width: 240px;
   height: 70px;
   padding: 0 1.75rem;
@@ -25297,7 +25297,7 @@ div.tagsinput span.tag a {
   border: none;
 }
 .navbar.navbar-dark .navbar-menu-wrapper {
-  background: #181824;
+  background: #01122c;
   color: #ffffff;
 }
 .navbar.navbar-dark .navbar-menu-wrapper .search-form input {
@@ -25307,7 +25307,7 @@ div.tagsinput span.tag a {
 /* Sidebar */
 .sidebar {
   min-height: calc(100vh - 70px);
-  background: #181824;
+  background: #01122c;
   font-family: "Open Sans", sans-serif;
   padding: 0;
   width: 240px;
