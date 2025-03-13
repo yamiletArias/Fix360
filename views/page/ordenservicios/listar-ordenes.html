@@ -378,7 +378,7 @@ tfoot th.total-value {
                       <td>10/02/2025</td>
                       <td>09/01/2025</td>
                       <td><Button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >Observacion</Button></td>
-                      <td><button class="btn-warning fa-solid fa-pen-to-square"></button></td>
+                      <td><button class="btn-warning fa-solid fa-pen-to-square" onclick="window.location.href='editar-ordenes.html'" ></button></td>
                     </tr>  
                     <tr>
                       <td>2</td>
@@ -454,7 +454,7 @@ tfoot th.total-value {
     document.querySelector("#btnConfirmarSalida").addEventListener("click", async function () {
       const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
   
-      if (await ask("¿Estás seguro de asignarle Fecha de Salida?", "Ventas")) {
+      if (await ask("¿Estás seguro de asignarle Fecha de Salida?", "Orden de servicio")) {
         showToast("Registro actualizado correctamente", "SUCCESS");
         // Aquí podrías agregar la lógica para eliminar el registro
         console.log(`Registrada salida de vehiculo con Placa : DCD-428`);

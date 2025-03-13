@@ -84,6 +84,29 @@ tipo				VARCHAR(50)		NOT NULL,
 CONSTRAINT uq_ntipo UNIQUE(nombre,tipo)
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS promociones;
+CREATE TABLE promociones(
+
+idpromocion 	INT 				PRIMARY KEY AUTO_INCREMENT,
+promocion 		VARCHAR(100)	NOT NULL,
+fechainicio 	DATETIME 		NOT NULL,
+fechafin 		DATETIME 		NOT NULL,
+cantidadmax 	INT 				NOT NULL,
+CONSTRAINT uq_promocion UNIQUE(promocion)
+
+)ENGINE = INNODB;
+
+DROP TABLE IF EXISTS condiciones;
+CREATE TABLE condiciones(
+
+idcondicion 	INT 		PRIMARY KEY AUTO_INCREMENT,
+idpromocion 	INT 		NOT NULL,
+descripcion 	VARCHAR(255) NOT NULL,
+CONSTRAINT fk_idpromocion_1 FOREIGN KEY (idpromocion) REFERENCES promociones (idpromocion),
+CONSTRAINT uq_condiciones UNIQUE(idpromocion,descripcion)
+
+)ENGINE = INNODB;
+
 DROP TABLE IF EXISTS tipomovimientos;
 CREATE TABLE tipomovimientos(
 idtipomov 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
@@ -306,6 +329,22 @@ CONSTRAINT chk_cantidad CHECK (cantidad > 0),
 CONSTRAINT uq_descripcion UNIQUE (descripcion, idsubcategoria)
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS paquetes;
+CREATE TABLE paquetes(
+
+idpaquete 		INT 				PRIMARY KEY AUTO_INCREMENT,
+idpromocion 	INT 				NOT NULL,
+idproducto 		INT 				NOT NULL,
+cantidad 		INT 				NOT NULL,
+precioferta  	DECIMAL(10,2) 	NOT NULL,
+CONSTRAINT fk_idpromocion FOREIGN KEY (idpromocion) REFERENCES promociones (idpromocion),
+CONSTRAINT fk_idproducto FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
+CONSTRAINT chk_cantidad_p CHECK (cantidad > 0),
+CONSTRAINT chk_precio_p CHECK (precioferta >= 0)
+
+)ENGINE = INNODB;
+
+
 DROP TABLE IF EXISTS kardex;
 CREATE TABLE kardex(
 idkardex 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
@@ -313,7 +352,7 @@ idproducto		INT 				NOT NULL,
 fecha				DATE 				NOT NULL,
 stockmin			INT 				NOT NULL,
 stockmax			INT 				NULL,
-CONSTRAINT fk_idproducto FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
+CONSTRAINT fk_idproducto_7 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
 CHECK (stockmin >= 0 AND (stockmax IS NULL OR stockmax >= 0))
 
 )ENGINE = INNODB;
@@ -377,12 +416,15 @@ CREATE TABLE detalleventa(
 iddetventa 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idproducto 		INT 				NOT NULL,
 idventa 			INT 				NOT NULL,
-idorden 		INT  					NOT NULL,
+idorden 			INT  				NOT NULL,
+idpromocion 	INT 				NOT NULL,
 cantidad 		INT 				NOT NULL,
+numserie 		JSON 				NOT NULL,
 precioventa 	DECIMAL(7,2)	NOT NULL,
 descuento 		DECIMAL(5,2)  	DEFAULT 0,
 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+CONSTRAINT fk_idpromocion_4 FOREIGN KEY (idpromocion) REFERENCES promociones (idpromocion),
 CONSTRAINT fk_idproducto_1 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
 CONSTRAINT fk_idventa_2 FOREIGN KEY(idventa) REFERENCES ventas (idventa),
 CONSTRAINT chk_detalleventa CHECK (cantidad > 0 AND precioventa > 0),
@@ -409,17 +451,6 @@ CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100)
 
 )ENGINE = INNODB;
 
-DROP TABLE IF EXISTS numseries;
-CREATE TABLE numseries(
-
-idnumserie 		INT 				PRIMARY KEY 		AUTO_INCREMENT,
-iddetventa 		INT 				NOT NULL,
-iddetcompra 	INT 				NOT NULL,
-numserie 		JSON				NOT NULL,
-CONSTRAINT fk_iddetventa FOREIGN KEY (iddetventa) REFERENCES detalleventa (iddetventa),
-CONSTRAINT fk_iddetcompra FOREIGN KEY (iddetcompra) REFERENCES detallecompra (iddetcompra)
-
-)ENGINE = INNODB;
 
 DROP TABLE IF EXISTS amortizaciones;
 CREATE TABLE amortizaciones(

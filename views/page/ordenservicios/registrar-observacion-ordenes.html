@@ -327,17 +327,25 @@ tfoot th.total-value {
         </div>
         <div>
           <p>Componente</p>
-          <label for="estado">Selecciona un estado:</label>
 <select id="estado" name="estado">
-    <option value="activo">Activo</option>
-    <option value="inactivo">Inactivo</option>
-    <option value="pendiente">Pendiente</option>
+    <option value="activo">Elija un componente</option>
+    <option value="activo">Espejos</option>
+    <option value="inactivo">Faros Delanteros</option>
+    <option value="pendiente">Faros traseros</option>
 </select>
         </div>
+          <p>estado:</p>
+          <div style="padding-left: 50px ; " class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+          </div style="padding:50px;">
+          <p>Foto:</p>
+          <input style="padding:20px;" type="file" id="archivo" name="archivo">
          </div>
-      
+         <button class="btn btn-secondary" >Cancelar</button>
+        <button class="btn btn-success"  onclick="window.location.href='listar-observacion-orden.html'" >Aceptar</button>
         </div>
     
+        
     </div>
 
 
