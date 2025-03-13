@@ -4,12 +4,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SESSION VENTAS</title>
-
+<title> Observacion de Orden de Servicio</title>
+<!--Font awesome -->
+ <!-- FonAwesome -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <!-- plugins:css -->
 <link rel="stylesheet" href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css">
 <link rel="stylesheet" href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css">
 <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../assets/js/swalcustom.js"></script>
+
 <!-- endinject -->
 <!-- Plugin css for this page -->
 <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
@@ -23,14 +28,14 @@
 
 <style>
 
-.container-ventas {
-    background: transparent;
-    padding: 30px;
-    border-radius: 8px;
+.container-main {
+  background: transparent;
+    padding: 0px;
+    border-radius: 0px;
     box-shadow: none;
-    width: 1100px; /* Aumenta el tamaño */
-    min-height: 700px; /* Aumenta la altura */
-    margin-left: 300px; /* Lo mueve más a la derecha */
+    width: 1500px; /* Aumenta el tamaño */
+    min-height: 100px; /* Aumenta la altura */
+    margin-left: 100px; /* Lo mueve más a la derecha */
     margin-top: 50px;
 }
 
@@ -98,6 +103,21 @@
         display: flex;
         gap: 10px;
     }
+    tfoot th {
+    border: none; /* Quita los bordes de todos los <th> en el footer */
+    background: transparent; /* Fondo transparente */
+}
+
+tfoot th.total-label, 
+tfoot th.total-value {
+    border-top: 2px solid black; /* Agrega borde solo en las celdas de total */
+    border-bottom: 2px solid black;
+    font-weight: bold;
+    background: white; /* Fondo blanco para destacar */
+}
+
+
+    
 </style>
 
 </head>
@@ -108,16 +128,16 @@
     <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
             <a class="navbar-brand brand-logo" href="../../index.html">
-            <img src="../../assets/images/logo.svg" alt="logo" class="logo-dark" />
-            <img src="../../assets/images/logo-light.svg" alt="logo-light" class="logo-light">
+            <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" class="logo-dark" />
+            <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light" class="logo-light">
             </a>
-            <a class="navbar-brand brand-logo-mini" href="../../index.html"><img src="../../assets/images/logo-mini.svg" alt="logo" /></a>
+            <a class="navbar-brand brand-logo-mini" href="../../index.html"><img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
             <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
             <span class="icon-menu"></span>
             </button>
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
-            <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Registro de Ventas</h5>
+            <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Registro de Ordenes de Servicio</h5>
             <ul class="navbar-nav navbar-nav-right">
             <form class="search-form d-none d-md-block" action="#">
                 <i class="icon-magnifier"></i>
@@ -128,42 +148,29 @@
             <li class="nav-item dropdown">
                 <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="icon-speech"></i>
-                <span class="count">7</span>
+                <span class="count">2</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="messageDropdown">
                 <a class="dropdown-item py-3">
-                    <p class="mb-0 font-weight-medium float-start me-2">You have 7 unread mails </p>
-                    <span class="badge badge-pill badge-primary float-end">View all</span>
+                    <p class="mb-0 font-weight-medium float-start me-2">Recordatorios para hoy: </p>
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item preview-item">
                     <div class="preview-thumbnail">
-                    <img src="../../assets/images/faces/face10.jpg" alt="image" class="img-sm profile-pic">
                     </div>
                     <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">Marian Garner </p>
-                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
+                    <p class="preview-subject ellipsis font-weight-medium text-dark">Taxi Driver S.A.C </p>
+                    <p class="font-weight-light small-text"> Mantenimiento de auto </p>
                     </div>
                 </a>
                 <a class="dropdown-item preview-item">
                     <div class="preview-thumbnail">
-                    <img src="../../assets/images/faces/face12.jpg" alt="image" class="img-sm profile-pic">
                     </div>
                     <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">David Grey </p>
-                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
+                    <p class="preview-subject ellipsis font-weight-medium text-dark">David Torres </p>
+                    <p class="font-weight-light small-text"> Cambio de aceite </p>
                     </div>
                 </a>
-                <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                    <img src="../../assets/images/faces/face1.jpg" alt="image" class="img-sm profile-pic">
-                    </div>
-                    <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">Travis Jenkins </p>
-                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
-                    </div>
-                </a>
-                </div>
             </li>
             <li class="nav-item dropdown language-dropdown d-none d-sm-flex align-items-center">
                 <a class="nav-link d-flex align-items-center dropdown-toggle" id="LanguageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
@@ -312,62 +319,23 @@
                 </li>
             </ul>
         </nav>
-        <div class="container-ventas">
-            <div class="header-group">
-                <div class="form-group">
-                    <input type="radio" name="tipo" id="factura" checked> <label for="factura">Factura</label>
-                    <input type="radio" name="tipo" id="boleta"> <label for="boleta">Boleta</label>
-                </div>
-                <div class="right-group">
-                    <input type="text" class="small-input" placeholder="N° serie">
-                    <input type="text" class="small-input" placeholder="N° comprobante">
-                </div>
-            </div>
-    
-            <!-- Proveedor, fecha y moneda -->
-            <div class="form-group">
-                <select class="medium-input">
-                    <option>Proveedor</option>
-                </select>
-                <input type="date">
-                <select class="small-input">
-                    <option>PEN</option>
-                </select>
-            </div>
-    
-            <!-- Productos -->
-            <div class="form-group">
-                <input type="text" class="medium-input" placeholder="PRODUCTO">
-                <input type="text" class="small-input" placeholder="PRECIO">
-                <input type="text" class="small-input" placeholder="CANTIDAD">
-                <input type="text" class="small-input" placeholder="DESCUENTO">
-                <button>AGREGAR</button>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>N°</th>
-                            <th>PRODUCTO</th>
-                            <th>PRECIO</th>
-                            <th>CANTIDAD</th>
-                            <th>DSCT</th>
-                            <th>TOTAL</th>
-                            <th>X</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="7" style="height: 50px;">&nbsp;</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-    
-            <!-- Botón Finalizar alineado a la derecha -->
-            <div class="btn-container">
-                <button  onclick="window.location.href='listar-ventas.html'" class="btn btn-success"  >FINALIZAR</button>
-            </div>
+        <div class="container-main">
+         <div>
+          <div >
+            <p>Observaciones:</p>
+            <textarea  style="padding-right: 10px;"   rows="10" cols="50" name="" id=""></textarea>
+        </div>
+        <div>
+          <p>Componente</p>
+          <label for="estado">Selecciona un estado:</label>
+<select id="estado" name="estado">
+    <option value="activo">Activo</option>
+    <option value="inactivo">Inactivo</option>
+    <option value="pendiente">Pendiente</option>
+</select>
+        </div>
+         </div>
+      
         </div>
     
     </div>
@@ -387,6 +355,7 @@
 <script src="../../assets/js/misc.js"></script>
 <script src="../../assets/js/settings.js"></script>
 <script src="../../assets/js/todolist.js"></script>
+
 <!-- endinject -->
 <!-- Custom js for this page -->
 <!-- End custom js for this page -->

@@ -377,7 +377,7 @@ tfoot th.total-value {
                       <td>Si</td>
                       <td>10/02/2025</td>
                       <td>09/01/2025</td>
-                      <td><Button class="btn btn-success">Observacion</Button></td>
+                      <td><Button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >Observacion</Button></td>
                       <td><button class="btn-warning fa-solid fa-pen-to-square"></button></td>
                     </tr>  
                     <tr>
@@ -390,10 +390,10 @@ tfoot th.total-value {
                       <td>No</td>
                       <td>07/01/2025</td>
                       <td>-</td>
-                      <td><Button class="btn btn-success">Observacion</Button></td>
+                      <td><Button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >Observacion</Button></td>
                       <td>
                         <button class="btn-warning fa-solid fa-pen-to-square"></button>
-                        <button class="btn-success fa-solid fa-circle-check"></button>
+                        <button id="btnConfirmarSalida" data-id="10/10/2024" class="btn-success fa-solid fa-circle-check"></button>
                       </td>
                     </tr>
                     <tr>
@@ -449,6 +449,20 @@ tfoot th.total-value {
     }
   });
 </script>
+
+<script>
+    document.querySelector("#btnConfirmarSalida").addEventListener("click", async function () {
+      const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
+  
+      if (await ask("¿Estás seguro de asignarle Fecha de Salida?", "Ventas")) {
+        showToast("Registro actualizado correctamente", "SUCCESS");
+        // Aquí podrías agregar la lógica para eliminar el registro
+        console.log(`Registrada salida de vehiculo con Placa : DCD-428`);
+      } else {
+        showToast("Operación cancelada", "WARNING");
+      }
+    });
+  </script>
 
 <!-- Modal -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
