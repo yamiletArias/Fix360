@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SESION PRODUCTOS</title>
+<title>SESION VEHICULOS</title>
 <!--Font awesome -->
 <!-- FonAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -139,7 +139,7 @@ tfoot th.total-value {
           </button>
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center">
-          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Lista de Productos</h5>
+          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Lista de Vehiculos</h5>
           <ul class="navbar-nav navbar-nav-right">
           <form class="search-form d-none d-md-block" action="#">
               <i class="icon-magnifier"></i>
@@ -285,7 +285,7 @@ tfoot th.total-value {
                 </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./listar-producto.html">
+              <a class="nav-link" href="../productos/listar-producto.html">
                   <span class="menu-title">Productos</span>
                   <i class="icon-globe menu-icon"></i>
               </a>
@@ -318,12 +318,11 @@ tfoot th.total-value {
                 </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
+              <a class="nav-link" href="./listar-vehiculos.html">
                   <span class="menu-title">Vehiculos</span>
                   <i class="icon-globe menu-icon"></i>
               </a>
           </li>
-
               <li class="nav-item nav-category">
                 <span class="nav-link">Contactabilidad</span>
                 </li>
@@ -337,121 +336,111 @@ tfoot th.total-value {
       </nav>
       <div class="container-ventas">
         <input type="text" id="searchInput" placeholder="Buscar en la tabla...">
-          <div class="header-group">
+        <div class="header-group">
             <div>
-              <button type="button" onclick="window.location.href='./registrar-productos.html'" class="btn btn-success ">Registrar</button>
+                <button type="button" onclick="window.location.href='Registrar-vehiculos.html'" class="btn btn-success">Registrar</button>
             </div>
-          </div>
-          <div class="table-container">
-              <table>
-                  <thead>
-                      <tr>
-                          <th>MARCA</th>
-                          <th>SUBCATEGORIA</th>
-                          <th>DESCRIPCION</th>
-                          <th>PRECIO</th>
-                          <th>PRESENTACION</th>
-                          <th>UND MEDIDA</th>
-                          <th>CANTIDAD</th>
-                          <th>IMAGEN</th>
-                          <th>OPCIONES</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>PROPIETARIO</th>
+                        <th>MODELO</th>
+                        <th>T. VEHICULOS</th>
+                        <th>MARCA</th>
+                        <th>PLACA</th>
+                        <th>AÑO</th>
+                        <th>N° SERIE</th>
+                        <th>COLOR</th>
+                        <th>OPCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-id="1">
+                        <th>Jhon Francia</th>
+                        <th>Corolla</th>
+                        <th>Sedan</th>
+                        <th>Toyota</th>
+                        <th>798-FBH</th>
+                        <th>2024</th>
+                        <th>FJ5SMBN7FGJSD21NCJA</th>
+                        <th>ROJO</th>
                         <th>
-                          Shell Helix
-                        </th>  
-                        <th>
-                          Aceite para auto
+                            <button onclick="window.location.href='editar-productos'" class="fa-solid fa-pen-to-square"></button>
+                            <button class="btnObservaciones fa-solid fa-file-alt" data-id="1"></button>
                         </th>
+                    </tr>
+                    <tr data-id="2">
+                        <th>Jose Campos</th>
+                        <th>Q8</th>
+                        <th>Sport</th>
+                        <th>Audi</th>
+                        <th>F4F-789</th>
+                        <th>2025</th>
+                        <th>DA9FC4BNT2QR3TYH6</th>
+                        <th>GRIS</th>
                         <th>
-                          HX7 10W-40
+                            <button onclick="window.location.href='editar-productos'" class="fa-solid fa-pen-to-square"></button>
+                            <button class="btnObservaciones fa-solid fa-file-alt" data-id="2"></button>
                         </th>
+                    </tr>
+                    <tr data-id="3">
+                        <th>Maria Mercedes</th>
+                        <th>Teramont</th>
+                        <th>SUV</th>
+                        <th>Volkswagen</th>
+                        <th>DEF-456</th>
+                        <th>2022</th>
+                        <th>DA9FC4BNT2QR3TYH6</th>
+                        <th>AZUL</th>
                         <th>
-                          50.00
+                            <button onclick="window.location.href='editar-productos'" class="fa-solid fa-pen-to-square"></button>
+                            <button class="btnObservaciones fa-solid fa-file-alt" data-id="3"></button>
                         </th>
-                        <th>
-                          Galonera
-                        </th>
-                        <th>
-                          L
-                        </th>
-                        <th>
-                          4
-                        </th>
-                        <th>
-                          
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos.html'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>
-                          Mahindra
-                        </th>  
-                        <th>
-                          Disco de embriague
-                        </th>
-                        <th>
-                          Funcar
-                        </th>
-                        <th>
-                          520.00
-                        </th>
-                        <th>
-                          Unidad 
-                        </th>
-                        <th>
-                          UND
-                        </th>
-                        <th>
-                          1
-                        </th>
-                        <th>
-                          
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos.html'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>
-                          TUCSON
-                        </th>  
-                        <th>
-                          Filtro de aceite
-                        </th>
-                        <th>
-                          Elantra(2016 - 2022)
-                        </th>
-                        <th>
-                          18.30
-                        </th>
-                        <th>
-                          Unidad
-                        </th>
-                        <th>
-                          UND
-                        </th>
-                        <th>
-                          1
-                        </th>
-                        <th>
-                          
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
-                      </tr>
-                  </tbody>
-              </table>
-          </div>
-      </div>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Observaciones del Vehículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Aquí está la nueva tabla con las observaciones -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>MECÁNICO</th>
+                                    <th>ADMIN</th>
+                                    <th>CLIENTE</th>
+                                    <th>PROPIETARIO</th>
+                                    <th>KILOMETRAJE</th>
+                                    <th>INGRESO GRÚA</th>
+                                    <th>FCH INGRESO</th>
+                                    <th>FCH SALIDA</th>
+                                    <th>OBSERVACIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalObservacionesBody">
+                                <!-- Filas dinámicas se insertarán aquí con JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
   </div>
 </div>
 <!--FIN VENTAS-->
@@ -469,18 +458,59 @@ tfoot th.total-value {
 <script src="../../assets/js/todolist.js"></script>
 
 <script>
-document.querySelector("#btnEliminar").addEventListener("click", async function () {
-  const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
+document.querySelectorAll(".btnObservaciones").forEach(button => {
+    button.addEventListener("click", function() {
+        // Obtener el ID de la fila desde el atributo data-id del botón
+        const id = this.getAttribute("data-id");
 
-  if (await ask("¿Estás seguro de eliminar este registro?", "Ventas")) {
-    showToast("Registro eliminado correctamente", "SUCCESS");
-    // Aquí podrías agregar la lógica para eliminar el registro
-    console.log(`Eliminando registro con ID: 1`);
-  } else {
-    showToast("Operación cancelada", "WARNING");
-  }
+        // Llenar la tabla de observaciones con los datos correspondientes
+        const observacionesData = {
+            1: [
+                { mecanico: "Juan Torres", admin: "Elena", cliente: "Estefano", propietario: "Jhon Francia", kilometraje: 5400, ingresoGrua: "Bueno", fchIngreso: "10/02/2025", fchSalida: "11/02/2025", observaciones: "Observación" },
+                { mecanico: "Jose Perez", admin: "Elena", cliente: "Pedro Tasayco", propietario: "Taxi Driver S.A.C", kilometraje: 2460, ingresoGrua: "Malo", fchIngreso: "07/01/2025", fchSalida: "09/01/2025", observaciones: "Observación" },
+                { mecanico: "Rosario Navarrete", admin: "Roberto", cliente: "Antony Mendoza", propietario: "Jose Hernandez", kilometraje: 1895, ingresoGrua: "Bueno", fchIngreso: "08/10/2024", fchSalida: "08/11/2024", observaciones: "Observación" }
+            ],
+            2: [
+                { mecanico: "Carlos Ruiz", admin: "Ana", cliente: "Marco León", propietario: "Carlos Soto", kilometraje: 1200, ingresoGrua: "Bueno", fchIngreso: "12/03/2025", fchSalida: "14/03/2025", observaciones: "Observación" },
+                { mecanico: "Luis Gutiérrez", admin: "Sofia", cliente: "Juan Lopez", propietario: "Mercedes", kilometraje: 3500, ingresoGrua: "Malo", fchIngreso: "01/03/2025", fchSalida: "04/03/2025", observaciones: "Observación" }
+            ],
+            3: [
+                { mecanico: "Carlos Diaz", admin: "Patricia", cliente: "Luis Zamora", propietario: "Carlos Pérez", kilometraje: 9000, ingresoGrua: "Bueno", fchIngreso: "15/05/2024", fchSalida: "20/05/2024", observaciones: "Observación" }
+            ]
+        };
+
+        // Obtener el array de observaciones basadas en el ID
+        const observations = observacionesData[id] || [];
+
+        // Limpiar el cuerpo de la tabla en el modal antes de añadir nuevas filas
+        const modalObservacionesBody = document.getElementById("modalObservacionesBody");
+        modalObservacionesBody.innerHTML = "";
+
+        // Insertar las filas correspondientes en el modal
+        observations.forEach(observation => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${observation.mecanico}</td>
+                <td>${observation.admin}</td>
+                <td>${observation.cliente}</td>
+                <td>${observation.propietario}</td>
+                <td>${observation.kilometraje}</td>
+                <td><button class="fa-solid ${observation.ingresoGrua === 'Bueno' ? 'fa-check' : 'fa-xmark'}"></button></td>
+                <td>${observation.fchIngreso}</td>
+                <td>${observation.fchSalida}</td>
+                <td><button class="btnObservaciones " data-id="${id}">Observación</button></td>
+            `;
+            modalObservacionesBody.appendChild(row);
+        });
+
+        // Abrir el modal
+        const modal = new bootstrap.Modal(document.getElementById('miModal'));
+        modal.show();
+    });
 });
+
 </script>
+  
 
 
 <!-- endinject -->

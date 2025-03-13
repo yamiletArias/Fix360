@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SESION PRODUCTOS</title>
+<title>SESION VEHICULOS</title>
 <!--Font awesome -->
 <!-- FonAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -139,7 +139,7 @@ tfoot th.total-value {
           </button>
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center">
-          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Lista de Productos</h5>
+          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Registro de Vehiculos</h5>
           <ul class="navbar-nav navbar-nav-right">
           <form class="search-form d-none d-md-block" action="#">
               <i class="icon-magnifier"></i>
@@ -285,7 +285,7 @@ tfoot th.total-value {
                 </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./listar-producto.html">
+              <a class="nav-link" href="../productos/listar-producto.html">
                   <span class="menu-title">Productos</span>
                   <i class="icon-globe menu-icon"></i>
               </a>
@@ -318,12 +318,11 @@ tfoot th.total-value {
                 </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
+              <a class="nav-link" href="./listar-vehiculos.html">
                   <span class="menu-title">Vehiculos</span>
                   <i class="icon-globe menu-icon"></i>
               </a>
           </li>
-
               <li class="nav-item nav-category">
                 <span class="nav-link">Contactabilidad</span>
                 </li>
@@ -337,121 +336,12 @@ tfoot th.total-value {
       </nav>
       <div class="container-ventas">
         <input type="text" id="searchInput" placeholder="Buscar en la tabla...">
-          <div class="header-group">
-            <div>
-              <button type="button" onclick="window.location.href='./registrar-productos.html'" class="btn btn-success ">Registrar</button>
-            </div>
-          </div>
-          <div class="table-container">
-              <table>
-                  <thead>
-                      <tr>
-                          <th>MARCA</th>
-                          <th>SUBCATEGORIA</th>
-                          <th>DESCRIPCION</th>
-                          <th>PRECIO</th>
-                          <th>PRESENTACION</th>
-                          <th>UND MEDIDA</th>
-                          <th>CANTIDAD</th>
-                          <th>IMAGEN</th>
-                          <th>OPCIONES</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr>
-                        <th>
-                          Shell Helix
-                        </th>  
-                        <th>
-                          Aceite para auto
-                        </th>
-                        <th>
-                          HX7 10W-40
-                        </th>
-                        <th>
-                          50.00
-                        </th>
-                        <th>
-                          Galonera
-                        </th>
-                        <th>
-                          L
-                        </th>
-                        <th>
-                          4
-                        </th>
-                        <th>
-                          
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos.html'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>
-                          Mahindra
-                        </th>  
-                        <th>
-                          Disco de embriague
-                        </th>
-                        <th>
-                          Funcar
-                        </th>
-                        <th>
-                          520.00
-                        </th>
-                        <th>
-                          Unidad 
-                        </th>
-                        <th>
-                          UND
-                        </th>
-                        <th>
-                          1
-                        </th>
-                        <th>
-                          
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos.html'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
-                      </tr>
-                      <tr>
-                        <th>
-                          TUCSON
-                        </th>  
-                        <th>
-                          Filtro de aceite
-                        </th>
-                        <th>
-                          Elantra(2016 - 2022)
-                        </th>
-                        <th>
-                          18.30
-                        </th>
-                        <th>
-                          Unidad
-                        </th>
-                        <th>
-                          UND
-                        </th>
-                        <th>
-                          1
-                        </th>
-                        <th>
-                          
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
-                      </tr>
-                  </tbody>
-              </table>
-          </div>
-      </div>
+
+        <div class="table-container">
+            
+        </div>
+    </div>
+    
   </div>
 </div>
 <!--FIN VENTAS-->
@@ -468,19 +358,7 @@ tfoot th.total-value {
 <script src="../../assets/js/settings.js"></script>
 <script src="../../assets/js/todolist.js"></script>
 
-<script>
-document.querySelector("#btnEliminar").addEventListener("click", async function () {
-  const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
-
-  if (await ask("¿Estás seguro de eliminar este registro?", "Ventas")) {
-    showToast("Registro eliminado correctamente", "SUCCESS");
-    // Aquí podrías agregar la lógica para eliminar el registro
-    console.log(`Eliminando registro con ID: 1`);
-  } else {
-    showToast("Operación cancelada", "WARNING");
-  }
-});
-</script>
+  
 
 
 <!-- endinject -->

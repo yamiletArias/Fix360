@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SESION PRODUCTOS</title>
+<title>SESION VEHICULOS</title>
 <!--Font awesome -->
 <!-- FonAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -139,7 +139,7 @@ tfoot th.total-value {
           </button>
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center">
-          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Lista de Productos</h5>
+          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Historial de Vehiculos</h5>
           <ul class="navbar-nav navbar-nav-right">
           <form class="search-form d-none d-md-block" action="#">
               <i class="icon-magnifier"></i>
@@ -285,7 +285,7 @@ tfoot th.total-value {
                 </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./listar-producto.html">
+              <a class="nav-link" href="../productos/listar-producto.html">
                   <span class="menu-title">Productos</span>
                   <i class="icon-globe menu-icon"></i>
               </a>
@@ -318,12 +318,11 @@ tfoot th.total-value {
                 </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
+              <a class="nav-link" href="./listar-vehiculos.html">
                   <span class="menu-title">Vehiculos</span>
                   <i class="icon-globe menu-icon"></i>
               </a>
           </li>
-
               <li class="nav-item nav-category">
                 <span class="nav-link">Contactabilidad</span>
                 </li>
@@ -337,116 +336,112 @@ tfoot th.total-value {
       </nav>
       <div class="container-ventas">
         <input type="text" id="searchInput" placeholder="Buscar en la tabla...">
-          <div class="header-group">
-            <div>
-              <button type="button" onclick="window.location.href='./registrar-productos.html'" class="btn btn-success ">Registrar</button>
-            </div>
-          </div>
           <div class="table-container">
               <table>
                   <thead>
                       <tr>
-                          <th>MARCA</th>
-                          <th>SUBCATEGORIA</th>
-                          <th>DESCRIPCION</th>
-                          <th>PRECIO</th>
-                          <th>PRESENTACION</th>
-                          <th>UND MEDIDA</th>
-                          <th>CANTIDAD</th>
-                          <th>IMAGEN</th>
-                          <th>OPCIONES</th>
+                          <th>MECANICO</th>
+                          <th>ADMIN</th>
+                          <th>CLIENTE</th>
+                          <th>PROPIETARIO</th>
+                          <th>KILOMETRAJE</th>
+                          <th>INGRESO GRUA</th>
+                          <th>FCH INGRESO</th>
+                          <th>FCH SALIDA</th>
+                          <th>OBSERVACIONES</th>
                       </tr>
                   </thead>
                   <tbody>
                       <tr>
                         <th>
-                          Shell Helix
+                            Juan Torres
                         </th>  
                         <th>
-                          Aceite para auto
+                            Elena
                         </th>
                         <th>
-                          HX7 10W-40
+                            Estefano
                         </th>
                         <th>
-                          50.00
+                            Jhon Francia 
                         </th>
                         <th>
-                          Galonera
+                            5400
                         </th>
                         <th>
-                          L
+                            <button onclick="window.location.href='bueno'" class="fa-solid fa-check"></button>
                         </th>
                         <th>
-                          4
+                            10/02/2025
                         </th>
                         <th>
+                            11/02/2025  
+                        </th>
+                        <th>
+                            <button id="btnObservaciones" data-id="data-123">Observación</button>
+                        </th>
+                        
                           
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos.html'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
                       </tr>
                       <tr>
                         <th>
-                          Mahindra
+                            Jose Perez
                         </th>  
                         <th>
-                          Disco de embriague
+                            Elena
                         </th>
                         <th>
-                          Funcar
+                            Pedro Tasayco
                         </th>
                         <th>
-                          520.00
+                            Taxi Driver S.A.C
                         </th>
                         <th>
-                          Unidad 
+                            2460
                         </th>
                         <th>
-                          UND
+                            <button onclick="window.location.href='malo'" class="fa-solid fa-xmark"></button>
                         </th>
                         <th>
-                          1
+                            07/01/2025
                         </th>
                         <th>
+                            09/01/2025
+                        </th>
+                        
+                        <th>
+                            <button id="btnObservaciones" data-id="data-123">Observación</button>
+                        </th>                        
                           
-                        </th>
-                        <th>
-                          <button onclick="window.location.href='editar-productos.html'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
                       </tr>
                       <tr>
                         <th>
-                          TUCSON
+                            Rosario Navarrete
                         </th>  
                         <th>
-                          Filtro de aceite
+                            Roberto
                         </th>
                         <th>
-                          Elantra(2016 - 2022)
+                            Antony Mendoza
                         </th>
                         <th>
-                          18.30
+                            Jose Hernandez
                         </th>
                         <th>
-                          Unidad
+                            1895
                         </th>
                         <th>
-                          UND
+                            <button onclick="window.location.href='bueno'" class="fa-solid fa-check"></button>
                         </th>
                         <th>
-                          1
+                            08/10/2024
                         </th>
                         <th>
-                          
+                            08/11/2024
                         </th>
                         <th>
-                          <button onclick="window.location.href='editar-productos'" class="fa-solid fa-pen-to-square"></button>
-                          <button id="btnEliminar"  data-id="data-123" class="fa-solid fa-trash"></button>
-                        </th>
+                            <button id="btnObservaciones" data-id="data-123">Observación</button>
+                        </th>                        
                       </tr>
                   </tbody>
               </table>
