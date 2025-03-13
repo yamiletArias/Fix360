@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Producto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            width: 900px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            width: 65%;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+        .row input {
+            flex: 1;
+        }
+        .image-upload {
+            width: 250px;
+            height: 180px;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-align: center;
+            color: #666;
+            background-color: transparent;
+            font-size: 18px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .guardar {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .cancelar {
+            background-color: #ccc;
+            color: black;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-group">
+            <select>
+                <option>Marca</option>
+            </select>
+            <input type="text" placeholder="SUBCATEGORIA">
+            <div class="row">
+                <input type="text" placeholder="PRECIO">
+                <input type="text" placeholder="CANTIDAD">
+                <input type="text" placeholder="MEDIDA">
+            </div>
+            <input type="text" placeholder="PRESENTACION">
+            <textarea placeholder="DESCRIPCION" rows="4"></textarea>
+        </div>
+        <div class="image-upload">📤<br>Imagen</div>
+    </div>
+    <div class="buttons">
+        <button class="guardar">GUARDAR</button>
+        <button class="cancelar">CANCELAR</button>
+    </div>
+</body>
+</html>
