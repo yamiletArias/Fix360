@@ -39,3 +39,48 @@ BEGIN
         SET MESSAGE_TEXT = 'El tipo de movimiento ya existe con este flujo.';
     END IF;
 END;
+
+/* TRIGGER PARA VERIFICAR LAS FECHAS EN PROMOCIONES*/
+
+DELIMITER $$
+
+CREATE TRIGGER trg_validar_fechas_promocion
+BEFORE INSERT ON promociones
+FOR EACH ROW
+BEGIN
+    -- Validar que la fecha de fin sea mayor que la de inicio
+    IF NEW.fechafin <= NEW.fechainicio THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La fecha de fin debe ser mayor que la fecha de inicio';
+    END IF;
+    
+    -- Validar que la fecha de inicio no sea menor a la fecha actual
+    IF NEW.fechainicio < NOW() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La fecha de inicio no puede ser menor a la fecha actual';
+    END IF;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER trg_validar_fechas_promocion_update
+BEFORE UPDATE ON promociones
+FOR EACH ROW
+BEGIN
+    -- Validar que la fecha de fin sea mayor que la de inicio
+    IF NEW.fechafin <= NEW.fechainicio THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La fecha de fin debe ser mayor que la fecha de inicio';
+    END IF;
+    
+    -- Validar que la fecha de inicio no sea menor a la fecha actual
+    IF NEW.fechainicio < NOW() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La fecha de inicio no puede ser menor a la fecha actual';
+    END IF;
+END $$
+
+DELIMITER ;
+/* */
