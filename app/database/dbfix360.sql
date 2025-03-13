@@ -414,8 +414,10 @@ CREATE TABLE numseries(
 
 idnumserie 		INT 				PRIMARY KEY 		AUTO_INCREMENT,
 iddetventa 		INT 				NOT NULL,
-numserie 		VARCHAR(30) 	NOT NULL,
-CONSTRAINT fk_iddetventa FOREIGN KEY (iddetventa) REFERENCES detalleventa (iddetventa)
+iddetcompra 	INT 				NOT NULL,
+numserie 		JSON				NOT NULL,
+CONSTRAINT fk_iddetventa FOREIGN KEY (iddetventa) REFERENCES detalleventa (iddetventa),
+CONSTRAINT fk_iddetcompra FOREIGN KEY (iddetcompra) REFERENCES detallecompra (iddetcompra)
 
 )ENGINE = INNODB;
 
