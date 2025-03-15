@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Amortizaciones</title>
+    <title>SESION VENTAS</title>
     <!--Font awesome -->
     <!-- FonAwesome -->
     <link
@@ -46,57 +46,43 @@
     <!-- End layout styles -->
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
+    <!-- DataTables CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css"
+    />
+
     <style>
       .container-ventas {
         background: transparent;
         padding: 30px;
         border-radius: 8px;
-        box-shadow: none;
-        width: 1100px; /* Aumenta el tamaño */
-        min-height: 700px; /* Aumenta la altura */
-        margin-left: 300px; /* Lo mueve más a la derecha */
+        width: 1180px; /* Ajuste de tamaño */
+        min-height: 700px;
+        margin-left: 300px;
         margin-top: 50px;
       }
 
-      .form-group {
+      .header-group {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
-        margin-top: 25px;
-        gap: 15px;
       }
-      .form-group label {
-        margin-right: 10px;
-      }
-      input,
-      select,
-      button {
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-      input[type="text"],
-      select {
-        flex: 1;
-      }
-      input[type="date"] {
-        width: 160px;
-      }
-      .small-input {
-        width: 130px;
-      }
-      .medium-input {
-        width: 200px;
-      }
+
+      /* Contenedor principal: coloca la tabla arriba y el importe abajo */
       .table-container {
+        display: flex;
+        flex-direction: column; /* Apila los elementos en columna */
+        align-items: flex-start;
         margin-top: 30px;
-      }
-      table {
         width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
       }
+
+      .ventas {
+        width: 100%; /* La tabla ocupa todo el ancho disponible */
+        border-collapse: collapse;
+      }
+
       table,
       th,
       td {
@@ -104,39 +90,30 @@
         text-align: center;
         padding: 10px;
       }
-      .btn-container {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 40px;
-      }
-      .btn-finalizar {
-        background: green;
-        color: white;
-        padding: 12px;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      .header-group {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .right-group {
-        display: flex;
-        gap: 10px;
-      }
-      tfoot th {
-        border: none; /* Quita los bordes de todos los <th> en el footer */
-        background: transparent; /* Fondo transparente */
+
+      /* Cuadro del importe alineado a la derecha y más abajo */
+      .importe-container {
+        margin-top: 300px; /* Espacio entre la tabla y el importe */
+        align-self: flex-end; /* Alinea el importe a la derecha */
       }
 
-      tfoot th.total-label,
-      tfoot th.total-value {
-        border-top: 2px solid black; /* Agrega borde solo en las celdas de total */
-        border-bottom: 2px solid black;
+      .importe {
+        width: 200px; /* Ajuste del tamaño del cuadro */
+        border-collapse: collapse;
+        text-align: center;
         font-weight: bold;
-        background: white; /* Fondo blanco para destacar */
+      }
+
+      .importe th {
+        background-color: #f4f4f4;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+
+      .importe td {
+        font-size: 18px;
+        padding: 15px;
+        border: 1px solid #ccc;
       }
     </style>
   </head>
@@ -176,7 +153,7 @@
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
           <h5 class="mb-0 font-weight-medium d-none d-lg-flex">
-            Amortizaciones
+            Ventas del dia
           </h5>
           <ul class="navbar-nav navbar-nav-right">
             <form class="search-form d-none d-md-block" action="#">
@@ -499,7 +476,71 @@
             </li>
           </ul>
         </nav>
-        <div class="container-ventas"></div>
+        <div class="container-ventas">
+          <div class="header-group">
+            <h3>DIA - 12/03/25</h3>
+            <button
+              type="button"
+              onclick="window.location.href='listar-ventas.html'"
+              class="btn btn-success"
+            >
+              Volver
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table id="miTabla" class="display" class="ventas">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha Venta</th>
+                  <th>Importe</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>B</td>
+                  <td>002-0068</td>
+                  <td>08/03/2025</td>
+                  <td>1200.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>F</td>
+                  <td>002-0069</td>
+                  <td>08/03/2025</td>
+                  <td>50.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Contenedor del importe, alineado a la derecha y más abajo -->
+            <div class="importe-container">
+              <table class="importe">
+                <thead>
+                  <tr>
+                    <th>Importe Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1250.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <!--FIN VENTAS-->
@@ -515,6 +556,33 @@
     <script src="../../assets/js/misc.js"></script>
     <script src="../../assets/js/settings.js"></script>
     <script src="../../assets/js/todolist.js"></script>
+
+    <!-- jQuery (necesario para DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $("#miTabla").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+            paginate: {
+              first: "Primero",
+              last: "Último",
+              next: "Siguiente",
+              previous: "Anterior",
+            },
+          },
+        });
+      });
+    </script>
 
     <!-- endinject -->
     <!-- Custom js for this page -->

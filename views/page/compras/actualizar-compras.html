@@ -1,395 +1,565 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SESSION COMPRAS</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SESSION COMPRAS</title>
 
-<!-- plugins:css -->
-<link rel="stylesheet" href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css">
-<link rel="stylesheet" href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css">
-<link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css">
-<!-- endinject -->
-<!-- Plugin css for this page -->
-<link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
-<!-- End plugin css for this page -->
-<!-- inject:css -->
-<!-- endinject -->
-<!-- Layout styles -->
-<link rel="stylesheet" href="../../assets/css/vertical-light-layout/style.css">
-<!-- End layout styles -->
-<link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+    <!-- plugins:css -->
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/css/vendor.bundle.base.css"
+    />
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/font-awesome/css/font-awesome.min.css"
+    />
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link
+      rel="stylesheet"
+      href="../../assets/css/vertical-light-layout/style.css"
+    />
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
-<style>
+    <style>
+      .container-ventas {
+        background: transparent;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: none;
+        width: 1100px; /* Aumenta el tamaño */
+        min-height: 700px; /* Aumenta la altura */
+        margin-left: 300px; /* Lo mueve más a la derecha */
+        margin-top: 50px;
+      }
 
-.container-ventas {
-    background: transparent;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: none;
-    width: 1100px; /* Aumenta el tamaño */
-    min-height: 700px; /* Aumenta la altura */
-    margin-left: 300px; /* Lo mueve más a la derecha */
-    margin-top: 50px;
-}
-
-
-    .form-group {
+      .form-group {
         display: flex;
         align-items: center;
-        margin-bottom: 20px; 
+        margin-bottom: 20px;
         margin-top: 25px;
         gap: 15px;
-    }
-    .form-group label {
+      }
+      .form-group label {
         margin-right: 10px;
-    }
-    input, select, button {
+      }
+      input,
+      select,
+      button {
         padding: 10px;
         font-size: 14px;
         border: 1px solid #ccc;
         border-radius: 4px;
-    }
-    input[type="text"], select {
+      }
+      input[type="text"],
+      select {
         flex: 1;
-    }
-    input[type="date"] {
+      }
+      input[type="date"] {
         width: 160px;
-    }
-    .small-input {
+      }
+      .small-input {
         width: 130px;
-    }
-    .medium-input {
+      }
+      .medium-input {
         width: 200px;
-    }
-    .table-container {
+      }
+      .table-container {
         margin-top: 30px;
-    }
-    table {
+      }
+      table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
-    }
-    table, th, td {
+      }
+      table,
+      th,
+      td {
         border: 1px solid #ccc;
         text-align: center;
         padding: 10px;
-    }
-    .btn-container {
+      }
+      .btn-container {
         display: flex;
         justify-content: flex-end;
         margin-top: 40px;
-    }
-    .btn-finalizar {
+      }
+      .btn-finalizar {
         background: green;
         color: white;
         padding: 12px;
         border: none;
         cursor: pointer;
         font-size: 16px;
-    }
-    .header-group {
+      }
+      .header-group {
         display: flex;
         justify-content: space-between;
         align-items: center;
-    }
-    .right-group {
+      }
+      .right-group {
         display: flex;
         gap: 10px;
-    }
-</style>
-
-</head>
-<body>
-
-<!-- VENTAS -->
-<div class="container-scroller">
-    <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
-        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-            <a class="navbar-brand brand-logo" href="../../index.html">
-            <img src="../../assets/images/logo.svg" alt="logo" class="logo-dark" />
-            <img src="../../assets/images/logo-light.svg" alt="logo-light" class="logo-light">
-            </a>
-            <a class="navbar-brand brand-logo-mini" href="../../index.html"><img src="../../assets/images/logo-mini.svg" alt="logo" /></a>
-            <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+      }
+    </style>
+  </head>
+  <body>
+    <!-- VENTAS -->
+    <div class="container-scroller">
+      <nav
+        class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row"
+      >
+        <div
+          class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center"
+        >
+          <a class="navbar-brand brand-logo" href="../../index.html">
+            <img
+              src="../../assets/images/logo.svg"
+              alt="logo"
+              class="logo-dark"
+            />
+            <img
+              src="../../assets/images/logo-light.svg"
+              alt="logo-light"
+              class="logo-light"
+            />
+          </a>
+          <a class="navbar-brand brand-logo-mini" href="../../index.html"
+            ><img src="../../assets/images/logo-mini.svg" alt="logo"
+          /></a>
+          <button
+            class="navbar-toggler navbar-toggler align-self-center"
+            type="button"
+            data-toggle="minimize"
+          >
             <span class="icon-menu"></span>
-            </button>
+          </button>
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
-            <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Edicion de Compras</h5>
-            <ul class="navbar-nav navbar-nav-right">
+          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">
+            Edicion de Compras
+          </h5>
+          <ul class="navbar-nav navbar-nav-right">
             <form class="search-form d-none d-md-block" action="#">
-                <i class="icon-magnifier"></i>
-                <input type="search" class="form-control" placeholder="Search Here" title="Search here">
+              <i class="icon-magnifier"></i>
+              <input
+                type="search"
+                class="form-control"
+                placeholder="Search Here"
+                title="Search here"
+              />
             </form>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="icon-basket-loaded"></i></a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="icon-chart"></i></a></li>
+            <li class="nav-item">
+              <a href="#" class="nav-link"
+                ><i class="icon-basket-loaded"></i
+              ></a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link"><i class="icon-chart"></i></a>
+            </li>
             <li class="nav-item dropdown">
-                <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+              <a
+                class="nav-link count-indicator message-dropdown"
+                id="messageDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 <i class="icon-speech"></i>
                 <span class="count">7</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="messageDropdown">
+              </a>
+              <div
+                class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
+                aria-labelledby="messageDropdown"
+              >
                 <a class="dropdown-item py-3">
-                    <p class="mb-0 font-weight-medium float-start me-2">You have 7 unread mails </p>
-                    <span class="badge badge-pill badge-primary float-end">View all</span>
+                  <p class="mb-0 font-weight-medium float-start me-2">
+                    You have 7 unread mails
+                  </p>
+                  <span class="badge badge-pill badge-primary float-end"
+                    >View all</span
+                  >
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                    <img src="../../assets/images/faces/face10.jpg" alt="image" class="img-sm profile-pic">
-                    </div>
-                    <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">Marian Garner </p>
-                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
-                    </div>
+                  <div class="preview-thumbnail">
+                    <img
+                      src="../../assets/images/faces/face10.jpg"
+                      alt="image"
+                      class="img-sm profile-pic"
+                    />
+                  </div>
+                  <div class="preview-item-content flex-grow py-2">
+                    <p
+                      class="preview-subject ellipsis font-weight-medium text-dark"
+                    >
+                      Marian Garner
+                    </p>
+                    <p class="font-weight-light small-text">
+                      The meeting is cancelled
+                    </p>
+                  </div>
                 </a>
                 <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                    <img src="../../assets/images/faces/face12.jpg" alt="image" class="img-sm profile-pic">
-                    </div>
-                    <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">David Grey </p>
-                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
-                    </div>
+                  <div class="preview-thumbnail">
+                    <img
+                      src="../../assets/images/faces/face12.jpg"
+                      alt="image"
+                      class="img-sm profile-pic"
+                    />
+                  </div>
+                  <div class="preview-item-content flex-grow py-2">
+                    <p
+                      class="preview-subject ellipsis font-weight-medium text-dark"
+                    >
+                      David Grey
+                    </p>
+                    <p class="font-weight-light small-text">
+                      The meeting is cancelled
+                    </p>
+                  </div>
                 </a>
                 <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                    <img src="../../assets/images/faces/face1.jpg" alt="image" class="img-sm profile-pic">
-                    </div>
-                    <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">Travis Jenkins </p>
-                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
-                    </div>
+                  <div class="preview-thumbnail">
+                    <img
+                      src="../../assets/images/faces/face1.jpg"
+                      alt="image"
+                      class="img-sm profile-pic"
+                    />
+                  </div>
+                  <div class="preview-item-content flex-grow py-2">
+                    <p
+                      class="preview-subject ellipsis font-weight-medium text-dark"
+                    >
+                      Travis Jenkins
+                    </p>
+                    <p class="font-weight-light small-text">
+                      The meeting is cancelled
+                    </p>
+                  </div>
                 </a>
-                </div>
+              </div>
             </li>
-            <li class="nav-item dropdown language-dropdown d-none d-sm-flex align-items-center">
-                <a class="nav-link d-flex align-items-center dropdown-toggle" id="LanguageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+            <li
+              class="nav-item dropdown language-dropdown d-none d-sm-flex align-items-center"
+            >
+              <a
+                class="nav-link d-flex align-items-center dropdown-toggle"
+                id="LanguageDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 <div class="d-inline-flex">
-                    <i class="flag-icon flag-icon-us"></i>
+                  <i class="flag-icon flag-icon-us"></i>
                 </div>
                 <span class="profile-text font-weight-normal">English</span>
+              </a>
+              <div
+                class="dropdown-menu dropdown-menu-left navbar-dropdown py-2"
+                aria-labelledby="LanguageDropdown"
+              >
+                <a class="dropdown-item">
+                  <i class="flag-icon flag-icon-us"></i> English
                 </a>
-                <div class="dropdown-menu dropdown-menu-left navbar-dropdown py-2" aria-labelledby="LanguageDropdown">
                 <a class="dropdown-item">
-                    <i class="flag-icon flag-icon-us"></i> English </a>
+                  <i class="flag-icon flag-icon-fr"></i> French
+                </a>
                 <a class="dropdown-item">
-                    <i class="flag-icon flag-icon-fr"></i> French </a>
+                  <i class="flag-icon flag-icon-ae"></i> Arabic
+                </a>
                 <a class="dropdown-item">
-                    <i class="flag-icon flag-icon-ae"></i> Arabic </a>
-                <a class="dropdown-item">
-                    <i class="flag-icon flag-icon-ru"></i> Russian </a>
-                </div>
+                  <i class="flag-icon flag-icon-ru"></i> Russian
+                </a>
+              </div>
             </li>
             <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
-                <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                <img class="img-xs rounded-circle ms-2" src="../../assets/images/faces/face8.jpg" alt="Profile image"> <span class="font-weight-normal"> Henry Klein </span></a>
-                <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                id="UserDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img
+                  class="img-xs rounded-circle ms-2"
+                  src="../../assets/images/faces/face8.jpg"
+                  alt="Profile image"
+                />
+                <span class="font-weight-normal"> Henry Klein </span></a
+              >
+              <div
+                class="dropdown-menu dropdown-menu-right navbar-dropdown"
+                aria-labelledby="UserDropdown"
+              >
                 <div class="dropdown-header text-center">
-                    <img class="img-md rounded-circle" src="../../assets/images/faces/face8.jpg" alt="Profile image">
-                    <p class="mb-1 mt-3">Henry Klein</p>
-                    <p class="font-weight-light text-muted mb-0">kleinhenry@gmail.com</p>
+                  <img
+                    class="img-md rounded-circle"
+                    src="../../assets/images/faces/face8.jpg"
+                    alt="Profile image"
+                  />
+                  <p class="mb-1 mt-3">Henry Klein</p>
+                  <p class="font-weight-light text-muted mb-0">
+                    kleinhenry@gmail.com
+                  </p>
                 </div>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My Profile <span class="badge badge-pill badge-danger">1</span></a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i> Messages</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i> Activity</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i> FAQ</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
-                </div>
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-user text-primary"></i> My
+                  Profile
+                  <span class="badge badge-pill badge-danger">1</span></a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-speech text-primary"></i>
+                  Messages</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-energy text-primary"></i>
+                  Activity</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-question text-primary"></i>
+                  FAQ</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-power text-primary"></i
+                  >Sign Out</a
+                >
+              </div>
             </li>
-            </ul>
-            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+          </ul>
+          <button
+            class="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
+            type="button"
+            data-toggle="offcanvas"
+          >
             <span class="icon-menu"></span>
-            </button>
+          </button>
         </div>
-    </nav>
-    <div class="container-fluid page-body-wrapper">
+      </nav>
+      <div class="container-fluid page-body-wrapper">
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
-            <ul class="nav">
-                <li class="nav-item navbar-brand-mini-wrapper">
-                <a class="nav-link navbar-brand brand-logo-mini" href="../../index.html"><img src="../../assets/images/logo-mini.svg" alt="logo" /></a>
-                </li>
-                <li class="nav-item nav-profile">
-                <a href="#" class="nav-link">
-                    <div class="profile-image">
-                    <img class="img-xs rounded-circle" src="../../assets/images/faces/face8.jpg" alt="profile image">
-                    <div class="dot-indicator bg-success"></div>
-                    </div>
-                    <div class="text-wrapper">
-                    <p class="profile-name">Henry Klein</p>
-                    <p class="designation">Administrator</p>
-                    </div>
-                    <div class="icon-container">
-                    <i class="icon-bubbles"></i>
-                    <div class="dot-indicator bg-danger"></div>
-                    </div>
-                </a>
-                </li>
-                <li class="nav-item nav-category">
-                <span class="nav-link">Inicio</span>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link" href="../../index.html">
-                    <span class="menu-title">Resumen de Ventas y compras</span>
-                    <i class="icon-screen-desktop menu-icon"></i>
-                </a>
-                </li>
-                <li class="nav-item nav-category">
-                  <span class="nav-link">Inventario</span>
-                  </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="../ventas/listar-ventas.html">
-                        <span class="menu-title">Ventas</span>
-                        <i class="icon-globe menu-icon"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                <!--<a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-                    <span class="menu-title">Icons</span>
-                    <i class="icon-globe menu-icon"></i>
-                </a> -->
-                <div class="collapse" id="icons">
-                    <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="../../pages/icons/font-awesome.html">Font Awesome</a></li>
-                    </ul>
+          <ul class="nav">
+            <li class="nav-item navbar-brand-mini-wrapper">
+              <a
+                class="nav-link navbar-brand brand-logo-mini"
+                href="../../index.html"
+                ><img src="../../assets/images/logo-mini.svg" alt="logo"
+              /></a>
+            </li>
+            <li class="nav-item nav-profile">
+              <a href="#" class="nav-link">
+                <div class="profile-image">
+                  <img
+                    class="img-xs rounded-circle"
+                    src="../../assets/images/faces/face8.jpg"
+                    alt="profile image"
+                  />
+                  <div class="dot-indicator bg-success"></div>
                 </div>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="../compras/listar-compras.html">
-                      <span class="menu-title">Compras</span>
-                      <i class="icon-globe menu-icon"></i>
-                  </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="./ventas.html">
-                    <span class="menu-title">Productos</span>
-                    <i class="icon-globe menu-icon"></i>
-                </a>
+                <div class="text-wrapper">
+                  <p class="profile-name">Henry Klein</p>
+                  <p class="designation">Administrator</p>
+                </div>
+                <div class="icon-container">
+                  <i class="icon-bubbles"></i>
+                  <div class="dot-indicator bg-danger"></div>
+                </div>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Inicio</span>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./ventas.html">
-                  <span class="menu-title">Kardex</span>
-                  <i class="icon-globe menu-icon"></i>
+              <a class="nav-link" href="../../index.html">
+                <span class="menu-title">Resumen de Ventas y compras</span>
+                <i class="icon-screen-desktop menu-icon"></i>
               </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./ventas.html">
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Inventario</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../ventas/listar-ventas.html">
+                <span class="menu-title">Ventas</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <!--<a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
+                      <span class="menu-title">Icons</span>
+                      <i class="icon-globe menu-icon"></i>
+                  </a>-->
+              <!--<div class="collapse" id="icons">
+                  <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                      <a
+                        class="nav-link"
+                        href="../../pages/icons/font-awesome.html"
+                        >Font Awesome</a
+                      >
+                    </li>
+                  </ul>
+                </div>-->
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../compras/listar-compras.html">
+                <span class="menu-title">Compras</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../productos/listar-producto.html">
+                <span class="menu-title">Productos</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../kardex/listar-kardex.html">
+                <span class="menu-title">Kardex</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../cotizaciones/listar-cotizacion.html">
                 <span class="menu-title">Cotizaciones</span>
                 <i class="icon-globe menu-icon"></i>
-            </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="../ordenservicios/listar-ordenes.html">
-              <span class="menu-title">Ordenes de Servicio</span>
-              <i class="icon-globe menu-icon"></i>
-          </a>
-      </li>
-              <li class="nav-item nav-category">
-                <span class="nav-link">Administracion</span>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="./ventas.html">
-                      <span class="menu-title">Clientes</span>
-                      <i class="icon-globe menu-icon"></i>
-                  </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="./ventas.html">
-                    <span class="menu-title">Vehiculos</span>
-                    <i class="icon-globe menu-icon"></i>
-                </a>
+              </a>
             </li>
-                <li class="nav-item nav-category">
-                  <span class="nav-link">Contactabilidad</span>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="./ventas.html">
-                        <span class="menu-title">Graficos</span>
-                        <i class="icon-globe menu-icon"></i>
-                    </a>
-                </li>
-            </ul>
+            <li class="nav-item">
+              <a class="nav-link" href="../ordenservicios/listar-ordenes.html">
+                <span class="menu-title">Ordenes de Servicio</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Administracion</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../clientes/listar-cliente.html">
+                <span class="menu-title">Clientes</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
+                <span class="menu-title">Vehiculos</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Contactabilidad</span>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="../contactabilidad/listar-graficos.html"
+              >
+                <span class="menu-title">Graficos</span>
+                <i class="icon-globe menu-icon"></i>
+              </a>
+            </li>
+          </ul>
         </nav>
         <div class="container-ventas">
-            <div class="header-group">
-                <div class="form-group">
-                    <input type="radio" name="tipo" id="factura" checked> <label for="factura">Factura</label>
-                    <input type="radio" name="tipo" id="boleta"> <label for="boleta">Boleta</label>
-                </div>
-                <div class="right-group">
-                    <input type="text" class="small-input" placeholder="N° serie">
-                    <input type="text" class="small-input" placeholder="N° comprobante">
-                </div>
-            </div>
-    
-            <!-- Proveedor, fecha y moneda -->
+          <div class="header-group">
             <div class="form-group">
-                <select class="medium-input">
-                    <option>Proveedor</option>
-                </select>
-                <input type="date">
-                <select class="small-input">
-                    <option>Soles</option>
-                    <option>Dolares</option>
-                </select>
+              <input type="radio" name="tipo" id="factura" checked />
+              <label for="factura">Factura</label>
+              <input type="radio" name="tipo" id="boleta" />
+              <label for="boleta">Boleta</label>
             </div>
-    
-            <!-- Productos -->
-            <div class="form-group">
-                <input type="text" class="medium-input" placeholder="PRODUCTO">
-                <input type="text" class="small-input" placeholder="PRECIO">
-                <input type="text" class="small-input" placeholder="CANTIDAD">
-                <input type="text" class="small-input" placeholder="DESCUENTO">
-                <button>AGREGAR</button>
+            <div class="right-group">
+              <input type="text" class="small-input" placeholder="N° serie" />
+              <input
+                type="text"
+                class="small-input"
+                placeholder="N° comprobante"
+              />
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>N°</th>
-                            <th>PRODUCTO</th>
-                            <th>PRECIO</th>
-                            <th>CANTIDAD</th>
-                            <th>DSCT</th>
-                            <th>TOTAL</th>
-                            <th>X</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="7" style="height: 50px;">&nbsp;</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-    
-            <!-- Botón Finalizar alineado a la derecha -->
-            <div class="btn-container">
-                <button  onclick="window.location.href='listar-compras.html'" class="btn btn-success"  >FINALIZAR</button>
-            </div>
+          </div>
+
+          <!-- Proveedor, fecha y moneda -->
+          <div class="form-group">
+            <select class="medium-input">
+              <option>Proveedor</option>
+            </select>
+            <input type="date" />
+            <select class="small-input">
+              <option>Soles</option>
+              <option>Dolares</option>
+            </select>
+          </div>
+
+          <!-- Productos -->
+          <div class="form-group">
+            <input type="text" class="medium-input" placeholder="PRODUCTO" />
+            <input type="text" class="small-input" placeholder="PRECIO" />
+            <input type="text" class="small-input" placeholder="CANTIDAD" />
+            <input type="text" class="small-input" placeholder="DESCUENTO" />
+            <button>AGREGAR</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>PRODUCTO</th>
+                  <th>PRECIO</th>
+                  <th>CANTIDAD</th>
+                  <th>DSCT</th>
+                  <th>TOTAL</th>
+                  <th>X</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="7" style="height: 50px">&nbsp;</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Botón Finalizar alineado a la derecha -->
+          <div class="btn-container">
+            <button
+              onclick="window.location.href='listar-compras.html'"
+              class="btn btn-success"
+            >
+              FINALIZAR
+            </button>
+          </div>
         </div>
-    
+      </div>
     </div>
+    <!--FIN VENTAS-->
 
-
-</div>
-<!--FIN VENTAS-->
-
-<!-- plugins:js -->
-<script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
-<!-- endinject -->
-<!-- Plugin js for this page -->
-<!-- End plugin js for this page -->
-<!-- inject:js -->
-<script src="../../assets/js/off-canvas.js"></script>
-<script src="../../assets/js/hoverable-collapse.js"></script>
-<script src="../../assets/js/misc.js"></script>
-<script src="../../assets/js/settings.js"></script>
-<script src="../../assets/js/todolist.js"></script>
-<!-- endinject -->
-<!-- Custom js for this page -->
-<!-- End custom js for this page -->
-</body>
+    <!-- plugins:js -->
+    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../../assets/js/off-canvas.js"></script>
+    <script src="../../assets/js/hoverable-collapse.js"></script>
+    <script src="../../assets/js/misc.js"></script>
+    <script src="../../assets/js/settings.js"></script>
+    <script src="../../assets/js/todolist.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <!-- End custom js for this page -->
+  </body>
 </html>

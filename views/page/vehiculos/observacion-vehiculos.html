@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Amortizaciones</title>
+    <title>VEHICULOS</title>
     <!--Font awesome -->
     <!-- FonAwesome -->
     <link
@@ -47,14 +47,14 @@
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
     <style>
-      .container-ventas {
+      .container-observaciones {
         background: transparent;
-        padding: 30px;
-        border-radius: 8px;
+        padding: 0px;
+        border-radius: 0px;
         box-shadow: none;
-        width: 1100px; /* Aumenta el tamaño */
-        min-height: 700px; /* Aumenta la altura */
-        margin-left: 300px; /* Lo mueve más a la derecha */
+        width: 1500px; /* Aumenta el tamaño */
+        min-height: 100px; /* Aumenta la altura */
+        margin-left: 100px; /* Lo mueve más a la derecha */
         margin-top: 50px;
       }
 
@@ -107,7 +107,7 @@
       .btn-container {
         display: flex;
         justify-content: flex-end;
-        margin-top: 40px;
+        margin-top: 20px;
       }
       .btn-finalizar {
         background: green;
@@ -176,7 +176,7 @@
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
           <h5 class="mb-0 font-weight-medium d-none d-lg-flex">
-            Amortizaciones
+            Observaciones del vehiculo
           </h5>
           <ul class="navbar-nav navbar-nav-right">
             <form class="search-form d-none d-md-block" action="#">
@@ -499,7 +499,94 @@
             </li>
           </ul>
         </nav>
-        <div class="container-ventas"></div>
+        <div class="container-observaciones">
+          <div>
+            <p>Observaciones:</p>
+            <textarea
+              style="padding-right: 10px"
+              rows="10"
+              cols="50"
+              name=""
+              id=""
+            ></textarea>
+          </div>
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Componente</th>
+                  <th>Estado</th>
+                  <th>Foto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Espejos</td>
+                  <td>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="switchEstado"
+                    />
+                  </td>
+                  <td>
+                    <img
+                      src="https://www.kia.com/content/dam/kwcms/pe/es/images/noticias/2020/setiembre/2309/como-usar-espejos-auto-aprende-evitar-puntos-ciegos.jpg"
+                      width="200"
+                      alt=""
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Luces Delanteras</td>
+                  <td>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="switchEstado"
+                    />
+                  </td>
+                  <td>
+                    <img
+                      src="https://www.championautoparts.com/content/dam/marketing/emea/champion/news/align-headligths-header-thumb.jpg"
+                      width="200"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Lado izquierdo</td>
+                  <td>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="switchEstado"
+                    />
+                  </td>
+                  <td>
+                    <img
+                      src="https://previews.123rf.com/images/photoart23d/photoart23d1710/photoart23d171000075/88192375-coche-aislado-en-blanco-dorado-vidrios-polarizados-vista-lateral-izquierda-representaci%C3%B3n-3d.jpg"
+                      width="200"
+                      alt=""
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Botón Finalizar alineado a la derecha -->
+          <div class="btn-container">
+            <button
+              onclick="window.location.href='listar-vehiculos.html'"
+              class="btn btn-success"
+            >
+              Volver
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <!--FIN VENTAS-->

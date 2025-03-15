@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Amortizaciones</title>
+    <title>SESION VEHICULOS</title>
     <!--Font awesome -->
     <!-- FonAwesome -->
     <link
@@ -52,22 +52,38 @@
         padding: 30px;
         border-radius: 8px;
         box-shadow: none;
-        width: 1100px; /* Aumenta el tamaño */
-        min-height: 700px; /* Aumenta la altura */
-        margin-left: 300px; /* Lo mueve más a la derecha */
+        width: 1200px;
+        min-height: 700px;
+        margin-left: 200px;
         margin-top: 50px;
       }
 
       .form-group {
         display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        margin-top: 25px;
-        gap: 15px;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 50px;
+        align-items: flex-end; /* Alinea los elementos correctamente */
       }
-      .form-group label {
-        margin-right: 10px;
+
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 150px;
       }
+
+      .input-button-group {
+        display: flex;
+        align-items: center; /* Alinea el input y el botón */
+        gap: 10px;
+      }
+
+      label {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
       input,
       select,
       button {
@@ -76,39 +92,33 @@
         border: 1px solid #ccc;
         border-radius: 4px;
       }
+
       input[type="text"],
       select {
-        flex: 1;
+        width: 100%;
       }
-      input[type="date"] {
-        width: 160px;
-      }
+
       .small-input {
         width: 130px;
       }
+
       .medium-input {
         width: 200px;
       }
-      .table-container {
-        margin-top: 30px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-      }
-      table,
-      th,
-      td {
-        border: 1px solid #ccc;
+
+      .small-button {
+        width: 40px;
+        padding: 5px;
         text-align: center;
-        padding: 10px;
       }
+
       .btn-container {
         display: flex;
         justify-content: flex-end;
-        margin-top: 40px;
+        margin-top: 80px;
+        gap: 20px;
       }
+
       .btn-finalizar {
         background: green;
         color: white;
@@ -116,27 +126,6 @@
         border: none;
         cursor: pointer;
         font-size: 16px;
-      }
-      .header-group {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .right-group {
-        display: flex;
-        gap: 10px;
-      }
-      tfoot th {
-        border: none; /* Quita los bordes de todos los <th> en el footer */
-        background: transparent; /* Fondo transparente */
-      }
-
-      tfoot th.total-label,
-      tfoot th.total-value {
-        border-top: 2px solid black; /* Agrega borde solo en las celdas de total */
-        border-bottom: 2px solid black;
-        font-weight: bold;
-        background: white; /* Fondo blanco para destacar */
       }
     </style>
   </head>
@@ -176,7 +165,7 @@
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
           <h5 class="mb-0 font-weight-medium d-none d-lg-flex">
-            Amortizaciones
+            Edicion de Vehiculos
           </h5>
           <ul class="navbar-nav navbar-nav-right">
             <form class="search-form d-none d-md-block" action="#">
@@ -499,7 +488,88 @@
             </li>
           </ul>
         </nav>
-        <div class="container-ventas"></div>
+        <div class="container-ventas">
+          <div class="table-container">
+            <form>
+              <div class="form-group">
+                <div class="form-field">
+                  <label for="tipo">Tipo:</label>
+                  <select id="tipo">
+                    <option value="">Seleccione</option>
+                  </select>
+                </div>
+
+                <div class="form-field">
+                  <label for="marca">Marca:</label>
+                  <select id="marca">
+                    <option value="">Seleccione</option>
+                  </select>
+                </div>
+
+                <div class="form-field">
+                  <label for="modelo">Modelo:</label>
+                  <select id="modelo">
+                    <option value="">Seleccione</option>
+                  </select>
+                </div>
+
+                <div class="form-field">
+                  <label for="placa">Placa:</label>
+                  <input type="text" id="placa" />
+                </div>
+
+                <div class="form-field">
+                  <label for="anio">Año:</label>
+                  <input type="text" id="anio" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-field">
+                  <label for="serie">Número de serie:</label>
+                  <input type="text" id="serie" />
+                </div>
+
+                <div class="form-field">
+                  <label for="color">Color:</label>
+                  <input type="text" id="color" />
+                </div>
+
+                <div class="form-field">
+                  <label for="combustible">Tipo de combustible:</label>
+                  <select id="combustible">
+                    <option value="">Seleccione</option>
+                  </select>
+                </div>
+
+                <div class="form-field" style="flex: 1">
+                  <label for="propietario">Propietario:</label>
+                  <div class="input-button-group">
+                    <input type="text" id="propietario" />
+                    <button type="button" class="small-button">...</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- Botones centrados -->
+          <div class="btn-container">
+            <button
+              type="button"
+              onclick="window.location.href='listar-vehiculos.html'"
+              class="btn btn-secondary"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onclick="window.location.href='listar-vehiculos.html'"
+              class="btn btn-success"
+            >
+              Guardar
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <!--FIN VENTAS-->
