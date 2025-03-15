@@ -528,7 +528,7 @@
             </div>
           </div>
           <div class="table-container">
-            <table>
+            <table id="miTabla">
               <thead>
                 <tr>
                   <th>#</th>
@@ -652,6 +652,11 @@
     <script src="../../assets/js/todolist.js"></script>
 
     <script>
+      $(document).ready(function() {
+          $('#miTabla').DataTable();
+      });
+  </script>
+    <!--<script>
       document
         .querySelector("#btnEliminar")
         .addEventListener("click", async function () {
@@ -665,7 +670,7 @@
             showToast("Operación cancelada", "WARNING");
           }
         });
-    </script>
+    </script>-->
     <!-- Modal -->
     <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog">
