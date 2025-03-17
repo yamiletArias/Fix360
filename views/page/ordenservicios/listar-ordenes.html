@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORDENES DE SERVICIO</title>
+<title>Ordenes de Servicio</title>
 <!--Font awesome -->
  <!-- FonAwesome -->
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -25,6 +25,8 @@
 <link rel="stylesheet" href="../../assets/css/vertical-light-layout/style.css">
 <!-- End layout styles -->
 <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
 <style>
 
@@ -33,9 +35,9 @@
     padding: 30px;
     border-radius: 8px;
     box-shadow: none;
-    width: 1100px; /* Aumenta el tamaño */
+    width: 1500px; /* Aumenta el tamaño */
     min-height: 700px; /* Aumenta la altura */
-    margin-left: 300px; /* Lo mueve más a la derecha */
+    margin-left: 50px; /* Lo mueve más a la derecha */
     margin-top: 50px;
 }
 
@@ -137,7 +139,7 @@ tfoot th.total-value {
             </button>
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
-            <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Ordenes de Servicio</h5>
+            <h2 class="mb-0 font-weight-medium d-none d-lg-flex">Ordenes de Servicio</h2>
             <ul class="navbar-nav navbar-nav-right">
             <form class="search-form d-none d-md-block" action="#">
                 <i class="icon-magnifier"></i>
@@ -333,7 +335,6 @@ tfoot th.total-value {
             </ul>
         </nav>
         <div class="container-ventas">
-          <input type="text" id="searchInput" placeholder="Buscar en la tabla...">
             <div class="header-group">
                 <div class="form-group">
                   <div class="btn-group" role="group" aria-label="Basic example">
@@ -350,7 +351,7 @@ tfoot th.total-value {
               
             </div>
             <div class="table-container">
-                <table>
+                <table id="miTabla" class="table table-striped display">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -377,7 +378,11 @@ tfoot th.total-value {
                       <td>Si</td>
                       <td>10/02/2025</td>
                       <td>09/01/2025</td>
-                      <td><Button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >Observacion</Button></td>
+                      <td>
+                        <Button class=" btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </Button>
+                    </td>
                       <td><button class="btn-warning fa-solid fa-pen-to-square" onclick="window.location.href='editar-ordenes.html'" ></button></td>
                     </tr>  
                     <tr>
@@ -390,9 +395,13 @@ tfoot th.total-value {
                       <td>No</td>
                       <td>07/01/2025</td>
                       <td>-</td>
-                      <td><Button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >Observacion</Button></td>
                       <td>
-                        <button class="btn-warning fa-solid fa-pen-to-square"></button>
+                        <Button class=" btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </Button>
+                    </td>
+                      <td>
+                        <button class="btn-warning fa-solid fa-pen-to-square" onclick="window.location.href='editar-ordenes.html'" ></button>
                         <button id="btnConfirmarSalida" data-id="10/10/2024" class="btn-success fa-solid fa-circle-check"></button>
                       </td>
                     </tr>
@@ -406,8 +415,12 @@ tfoot th.total-value {
                       <td>Si</td>
                       <td>08/10/2024</td>
                       <td>10/11/2024</td>
-                      <td><Button class="btn btn-success">Observacion</Button></td>
-                      <td><button class="btn-warning fa-solid fa-pen-to-square"></button></td>
+                      <td>
+                        <Button class=" btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </Button>
+                    </td>
+                      <td><button class="btn-warning fa-solid fa-pen-to-square" onclick="window.location.href='editar-ordenes.html'" ></button></td>
                     </tr>  
 
                     </tbody>
@@ -485,7 +498,32 @@ tfoot th.total-value {
   </div>
 </div>
 
+ <!-- DataTables JS -->
+ <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+    $('#miTabla').DataTable({
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "emptyTable": "No hay datos disponibles en la tabla"
+        }
+    });
+});
 
+</script>
 <!-- endinject -->
 <!-- Custom js for this page -->
 <!-- End custom js for this page -->
