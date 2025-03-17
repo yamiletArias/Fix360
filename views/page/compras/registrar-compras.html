@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SESSION COMPRAS</title>
 
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <!-- plugins:css -->
     <link
       rel="stylesheet"
@@ -18,6 +25,9 @@
       rel="stylesheet"
       href="../../assets/vendors/css/vendor.bundle.base.css"
     />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/swalcustom.js"></script>
+
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <link
@@ -34,6 +44,12 @@
     />
     <!-- End layout styles -->
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+
+    <!-- DataTables CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css"
+    />
 
     <style>
       .container-ventas {
@@ -56,6 +72,13 @@
       }
       .form-group label {
         margin-right: 10px;
+      }
+      /* Mantener el borde visible en todo momento incluso al enfocar el campo */
+      input:focus,
+      select:focus {
+        outline: none; /* Elimina el contorno predeterminado del navegador */
+        border: 1px solid #ccc; /* Mantiene el borde visible */
+        box-shadow: none; /* Elimina cualquier sombra que aparezca al enfocar */
       }
       input,
       select,
@@ -513,7 +536,7 @@
             <button>AGREGAR</button>
           </div>
           <div class="table-container">
-            <table>
+            <table id="miTabla" class="table table-striped display">
               <thead>
                 <tr>
                   <th>N°</th>
@@ -522,13 +545,15 @@
                   <th>CANTIDAD</th>
                   <th>DSCT</th>
                   <th>TOTAL</th>
-                  <th>X</th>
+                  <th>
+                    <button class="delete-btn">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="7" style="height: 50px">&nbsp;</td>
-                </tr>
+                <!-- Aquí irán los datos dinámicos -->
               </tbody>
             </table>
           </div>
@@ -561,5 +586,18 @@
     <!-- endinject -->
     <!-- Custom js for this page -->
     <!-- End custom js for this page -->
+
+    <!-- jQuery (necesario para DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $("#miTabla").DataTable();
+      });
+    </script>
+    
   </body>
 </html>

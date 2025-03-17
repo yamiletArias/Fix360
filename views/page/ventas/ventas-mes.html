@@ -45,71 +45,160 @@
     />
     <!-- End layout styles -->
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
-
+    <!-- DataTables CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css"
+    />
 
     <style>
       .container-ventas {
         background: transparent;
         padding: 30px;
         border-radius: 8px;
-        width: 1100px; /* Ajuste de tamaño */
-        min-height: 700px;
-        margin-left: 300px;
+        box-shadow: none;
+        width: 1990px; /* Aumenta el tamaño */
+        min-height: 900px; /* Aumenta la altura */
+        margin-left: 270px; /* Lo mueve más a la derecha */
         margin-top: 50px;
       }
-    
-      .header-group {
+
+      .form-group {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        margin-bottom: 20px;
+        margin-top: 25px;
+        gap: 15px;
       }
-    
-      /* Contenedor principal: coloca la tabla arriba y el importe abajo */
+
+      .form-group label {
+        margin-right: 10px;
+      }
+
+      input,
+      select,
+      button {
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      input[type="text"],
+      select {
+        flex: 1;
+      }
+
+      input[type="date"] {
+        width: 160px;
+      }
+
+      .small-input {
+        width: 130px;
+      }
+
+      .medium-input {
+        width: 200px;
+      }
+
       .table-container {
-        display: flex;
-        flex-direction: column; /* Apila los elementos en columna */
-        align-items: flex-start;
-        margin-top: 30px;
+        margin-top: 40px; /* Espacio adicional entre la tabla y el contenedor */
+      }
+
+      table {
         width: 100%;
-      }
-    
-      .ventas {
-        width: 100%; /* La tabla ocupa todo el ancho disponible */
         border-collapse: collapse;
+        margin-top: 20px; /* Aumentar el espacio superior entre las tablas */
       }
-    
+
       table,
       th,
       td {
         border: 1px solid #ccc;
         text-align: center;
-        padding: 10px;
+        padding: 15px; /* Aumentamos el espaciado dentro de las celdas */
       }
-    
-      /* Cuadro del importe alineado a la derecha y más abajo */
+
+      th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+      }
+
+      .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 40px;
+      }
+
+      .btn-finalizar {
+        background: green;
+        color: white;
+        padding: 12px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .header-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px; /* Espacio debajo de los títulos (h3) */
+      }
+
+      .right-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      tfoot th {
+        border: none; /* Quita los bordes de todos los <th> en el footer */
+        background: transparent; /* Fondo transparente */
+      }
+
+      tfoot th.total-label,
+      tfoot th.total-value {
+        border-top: 2px solid black; /* Agrega borde solo en las celdas de total */
+        border-bottom: 2px solid black;
+        font-weight: bold;
+        background: white; /* Fondo blanco para destacar */
+      }
+
+      /* Espaciado para el contenedor del importe */
       .importe-container {
-        margin-top: 300px; /* Espacio entre la tabla y el importe */
-        align-self: flex-end; /* Alinea el importe a la derecha */
+        margin-top: 40px; /* Aumentar el espacio entre la tabla y el importe */
+        width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+        display: flex;
+        justify-content: flex-end; /* Alinea el contenedor al extremo derecho */
+        align-items: flex-end; /* Asegura que el contenido dentro del contenedor se alinee al final */
       }
-    
+
       .importe {
-        width: 200px; /* Ajuste del tamaño del cuadro */
+        width: 220px; /* Ajuste del tamaño del cuadro */
         border-collapse: collapse;
         text-align: center;
         font-weight: bold;
       }
-    
+
       .importe th {
         background-color: #f4f4f4;
         padding: 10px;
         border: 1px solid #ccc;
       }
-    
+
       .importe td {
         font-size: 18px;
-        padding: 15px;
+        padding: 20px; /* Aumentar el espaciado dentro del importe */
         border: 1px solid #ccc;
       }
+
+      /* Espaciado entre los encabezados h3 y las tablas */
+      .header-group h3 {
+        margin-top: 30px; /* Espacio superior para los encabezados (h3) */
+        margin-bottom: 15px; /* Espacio inferior entre el encabezado y la tabla */
+      }
+      #sidebar {
+        position: fixed;}
     </style>
   </head>
   <body>
@@ -471,20 +560,22 @@
             </li>
           </ul>
         </nav>
+        <!-- VENTAS -->
         <div class="container-ventas">
           <div class="header-group">
-            <h3>Lunes - 10/03/25 </h3>
-            <button
-              type="button"
-              onclick="window.location.href='listar-ventas.html'"
-              class="btn btn-success"
-            >
-              Volver
-            </button>
+            <h3>PRIMERA SEMANA</h3>
+            <div>
+              <button
+                type="button"
+                onclick="window.location.href='listar-ventas.html'"
+                class="btn btn-success"
+              >
+                Volver
+              </button>
+            </div>
           </div>
-        
           <div class="table-container">
-            <table class="ventas">
+            <table id="miTablaPrimeraSemana" class="table table-striped display">
               <thead>
                 <tr>
                   <th>#</th>
@@ -498,9 +589,9 @@
               <tbody>
                 <tr>
                   <td>1</td>
-                  <td>B</td>
+                  <td>Boleta</td>
                   <td>002-0068</td>
-                  <td>08/03/2025</td>
+                  <td>03/03/2025</td>
                   <td>1200.00</td>
                   <td>
                     <button type="button" class="small-button">...</button>
@@ -508,9 +599,19 @@
                 </tr>
                 <tr>
                   <td>2</td>
-                  <td>F</td>
+                  <td>Factura</td>
                   <td>002-0069</td>
-                  <td>08/03/2025</td>
+                  <td>05/03/2025</td>
+                  <td>50.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Factura</td>
+                  <td>002-0069</td>
+                  <td>07/03/2025</td>
                   <td>50.00</td>
                   <td>
                     <button type="button" class="small-button">...</button>
@@ -518,7 +619,103 @@
                 </tr>
               </tbody>
             </table>
-        
+
+            <div class="header-group">
+              <h3>SEGUNDA SEMANA</h3>
+            </div>
+            <table id="miTablaSegundaSemana" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha Venta</th>
+                  <th>Importe</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>002-0068</td>
+                  <td>10/03/2025</td>
+                  <td>1200.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Factura</td>
+                  <td>002-0069</td>
+                  <td>12/03/2025</td>
+                  <td>50.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Factura</td>
+                  <td>002-0069</td>
+                  <td>14/03/2025</td>
+                  <td>50.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="header-group">
+              <h3>TERCERA SEMANA</h3>
+            </div>
+            <table id="miTablaTerceraSemana" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha Venta</th>
+                  <th>Importe</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>002-0068</td>
+                  <td>10/03/2025</td>
+                  <td>1200.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Factura</td>
+                  <td>002-0069</td>
+                  <td>12/03/2025</td>
+                  <td>50.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Factura</td>
+                  <td>002-0069</td>
+                  <td>14/03/2025</td>
+                  <td>50.00</td>
+                  <td>
+                    <button type="button" class="small-button">...</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
             <!-- Contenedor del importe, alineado a la derecha y más abajo -->
             <div class="importe-container">
               <table class="importe">
@@ -538,7 +735,6 @@
         </div>
       </div>
     </div>
-    <!--FIN VENTAS-->
 
     <!-- plugins:js -->
     <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
@@ -551,6 +747,66 @@
     <script src="../../assets/js/misc.js"></script>
     <script src="../../assets/js/settings.js"></script>
     <script src="../../assets/js/todolist.js"></script>
+
+    <!-- jQuery (necesario para DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $("#miTablaPrimeraSemana").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+            paginate: {
+              first: "Primero",
+              last: "Último",
+              next: "Siguiente",
+              previous: "Anterior",
+            },
+          },
+        });
+        $("#miTablaSegundaSemana").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+            paginate: {
+              first: "Primero",
+              last: "Último",
+              next: "Siguiente",
+              previous: "Anterior",
+            },
+          },
+        });
+        $("#miTablaTerceraSemana").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+            paginate: {
+              first: "Primero",
+              last: "Último",
+              next: "Siguiente",
+              previous: "Anterior",
+            },
+          },
+        });
+        
+      });
+    </script>
 
     <!-- endinject -->
     <!-- Custom js for this page -->

@@ -57,32 +57,52 @@
         background: transparent;
         padding: 30px;
         border-radius: 8px;
-        width: 1180px; /* Ajuste de tamaño */
-        min-height: 700px;
-        margin-left: 300px;
+        box-shadow: none;
+        width: 1990px; /* Aumenta el tamaño */
+        min-height: 700px; /* Aumenta la altura */
+        margin-left: 10px; /* Lo mueve más a la derecha */
         margin-top: 50px;
       }
 
-      .header-group {
+      .form-group {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        margin-bottom: 20px;
+        margin-top: 25px;
+        gap: 15px;
       }
-
-      /* Contenedor principal: coloca la tabla arriba y el importe abajo */
+      .form-group label {
+        margin-right: 10px;
+      }
+      input,
+      select,
+      button {
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      input[type="text"],
+      select {
+        flex: 1;
+      }
+      input[type="date"] {
+        width: 160px;
+      }
+      .small-input {
+        width: 130px;
+      }
+      .medium-input {
+        width: 200px;
+      }
       .table-container {
-        display: flex;
-        flex-direction: column; /* Apila los elementos en columna */
-        align-items: flex-start;
         margin-top: 30px;
+      }
+      table {
         width: 100%;
-      }
-
-      .ventas {
-        width: 100%; /* La tabla ocupa todo el ancho disponible */
         border-collapse: collapse;
+        margin-top: 15px;
       }
-
       table,
       th,
       td {
@@ -90,11 +110,47 @@
         text-align: center;
         padding: 10px;
       }
+      .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 40px;
+      }
+      .btn-finalizar {
+        background: green;
+        color: white;
+        padding: 12px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .header-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .right-group {
+        display: flex;
+        gap: 10px;
+      }
+      tfoot th {
+        border: none; /* Quita los bordes de todos los <th> en el footer */
+        background: transparent; /* Fondo transparente */
+      }
 
-      /* Cuadro del importe alineado a la derecha y más abajo */
+      tfoot th.total-label,
+      tfoot th.total-value {
+        border-top: 2px solid black; /* Agrega borde solo en las celdas de total */
+        border-bottom: 2px solid black;
+        font-weight: bold;
+        background: white; /* Fondo blanco para destacar */
+      }
+
       .importe-container {
-        margin-top: 300px; /* Espacio entre la tabla y el importe */
-        align-self: flex-end; /* Alinea el importe a la derecha */
+        margin-top: 60px; /* Espacio más pequeño entre la tabla y el importe */
+        width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+        display: flex;
+        justify-content: flex-end; /* Alinea el contenedor al extremo derecho */
+        align-items: flex-end; /* Asegura que el contenido dentro del contenedor se alinee al final */
       }
 
       .importe {
@@ -476,20 +532,22 @@
             </li>
           </ul>
         </nav>
+        <!-- VENTAS-->
         <div class="container-ventas">
           <div class="header-group">
-            <h3>DIA - 12/03/25</h3>
-            <button
-              type="button"
-              onclick="window.location.href='listar-ventas.html'"
-              class="btn btn-success"
-            >
-              Volver
-            </button>
+            <h3>VENTAS DE HOY - 12/03/25</h3>
+            <div>
+              <button
+                type="button"
+                onclick="window.location.href='listar-ventas.html'"
+                class="btn btn-success"
+              >
+                Volver
+              </button>
+            </div>
           </div>
-
           <div class="table-container">
-            <table id="miTabla" class="display" class="ventas">
+            <table id="miTabla" class="table table-striped display">
               <thead>
                 <tr>
                   <th>#</th>
@@ -503,7 +561,7 @@
               <tbody>
                 <tr>
                   <td>1</td>
-                  <td>B</td>
+                  <td>Boleta</td>
                   <td>002-0068</td>
                   <td>08/03/2025</td>
                   <td>1200.00</td>
@@ -513,7 +571,7 @@
                 </tr>
                 <tr>
                   <td>2</td>
-                  <td>F</td>
+                  <td>Factura</td>
                   <td>002-0069</td>
                   <td>08/03/2025</td>
                   <td>50.00</td>
@@ -523,7 +581,6 @@
                 </tr>
               </tbody>
             </table>
-
             <!-- Contenedor del importe, alineado a la derecha y más abajo -->
             <div class="importe-container">
               <table class="importe">
@@ -543,7 +600,6 @@
         </div>
       </div>
     </div>
-    <!--FIN VENTAS-->
 
     <!-- plugins:js -->
     <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>

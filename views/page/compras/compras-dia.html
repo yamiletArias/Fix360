@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SESION COMPRAS</title>
+    <title>SESION VENTAS</title>
     <!--Font awesome -->
     <!-- FonAwesome -->
     <link
@@ -45,6 +45,7 @@
     />
     <!-- End layout styles -->
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+
     <!-- DataTables CSS -->
     <link
       rel="stylesheet"
@@ -143,6 +144,33 @@
         font-weight: bold;
         background: white; /* Fondo blanco para destacar */
       }
+
+      .importe-container {
+        margin-top: 60px; /* Espacio más pequeño entre la tabla y el importe */
+        width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+        display: flex;
+        justify-content: flex-end; /* Alinea el contenedor al extremo derecho */
+        align-items: flex-end; /* Asegura que el contenido dentro del contenedor se alinee al final */
+      }
+
+      .importe {
+        width: 200px; /* Ajuste del tamaño del cuadro */
+        border-collapse: collapse;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .importe th {
+        background-color: #f4f4f4;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+
+      .importe td {
+        font-size: 18px;
+        padding: 15px;
+        border: 1px solid #ccc;
+      }
       .text-left {
         text-align: left !important; /* Asegura que se alinee a la izquierda */
       }
@@ -184,7 +212,7 @@
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
           <h5 class="mb-0 font-weight-medium d-none d-lg-flex">
-            Lista de Compras
+            Compras del dia
           </h5>
           <ul class="navbar-nav navbar-nav-right">
             <form class="search-form d-none d-md-block" action="#">
@@ -433,20 +461,20 @@
             </li>
             <li class="nav-item">
               <!--<a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-                  <span class="menu-title">Icons</span>
-                  <i class="icon-globe menu-icon"></i>
-              </a>-->
+                      <span class="menu-title">Icons</span>
+                      <i class="icon-globe menu-icon"></i>
+                  </a>-->
               <!--<div class="collapse" id="icons">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item">
-                  <a
-                    class="nav-link"
-                    href="../../pages/icons/font-awesome.html"
-                    >Font Awesome</a
-                  >
-                </li>
-              </ul>
-            </div>-->
+                  <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                      <a
+                        class="nav-link"
+                        href="../../pages/icons/font-awesome.html"
+                        >Font Awesome</a
+                      >
+                    </li>
+                  </ul>
+                </div>-->
             </li>
             <li class="nav-item">
               <a class="nav-link" href="../compras/listar-compras.html">
@@ -507,44 +535,17 @@
             </li>
           </ul>
         </nav>
+        <!-- VENTAS-->
         <div class="container-ventas">
           <div class="header-group">
-            <div class="form-group">
-              <div class="btn-group" role="group" aria-label="Basic example">
-                <button
-                  onclick="window.location.href='compras-dia.html'"
-                  type="button"
-                  class="btn btn-primary"
-                >
-                  Dia
-                </button>
-                <button
-                  onclick="window.location.href='compras-semana.html'"
-                  type="button"
-                  class="btn btn-primary"
-                >
-                  Semana
-                </button>
-                <button
-                  onclick="window.location.href='compras-mes.html'"
-                  type="button"
-                  class="btn btn-primary"
-                >
-                  Mes
-                </button>
-              </div>
-              <button
-                type="button"
-                class="btn-outline-danger fa-solid fa-file-pdf"
-              ></button>
-            </div>
+            <h3>COMPRAS DE HOY - 12/03/25</h3>
             <div>
               <button
                 type="button"
-                onclick="window.location.href='./registrar-compras.html'"
+                onclick="window.location.href='listar-compras.html'"
                 class="btn btn-success"
               >
-                Registrar
+                Volver
               </button>
             </div>
           </div>
@@ -559,120 +560,52 @@
                   <th>Fecha Compra</th>
                   <th>Precio</th>
                   <th>Moneda</th>
-                  <th>Opciones</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>1</th>
-                  <th>Boleta</th>
-                  <th>0001-032</th>
-                  <th class="text-left">Repuestos S.A.C</th>
-                  <th>10/03/2025</th>
-                  <th>350.00</th>
-                  <th>SOLES</th>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>002-0068</td>
+                  <td class="text-left">Aceros arequipa</td>
+                  <td>08/03/2025</td>
+                  <td>1200.00</td>
                   <td>
-                    <button
-                      onclick="window.location.href='actualizar-compras.html'"
-                      class="btn btn-warning"
-                    >
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button
-                      class="btn btn-danger"
-                      id="btnEliminar"
-                      data-id="data-123"
-                    >
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <button type="button" class="small-button">...</button>
                   </td>
                 </tr>
                 <tr>
-                  <th>2</th>
-                  <th>Factura</th>
-                  <th>0001-033</th>
-                  <th class="text-left">Aceros Arequipa</th>
-                  <th>11/03/2025</th>
-                  <th>800.50</th>
-                  <th>DOLARES</th>
+                  <td>2</td>
+                  <td>Factura</td>
+                  <td>002-0069</td>
+                  <td class="text-left">Equipos insdustriales S.A</td>
+                  <td>08/03/2025</td>
+                  <td>50.00</td>
                   <td>
-                    <button
-                      onclick="window.location.href='actualizar-compras.html'"
-                      class="btn btn-warning"
-                    >
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button
-                      class="btn btn-danger"
-                      id="btnEliminar"
-                      data-id="data-123"
-                    >
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <th>3</th>
-                  <th>Boleta</th>
-                  <th>0001-034</th>
-                  <th class="text-left">Comercializadora XYZ</th>
-                  <th>12/03/2025</th>
-                  <th>550.00</th>
-                  <th>SOLES</th>
-                  <td>
-                    <button
-                      onclick="window.location.href='actualizar-compras.html'"
-                      class="btn btn-warning"
-                    >
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button
-                      class="btn btn-danger"
-                      id="btnEliminar"
-                      data-id="data-123"
-                    >
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <th>4</th>
-                  <th>Factura</th>
-                  <th>0001-035</th>
-                  <th class="text-left">Equipos Industriales S.A.</th>
-                  <th>13/03/2025</th>
-                  <th>600.00</th>
-                  <th>DOLARES</th>
-                  <td>
-                    <button
-                      onclick="window.location.href='actualizar-compras.html'"
-                      class="btn btn-warning"
-                    >
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button
-                      class="btn btn-danger"
-                      id="btnEliminar"
-                      data-id="data-123"
-                    >
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <button type="button" class="small-button">...</button>
                   </td>
                 </tr>
               </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="5" class="text-end fw-bold">Total</td>
-                  <td>1,251.70</td>
-                  <td colspan="2"></td>
-                </tr>
-              </tfoot>
             </table>
+            <!-- Contenedor del importe, alineado a la derecha y más abajo -->
+            <div class="importe-container">
+              <table class="importe">
+                <thead>
+                  <tr>
+                    <th>Importe Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1250.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <!--FIN VENTAS-->
 
     <!-- plugins:js -->
     <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
@@ -694,220 +627,24 @@
 
     <script>
       $(document).ready(function () {
-        $("#miTabla").DataTable();
+        $("#miTabla").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+            paginate: {
+              first: "Primero",
+              last: "Último",
+              next: "Siguiente",
+              previous: "Anterior",
+            },
+          },
+        });
       });
-
-      document
-        .querySelector("#btnEliminar")
-        .addEventListener("click", async function () {
-          const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
-
-          if (
-            await ask("¿Estás seguro de eliminar este registro?", "Compras")
-          ) {
-            showToast("Registro eliminado correctamente", "SUCCESS");
-            // Aquí podrías agregar la lógica para eliminar el registro
-            console.log(`Eliminando registro con ID: 1`);
-          } else {
-            showToast("Operación cancelada", "WARNING");
-          }
-        });
     </script>
-    <!--<script>
-      document
-        .querySelector("#btnEliminar")
-        .addEventListener("click", async function () {
-          const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
-
-          if (await ask("¿Estás seguro de eliminar este registro?", "Compras")) {
-            showToast("Registro eliminado correctamente", "SUCCESS");
-            // Aquí podrías agregar la lógica para eliminar el registro
-            console.log(`Eliminando registro con ID: 1`);
-          } else {
-            showToast("Operación cancelada", "WARNING");
-          }
-        });
-    </script>-->
-    <!-- Modal -->
-    <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Detalle de la Venta 002-0034</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <p>Cliente: Jose Hernandez</p>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Dsct.</th>
-                    <th>Importe</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th>1</th>
-                    <th>B</th>
-                    <th>002-0034</th>
-                    <th>10/03/2025</th>
-                    <th>300.00</th>
-                    <th>
-                      <button
-                        type="button"
-                        class="btn-primary fa-solid fa-circle-info"
-                        data-bs-toggle="modal"
-                        data-bs-target="#miModal"
-                      ></button>
-                    </th>
-                    <th>
-                      <button
-                        onclick="window.location.href='editar-ventas.html'"
-                        class="fa-solid fa-pen-to-square"
-                      ></button>
-                      <button
-                        id="btnEliminar"
-                        data-id="data-123"
-                        class="fa-solid fa-trash"
-                      ></button>
-                    </th>
-                  </tr>
-                  <tr>
-                    <th>2</th>
-                    <th>F</th>
-                    <th>001-0028</th>
-                    <th>10/03/2025</th>
-                    <th>10.00</th>
-                    <th>
-                      <button
-                        type="button"
-                        class="btn-primary fa-solid fa-circle-info"
-                        data-bs-toggle="modal"
-                        data-bs-target="#miModal"
-                      ></button>
-                    </th>
-                    <th>
-                      <button
-                        onclick="window.location.href='editar-ventas.html'"
-                        class="fa-solid fa-pen-to-square"
-                      ></button>
-                      <button
-                        id="btnEliminar"
-                        data-id="data-23"
-                        class="fa-solid fa-trash"
-                      ></button>
-                    </th>
-                  </tr>
-                  <tr>
-                    <th>3</th>
-                    <th>B</th>
-                    <th>002-0036</th>
-                    <th>10/03/2025</th>
-                    <th>230.00</th>
-                    <th>
-                      <button
-                        type="button"
-                        class="btn-primary fa-solid fa-circle-info"
-                        data-bs-toggle="modal"
-                        data-bs-target="#miModal"
-                      ></button>
-                    </th>
-                    <th>
-                      <button
-                        onclick="window.location.href='editar-ventas.html'"
-                        class="fa-solid fa-pen-to-square"
-                      ></button>
-                      <button
-                        id="btnEliminar"
-                        data-id="data-13"
-                        class="fa-solid fa-trash"
-                      ></button>
-                    </th>
-                  </tr>
-                  <tr>
-                    <th>4</th>
-                    <th>B</th>
-                    <th>002-0037</th>
-                    <th>10/03/2025</th>
-                    <th>361.20</th>
-                    <th>
-                      <button
-                        type="button"
-                        class="btn-primary fa-solid fa-circle-info"
-                        data-bs-toggle="modal"
-                        data-bs-target="#miModal"
-                      ></button>
-                    </th>
-                    <th>
-                      <button
-                        onclick="window.location.href='editar-ventas.html'"
-                        class="fa-solid fa-pen-to-square"
-                      ></button>
-                      <button
-                        id="btnEliminar"
-                        data-id="data-12"
-                        class="fa-solid fa-trash"
-                      ></button>
-                    </th>
-                  </tr>
-                  <tr>
-                    <th>5</th>
-                    <th>F</th>
-                    <th>002-0030</th>
-                    <th>10/03/2025</th>
-                    <th>350.50</th>
-                    <th>
-                      <button
-                        type="button"
-                        class="btn-primary fa-solid fa-circle-info"
-                        data-bs-toggle="modal"
-                        data-bs-target="#miModal"
-                      ></button>
-                    </th>
-                    <th>
-                      <button
-                        onclick="window.location.href='editar-ventas.html'"
-                        class="fa-solid fa-pen-to-square"
-                      ></button>
-                      <button
-                        id="btnEliminar"
-                        data-id="data-1"
-                        class="fa-solid fa-trash"
-                      ></button>
-                    </th>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th>Total</th>
-                  <th>1,251.70</th>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-bs-dismiss="modal"
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- endinject -->
     <!-- Custom js for this page -->
