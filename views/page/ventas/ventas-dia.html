@@ -535,15 +535,41 @@
         <!-- VENTAS-->
         <div class="container-ventas">
           <div class="header-group">
-            <h3>VENTAS DE HOY - 12/03/25</h3>
-            <div>
-              <button
-                type="button"
-                onclick="window.location.href='listar-ventas.html'"
-                class="btn btn-success"
-              >
-                Volver
-              </button>
+            <div class="header-group">
+              <div class="form-group">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button id="btnDia" type="button" class="btn btn-primary">
+                    Día
+                  </button>
+                  <button
+                    onclick="window.location.href='ventas-semana.html'"
+                    type="button"
+                    class="btn btn-primary"
+                  >
+                    Semana
+                  </button>
+                  <button
+                    onclick="window.location.href='ventas-mes.html'"
+                    type="button"
+                    class="btn btn-primary"
+                  >
+                    Mes
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="btn-outline-danger fa-solid fa-file-pdf"
+                ></button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onclick="window.location.href='registrar-ventas.html'"
+                  class="btn btn-success"
+                >
+                  Registrar
+                </button>
+              </div>
             </div>
           </div>
           <div class="table-container">
