@@ -42,9 +42,11 @@
     <link
       rel="stylesheet"
       href="../../assets/css/vertical-light-layout/style.css"
-    />  
+    />
     <!-- End layout styles -->
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+
+    <link rel="stylesheet" href="./dia.css" />
 
     <!-- DataTables CSS -->
     <link
@@ -58,9 +60,9 @@
         padding: 30px;
         border-radius: 8px;
         box-shadow: none;
-        width: 1990px; /* Aumenta el tamaño */
+        width: 2900px; /* Aumenta el tamaño */
         min-height: 700px; /* Aumenta la altura */
-        margin-left: 10px; /* Lo mueve más a la derecha */
+        margin-left: 50px; /* Lo mueve más a la derecha */
         margin-top: 50px;
       }
 
@@ -143,6 +145,16 @@
         border-bottom: 2px solid black;
         font-weight: bold;
         background: white; /* Fondo blanco para destacar */
+      }
+      #miTabla td {
+        padding: 2px !important; /* Reduce el espacio interno solo en los td */
+        font-size: 15px; /* Reduce el tamaño de fuente solo en los td */
+        line-height: 1 !important; /* Reduce la altura de las filas */
+        white-space: nowrap; /* Evita saltos de línea en las celdas */
+      }
+      #miTabla td:first-child,
+      #miTabla th:first-child {
+        text-align: center;
       }
     </style>
   </head>
@@ -509,18 +521,10 @@
           <div class="header-group">
             <div class="form-group">
               <div class="btn-group" role="group" aria-label="Basic example">
-                <button
-                  onclick="window.location.href='ventas-dia.html'"
-                  type="button"
-                  class="btn btn-primary"
-                >
-                  Dia
+                <button id="btnDia" type="button" class="btn btn-primary">
+                  Día
                 </button>
-                <button
-                  onclick="window.location.href='ventas-semana.html'"
-                  type="button"
-                  class="btn btn-primary"
-                >
+                <button id="btnSemana" type="button" class="btn btn-primary">
                   Semana
                 </button>
                 <button
@@ -546,6 +550,7 @@
               </button>
             </div>
           </div>
+
           <div class="table-container">
             <table id="miTabla" class="table table-striped display">
               <thead>
@@ -555,7 +560,6 @@
                   <th>N° Comprobante</th>
                   <th>Fecha</th>
                   <th>Total</th>
-                  <th>Detalle</th>
                   <th>Opciones</th>
                 </tr>
               </thead>
@@ -568,27 +572,28 @@
                   <td>300.00</td>
                   <td>
                     <button
-                      type="button"
-                      class="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#miModal"
-                    >
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                  </td>
-                  <td>
-                    <button
+                      title="Editar"
                       onclick="window.location.href='editar-ventas.html'"
-                      class="btn btn-warning"
+                      class="btn btn-warning btn-sm"
                     >
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button
-                      class="btn btn-danger"
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
                       id="btnEliminar"
                       data-id="data-123"
                     >
                       <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
                     </button>
                   </td>
                 </tr>
@@ -600,27 +605,28 @@
                   <td>10.00</td>
                   <td>
                     <button
-                      type="button"
-                      class="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#miModal"
-                    >
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                  </td>
-                  <td>
-                    <button
+                      title="Editar"
                       onclick="window.location.href='editar-ventas.html'"
-                      class="btn btn-warning"
+                      class="btn btn-warning btn-sm"
                     >
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button
-                      class="btn btn-danger"
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
                       id="btnEliminar"
                       data-id="data-123"
                     >
                       <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
                     </button>
                   </td>
                 </tr>
@@ -632,27 +638,28 @@
                   <td>230.00</td>
                   <td>
                     <button
-                      type="button"
-                      class="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#miModal"
-                    >
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                  </td>
-                  <td>
-                    <button
+                      title="Editar"
                       onclick="window.location.href='editar-ventas.html'"
-                      class="btn btn-warning"
+                      class="btn btn-warning btn-sm"
                     >
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button
-                      class="btn btn-danger"
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
                       id="btnEliminar"
                       data-id="data-123"
                     >
                       <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
                     </button>
                   </td>
                 </tr>
@@ -664,27 +671,28 @@
                   <td>361.20</td>
                   <td>
                     <button
-                      type="button"
-                      class="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#miModal"
-                    >
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                  </td>
-                  <td>
-                    <button
+                      title="Editar"
                       onclick="window.location.href='editar-ventas.html'"
-                      class="btn btn-warning"
+                      class="btn btn-warning btn-sm"
                     >
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button
-                      class="btn btn-danger"
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
                       id="btnEliminar"
                       data-id="data-123"
                     >
                       <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
                     </button>
                   </td>
                 </tr>
@@ -696,27 +704,28 @@
                   <td>350.50</td>
                   <td>
                     <button
-                      type="button"
-                      class="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#miModal"
-                    >
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                  </td>
-                  <td>
-                    <button
+                      title="Editar"
                       onclick="window.location.href='editar-ventas.html'"
-                      class="btn btn-warning"
+                      class="btn btn-warning btn-sm"
                     >
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button
-                      class="btn btn-danger"
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
                       id="btnEliminar"
                       data-id="data-123"
                     >
                       <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
                     </button>
                   </td>
                 </tr>
@@ -730,6 +739,10 @@
               </tfoot>
             </table>
           </div>
+        </div>
+        <!-- Contenedor de ventas del día (inicialmente oculto) -->
+        <div id="ventasDiaContainer" style="display: none">
+          <!-- Aquí se generará la tabla de ventas del día al presionar el botón Día -->
         </div>
       </div>
     </div>
@@ -784,23 +797,217 @@
     <script>
       $(document).ready(function () {
         $("#miTabla").DataTable();
-      });
-
-      document
-        .querySelector("#btnEliminar")
-        .addEventListener("click", async function () {
-          const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
-
-          if (
-            await ask("¿Estás seguro de eliminar este registro?", "Compras")
-          ) {
-            showToast("Registro eliminado correctamente", "SUCCESS");
-            // Aquí podrías agregar la lógica para eliminar el registro
-            console.log(`Eliminando registro con ID: 1`);
-          } else {
-            showToast("Operación cancelada", "WARNING");
-          }
+  
+        // Añadir los listeners de los botones desde el principio
+        document
+          .getElementById("btnDia")
+          .addEventListener("click", mostrarVentasDia);
+        document
+          .getElementById("btnSemana")
+          .addEventListener("click", mostrarVentasSemana);
+  
+        document.querySelectorAll("#btnEliminar").forEach((boton) => {
+          boton.addEventListener("click", async function () {
+            const id = this.getAttribute("data-id"); // Obtener el ID del botón clickeado
+  
+            if (
+              await ask("¿Estás seguro de eliminar este registro?", "Compras")
+            ) {
+              showToast("Registro eliminado correctamente", "SUCCESS");
+              console.log(`Eliminando registro con ID: ${id}`);
+            } else {
+              showToast("Operación cancelada", "WARNING");
+            }
+          });
         });
+      });
+  
+      function mostrarVentasDia() {
+        // Ocultamos el contenedor original de ventas
+        document.querySelector(".container-ventas").style.display = "none";
+  
+        // Mostramos el contenedor de ventas del día
+        const ventasDiaContainer =
+          document.getElementById("ventasDiaContainer");
+        ventasDiaContainer.style.display = "block";
+  
+        // Insertamos el HTML de la tabla de ventas del día
+        const ventasDiaHTML = `
+    <div class="header-group">
+      <div class="form-group">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button id="btnDia" type="button" class="btn btn-primary">Día</button>
+          <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
+          <button onclick="window.location.href='ventas-mes.html'" type="button" class="btn btn-primary">Mes</button>
+        </div>
+        <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
+      </div>
+      <div>
+        <button type="button" onclick="volverAVentas()" class="btn btn-success">Volver</button>
+      </div>
+    </div>
+    <div class="table-container">
+      <table id="miTablaDia" class="table table-striped display">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>T. Comprobante</th>
+            <th>N° Comprobante</th>
+            <th>Fecha Venta</th>
+            <th>Importe</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Boleta</td>
+            <td>002-0068</td>
+            <td>08/03/2025</td>
+            <td>1200.00</td>
+            <td><button type="button" class="small-button">...</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Factura</td>
+            <td>002-0069</td>
+            <td>08/03/2025</td>
+            <td>50.00</td>
+            <td><button type="button" class="small-button">...</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+        ventasDiaContainer.innerHTML = ventasDiaHTML;
+  
+        // Inicializamos DataTable en la nueva tabla
+        $(document).ready(function () {
+          $("#miTablaDia").DataTable({
+            language: {
+              lengthMenu: "Mostrar _MENU_ registros por página",
+              zeroRecords: "No se encontraron registros",
+              info: "Mostrando página _PAGE_ de _PAGES_",
+              infoEmpty: "No hay registros disponibles",
+              infoFiltered: "(filtrado de _MAX_ registros en total)",
+              search: "Buscar:",
+              paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior",
+              },
+            },
+          });
+        });
+      }
+  
+      function mostrarVentasSemana() {
+        // Ocultamos el contenedor original de ventas
+        document.querySelector(".container-ventas").style.display = "none";
+  
+        // Mostramos el contenedor de ventas de la semana
+        const ventasSemanaContainer =
+          document.getElementById("ventasDiaContainer");
+        ventasSemanaContainer.style.display = "block";
+  
+        // Insertamos el HTML de la tabla de ventas de la semana
+        const ventasSemanaHTML = `
+    <div class="header-group">
+      <div class="form-group">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button id="btnDia" type="button" class="btn btn-primary">Día</button>
+          <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
+          <button onclick="window.location.href='ventas-mes.html'" type="button" class="btn btn-primary">Mes</button>
+        </div>
+        <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
+      </div>
+      <div>
+        <button type="button" onclick="volverAVentas()" class="btn btn-success">Volver</button>
+      </div>
+    </div>
+    <div class="table-container">
+      <h3>Desde - 10/03/25</h3>
+      <table id="miTablaSemana" class="table table-striped display">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>T. Comprobante</th>
+            <th>N° Comprobante</th>
+            <th>Fecha Venta</th>
+            <th>Importe</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Boleta</td>
+            <td>002-0070</td>
+            <td>10/03/2025</td>
+            <td>800.00</td>
+            <td><button type="button" class="small-button">...</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Factura</td>
+            <td>002-0071</td>
+            <td>10/03/2025</td>
+            <td>600.00</td>
+            <td><button type="button" class="small-button">...</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Boleta</td>
+            <td>002-0072</td>
+            <td>11/03/2025</td>
+            <td>600.00</td>
+            <td><button type="button" class="small-button">...</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Factura</td>
+            <td>002-0073</td>
+            <td>12/03/2025</td>
+            <td>600.00</td>
+            <td><button type="button" class="small-button">...</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+        ventasSemanaContainer.innerHTML = ventasSemanaHTML;
+  
+        // Inicializamos DataTable en la nueva tabla
+        $(document).ready(function () {
+          $("#miTablaSemana").DataTable({
+            language: {
+              lengthMenu: "Mostrar _MENU_ registros por página",
+              zeroRecords: "No se encontraron registros",
+              info: "Mostrando página _PAGE_ de _PAGES_",
+              infoEmpty: "No hay registros disponibles",
+              infoFiltered: "(filtrado de _MAX_ registros en total)",
+              search: "Buscar:",
+              paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior",
+              },
+            },
+          });
+        });
+      }
+  
+      function volverAVentas() {
+        // Restauramos el contenedor original de ventas
+        document.querySelector(".container-ventas").style.display = "block";
+        // Limpiamos el contenido de ventas del día y lo ocultamos
+        const ventasDiaContainer =
+          document.getElementById("ventasDiaContainer");
+        ventasDiaContainer.innerHTML = ""; // Limpiar la tabla de ventas
+        ventasDiaContainer.style.display = "none"; // Ocultar el contenedor de ventas
+      }
     </script>
 
     <!-- endinject -->

@@ -1,0 +1,115 @@
+/* #ventasDiaContainer tendrá los mismos estilos de tabla, botón e importe, pero no cambiaremos el tamaño de .container-ventas */
+#ventasDiaContainer {
+    background: transparent;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: none;
+    width: 1590px; /* Asegúrate de usar el mismo tamaño que container-ventas */
+    min-height: 700px; /* Altura consistente */
+    margin-left: 50px;
+    margin-top: 50px;
+  }
+  .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-top: 25px;
+    gap: 15px;
+  }
+  .form-group label {
+    margin-right: 10px;
+  }
+  input,
+  select,
+  button {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .table-container {
+    margin-top: 30px;
+  }
+  
+  /* Mantener los estilos para la tabla */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  table,
+  th,
+  td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 10px;
+  }
+  
+  /* Estilo de los botones */
+  .small-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .small-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Estilo para el contenedor del importe */
+  .importe-container {
+    margin-top: 60px; /* Asegura que el importe esté bien espaciado */
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+  
+  .importe {
+    width: 200px;
+    border-collapse: collapse;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .importe th {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+  
+  .importe td {
+    font-size: 18px;
+    padding: 15px;
+    border: 1px solid #ccc;
+  }
+  .container-ventas {
+    background: transparent;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: none;
+    width: 100%; /* Aseguramos que el contenedor ocupe todo el espacio disponible */
+    max-width: 1590px; /* Limitar el ancho máximo */
+    min-height: 700px; /* Aumenta la altura */
+    margin-left: 50px; 
+    margin-top: 50px;
+  }
+  
+  .table-container {
+    margin-top: 30px;
+    width: 100%;
+  }
+  
+  table {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  
+  #miTabla {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+  
