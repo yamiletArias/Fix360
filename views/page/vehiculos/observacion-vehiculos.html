@@ -500,92 +500,60 @@
           </ul>
         </nav>
         <div class="container-observaciones">
-          <div>
-            <p>Observaciones:</p>
-            <textarea
-              style="padding-right: 10px"
-              rows="10"
-              cols="50"
-              name=""
-              id=""
-            ></textarea>
-          </div>
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Componente</th>
-                  <th>Estado</th>
-                  <th>Foto</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Espejos</td>
-                  <td>
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="switchEstado"
-                    />
-                  </td>
-                  <td>
-                    <img
-                      src="https://www.kia.com/content/dam/kwcms/pe/es/images/noticias/2020/setiembre/2309/como-usar-espejos-auto-aprende-evitar-puntos-ciegos.jpg"
-                      width="200"
-                      alt=""
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Luces Delanteras</td>
-                  <td>
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="switchEstado"
-                    />
-                  </td>
-                  <td>
-                    <img
-                      src="https://www.championautoparts.com/content/dam/marketing/emea/champion/news/align-headligths-header-thumb.jpg"
-                      width="200"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Lado izquierdo</td>
-                  <td>
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="switchEstado"
-                    />
-                  </td>
-                  <td>
-                    <img
-                      src="https://previews.123rf.com/images/photoart23d/photoart23d1710/photoart23d171000075/88192375-coche-aislado-en-blanco-dorado-vidrios-polarizados-vista-lateral-izquierda-representaci%C3%B3n-3d.jpg"
-                      width="200"
-                      alt=""
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <!-- Botón Finalizar alineado a la derecha -->
-          <div class="btn-container">
-            <button
-              onclick="window.location.href='listar-vehiculos.html'"
-              class="btn btn-success"
-            >
-              Volver
-            </button>
-          </div>
+          <div  class="container-main ">
+            <div class="form-group" >
+                <label>Observaciones:</label>
+                <textarea  style="margin-right: 500px; padding-right: 100px;"  disabled  rows="10" cols="50" name="" id="">Observaciones del auto</textarea>
+            </div>    
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;" >
+                    <div class="card" style="width: 18rem;">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXzvt_A5UQ3xFzsAKD-ufZy0jSFQjUcEmb5w&s" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title">Espejos delanteros</h5>
+                            <div class="form-check form-switch">
+                              <label style="display: block;" >Estado:</label>
+                              <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                            </div>
+                    </div>
+                  </div>
+
+                  <div class="card" style="width: 18rem;">
+                    <img src="https://cdn.autobild.es/sites/navi.axelspringer.es/public/media/image/2017/09/mejores-motores-cuatro-cilindros_6.jpg?tf=3840x" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title">Motor</h5>
+                          <div class="form-check form-switch">
+                              <label style="display: block;" >Estado:</label>
+                              <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                            </div>
+                    </div>
+                  </div>
+                  <div class="card" style="width: 18rem;">
+                    <img src="https://www.championautoparts.com/content/dam/marketing/emea/champion/news/align-headligths-header-thumb.jpg" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title">Luces delanteras</h5>
+                          <div class="form-check form-switch">
+                              <label style="display: block;" >Estado:</label>
+                              <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                            </div>
+                    </div>
+                  </div>
+                  <div class="card" style="width: 18rem;">
+                        <img src="https://f.fcdn.app/imgs/c320e0/www.cymaco.com.uy/cym/9d51/original/wysiwyg/1/1280x0/70916208-2715878311764014-869032.jpg" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title">Parte trasera</h5>
+                          <div class="form-check form-switch">
+                              <label style="display: block;" >Estado:</label>
+                              <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                            </div>
+                    </div>
+                  </div>
+                  
+                </div>
+                  
+            <div>
+                <button onclick="window.location.href='historial-vehiculos.html'" style="margin-top: 20px; " class=" btn btn-success">Volver</button>
+            </div>
+        </div>
         </div>
       </div>
     </div>
