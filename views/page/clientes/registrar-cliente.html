@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotizaciones</title>
+  <title>Registro de Cliente</title>
   <!--Font awesome -->
   <!-- FonAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -16,10 +16,6 @@
   <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/swalcustom.js"></script>
-
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
-
 
   <!-- endinject -->
   <!-- Plugin css for this page -->
@@ -33,16 +29,16 @@
   <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
   <style>
-    .container-main {
+    .container-ventas {
       background: transparent;
       padding: 30px;
       border-radius: 8px;
       box-shadow: none;
-      width: 1200px;
+      width: 1100px;
       /* Aumenta el tamaño */
-      min-height: 50px;
+      min-height: 700px;
       /* Aumenta la altura */
-      margin-left: 150px;
+      margin-left: 300px;
       /* Lo mueve más a la derecha */
       margin-top: 50px;
     }
@@ -167,7 +163,7 @@
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center">
         <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
-          Cotizaciones
+          Registro de Cliente
         </h2>
         <ul class="navbar-nav navbar-nav-right">
           <li class="nav-item dropdown">
@@ -209,13 +205,11 @@
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
             <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <img class="img-xs rounded-circle ms-2"
-                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+              <img class="img-xs rounded-circle ms-2" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
               <span class="font-weight-normal"> Elena </span></a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
-                <img class="img-md rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+                <img class="img-md rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
                 <p class="mb-1 mt-3">Elena</p>
                 <p class="font-weight-light text-muted mb-0">
                   fix360@gmail.com
@@ -245,14 +239,12 @@
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
             <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
-                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
-                alt="logo" /></a>
+                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
           </li>
           <li class="nav-item nav-profile">
             <a href="#" class="nav-link">
               <div class="profile-image">
-                <img class="img-xs rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
+                <img class="img-xs rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
                 <div class="dot-indicator bg-success"></div>
               </div>
               <div class="text-wrapper">
@@ -358,245 +350,26 @@
           </li>
         </ul>
       </nav>
-      <div class="container-main">
-        <div>
-          <button type="button" onclick="window.location.href='registrar-cotizacion.html'" style="margin-left: 1000px;" class="btn btn-success">
-            Registrar
-          </button>
-          <div class="table-container">
-            <table id="miTabla" class="table table-striped display">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Cliente</th>
-                  <th>Precio</th>
-                  <th>Moneda</th>
-                  <th>Descuento</th>
-                  <th>vigencia</th>
-                  <th>Opciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Jesus Valerio</td>
-                  <td>520.00</td>
-                  <td>Soles</td>
-                  <td>0%</td>
-                  <td>20/03/2025</td>
-                  <td>
-                    </button>
-                    <button title="Editar" onclick="window.location.href='editar-cotizacion.html'"
-                      class="btn btn-warning btn-sm">
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#miModal">
-                      <i class="fa-solid fa-circle-info"></i>
-                  </td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>William Tasayco</td>
-                  <td>300.00</td>
-                  <td>Dolares</td>
-                  <td>0%</td>
-                  <td>VENCIO</td>
-                  <td>
-                    <button title="Editar" onclick="window.location.href='editar-cotizacion.html'"
-                      class="btn btn-warning btn-sm">
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#miModal">
-                      <i class="fa-solid fa-circle-info"></i>
-                  </td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Estefano Sanchez</td>
-                  <td>150.00</td>
-                  <td>Soles</td>
-                  <td>20%</td>
-                  <td>VENCIO</td>
-                  <td>
-                    <button title="Editar" onclick="window.location.href='editar-cotizacion.html'"
-                      class="btn btn-warning btn-sm">
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#miModal">
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <div class="container-ventas"></div>
     </div>
-    <!--FIN VENTAS-->
+  </div>
+  <!--FIN VENTAS-->
 
+  <!-- plugins:js -->
+  <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page -->
+  <!-- End plugin js for this page -->
+  <!-- inject:js -->
+  <script src="../../assets/js/off-canvas.js"></script>
+  <script src="../../assets/js/hoverable-collapse.js"></script>
+  <script src="../../assets/js/misc.js"></script>
+  <script src="../../assets/js/settings.js"></script>
+  <script src="../../assets/js/todolist.js"></script>
 
-    <!-- plugins:js -->
-    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="../../assets/js/off-canvas.js"></script>
-    <script src="../../assets/js/hoverable-collapse.js"></script>
-    <script src="../../assets/js/misc.js"></script>
-    <script src="../../assets/js/settings.js"></script>
-    <script src="../../assets/js/todolist.js"></script>
-    <!-- jQuery (necesario para DataTables) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
-
-    <script>
-      $(document).ready(function () {
-        $('#miTabla').DataTable({
-          language: {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando página _PAGE_ de _PAGES_",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar:",
-            "paginate": {
-              "first": "Primero",
-              "last": "Último",
-              "next": "Siguiente",
-              "previous": "Anterior"
-            },
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "emptyTable": "No hay datos disponibles en la tabla"
-          }
-        });
-      });
-
-    </script>
-    <script>
-      document
-        .querySelector("#btnEliminar")
-        .addEventListener("click", async function () {
-          const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
-
-          if (
-            await ask("¿Estás seguro de eliminar este registro?", "Compras")
-          ) {
-            showToast("Registro eliminado correctamente", "SUCCESS");
-            // Aquí podrías agregar la lógica para eliminar el registro
-            console.log(`Eliminando registro con ID: 1`);
-          } else {
-            showToast("Operación cancelada", "WARNING");
-          }
-        });
-
-      $(document).ready(function () {
-        // Inicializar las tablas con DataTables
-        var tableDia = $("#miTabla").DataTable();
-        var tableSemana = $("#miTablaSemana").DataTable();
-        var tableSemana = $("#miTablaMes").DataTable();
-
-        // Función para alternar entre las tablas
-        $("#btnDia").on("click", function () {
-          // Mostrar la tabla Día y ocultar las otras
-          $("#tableDia").show();
-          $("#tableSemana").hide();
-          $("#tableMes").hide();
-        });
-
-        $("#btnSemana").on("click", function () {
-          // Mostrar la tabla Semana y ocultar las otras
-          $("#tableSemana").show();
-          $("#tableDia").hide();
-          $("#tableMes").hide();
-        });
-
-        $("#btnMes").on("click", function () {
-          // Mostrar la tabla Mes y ocultar las otras
-          $("#tableMes").show();
-          $("#tableDia").hide();
-          $("#tableSemana").hide();
-        });
-      });
-    </script>
-
-    <!-- Modal -->
-    <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Detalle de la Cotizacion 001-002</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div>
-              <div class="table-container">
-                <!-- Tabla Día -->
-                <table id="miTabla" class="table table-striped display">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Productos</th>
-                      <th>Precio</th>
-                      <th>Moneda</th>
-                      <th>Descuento</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>Filtro de aceite</td>
-                      <td>120.00</td>
-                      <td>S/</td>
-                      <td>0%</td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>Pastillas de freno</td>
-                      <td>150.00</td>
-                      <td>S/</td>
-                      <td>0%</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>Amortiguador delantero</td>
-                      <td>250.00</td>
-                      <td>S/</td>
-                      <td>0%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- endinject -->
-      <!-- Custom js for this page -->
-      <!-- End custom js for this page -->
+  <!-- endinject -->
+  <!-- Custom js for this page -->
+  <!-- End custom js for this page -->
 </body>
 
 </html>
