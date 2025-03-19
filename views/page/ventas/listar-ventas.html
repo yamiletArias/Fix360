@@ -521,19 +521,9 @@
           <div class="header-group">
             <div class="form-group">
               <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="btnDia" type="button" class="btn btn-primary">
-                  Día
-                </button>
-                <button id="btnSemana" type="button" class="btn btn-primary">
-                  Semana
-                </button>
-                <button
-                  onclick="window.location.href='ventas-mes.html'"
-                  type="button"
-                  class="btn btn-primary"
-                >
-                  Mes
-                </button>
+                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
+                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
+                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
               </div>
               <button
                 type="button"
@@ -796,23 +786,19 @@
 
     <script>
       $(document).ready(function () {
+        // Inicializamos la tabla de ventas por defecto (por ejemplo, ventas por día)
         $("#miTabla").DataTable();
-  
-        // Añadir los listeners de los botones desde el principio
-        document
-          .getElementById("btnDia")
-          .addEventListener("click", mostrarVentasDia);
-        document
-          .getElementById("btnSemana")
-          .addEventListener("click", mostrarVentasSemana);
-  
+      
+        // Añadir los listeners de los botones
+        document.getElementById("btnDia").addEventListener("click", mostrarVentasDia);
+        document.getElementById("btnSemana").addEventListener("click", mostrarVentasSemana);
+        document.getElementById("btnMes").addEventListener("click", mostrarVentasMes);
+      
         document.querySelectorAll("#btnEliminar").forEach((boton) => {
           boton.addEventListener("click", async function () {
             const id = this.getAttribute("data-id"); // Obtener el ID del botón clickeado
-  
-            if (
-              await ask("¿Estás seguro de eliminar este registro?", "Compras")
-            ) {
+      
+            if (await ask("¿Estás seguro de eliminar este registro?", "Compras")) {
               showToast("Registro eliminado correctamente", "SUCCESS");
               console.log(`Eliminando registro con ID: ${id}`);
             } else {
@@ -821,194 +807,262 @@
           });
         });
       });
-  
+      
       function mostrarVentasDia() {
-        // Ocultamos el contenedor original de ventas
+        // Deshabilitamos los botones para evitar clics repetidos
+        document.getElementById("btnDia").disabled = true;
+        document.getElementById("btnSemana").disabled = false;
+        document.getElementById("btnMes").disabled = false;
+      
+        // Ocultamos cualquier contenido de ventas (Semana o Mes)
         document.querySelector(".container-ventas").style.display = "none";
-  
+      
         // Mostramos el contenedor de ventas del día
-        const ventasDiaContainer =
-          document.getElementById("ventasDiaContainer");
+        const ventasDiaContainer = document.getElementById("ventasDiaContainer");
         ventasDiaContainer.style.display = "block";
-  
+      
         // Insertamos el HTML de la tabla de ventas del día
         const ventasDiaHTML = `
-    <div class="header-group">
-      <div class="form-group">
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button id="btnDia" type="button" class="btn btn-primary">Día</button>
-          <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
-          <button onclick="window.location.href='ventas-mes.html'" type="button" class="btn btn-primary">Mes</button>
-        </div>
-        <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
-      </div>
-      <div>
-        <button type="button" onclick="volverAVentas()" class="btn btn-success">Volver</button>
-      </div>
-    </div>
-    <div class="table-container">
-      <table id="miTablaDia" class="table table-striped display">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>T. Comprobante</th>
-            <th>N° Comprobante</th>
-            <th>Fecha Venta</th>
-            <th>Importe</th>
-            <th>Detalle</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Boleta</td>
-            <td>002-0068</td>
-            <td>08/03/2025</td>
-            <td>1200.00</td>
-            <td><button type="button" class="small-button">...</button></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Factura</td>
-            <td>002-0069</td>
-            <td>08/03/2025</td>
-            <td>50.00</td>
-            <td><button type="button" class="small-button">...</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  `;
+          <div class="header-group">
+            <div class="form-group">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
+                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
+                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
+              </div>
+              <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table id="miTablaDia" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha Venta</th>
+                  <th>Importe</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>002-0068</td>
+                  <td>08/03/2025</td>
+                  <td>1200.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Factura</td>
+                  <td>002-0069</td>
+                  <td>08/03/2025</td>
+                  <td>50.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
         ventasDiaContainer.innerHTML = ventasDiaHTML;
-  
+      
         // Inicializamos DataTable en la nueva tabla
-        $(document).ready(function () {
-          $("#miTablaDia").DataTable({
-            language: {
-              lengthMenu: "Mostrar _MENU_ registros por página",
-              zeroRecords: "No se encontraron registros",
-              info: "Mostrando página _PAGE_ de _PAGES_",
-              infoEmpty: "No hay registros disponibles",
-              infoFiltered: "(filtrado de _MAX_ registros en total)",
-              search: "Buscar:",
-              paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "Siguiente",
-                previous: "Anterior",
-              },
-            },
-          });
+        $("#miTablaDia").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+          },
         });
       }
-  
+      
       function mostrarVentasSemana() {
-        // Ocultamos el contenedor original de ventas
+        // Deshabilitamos los botones para evitar clics repetidos
+        document.getElementById("btnDia").disabled = false;
+        document.getElementById("btnSemana").disabled = true;
+        document.getElementById("btnMes").disabled = false;
+      
+        // Ocultamos cualquier contenido de ventas (Día o Mes)
         document.querySelector(".container-ventas").style.display = "none";
-  
+      
         // Mostramos el contenedor de ventas de la semana
-        const ventasSemanaContainer =
-          document.getElementById("ventasDiaContainer");
+        const ventasSemanaContainer = document.getElementById("ventasDiaContainer");
         ventasSemanaContainer.style.display = "block";
-  
+      
         // Insertamos el HTML de la tabla de ventas de la semana
         const ventasSemanaHTML = `
-    <div class="header-group">
-      <div class="form-group">
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button id="btnDia" type="button" class="btn btn-primary">Día</button>
-          <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
-          <button onclick="window.location.href='ventas-mes.html'" type="button" class="btn btn-primary">Mes</button>
-        </div>
-        <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
-      </div>
-      <div>
-        <button type="button" onclick="volverAVentas()" class="btn btn-success">Volver</button>
-      </div>
-    </div>
-    <div class="table-container">
-      <h3>Desde - 10/03/25</h3>
-      <table id="miTablaSemana" class="table table-striped display">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>T. Comprobante</th>
-            <th>N° Comprobante</th>
-            <th>Fecha Venta</th>
-            <th>Importe</th>
-            <th>Detalle</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Boleta</td>
-            <td>002-0070</td>
-            <td>10/03/2025</td>
-            <td>800.00</td>
-            <td><button type="button" class="small-button">...</button></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Factura</td>
-            <td>002-0071</td>
-            <td>10/03/2025</td>
-            <td>600.00</td>
-            <td><button type="button" class="small-button">...</button></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>Boleta</td>
-            <td>002-0072</td>
-            <td>11/03/2025</td>
-            <td>600.00</td>
-            <td><button type="button" class="small-button">...</button></td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>Factura</td>
-            <td>002-0073</td>
-            <td>12/03/2025</td>
-            <td>600.00</td>
-            <td><button type="button" class="small-button">...</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  `;
+          <div class="header-group">
+            <div class="form-group">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
+                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
+                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
+              </div>
+              <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
+            </div>
+          </div>
+          <div class="table-container">
+            <h3>Desde - 10/03/25</h3>
+            <table id="miTablaSemana" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha Venta</th>
+                  <th>Importe</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>002-0070</td>
+                  <td>10/03/2025</td>
+                  <td>800.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Factura</td>
+                  <td>002-0071</td>
+                  <td>10/03/2025</td>
+                  <td>600.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Boleta</td>
+                  <td>002-0072</td>
+                  <td>11/03/2025</td>
+                  <td>600.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Factura</td>
+                  <td>002-0073</td>
+                  <td>12/03/2025</td>
+                  <td>600.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
         ventasSemanaContainer.innerHTML = ventasSemanaHTML;
-  
+      
         // Inicializamos DataTable en la nueva tabla
-        $(document).ready(function () {
-          $("#miTablaSemana").DataTable({
-            language: {
-              lengthMenu: "Mostrar _MENU_ registros por página",
-              zeroRecords: "No se encontraron registros",
-              info: "Mostrando página _PAGE_ de _PAGES_",
-              infoEmpty: "No hay registros disponibles",
-              infoFiltered: "(filtrado de _MAX_ registros en total)",
-              search: "Buscar:",
-              paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "Siguiente",
-                previous: "Anterior",
-              },
-            },
-          });
+        $("#miTablaSemana").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+          },
         });
       }
-  
-      function volverAVentas() {
-        // Restauramos el contenedor original de ventas
-        document.querySelector(".container-ventas").style.display = "block";
-        // Limpiamos el contenido de ventas del día y lo ocultamos
-        const ventasDiaContainer =
-          document.getElementById("ventasDiaContainer");
-        ventasDiaContainer.innerHTML = ""; // Limpiar la tabla de ventas
-        ventasDiaContainer.style.display = "none"; // Ocultar el contenedor de ventas
+      
+      function mostrarVentasMes() {
+        // Deshabilitamos los botones para evitar clics repetidos
+        document.getElementById("btnDia").disabled = false;
+        document.getElementById("btnSemana").disabled = false;
+        document.getElementById("btnMes").disabled = true;
+      
+        // Ocultamos cualquier contenido de ventas (Día o Semana)
+        document.querySelector(".container-ventas").style.display = "none";
+      
+        // Mostramos el contenedor de ventas del mes
+        const ventasMesContainer = document.getElementById("ventasDiaContainer");
+        ventasMesContainer.style.display = "block";
+      
+        // Insertamos el HTML de la tabla de ventas del mes
+        const ventasMesHTML = `
+          <div class="header-group">
+            <div class="form-group">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
+                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
+                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
+              </div>
+              <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
+            </div>
+          </div>
+          <div class="table-container">
+            <h3>Ventas del Mes - Marzo 2025</h3>
+            <table id="miTablaMes" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha Venta</th>
+                  <th>Importe</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>002-0070</td>
+                  <td>01/03/2025</td>
+                  <td>1200.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Factura</td>
+                  <td>002-0071</td>
+                  <td>03/03/2025</td>
+                  <td>800.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Boleta</td>
+                  <td>002-0072</td>
+                  <td>15/03/2025</td>
+                  <td>900.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Factura</td>
+                  <td>002-0073</td>
+                  <td>20/03/2025</td>
+                  <td>1500.00</td>
+                  <td><button type="button" class="small-button">...</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+        ventasMesContainer.innerHTML = ventasMesHTML;
+      
+        // Inicializamos DataTable en la nueva tabla
+        $("#miTablaMes").DataTable({
+          language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron registros",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+          },
+        });
       }
-    </script>
+      </script>
+      
+
 
     <!-- endinject -->
     <!-- Custom js for this page -->
