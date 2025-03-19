@@ -143,7 +143,7 @@ tfoot th.total-value {
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
           <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
-            Registro de Vehiculos
+            Orden de Servicio
           </h2>
           <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown">
@@ -359,7 +359,6 @@ tfoot th.total-value {
                             <th>Ingreso Grua</th>
                             <th>Fch. Ingreso</th>
                             <th>Fch. Salida</th>
-                            <th>Observacion</th>
                             <th>Opciones</th>
                         </tr>
                     </thead>
@@ -375,11 +374,13 @@ tfoot th.total-value {
                       <td>10/02/2025</td>
                       <td>09/01/2025</td>
                       <td>
-                        <Button class=" btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >
+                        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.html'" >
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.html'" >
                             <i class="fa-solid fa-clipboard-list"></i>
                         </Button>
                     </td>
-                      <td><button class="btn-warning fa-solid fa-pen-to-square" onclick="window.location.href='editar-ordenes.html'" ></button></td>
                     </tr>  
                     <tr>
                       <td>2</td>
@@ -392,13 +393,15 @@ tfoot th.total-value {
                       <td>07/01/2025</td>
                       <td>-</td>
                       <td>
-                        <Button class=" btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >
+                        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.html'" >
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button id="btnConfirmarSalida" data-id="10/10/2024" class="btn btn-success btn-sm">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </button>
+                        <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.html'" >
                             <i class="fa-solid fa-clipboard-list"></i>
                         </Button>
-                    </td>
-                      <td>
-                        <button class="btn-warning fa-solid fa-pen-to-square" onclick="window.location.href='editar-ordenes.html'" ></button>
-                        <button id="btnConfirmarSalida" data-id="10/10/2024" class="btn-success fa-solid fa-circle-check"></button>
                       </td>
                     </tr>
                     <tr>
@@ -412,11 +415,13 @@ tfoot th.total-value {
                       <td>08/10/2024</td>
                       <td>10/11/2024</td>
                       <td>
-                        <Button class=" btn btn-success" onclick="window.location.href='listar-observacion-orden.html'" >
+                        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.html'" >
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.html'" >
                             <i class="fa-solid fa-clipboard-list"></i>
                         </Button>
                     </td>
-                      <td><button class="btn-warning fa-solid fa-pen-to-square" onclick="window.location.href='editar-ordenes.html'" ></button></td>
                     </tr>  
 
                     </tbody>
