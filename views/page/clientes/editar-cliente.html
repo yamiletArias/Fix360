@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SESION VEHICULOS</title>
+  <title>Clientes</title>
   <!--Font awesome -->
   <!-- FonAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -16,7 +16,8 @@
   <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/swalcustom.js"></script>
-
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
   <!-- endinject -->
   <!-- Plugin css for this page -->
   <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
@@ -31,42 +32,28 @@
   <style>
     .container-main {
       background: transparent;
-      padding: 0px;
-      border-radius: 5px;
+      padding: 30px;
+      border-radius: 8px;
       box-shadow: none;
-      width: 1550px;
+      width: 1500px;
       /* Aumenta el tamaño */
-      min-height: 30px;
+      min-height: 50px;
       /* Aumenta la altura */
-      margin: 100px;
+      margin-left: 50px;
+      /* Lo mueve más a la derecha */
+      margin-top: 50px;
     }
 
     .form-group {
       display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-bottom: 20px;
-      align-items: flex-end;
-      /* Alinea los elementos correctamente */
-    }
-
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-width: 150px;
-    }
-
-    .input-button-group {
-      display: flex;
       align-items: center;
-      /* Alinea el input y el botón */
-      gap: 10px;
+      margin-bottom: 20px;
+      margin-top: 25px;
+      gap: 15px;
     }
 
-    label {
-      font-weight: bold;
-      margin-bottom: 5px;
+    .form-group label {
+      margin-right: 10px;
     }
 
     input,
@@ -80,7 +67,11 @@
 
     input[type="text"],
     select {
-      width: 100%;
+      flex: 1;
+    }
+
+    input[type="date"] {
+      width: 160px;
     }
 
     .small-input {
@@ -91,17 +82,28 @@
       width: 200px;
     }
 
-    .small-button {
-      width: 40px;
-      padding: 5px;
+    .table-container {
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ccc;
       text-align: center;
+      padding: 10px;
     }
 
     .btn-container {
       display: flex;
       justify-content: flex-end;
-      margin-top: 80px;
-      gap: 20px;
+      margin-top: 40px;
     }
 
     .btn-finalizar {
@@ -111,6 +113,34 @@
       border: none;
       cursor: pointer;
       font-size: 16px;
+    }
+
+    .header-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .right-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    tfoot th {
+      border: none;
+      /* Quita los bordes de todos los <th> en el footer */
+      background: transparent;
+      /* Fondo transparente */
+    }
+
+    tfoot th.total-label,
+    tfoot th.total-value {
+      border-top: 2px solid black;
+      /* Agrega borde solo en las celdas de total */
+      border-bottom: 2px solid black;
+      font-weight: bold;
+      background: white;
+      /* Fondo blanco para destacar */
     }
   </style>
 </head>
@@ -134,7 +164,7 @@
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center">
         <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
-          Edicion de Vehiculos
+          Editar datos del Cliente
         </h2>
         <ul class="navbar-nav navbar-nav-right">
           <li class="nav-item dropdown">
@@ -322,108 +352,10 @@
         </ul>
       </nav>
       <div class="container-main">
-        <div class="card">
-          <div class="card-header">
-            <label><strong>
-                <h3>Editar Vehiculo</h3>
-              </strong></label>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>tipo de vehiculo:</option>
-                    <option value="direccion">SUV</option>
-                    <option value="mecanica">Camioneta</option>
-                    <option value="lubricacion">Sedan</option>
-                    <option value="otros">Pick up</option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>Marca de vehiculo:</option>
-                    <option value="direccion">Toyota</option>
-                    <option value="mecanica">Honda</option>
-                    <option value="lubricacion">Hyundai</option>
-                    <option value="otros">Volkswagen</option>
-                    <option value="otros">Audi</option>
-                    <option value="otros">Porsche</option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>Modelo del auto:</option>
-                    <option value="mecanico1">4Runner</option>
-                    <option value="mecanico2">Agya</option>
-                    <option value="mecanico3">Avanza</option>
-                    <option value="mecanico3">Corolla</option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-floating"> 
-                    <input type="text" class="form-control" id="floatingInput" />
-                    <label for="floatingInput">Placa:</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input type="text"  class="form-control" id="floatingInput" />
-                  <label for="floatingInput">Año:</label>
-                </div>
-              </div>
-              <div class="col-md-4 mb-3">
-                <div class="form-floating">
-                  <input type="text"  class="form-control" id="floatingInput" />
-                  <label for="floatingInput">N° de serie:</label>
-                </div>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <div class="form-floating">
-                  <input type="text"  class="form-control" id="floatingInput" />
-                  <label for="floatingInput">Color:</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>Tipo de combustible:</option>
-                    <option value="mecanico1">Gasolina</option>
-                    <option value="mecanico2">Diesel</option>
-                    <option value="mecanico3">Gas natural</option>
-                    <option value="mecanico3">Biocombustible</option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-floating input-group mb-3">
-                  <input type="text" disabled class="form-control" id="floatingInput" />
-                  <label for="floatingInput">Propietario:</label>
-                  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">
-                    ...
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <div style="margin-left: 1150px">
-              <button class="btn btn-danger" onclick="window.location.href='listar-vehiculos.html'">
-                Cancelar
-              </button>
-              <button class="btn btn-success" onclick="window.location.href='listar-vehiculos.html'">
-                Aceptar
-              </button>
-            </div>
-          </div>
-        </div>
+       
       </div>
+
+
     </div>
   </div>
   <!--FIN VENTAS-->
@@ -440,117 +372,12 @@
   <script src="../../assets/js/settings.js"></script>
   <script src="../../assets/js/todolist.js"></script>
 
-  <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="miModalLabel">
-                    Seleccionar Propietario
-                </h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="padding: 10px;">
-                <div class="row">
-                    <!-- Radio Buttons -->
-                        <div class="col-md-4">
-                         <div class="form-group" style="padding: 0px;margin: 0px;">
-                             <label style="margin-right: 50px;"><strong>Tipo de cliente:</strong></label>
-                             <div class="form-check form-check-inline">
-                                 <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
-                                 onclick="actualizarOpciones()" checked />
-                                 <label class="form-check-label" for="rbtnpersona">Persona</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
-                                    onclick="actualizarOpciones()" />
-                                    <label class="form-check-label" for="rbtnempresa">Empresa</label>
-                                </div> 
-                            </div>
-                        </div>
-                    <div class="col-md-4">
-                        <!-- Select de Métodos de Búsqueda -->
-                        <div class="form-group ">
-                            <label><strong> Metodo de busqueda:</strong></label>
-                            <select id="selectMetodo" class="form-select" aria-label="Default select example"></select>
-                        </div>
-                    </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label><strong>Valor buscado:</strong></label>
-                                <input type="text" class="form-control" placeholder="Valor buscado" aria-label="Username"
-                                aria-describedby="basic-addon1" />
-                            </div>
-                        </div>
-                    
-                    <p>Resultado:</p>
-                    <div class="table-container">
-                        <table id="tabla-resultado" class="table table-striped display">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nombre</th>
-                                    <th>DNI</th>
-                                    <th>Confirmar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Jose Hernandez</td>
-                                    <td>24658791</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Josue Pilpe</td>
-                                    <td>78524631</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-  function actualizarOpciones() {
-      const select = document.getElementById("selectMetodo");
-      const personaSeleccionada =
-          document.getElementById("rbtnpersona").checked;
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
 
-      // Limpiar opciones actuales
-      select.innerHTML = "";
 
-      // Opciones para Persona
-      if (personaSeleccionada) {
-          select.innerHTML += `<option value="dni">DNI</option>`;
-          select.innerHTML += `<option value="nombre">Nombre</option>`;
-      }
-      // Opciones para Empresa
-      else {
-          select.innerHTML += `<option value="ruc">RUC</option>`;
-          select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
-      }
-  }
 
-  // Ejecutar la función al cargar la página para establecer las opciones iniciales
-  actualizarOpciones();
-</script>
+
   <!-- endinject -->
   <!-- Custom js for this page -->
   <!-- End custom js for this page -->
