@@ -156,38 +156,82 @@
       #miTabla th:first-child {
         text-align: center;
       }
+
+      #miTablaSemana td {
+        padding: 2px !important; /* Reduce el espacio interno solo en los td */
+        font-size: 15px; /* Reduce el tamaño de fuente solo en los td */
+        line-height: 1 !important; /* Reduce la altura de las filas */
+        white-space: nowrap; /* Evita saltos de línea en las celdas */
+      }
+      #miTablaSemana td:first-child,
+      #miTablaSemana th:first-child {
+        text-align: center;
+      }
+
+      #miTablaMes td {
+        padding: 2px !important; /* Reduce el espacio interno solo en los td */
+        font-size: 15px; /* Reduce el tamaño de fuente solo en los td */
+        line-height: 1 !important; /* Reduce la altura de las filas */
+        white-space: nowrap; /* Evita saltos de línea en las celdas */
+      }
+      #miTablaMes td:first-child,
+      #miTablaMes th:first-child {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <!-- VENTAS -->
     <div class="container-scroller">
-      <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
-        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+      <nav
+        class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row"
+      >
+        <div
+          class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center"
+        >
           <a class="navbar-brand brand-logo" href="../../index.html">
-            <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo"
-              class="logo-dark" />
-            <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
-              class="logo-light" />
+            <img
+              src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+              alt="logo"
+              class="logo-dark"
+            />
+            <img
+              src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+              alt="logo-light"
+              class="logo-light"
+            />
           </a>
-          <a class="navbar-brand brand-logo-mini" href="../../index.html"><img
-              src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
-          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+          <a class="navbar-brand brand-logo-mini" href="../../index.html"
+            ><img
+              src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+              alt="logo"
+          /></a>
+          <button
+            class="navbar-toggler navbar-toggler align-self-center"
+            type="button"
+            data-toggle="minimize"
+          >
             <span class="icon-menu"></span>
           </button>
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center">
-          <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
-            Registro de Vehiculos
-          </h2>
+          <h2 class="mb-0 font-weight-medium d-none d-lg-flex">Ventas</h2>
           <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown">
-              <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown"
-                aria-expanded="false">
+              <a
+                class="nav-link count-indicator message-dropdown"
+                id="messageDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 <i class="icon-speech"></i>
                 <span class="count">2</span>
               </a>
-              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
-                aria-labelledby="messageDropdown">
+              <div
+                class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
+                aria-labelledby="messageDropdown"
+              >
                 <a class="dropdown-item py-3">
                   <p class="mb-0 font-weight-medium float-start me-2">
                     Tienes 2 Recordatorios
@@ -196,54 +240,85 @@
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item preview-item">
                   <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">
+                    <p
+                      class="preview-subject ellipsis font-weight-medium text-dark"
+                    >
                       Jose Hernandez
                     </p>
-                    <p class="font-weight-light small-text">
-                      Cambio de Frenos
-                    </p>
+                    <p class="font-weight-light small-text">Cambio de Frenos</p>
                   </div>
                 </a>
                 <a class="dropdown-item preview-item">
                   <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis font-weight-medium text-dark">
+                    <p
+                      class="preview-subject ellipsis font-weight-medium text-dark"
+                    >
                       Hernan Atuncar
                     </p>
-                    <p class="font-weight-light small-text">
-                      Cambio de aceite
-                    </p>
+                    <p class="font-weight-light small-text">Cambio de aceite</p>
                   </div>
                 </a>
               </div>
             </li>
             <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
-              <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                <img class="img-xs rounded-circle ms-2" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-                <span class="font-weight-normal"> Elena </span></a>
-              <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                id="UserDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img
+                  class="img-xs rounded-circle ms-2"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                  alt="Profile image"
+                />
+                <span class="font-weight-normal"> Elena </span></a
+              >
+              <div
+                class="dropdown-menu dropdown-menu-right navbar-dropdown"
+                aria-labelledby="UserDropdown"
+              >
                 <div class="dropdown-header text-center">
-                  <img class="img-md rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+                  <img
+                    class="img-md rounded-circle"
+                    src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                    alt="Profile image"
+                  />
                   <p class="mb-1 mt-3">Elena</p>
                   <p class="font-weight-light text-muted mb-0">
                     fix360@gmail.com
                   </p>
                 </div>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-user text-primary"></i> My
                   Profile
-                  <span class="badge badge-pill badge-danger">1</span></a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i>
-                  Messages</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i>
-                  Activity</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
-                  FAQ</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
+                  <span class="badge badge-pill badge-danger">1</span></a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-speech text-primary"></i>
+                  Messages</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-energy text-primary"></i>
+                  Activity</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-question text-primary"></i>
+                  FAQ</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-power text-primary"></i
+                  >Sign Out</a
+                >
               </div>
             </li>
           </ul>
-          <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-            data-toggle="offcanvas">
+          <button
+            class="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
+            type="button"
+            data-toggle="offcanvas"
+          >
             <span class="icon-menu"></span>
           </button>
         </div>
@@ -252,13 +327,23 @@
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
           <ul class="nav">
             <li class="nav-item navbar-brand-mini-wrapper">
-              <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
-                  style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
+              <a
+                class="nav-link navbar-brand brand-logo-mini"
+                href="../movdiario/listar-movdiario.html"
+                ><img
+                  style="width: 50px"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                  alt="logo"
+              /></a>
             </li>
             <li class="nav-item nav-profile">
               <a href="#" class="nav-link">
                 <div class="profile-image">
-                  <img class="img-xs rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
+                  <img
+                    class="img-xs rounded-circle"
+                    src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                    alt="profile image"
+                  />
                   <div class="dot-indicator bg-success"></div>
                 </div>
                 <div class="text-wrapper">
@@ -357,7 +442,10 @@
               <span class="nav-link">Contactabilidad</span>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="../contactabilidad/listar-graficos.html">
+              <a
+                class="nav-link"
+                href="../contactabilidad/listar-graficos.html"
+              >
                 <span class="menu-title">Graficos</span>
                 <i class="fa-solid fa-chart-pie menu-icon"></i>
               </a>
@@ -368,9 +456,15 @@
           <div class="header-group">
             <div class="form-group">
               <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
-                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
-                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
+                <button id="btnDia" type="button" class="btn btn-primary">
+                  Día
+                </button>
+                <button id="btnSemana" type="button" class="btn btn-primary">
+                  Semana
+                </button>
+                <button id="btnMes" type="button" class="btn btn-primary">
+                  Mes
+                </button>
               </div>
               <button
                 type="button"
@@ -388,8 +482,226 @@
             </div>
           </div>
 
-          <div class="table-container">
+          <div id="tableDia" class="table-container">
+            <!-- Tabla Día -->
             <table id="miTabla" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha</th>
+                  <th>Importe</th>
+                  <th>Opciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>001-0022</td>
+                  <td>14/03/2025</td>
+                  <td>520.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Factura</td>
+                  <td>001-0023</td>
+                  <td>14/03/2025</td>
+                  <td>10.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Boleta</td>
+                  <td>001-0024</td>
+                  <td>14/03/2025</td>
+                  <td>230.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Boleta</td>
+                  <td>001-0025</td>
+                  <td>14/03/2025</td>
+                  <td>361.20</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>Factura</td>
+                  <td>001-0026</td>
+                  <td>14/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>Boleta</td>
+                  <td>001-0027</td>
+                  <td>14/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="tableSemana" class="table-container" style="display: none">
+            <!-- Tabla Semana -->
+            <!--<h3>Desde - 10/03/25</h3> -->
+            <table id="miTablaSemana" class="table table-striped display">
               <thead>
                 <tr>
                   <th>#</th>
@@ -403,8 +715,8 @@
               <tbody>
                 <tr>
                   <td>1</td>
-                  <td>B</td>
-                  <td>002-0034</td>
+                  <td>Boleta</td>
+                  <td>001-0014</td>
                   <td>10/03/2025</td>
                   <td>300.00</td>
                   <td>
@@ -436,8 +748,8 @@
                 </tr>
                 <tr>
                   <td>2</td>
-                  <td>F</td>
-                  <td>001-0028</td>
+                  <td>Factura</td>
+                  <td>001-0015</td>
                   <td>10/03/2025</td>
                   <td>10.00</td>
                   <td>
@@ -469,9 +781,9 @@
                 </tr>
                 <tr>
                   <td>3</td>
-                  <td>B</td>
-                  <td>002-0036</td>
-                  <td>10/03/2025</td>
+                  <td>Boleta</td>
+                  <td>001-0016</td>
+                  <td>11/03/2025</td>
                   <td>230.00</td>
                   <td>
                     <button
@@ -502,9 +814,9 @@
                 </tr>
                 <tr>
                   <td>4</td>
-                  <td>B</td>
-                  <td>002-0037</td>
-                  <td>10/03/2025</td>
+                  <td>Boleta</td>
+                  <td>001-0017</td>
+                  <td>11/03/2025</td>
                   <td>361.20</td>
                   <td>
                     <button
@@ -535,9 +847,306 @@
                 </tr>
                 <tr>
                   <td>5</td>
-                  <td>F</td>
-                  <td>002-0030</td>
-                  <td>10/03/2025</td>
+                  <td>Factura</td>
+                  <td>001-0018</td>
+                  <td>12/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>Boleta</td>
+                  <td>001-0019</td>
+                  <td>12/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td>Factura</td>
+                  <td>001-0020</td>
+                  <td>13/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>8</td>
+                  <td>Boleta</td>
+                  <td>001-0021</td>
+                  <td>13/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>9</td>
+                  <td>Boleta</td>
+                  <td>001-0022</td>
+                  <td>14/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td>Factura</td>
+                  <td>001-0023</td>
+                  <td>14/03/2025</td>
+                  <td>10.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>11</td>
+                  <td>Boleta</td>
+                  <td>001-0024</td>
+                  <td>14/03/2025</td>
+                  <td>230.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>12</td>
+                  <td>Boleta</td>
+                  <td>001-0025</td>
+                  <td>14/03/2025</td>
+                  <td>361.20</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>13</td>
+                  <td>Factura</td>
+                  <td>001-0026</td>
+                  <td>14/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>14</td>
+                  <td>Boleta</td>
+                  <td>001-0027</td>
+                  <td>14/03/2025</td>
                   <td>350.50</td>
                   <td>
                     <button
@@ -567,19 +1176,918 @@
                   </td>
                 </tr>
               </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="4" class="text-end fw-bold">Total</td>
-                  <td>1,251.70</td>
-                  <td colspan="2"></td>
-                </tr>
-              </tfoot>
             </table>
           </div>
-        </div>
-        <!-- Contenedor de ventas del día (inicialmente oculto) -->
-        <div id="ventasDiaContainer" style="display: none">
-          <!-- Aquí se generará la tabla de ventas del día al presionar el botón Día -->
+
+          <div id="tableMes" class="table-container" style="display: none">
+            <!-- Tabla Mes -->
+            <!--<h3>Desde - 01/03/25</h3>-->
+            <table id="miTablaMes" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>T. Comprobante</th>
+                  <th>N° Comprobante</th>
+                  <th>Fecha</th>
+                  <th>Importe</th>
+                  <th>Opciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Boleta</td>
+                  <td>001-0001</td>
+                  <td>03/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Boleta</td>
+                  <td>001-0002</td>
+                  <td>03/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Boleta</td>
+                  <td>001-0003</td>
+                  <td>04/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Boleta</td>
+                  <td>001-0004</td>
+                  <td>04/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>Boleta</td>
+                  <td>001-0005</td>
+                  <td>05/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>Factura</td>
+                  <td>001-0006</td>
+                  <td>05/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td>Boleta</td>
+                  <td>001-0007</td>
+                  <td>06/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>8</td>
+                  <td>Boleta</td>
+                  <td>001-0008</td>
+                  <td>06/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>9</td>
+                  <td>Boleta</td>
+                  <td>001-0009</td>
+                  <td>07/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td>Boleta</td>
+                  <td>001-0010</td>
+                  <td>08/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>11</td>
+                  <td>Boleta</td>
+                  <td>001-0011</td>
+                  <td>08/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>12</td>
+                  <td>Boleta</td>
+                  <td>001-0012</td>
+                  <td>09/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>13</td>
+                  <td>Boleta</td>
+                  <td>001-0013</td>
+                  <td>10/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>14</td>
+                  <td>Boleta</td>
+                  <td>001-0014</td>
+                  <td>10/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>15</td>
+                  <td>Factura</td>
+                  <td>001-0015</td>
+                  <td>10/03/2025</td>
+                  <td>10.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>16</td>
+                  <td>Boleta</td>
+                  <td>001-0016</td>
+                  <td>11/03/2025</td>
+                  <td>230.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>17</td>
+                  <td>Boleta</td>
+                  <td>001-0017</td>
+                  <td>11/03/2025</td>
+                  <td>361.20</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>18</td>
+                  <td>Factura</td>
+                  <td>001-0018</td>
+                  <td>12/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>19</td>
+                  <td>Boleta</td>
+                  <td>001-0019</td>
+                  <td>12/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>20</td>
+                  <td>Factura</td>
+                  <td>001-0020</td>
+                  <td>13/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>21</td>
+                  <td>Boleta</td>
+                  <td>001-0021</td>
+                  <td>13/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>22</td>
+                  <td>Boleta</td>
+                  <td>001-0022</td>
+                  <td>14/03/2025</td>
+                  <td>300.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>23</td>
+                  <td>Factura</td>
+                  <td>001-0023</td>
+                  <td>14/03/2025</td>
+                  <td>10.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>24</td>
+                  <td>Boleta</td>
+                  <td>001-0024</td>
+                  <td>14/03/2025</td>
+                  <td>230.00</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>25</td>
+                  <td>Boleta</td>
+                  <td>001-0025</td>
+                  <td>14/03/2025</td>
+                  <td>361.20</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>26</td>
+                  <td>Factura</td>
+                  <td>001-0026</td>
+                  <td>14/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>27</td>
+                  <td>Boleta</td>
+                  <td>001-0027</td>
+                  <td>14/03/2025</td>
+                  <td>350.50</td>
+                  <td>
+                    <button
+                      title="Editar"
+                      onclick="window.location.href='editar-ventas.html'"
+                      class="btn btn-warning btn-sm"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      title="Eliminar"
+                      class="btn btn-danger btn-sm"
+                      id="btnEliminar"
+                      data-id="data-123"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button
+                      title="Detalle"
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#miModal"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -589,7 +2097,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Detalle de la Venta 002-0034</h5>
+            <h5 class="modal-title">Detalle de la Venta 001-0022</h5>
             <button
               type="button"
               class="btn-close"
@@ -598,7 +2106,43 @@
           </div>
           <div class="modal-body">
             <p>Cliente: Jose Hernandez</p>
-            <div class="table-container"></div>
+            <div class="table-container">
+              <!-- Tabla Día -->
+              <table id="miTabla" class="table table-striped display">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Productos</th>
+                    <th>Precio</th>
+                    <th>Moneda</th>
+                    <th>Descuento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Filtro de aceite</td>
+                    <td>120.00</td>
+                    <td>S/</td>
+                    <td>0%</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Pastillas de freno</td>
+                    <td>150.00</td>
+                    <td>S/</td>
+                    <td>0%</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Amortiguador delantero</td>
+                    <td>250.00</td>
+                    <td>S/</td>
+                    <td>0%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
           <div class="modal-footer">
             <button
@@ -612,6 +2156,7 @@
         </div>
       </div>
     </div>
+
     <!--FIN VENTAS-->
 
     <!-- plugins:js -->
@@ -632,284 +2177,48 @@
     <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
 
     <script>
+      document
+        .querySelector("#btnEliminar")
+        .addEventListener("click", async function () {
+          const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
+
+          if (await ask("¿Estás seguro de eliminar este registro?", "Venta")) {
+            showToast("Registro eliminado correctamente", "SUCCESS");
+            // Aquí podrías agregar la lógica para eliminar el registro
+            console.log(`Eliminando registro con ID: 1`);
+          } else {
+            showToast("Operación cancelada", "WARNING");
+          }
+        });
       $(document).ready(function () {
-        // Inicializamos la tabla de ventas por defecto (por ejemplo, ventas por día)
-        $("#miTabla").DataTable();
-      
-        // Añadir los listeners de los botones
-        document.getElementById("btnDia").addEventListener("click", mostrarVentasDia);
-        document.getElementById("btnSemana").addEventListener("click", mostrarVentasSemana);
-        document.getElementById("btnMes").addEventListener("click", mostrarVentasMes);
-      
-        document.querySelectorAll("#btnEliminar").forEach((boton) => {
-          boton.addEventListener("click", async function () {
-            const id = this.getAttribute("data-id"); // Obtener el ID del botón clickeado
-      
-            if (await ask("¿Estás seguro de eliminar este registro?", "Compras")) {
-              showToast("Registro eliminado correctamente", "SUCCESS");
-              console.log(`Eliminando registro con ID: ${id}`);
-            } else {
-              showToast("Operación cancelada", "WARNING");
-            }
-          });
+        // Inicializar las tablas con DataTables
+        var tableDia = $("#miTabla").DataTable();
+        var tableSemana = $("#miTablaSemana").DataTable();
+        var tableSemana = $("#miTablaMes").DataTable();
+
+        // Función para alternar entre las tablas
+        $("#btnDia").on("click", function () {
+          // Mostrar la tabla Día y ocultar las otras
+          $("#tableDia").show();
+          $("#tableSemana").hide();
+          $("#tableMes").hide();
+        });
+
+        $("#btnSemana").on("click", function () {
+          // Mostrar la tabla Semana y ocultar las otras
+          $("#tableSemana").show();
+          $("#tableDia").hide();
+          $("#tableMes").hide();
+        });
+
+        $("#btnMes").on("click", function () {
+          // Mostrar la tabla Mes y ocultar las otras
+          $("#tableMes").show();
+          $("#tableDia").hide();
+          $("#tableSemana").hide();
         });
       });
-      
-      function mostrarVentasDia() {
-        // Deshabilitamos los botones para evitar clics repetidos
-        document.getElementById("btnDia").disabled = true;
-        document.getElementById("btnSemana").disabled = false;
-        document.getElementById("btnMes").disabled = false;
-      
-        // Ocultamos cualquier contenido de ventas (Semana o Mes)
-        document.querySelector(".container-ventas").style.display = "none";
-      
-        // Mostramos el contenedor de ventas del día
-        const ventasDiaContainer = document.getElementById("ventasDiaContainer");
-        ventasDiaContainer.style.display = "block";
-      
-        // Insertamos el HTML de la tabla de ventas del día
-        const ventasDiaHTML = `
-          <div class="header-group">
-            <div class="form-group">
-              <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
-                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
-                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
-              </div>
-              <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
-            </div>
-          </div>
-          <div class="table-container">
-            <table id="miTablaDia" class="table table-striped display">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>T. Comprobante</th>
-                  <th>N° Comprobante</th>
-                  <th>Fecha Venta</th>
-                  <th>Importe</th>
-                  <th>Detalle</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Boleta</td>
-                  <td>002-0068</td>
-                  <td>08/03/2025</td>
-                  <td>1200.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Factura</td>
-                  <td>002-0069</td>
-                  <td>08/03/2025</td>
-                  <td>50.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        `;
-        ventasDiaContainer.innerHTML = ventasDiaHTML;
-      
-        // Inicializamos DataTable en la nueva tabla
-        $("#miTablaDia").DataTable({
-          language: {
-            lengthMenu: "Mostrar _MENU_ registros por página",
-            zeroRecords: "No se encontraron registros",
-            info: "Mostrando página _PAGE_ de _PAGES_",
-            infoEmpty: "No hay registros disponibles",
-            infoFiltered: "(filtrado de _MAX_ registros en total)",
-            search: "Buscar:",
-          },
-        });
-      }
-      
-      function mostrarVentasSemana() {
-        // Deshabilitamos los botones para evitar clics repetidos
-        document.getElementById("btnDia").disabled = false;
-        document.getElementById("btnSemana").disabled = true;
-        document.getElementById("btnMes").disabled = false;
-      
-        // Ocultamos cualquier contenido de ventas (Día o Mes)
-        document.querySelector(".container-ventas").style.display = "none";
-      
-        // Mostramos el contenedor de ventas de la semana
-        const ventasSemanaContainer = document.getElementById("ventasDiaContainer");
-        ventasSemanaContainer.style.display = "block";
-      
-        // Insertamos el HTML de la tabla de ventas de la semana
-        const ventasSemanaHTML = `
-          <div class="header-group">
-            <div class="form-group">
-              <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
-                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
-                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
-              </div>
-              <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
-            </div>
-          </div>
-          <div class="table-container">
-            <h3>Desde - 10/03/25</h3>
-            <table id="miTablaSemana" class="table table-striped display">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>T. Comprobante</th>
-                  <th>N° Comprobante</th>
-                  <th>Fecha Venta</th>
-                  <th>Importe</th>
-                  <th>Detalle</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Boleta</td>
-                  <td>002-0070</td>
-                  <td>10/03/2025</td>
-                  <td>800.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Factura</td>
-                  <td>002-0071</td>
-                  <td>10/03/2025</td>
-                  <td>600.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Boleta</td>
-                  <td>002-0072</td>
-                  <td>11/03/2025</td>
-                  <td>600.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>Factura</td>
-                  <td>002-0073</td>
-                  <td>12/03/2025</td>
-                  <td>600.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        `;
-        ventasSemanaContainer.innerHTML = ventasSemanaHTML;
-      
-        // Inicializamos DataTable en la nueva tabla
-        $("#miTablaSemana").DataTable({
-          language: {
-            lengthMenu: "Mostrar _MENU_ registros por página",
-            zeroRecords: "No se encontraron registros",
-            info: "Mostrando página _PAGE_ de _PAGES_",
-            infoEmpty: "No hay registros disponibles",
-            infoFiltered: "(filtrado de _MAX_ registros en total)",
-            search: "Buscar:",
-          },
-        });
-      }
-      
-      function mostrarVentasMes() {
-        // Deshabilitamos los botones para evitar clics repetidos
-        document.getElementById("btnDia").disabled = false;
-        document.getElementById("btnSemana").disabled = false;
-        document.getElementById("btnMes").disabled = true;
-      
-        // Ocultamos cualquier contenido de ventas (Día o Semana)
-        document.querySelector(".container-ventas").style.display = "none";
-      
-        // Mostramos el contenedor de ventas del mes
-        const ventasMesContainer = document.getElementById("ventasDiaContainer");
-        ventasMesContainer.style.display = "block";
-      
-        // Insertamos el HTML de la tabla de ventas del mes
-        const ventasMesHTML = `
-          <div class="header-group">
-            <div class="form-group">
-              <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="btnDia" type="button" class="btn btn-primary">Día</button>
-                <button id="btnSemana" type="button" class="btn btn-primary">Semana</button>
-                <button id="btnMes" type="button" class="btn btn-primary">Mes</button>
-              </div>
-              <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
-            </div>
-          </div>
-          <div class="table-container">
-            <h3>Ventas del Mes - Marzo 2025</h3>
-            <table id="miTablaMes" class="table table-striped display">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>T. Comprobante</th>
-                  <th>N° Comprobante</th>
-                  <th>Fecha Venta</th>
-                  <th>Importe</th>
-                  <th>Detalle</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Boleta</td>
-                  <td>002-0070</td>
-                  <td>01/03/2025</td>
-                  <td>1200.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Factura</td>
-                  <td>002-0071</td>
-                  <td>03/03/2025</td>
-                  <td>800.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Boleta</td>
-                  <td>002-0072</td>
-                  <td>15/03/2025</td>
-                  <td>900.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>Factura</td>
-                  <td>002-0073</td>
-                  <td>20/03/2025</td>
-                  <td>1500.00</td>
-                  <td><button type="button" class="small-button">...</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        `;
-        ventasMesContainer.innerHTML = ventasMesHTML;
-      
-        // Inicializamos DataTable en la nueva tabla
-        $("#miTablaMes").DataTable({
-          language: {
-            lengthMenu: "Mostrar _MENU_ registros por página",
-            zeroRecords: "No se encontraron registros",
-            info: "Mostrando página _PAGE_ de _PAGES_",
-            infoEmpty: "No hay registros disponibles",
-            infoFiltered: "(filtrado de _MAX_ registros en total)",
-            search: "Buscar:",
-          },
-        });
-      }
-      </script>
-      
-
+    </script>
 
     <!-- endinject -->
     <!-- Custom js for this page -->
