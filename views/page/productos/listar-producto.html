@@ -45,7 +45,7 @@
       /* Aumenta el tamaño */
       min-height: 700px;
       /* Aumenta la altura */
-      margin-left: 50px;
+      margin-left: 90px;
       /* Lo mueve más a la derecha */
       margin-top: 50px;
     }
@@ -151,6 +151,18 @@
       background: white;
       /* Fondo blanco para destacar */
     }
+    .text-left {
+      text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+      padding-left: 0; /* Opcional: elimina cualquier padding adicional a la izquierda */
+    }
+    /* Nueva regla para eliminar la negrita en los th */
+    th {
+      font-weight: normal; /* Elimina la negrita */
+    }
+    .text-center {
+      text-align: center; /* Alinea el texto al centro */
+    }
+
   </style>
 </head>
 
@@ -390,19 +402,19 @@
             </thead>
             <tbody>
               <tr>
-                <th>Shell Helix</th>
-                <th>Aceite para auto</th>
-                <th>HX7 10W-40</th>
+                <th class="text-left">Shell Helix</th>
+                <th class="text-left">Aceite para auto</th>
+                <th class="text-left">HX7 10W-40</th>
                 <th>50.00</th>
                 <th>Galonera</th>
                 <th>L</th>
-                <th>4</th>
+                <th class="text-center">4</th>
                 <th>
                   <img src="https://densalubricantes.com/wp-content/uploads/2023/10/ShellHelixHX710w-405L.jpg"
                     width="80" alt="" />
                 </th>
                 <th>
-                  <button class="btn btn-danger btn-sm" data-id="data-123">
+                  <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                   <button onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">
@@ -411,18 +423,18 @@
                 </th>
               </tr>
               <tr>
-                <th>Mahindra</th>
-                <th>Disco de embriague</th>
-                <th>Funcar</th>
+                <th class="text-left">Mahindra</th>
+                <th class="text-left">Disco de embriague</th>
+                <th class="text-left">Funcar</th>
                 <th>520.00</th>
                 <th>Unidad</th>
                 <th>UND</th>
-                <th>1</th>
+                <th class="text-center">1</th>
                 <th>
                   <img src="https://funcar.pe/cdn/shop/files/DISCODEEMBRAGUE.jpg?v=1696824072" width="100" alt="" />
                 </th>
                 <th>
-                  <button class="btn btn-danger btn-sm" data-id="data-123">
+                  <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                   <button onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">
@@ -431,19 +443,19 @@
                 </th>
               </tr>
               <tr>
-                <th>TUCSON</th>
-                <th>Filtro de aceite</th>
-                <th>Elantra(2016 - 2022)</th>
+                <th class="text-left">Tucson</th>
+                <th class="text-left">Filtro de aceite</th>
+                <th class="text-left">Elantra(2016 - 2022)</th>
                 <th>18.30</th>
                 <th>Unidad</th>
                 <th>UND</th>
-                <th>1</th>
+                <th class="text-center">1</th>
                 <th>
                   <img src="https://funcar.pe/cdn/shop/products/2630035505_1_1800x.jpg?v=1678053841" width="100"
                     alt="" />
                 </th>
                 <th>
-                  <button class="btn btn-danger btn-sm" data-id="data-123">
+                  <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                   <button onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">

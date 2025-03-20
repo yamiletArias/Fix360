@@ -28,6 +28,7 @@
   <!-- End layout styles -->
   <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
+  <!-- Estilos -->
   <style>
     .container-main {
       background: transparent;
@@ -35,50 +36,9 @@
       border-radius: 8px;
       box-shadow: none;
       width: 1500px;
-      /* Aumenta el tamaño */
       min-height: 50px;
-      /* Aumenta la altura */
       margin-left: 50px;
-      /* Lo mueve más a la derecha */
       margin-top: 50px;
-    }
-
-    .form-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      margin-top: 25px;
-      gap: 15px;
-    }
-
-    .form-group label {
-      margin-right: 10px;
-    }
-
-    input,
-    select,
-    button {
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    input[type="text"],
-    select {
-      flex: 1;
-    }
-
-    input[type="date"] {
-      width: 160px;
-    }
-
-    .small-input {
-      width: 130px;
-    }
-
-    .medium-input {
-      width: 200px;
     }
 
     .table-container {
@@ -99,48 +59,25 @@
       padding: 10px;
     }
 
-    .btn-container {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 40px;
-    }
-
-    .btn-finalizar {
-      background: green;
-      color: white;
-      padding: 12px;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .header-group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .right-group {
-      display: flex;
-      gap: 10px;
-    }
-
     tfoot th {
       border: none;
-      /* Quita los bordes de todos los <th> en el footer */
       background: transparent;
-      /* Fondo transparente */
     }
 
     tfoot th.total-label,
     tfoot th.total-value {
       border-top: 2px solid black;
-      /* Agrega borde solo en las celdas de total */
-      border-bottom: 2px solid black;
       font-weight: bold;
       background: white;
-      /* Fondo blanco para destacar */
     }
+    .text-left {
+      text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+      padding-left: 0; /* Opcional: elimina cualquier padding adicional a la izquierda */
+    } 
+    .text-right {
+      text-align: right; /* Alinea el texto a la derecha */
+    }
+
   </style>
 </head>
 
@@ -185,9 +122,7 @@
                   <p class="preview-subject ellipsis font-weight-medium text-dark">
                     Jose Hernandez
                   </p>
-                  <p class="font-weight-light small-text">
-                    Cambio de Frenos
-                  </p>
+                  <p class="font-weight-light small-text">Cambio de Frenos</p>
                 </div>
               </a>
               <a class="dropdown-item preview-item">
@@ -195,9 +130,7 @@
                   <p class="preview-subject ellipsis font-weight-medium text-dark">
                     Hernan Atuncar
                   </p>
-                  <p class="font-weight-light small-text">
-                    Cambio de aceite
-                  </p>
+                  <p class="font-weight-light small-text">Cambio de aceite</p>
                 </div>
               </a>
             </div>
@@ -241,7 +174,7 @@
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
             <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
-                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                style="width: 50px" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
                 alt="logo" /></a>
           </li>
           <li class="nav-item nav-profile">
@@ -358,7 +291,7 @@
         <div>
           <h2><strong>Ventas del dia:</strong></h2>
           <div class="table-container">
-            <table style="margin-bottom: 30px;" id="miTabla" class="table table-striped display">
+            <table style="margin-bottom: 30px" id="miTabla" class="table table-striped display">
               <thead>
                 <tr>
                   <th>#</th>
@@ -480,7 +413,6 @@
               </tfoot>
             </table>
           </div>
-
         </div>
 
         <div>
@@ -579,8 +511,46 @@
             </table>
           </div>
         </div>
+
+        <!-- Arqueo de Caja -->
+        <br>
+        <div>
+          <h2><strong>Arqueo de Caja:</strong></h2>
+          <div class="table-container">
+            <table id="arqueoCaja" class="table table-striped display">
+              <thead>
+                <tr>
+                  <td colspan="4" class="text-center"><strong>Detalle de Caja <trong></td>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Billetes -->
+                <tr>
+                  <td colspan="3" class="text-left"><strong>Efectivo</strong></td>
+                  <td class="text-right"><strong>S/. 750.00</strong></td>
+                </tr>
+
+                <tr>
+                  <td colspan="3" class="text-left"><strong>Yape</strong></td>
+                  <td class="text-right"><strong>S/. 324.50</strong></td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="text-left"><strong>Transferencia</strong></td>
+                  <td class="text-right"><strong>S/. 400.00</strong></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" class="text-end fw-bold">Total Arqueo</td>
+                  <td class="text-right"><strong>S/. 1,474.50</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
   </div>
   <!--FIN VENTAS-->
 
@@ -595,6 +565,7 @@
   <script src="../../assets/js/misc.js"></script>
   <script src="../../assets/js/settings.js"></script>
   <script src="../../assets/js/todolist.js"></script>
+
 
   <!-- endinject -->
   <!-- Custom js for this page -->
