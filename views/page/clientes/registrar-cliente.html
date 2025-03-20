@@ -7,6 +7,7 @@
   <title>Registro de Cliente</title>
   <!--Font awesome -->
   <!-- FonAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -29,16 +30,20 @@
   <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
   <style>
-    .container-ventas {
+    .hidden {
+      display: none;
+    }
+
+    .container-main {
       background: transparent;
       padding: 30px;
       border-radius: 8px;
       box-shadow: none;
-      width: 1100px;
+      width: 1500px;
       /* Aumenta el tamaño */
-      min-height: 700px;
+      min-height: 50px;
       /* Aumenta la altura */
-      margin-left: 300px;
+      margin-left: 50px;
       /* Lo mueve más a la derecha */
       margin-top: 50px;
     }
@@ -205,11 +210,13 @@
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
             <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <img class="img-xs rounded-circle ms-2" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+              <img class="img-xs rounded-circle ms-2"
+                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
               <span class="font-weight-normal"> Elena </span></a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
-                <img class="img-md rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+                <img class="img-md rounded-circle"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
                 <p class="mb-1 mt-3">Elena</p>
                 <p class="font-weight-light text-muted mb-0">
                   fix360@gmail.com
@@ -239,12 +246,14 @@
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
             <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
-                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
+                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                alt="logo" /></a>
           </li>
           <li class="nav-item nav-profile">
             <a href="#" class="nav-link">
               <div class="profile-image">
-                <img class="img-xs rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
+                <img class="img-xs rounded-circle"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
                 <div class="dot-indicator bg-success"></div>
               </div>
               <div class="text-wrapper">
@@ -350,7 +359,112 @@
           </li>
         </ul>
       </nav>
-      <div class="container-ventas"></div>
+      <div class="container-main">
+        <div class="card">
+          <div class="card-header">
+            <h2>Selecciona el tipo de registro:</h2>
+            <label>
+              <input type="radio" name="tipo" value="persona" onclick="mostrarFormulario('persona')" checked>
+              Persona
+            </label>
+            <label>
+              <input type="radio" name="tipo" value="empresa" onclick="mostrarFormulario('empresa')">
+              Empresa
+            </label>
+          </div>
+          <div style="padding: 0px;" class="card-body">
+            <div id="formPersona">
+              <div class="row">
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="tipodoc">Tipo de Documento:</label>
+                    <select class="form-control" style="padding: 15px;" id="tipodoc">
+                      <option value="DNI">DNI</option>
+                      <option value="Pasaporte">Pasaporte</option>
+                      <option value="cde">Carnet de extranjeria</option>
+                    </select><br><br>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label  for="numdoc">Número de Documento:</label>
+                    <input class="form-control" type="text" id="numdoc" ><br><br>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-group">
+                <label for="telprincipal">Tel. principal:</label>
+                <input type="email" id="correo" class="form-control"><br><br>
+              </div>
+            </div>
+                
+                <div class="col-md-5">
+                  <div class="form-group">
+                    <label for="nombres">Nombres:</label>
+                    <input type="text" id="nombres" class="form-control"><br><br>
+                  </div>
+                </div>
+                  
+                <div class="col-md-5">
+                  <div class="form-group">
+                    <label for="apellidos">Apellidos:</label>
+                    <input type="text" id="apellidos" class="form-control"><br><br>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="form-group">
+                <label for="direccion">Direccion:</label>
+                <input type="text" id="nombres" class="form-control"><br><br>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="correo">Correo:</label>
+                <input type="text" id="nombres" class="form-control"><br><br>
+              </div>
+            </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                <label for="telalternativo">Tel. alternativo:</label>
+                <input type="email" id="correo" class="form-control"  ><br><br>
+              </div>
+            </div>
+              </div>
+            </div>
+              
+            <!-- Formulario Empresa -->
+            <div id="formEmpresa" class="hidden">
+              <label for="nomcomercial">Nombre Comercial:</label>
+              <input type="text" id="nomcomercial"><br><br>
+
+              <label for="razonsocial">Razón Social:</label>
+              <input type="text" id="razonsocial"><br><br>
+
+              <label for="ruc">RUC:</label>
+              <input type="text" id="ruc"><br><br>
+
+              <label for="telefono">Teléfono:</label>
+              <input type="text" id="telefono"><br><br>
+
+              <label for="correoEmp">Correo:</label>
+              <input type="email" id="correoEmp"><br><br>
+
+
+            </div>
+          </div>
+          <div class="card-footer ">
+            <button style="margin-left: 1100px;"  class="btn btn-secondary">Cancelar</button>
+            <button class="btn btn-success">Registrar</button>
+          </div>
+        </div>
+
+        <!-- Formulario Persona -->
+
+      </div>
     </div>
   </div>
   <!--FIN VENTAS-->
@@ -366,6 +480,8 @@
   <script src="../../assets/js/misc.js"></script>
   <script src="../../assets/js/settings.js"></script>
   <script src="../../assets/js/todolist.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
   <!-- endinject -->
   <!-- Custom js for this page -->
@@ -373,3 +489,15 @@
 </body>
 
 </html>
+
+<script>
+  function mostrarFormulario(tipo) {
+    if (tipo === 'persona') {
+      document.getElementById("formPersona").style.display = "block";
+      document.getElementById("formEmpresa").style.display = "none";
+    } else {
+      document.getElementById("formPersona").style.display = "none";
+      document.getElementById("formEmpresa").style.display = "block";
+    }
+  }
+</script>

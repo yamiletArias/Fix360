@@ -16,7 +16,8 @@
   <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/swalcustom.js"></script>
-
+  <!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
   <!-- endinject -->
   <!-- Plugin css for this page -->
   <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
@@ -29,16 +30,16 @@
   <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
   <style>
-    .container-ventas {
+    .container-main {
       background: transparent;
       padding: 30px;
       border-radius: 8px;
       box-shadow: none;
-      width: 1100px;
+      width: 1700px;
       /* Aumenta el tamaño */
-      min-height: 700px;
+      min-height: 50px;
       /* Aumenta la altura */
-      margin-left: 300px;
+      margin-left: 50px;
       /* Lo mueve más a la derecha */
       margin-top: 50px;
     }
@@ -350,8 +351,59 @@
           </li>
         </ul>
       </nav>
-      <div class="container-ventas"></div>
+      <div class="container-main">
+        <div class="mb-3">
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-text" id="basic-addon3">Producto:</span>
+              <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+            </div>
+            <div class="mb-3">
+              <div class="input-group" style="margin-bottom: 10px;">
+                <span class="input-group-text"  id="basic-addon3">Cantidad Min:</span>
+                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" disabled>
+              </div>
+              <div class="mb-3">
+                <div class="input-group">
+                  <span class="input-group-text" id="basic-addon3">Cantidad Max:</span>
+                  <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" disabled>
+                </div>
+          </div>
+      </div>
     </div>
+        <div class="table-container">
+          <table id="miTabla" class="table table-striped display">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Flujo</th>
+                <th>T. Movimiento</th>
+                <th>Cantidad</th>
+                <th>Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>1</th>
+                <th>19/03/2024</th>
+                <th>Entrada</th>
+                <th>Compra</th>
+                <th>20</th>
+                <th>25</th>
+              </tr>
+              <tr>
+                <th>2</th>
+                <th>18/03/2024</th>
+                <th>Salida</th>
+                <th>Venta</th>
+                <th>1</th>
+                <th>24</th>
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
   </div>
   <!--FIN VENTAS-->
 
@@ -366,7 +418,33 @@
   <script src="../../assets/js/misc.js"></script>
   <script src="../../assets/js/settings.js"></script>
   <script src="../../assets/js/todolist.js"></script>
+<!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
 
+  <script>
+    $(document).ready(function () {
+      $('#miTabla').DataTable({
+        language: {
+          "lengthMenu": "Mostrar _MENU_ registros por página",
+          "zeroRecords": "No se encontraron resultados",
+          "info": "Mostrando página _PAGE_ de _PAGES_",
+          "infoEmpty": "No hay registros disponibles",
+          "infoFiltered": "(filtrado de _MAX_ registros totales)",
+          "search": "Buscar:",
+          "paginate": {
+            "first": "Primero",
+            "last": "Último",
+            "next": "Siguiente",
+            "previous": "Anterior"
+          },
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "emptyTable": "No hay datos disponibles en la tabla"
+        }
+      });
+    });
+
+  </script>
   <!-- endinject -->
   <!-- Custom js for this page -->
   <!-- End custom js for this page -->
