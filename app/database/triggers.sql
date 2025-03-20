@@ -84,3 +84,33 @@ END $$
 
 DELIMITER ;
 /* */
+
+DELIMITER $$
+
+CREATE TRIGGER before_insert_agenda
+BEFORE INSERT ON agendas
+FOR EACH ROW
+BEGIN
+    IF NEW.fchproxvisita < CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No se pueden registrar fechas pasadas';
+    END IF;
+END $$
+
+DELIMITER ;
+
+/* */
+DELIMITER $$
+
+CREATE TRIGGER before_update_agenda
+BEFORE UPDATE ON agendas
+FOR EACH ROW
+BEGIN
+    IF NEW.fchproxvisita < CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No se pueden registrar fechas pasadas';
+    END IF;
+END $$
+
+DELIMITER ;
+

@@ -235,6 +235,16 @@ CONSTRAINT fk_idvehiculo FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehicu
 CONSTRAINT fk_idpropietario FOREIGN KEY (idpropietario) REFERENCES propietarios (idpropietario)
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS agendas;
+CREATE TABLE agendas(
+idagenda 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
+idpropietario		INT 				NOT NULL,
+fchproxvisita 		DATETIME 		NOT NULL,
+comentario 			VARCHAR(255)	NOT NULL,
+estado 				BOOLEAN 			NOT NULL,
+CONSTRAINT fk_idpropietario_8 FOREIGN KEY (idpropietario) REFERENCES propietarios (idpropietario)
+)ENGINE = INNODB;
+
 DROP TABLE IF EXISTS observaciones;
 CREATE TABLE observaciones(
 

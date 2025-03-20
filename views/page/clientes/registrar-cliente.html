@@ -7,7 +7,8 @@
   <title>Registro de Cliente</title>
   <!--Font awesome -->
   <!-- FonAwesome -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -43,9 +44,9 @@
       /* Aumenta el tamaño */
       min-height: 50px;
       /* Aumenta la altura */
-      margin-left: 50px;
+      margin-left: 20px;
       /* Lo mueve más a la derecha */
-      margin-top: 50px;
+      margin-top: 20px;
     }
 
     .form-group {
@@ -362,7 +363,7 @@
       <div class="container-main">
         <div class="card">
           <div class="card-header">
-            <h2>Selecciona el tipo de registro:</h2>
+            <h2>Nuevo registro de:</h2>
             <label>
               <input type="radio" name="tipo" value="persona" onclick="mostrarFormulario('persona')" checked>
               Persona
@@ -389,76 +390,122 @@
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label  for="numdoc">Número de Documento:</label>
-                    <input class="form-control" type="text" id="numdoc" ><br><br>
+                    <label for="numdoc">Número de Documento:</label>
+                    <input class="form-control" type="text" id="numdoc"><br><br>
                   </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group">
-                <label for="telprincipal">Tel. principal:</label>
-                <input type="email" id="correo" class="form-control"><br><br>
-              </div>
-            </div>
-                
-                <div class="col-md-5">
+                    <label for="telprincipal">Tel. principal:</label>
+                    <input type="email" id="correo" class="form-control"><br><br>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
                   <div class="form-group">
                     <label for="nombres">Nombres:</label>
                     <input type="text" id="nombres" class="form-control"><br><br>
                   </div>
                 </div>
-                  
-                <div class="col-md-5">
+
+                <div class="col-md-6">
                   <div class="form-group">
                     <label for="apellidos">Apellidos:</label>
                     <input type="text" id="apellidos" class="form-control"><br><br>
                   </div>
                 </div>
-                
-                <div class="col-md-4">
+
+                <div class="col-md-3">
                   <div class="form-group">
-                <label for="direccion">Direccion:</label>
-                <input type="text" id="nombres" class="form-control"><br><br>
+                    <label for="direccion">Direccion:</label>
+                    <input type="text" id="nombres" class="form-control"><br><br>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="correo">Correo:</label>
+                    <input type="text" id="nombres" class="form-control"><br><br>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="telalternativo">Tel. alternativo:</label>
+                    <input type="email" id="correo" class="form-control"><br><br>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="tipodoc">Contatabilidad:</label>
+                    <select class="form-control" style="padding: 15px;" id="tipodoc">
+                      <option value="DNI">Redes Sociales</option>
+                      <option value="Pasaporte">Folletos</option>
+                      <option value="cde">Campaña Publicitaria</option>
+                      <option value="cde">Recomendacion</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="form-group">
-                <label for="correo">Correo:</label>
-                <input type="text" id="nombres" class="form-control"><br><br>
-              </div>
-            </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                <label for="telalternativo">Tel. alternativo:</label>
-                <input type="email" id="correo" class="form-control"  ><br><br>
-              </div>
-            </div>
-              </div>
-            </div>
-              
+
             <!-- Formulario Empresa -->
             <div id="formEmpresa" class="hidden">
-              <label for="nomcomercial">Nombre Comercial:</label>
-              <input type="text" id="nomcomercial"><br><br>
+              <div class="row">
 
-              <label for="razonsocial">Razón Social:</label>
-              <input type="text" id="razonsocial"><br><br>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="ruc">RUC:</label>
+                    <input type="text" id="ruc"><br><br>
+                  </div>
+                </div>
 
-              <label for="ruc">RUC:</label>
-              <input type="text" id="ruc"><br><br>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="nomcomercial">Nombre Comercial:</label>
+                    <input type="text" id="nomcomercial"><br><br>
+                  </div>
+                </div>
 
-              <label for="telefono">Teléfono:</label>
-              <input type="text" id="telefono"><br><br>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="razonsocial">Razón Social:</label>
+                    <input type="text" id="razonsocial"><br><br>
+                  </div>
+                </div>
 
-              <label for="correoEmp">Correo:</label>
-              <input type="email" id="correoEmp"><br><br>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono"><br><br>
+                  </div>
+                </div>
 
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="correoEmp">Correo:</label>
+                    <input type="email" style="padding-right: 200px;" id="correoEmp"><br><br>
+                  </div>
+                </div>
 
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="tipodoc">Contatabilidad:</label>
+                    <select class="form-control" style="padding: 15px;" id="tipodoc">
+                      <option value="DNI">Redes Sociales</option>
+                      <option value="Pasaporte">Folletos</option>
+                      <option value="cde">Campaña Publicitaria</option>
+                      <option value="cde">Recomendacion</option>
+                    </select>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
           <div class="card-footer ">
-            <button style="margin-left: 1100px;"  class="btn btn-secondary">Cancelar</button>
-            <button class="btn btn-success">Registrar</button>
+            <button style="margin-left: 1100px;" onclick="window.location.href='listar-cliente.html'" class="btn btn-danger">Cancelar</button>
+            <button class="btn btn-success" onclick="window.location.href='listar-cliente.html'">Aceptar</button>
           </div>
         </div>
 
@@ -480,8 +527,12 @@
   <script src="../../assets/js/misc.js"></script>
   <script src="../../assets/js/settings.js"></script>
   <script src="../../assets/js/todolist.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+    integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+    crossorigin="anonymous"></script>
 
   <!-- endinject -->
   <!-- Custom js for this page -->
