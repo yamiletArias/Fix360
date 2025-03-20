@@ -432,79 +432,98 @@
     <!-- End custom js for this page -->
 
     <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="miModalLabel">
-                        Seleccionar Propietario
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Radio Buttons -->
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
-                            onclick="actualizarOpciones()" checked />
-                        <label class="form-check-label" for="rbtnpersona">Persona</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
-                            onclick="actualizarOpciones()" />
-                        <label class="form-check-label" for="rbtnempresa">Empresa</label>
-                    </div>
-
-                    <!-- Select de Métodos de Búsqueda -->
-                    <p>Metodo de busqueda:</p>
-                    <select id="selectMetodo" class="form-select" aria-label="Default select example"></select>
-
-                    <p>Valor buscado:</p>
-                    <input type="text" class="form-control" placeholder="Valor buscado" aria-label="Username"
-                        aria-describedby="basic-addon1" />
-
-                    <p>Resultado:</p>
-                    <div class="table-container">
-                        <table id="tabla-resultado" class="table table-striped display">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nombre</th>
-                                    <th>DNI</th>
-                                    <th>Confirmar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Jose Hernandez</td>
-                                    <td>24658791</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Josue Pilpe</td>
-                                    <td>78524631</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cerrar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h2 class="modal-title" id="miModalLabel">
+                      Seleccionar Propietario
+                  </h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" style="padding: 10px;">
+                  <div class="row">
+                      <!-- Radio Buttons -->
+                          <div class="col-md-4">
+                           <div class="form-group" style="padding: 0px;margin: 0px;">
+                             <div class="form-group">
+                              <div style="margin-right: 50px;margin-bottom: 50px;margin-left: 10px;">  
+                                <label><strong>Tipo de cliente:</strong></label>
+                              </div>
+                              <div class="">
+                                <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
+                                  onclick="actualizarOpciones()" checked />
+                                  <label class="form-check-label" for="rbtnpersona">Persona</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
+                                  onclick="actualizarOpciones()" />
+                                  <label class="form-check-label" for="rbtnempresa">Empresa</label>
+                                </div> 
+                              </div>
+                                </div>
+                              </div>
+                          </div>
+                      <div class="col-md-4">
+                          <!-- Select de Métodos de Búsqueda -->
+                          <div class="form-group">
+                              <label><strong> Metodo de busqueda:</strong></label>
+                              <select id="selectMetodo" class="form-select" aria-label="Default select example"></select>
+                          </div>
+                      </div>
+                          <div class="col-md-4">
+                              <div class="form-group">
+                                  <label><strong>Valor buscado:</strong></label>
+                                  <input type="text" class="form-control" placeholder="Valor buscado" aria-label="Username"
+                                  aria-describedby="basic-addon1" />
+                              </div>
+                          </div>
+                      
+                      <p>Resultado:</p>
+                      <div class="table-container">
+                          <table id="tabla-resultado" class="table table-striped display">
+                              <thead>
+                                  <tr>
+                                      <th>#</th>
+                                      <th>Nombre</th>
+                                      <th>DNI</th>
+                                      <th>Confirmar</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr>
+                                      <td>1</td>
+                                      <td>Jose Hernandez</td>
+                                      <td>24658791</td>
+                                      <td>
+                                          <button type="button" class="btn btn-success">
+                                              <i class="fa-solid fa-circle-check"></i>
+                                          </button>
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td>2</td>
+                                      <td>Josue Pilpe</td>
+                                      <td>78524631</td>
+                                      <td>
+                                          <button type="button" class="btn btn-success">
+                                              <i class="fa-solid fa-circle-check"></i>
+                                          </button>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                      Cerrar
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
 
     <script>
         function actualizarOpciones() {
