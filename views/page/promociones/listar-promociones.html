@@ -1,422 +1,612 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PROMOCIONES</title>
+    <!--Font awesome -->
+    <!-- FonAwesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- plugins:css -->
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/css/vendor.bundle.base.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/swalcustom.js"></script>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KARDEX</title>
-  <!--Font awesome -->
-  <!-- FonAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- plugins:css -->
-  <link rel="stylesheet" href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css" />
-  <link rel="stylesheet" href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css" />
-  <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css" />
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="../../assets/js/swalcustom.js"></script>
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link
+      rel="stylesheet"
+      href="../../assets/vendors/font-awesome/css/font-awesome.min.css"
+    />
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link
+      rel="stylesheet"
+      href="../../assets/css/vertical-light-layout/style.css"
+    />
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
-  <!-- endinject -->
-  <!-- Plugin css for this page -->
-  <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
-  <!-- End plugin css for this page -->
-  <!-- inject:css -->
-  <!-- endinject -->
-  <!-- Layout styles -->
-  <link rel="stylesheet" href="../../assets/css/vertical-light-layout/style.css" />
-  <!-- End layout styles -->
-  <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+    <style>
+      .container-ventas {
+        background: #f5f5f5;
+        padding: 40px;
+        border-radius: 8px;
+        width: 100%; /* Aseguramos que ocupe el 100% del espacio */
+        max-width: 1400px;
+        margin: 50px auto;
+      }
 
-  <style>
-    .container-ventas {
-      background: transparent;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: none;
-      width: 1500px;
-      /* Aumenta el tamaño */
-      min-height: 50px;
-      /* Aumenta la altura */
-      margin-left: 50px;
-      /* Lo mueve más a la derecha */
-      margin-top: 50px;
-    }
+      .header-group {
+        display: flex;
+        justify-content: flex-end; /* Esto alinea el botón a la derecha */
+        margin-bottom: 30px;
+      }
 
-    .form-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      margin-top: 25px;
-      gap: 15px;
-    }
+      /**.btn-success {
+        font-size: 16px;
+        padding: 12px 30px;
+        border-radius: 25px;
+        background-color: #28a745;
+        border: none;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }**/
 
-    .form-group label {
-      margin-right: 10px;
-    }
+      .btn-success:hover {
+        background-color: #218838;
+      }
 
-    input,
-    select,
-    button {
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+      .container-main {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: space-between;
+      }
 
-    input[type="text"],
-    select {
-      flex: 1;
-    }
+      .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 8px;
+      }
 
-    input[type="date"] {
-      width: 160px;
-    }
+      .card:hover {
+        transform: translateY(-5px);
+      }
 
-    .small-input {
-      width: 130px;
-    }
+      .card-img-top {
+        border-radius: 8px 8px 0 0;
+        height: 180px;
+        object-fit: cover;
+      }
 
-    .medium-input {
-      width: 200px;
-    }
+      .card-body {
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 0 0 8px 8px;
+      }
 
-    .table-container {
-      margin-top: 30px;
-    }
+      .card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
+      .form-check form-switch label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
 
-    table,
-    th,
-    td {
-      border: 1px solid #ccc;
-      text-align: center;
-      padding: 10px;
-    }
+      .btn-group {
+        display: flex;
+        gap: 10px;
+      }
+    </style>
+  </head>
 
-    .btn-container {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 40px;
-    }
-
-    .btn-finalizar {
-      background: green;
-      color: white;
-      padding: 12px;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .header-group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .right-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    tfoot th {
-      border: none;
-      /* Quita los bordes de todos los <th> en el footer */
-      background: transparent;
-      /* Fondo transparente */
-    }
-
-    tfoot th.total-label,
-    tfoot th.total-value {
-      border-top: 2px solid black;
-      /* Agrega borde solo en las celdas de total */
-      border-bottom: 2px solid black;
-      font-weight: bold;
-      background: white;
-      /* Fondo blanco para destacar */
-    }
-  </style>
-</head>
-
-<body>
-  <!-- VENTAS -->
-  <div class="container-scroller">
-    <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
-      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo" href="../../index.html">
-          <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo"
-            class="logo-dark" />
-          <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
-            class="logo-light" />
-        </a>
-        <a class="navbar-brand brand-logo-mini" href="../../index.html"><img
-            src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
-        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-          <span class="icon-menu"></span>
-        </button>
-      </div>
-      <div class="navbar-menu-wrapper d-flex align-items-center">
-        <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
-          Promociones
-        </h2>
-        <ul class="navbar-nav navbar-nav-right">
-          <li class="nav-item dropdown">
-            <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              <i class="icon-speech"></i>
-              <span class="count">2</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
-              aria-labelledby="messageDropdown">
-              <a class="dropdown-item py-3">
-                <p class="mb-0 font-weight-medium float-start me-2">
-                  Tienes 2 Recordatorios
-                </p>
+  <body>
+    <!-- VENTAS -->
+    <div class="container-scroller">
+      <nav
+        class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row"
+      >
+        <div
+          class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center"
+        >
+          <a class="navbar-brand brand-logo" href="../../index.html">
+            <img
+              src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+              alt="logo"
+              class="logo-dark"
+            />
+            <img
+              src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+              alt="logo-light"
+              class="logo-light"
+            />
+          </a>
+          <a class="navbar-brand brand-logo-mini" href="../../index.html"
+            ><img
+              src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+              alt="logo"
+          /></a>
+          <button
+            class="navbar-toggler navbar-toggler align-self-center"
+            type="button"
+            data-toggle="minimize"
+          >
+            <span class="icon-menu"></span>
+          </button>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center">
+          <h2 class="mb-0 font-weight-medium d-none d-lg-flex">Promociones</h2>
+          <ul class="navbar-nav navbar-nav-right">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link count-indicator message-dropdown"
+                id="messageDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="icon-speech"></i>
+                <span class="count">2</span>
               </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item preview-item">
-                <div class="preview-item-content flex-grow py-2">
-                  <p class="preview-subject ellipsis font-weight-medium text-dark">
-                    Jose Hernandez
+              <div
+                class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
+                aria-labelledby="messageDropdown"
+              >
+                <a class="dropdown-item py-3">
+                  <p class="mb-0 font-weight-medium float-start me-2">
+                    Tienes 2 Recordatorios
                   </p>
-                  <p class="font-weight-light small-text">
-                    Cambio de Frenos
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-item-content flex-grow py-2">
+                    <p
+                      class="preview-subject ellipsis font-weight-medium text-dark"
+                    >
+                      Jose Hernandez
+                    </p>
+                    <p class="font-weight-light small-text">Cambio de Frenos</p>
+                  </div>
+                </a>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-item-content flex-grow py-2">
+                    <p
+                      class="preview-subject ellipsis font-weight-medium text-dark"
+                    >
+                      Hernan Atuncar
+                    </p>
+                    <p class="font-weight-light small-text">Cambio de aceite</p>
+                  </div>
+                </a>
+              </div>
+            </li>
+            <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                id="UserDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img
+                  class="img-xs rounded-circle ms-2"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                  alt="Profile image"
+                />
+                <span class="font-weight-normal"> Elena </span></a
+              >
+              <div
+                class="dropdown-menu dropdown-menu-right navbar-dropdown"
+                aria-labelledby="UserDropdown"
+              >
+                <div class="dropdown-header text-center">
+                  <img
+                    class="img-md rounded-circle"
+                    src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                    alt="Profile image"
+                  />
+                  <p class="mb-1 mt-3">Elena</p>
+                  <p class="font-weight-light text-muted mb-0">
+                    fix360@gmail.com
                   </p>
                 </div>
-              </a>
-              <a class="dropdown-item preview-item">
-                <div class="preview-item-content flex-grow py-2">
-                  <p class="preview-subject ellipsis font-weight-medium text-dark">
-                    Hernan Atuncar
-                  </p>
-                  <p class="font-weight-light small-text">
-                    Cambio de aceite
-                  </p>
-                </div>
-              </a>
-            </div>
-          </li>
-          <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
-            <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              <img class="img-xs rounded-circle ms-2"
-                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-              <span class="font-weight-normal"> Elena </span></a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
-              <div class="dropdown-header text-center">
-                <img class="img-md rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-                <p class="mb-1 mt-3">Elena</p>
-                <p class="font-weight-light text-muted mb-0">
-                  fix360@gmail.com
-                </p>
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-user text-primary"></i> My
+                  Profile
+                  <span class="badge badge-pill badge-danger">1</span></a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-speech text-primary"></i>
+                  Messages</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-energy text-primary"></i>
+                  Activity</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-question text-primary"></i>
+                  FAQ</a
+                >
+                <a class="dropdown-item"
+                  ><i class="dropdown-item-icon icon-power text-primary"></i
+                  >Sign Out</a
+                >
               </div>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
-                Profile
-                <span class="badge badge-pill badge-danger">1</span></a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i>
-                Messages</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i>
-                Activity</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
-                FAQ</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
-            </div>
-          </li>
-        </ul>
-        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-          data-toggle="offcanvas">
-          <span class="icon-menu"></span>
-        </button>
-      </div>
-    </nav>
-    <div class="container-fluid page-body-wrapper">
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-          <li class="nav-item navbar-brand-mini-wrapper">
-            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
-                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
-                alt="logo" /></a>
-          </li>
-          <li class="nav-item nav-profile">
-            <a href="#" class="nav-link">
-              <div class="profile-image">
-                <img class="img-xs rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
-                <div class="dot-indicator bg-success"></div>
-              </div>
-              <div class="text-wrapper">
-                <p class="profile-name">Elena</p>
-                <p class="designation">Administrador</p>
-              </div>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Inicio</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../movdiario/listar-movdiario.html">
-              <span class="menu-title">Movimiento Diario </span>
-              <i class="fa-solid fa-chart-line menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Inventario</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../ventas/listar-ventas.html">
-              <span class="menu-title">Ventas</span>
-              <i class="fa-solid fa-tags menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../compras/listar-compras.html">
-              <span class="menu-title">Compras</span>
-              <i class="fa-solid fa-cart-plus menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../productos/listar-producto.html">
-              <span class="menu-title">Productos</span>
-              <i class="fa-solid fa-store menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../kardex/listar-kardex.html">
-              <span class="menu-title">Kardex</span>
-              <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../cotizaciones/listar-cotizacion.html">
-              <span class="menu-title">Cotizaciones</span>
-              <i class="fa-solid fa-list-ol menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../ordenservicios/listar-ordenes.html">
-              <span class="menu-title">Ordenes de Servicio</span>
-              <i class="fa-solid fa-car-tunnel menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../promociones/listar-promociones.html">
-              <span class="menu-title">Promociones</span>
-              <i class="fa-solid fa-percent menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Administracion</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../clientes/listar-cliente.html">
-              <span class="menu-title">Clientes</span>
-              <i class="fa-solid fa-building-user menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
-              <span class="menu-title">Vehiculos</span>
-              <i class="fa-solid fa-car-side menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Contactabilidad</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../contactabilidad/listar-graficos.html">
-              <span class="menu-title">Graficos</span>
-              <i class="fa-solid fa-chart-pie menu-icon"></i>
-            </a>
-          </li>
-        </ul>
+            </li>
+          </ul>
+          <button
+            class="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
+            type="button"
+            data-toggle="offcanvas"
+          >
+            <span class="icon-menu"></span>
+          </button>
+        </div>
       </nav>
-      <div class="container-ventas">
-        <div  class="container-main "> 
-              <div style="display: flex; gap: 20px; flex-wrap: wrap;" >
-                  <div class="card" style="width: 18rem;">
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTT_Jp6rhIdZP4F67YwRSmSxWQ_zRmwtjX_4Q&s" class="card-img-top" alt="...">
-                  <div class="card-body">
-                    <h5 class="card-title">Aceite 4x3</h5>
-                          <div class="form-check form-switch">
-                            <label style="display: block;" >Desde:</label>
-                            <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                          </div>
-                      <h4 style="margin-top: 30px;">Opciones:</h4>
-                      <button class=" btn-success fa-solid fa-pen-to-square" onclick="window.location.href='editar-observacion-ordenes.html'"></button>
-                      <button id="btnEliminar" class=" btn-danger fa-solid fa-trash"></button>
-                  </div>
+      <div class="container-fluid page-body-wrapper">
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+          <ul class="nav">
+            <li class="nav-item navbar-brand-mini-wrapper">
+              <a
+                class="nav-link navbar-brand brand-logo-mini"
+                href="../movdiario/listar-movdiario.html"
+                ><img
+                  style="width: 50px"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                  alt="logo"
+              /></a>
+            </li>
+            <li class="nav-item nav-profile">
+              <a href="#" class="nav-link">
+                <div class="profile-image">
+                  <img
+                    class="img-xs rounded-circle"
+                    src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                    alt="profile image"
+                  />
+                  <div class="dot-indicator bg-success"></div>
                 </div>
+                <div class="text-wrapper">
+                  <p class="profile-name">Elena</p>
+                  <p class="designation">Administrador</p>
+                </div>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Inicio</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../movdiario/listar-movdiario.html">
+                <span class="menu-title">Movimiento Diario </span>
+                <i class="fa-solid fa-chart-line menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Inventario</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../ventas/listar-ventas.html">
+                <span class="menu-title">Ventas</span>
+                <i class="fa-solid fa-tags menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item"></li>
+            <li class="nav-item">
+              <a class="nav-link" href="../compras/listar-compras.html">
+                <span class="menu-title">Compras</span>
+                <i class="fa-solid fa-cart-plus menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../productos/listar-producto.html">
+                <span class="menu-title">Productos</span>
+                <i class="fa-solid fa-store menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../kardex/listar-kardex.html">
+                <span class="menu-title">Kardex</span>
+                <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../cotizaciones/listar-cotizacion.html">
+                <span class="menu-title">Cotizaciones</span>
+                <i class="fa-solid fa-list-ol menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../ordenservicios/listar-ordenes.html">
+                <span class="menu-title">Ordenes de Servicio</span>
+                <i class="fa-solid fa-car-tunnel menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../promociones/listar-promociones.html">
+                <span class="menu-title">Promociones</span>
+                <i class="fa-solid fa-percent menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Administracion</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../clientes/listar-cliente.html">
+                <span class="menu-title">Clientes</span>
+                <i class="fa-solid fa-building-user menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
+                <span class="menu-title">Vehiculos</span>
+                <i class="fa-solid fa-car-side menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Contactabilidad</span>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="../contactabilidad/listar-graficos.html"
+              >
+                <span class="menu-title">Graficos</span>
+                <i class="fa-solid fa-chart-pie menu-icon"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
 
-                <div class="card" style="width: 18rem;">
-                  <img src="https://cdn.autobild.es/sites/navi.axelspringer.es/public/media/image/2017/09/mejores-motores-cuatro-cilindros_6.jpg?tf=3840x" class="card-img-top" alt="...">
-                  <div class="card-body">
-                    <h5 class="card-title">Motor</h5>
-                        <div class="form-check form-switch">
-                            <label style="display: block;" >Estado:</label>
-                            <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                          </div>
-                      <h4 style="margin-top: 30px;">Opciones:</h4>
-                      <button class=" btn-success fa-solid fa-pen-to-square" onclick="window.location.href='editar-observacion-ordenes.html'"></button>
-                      <button id="btnEliminar" class=" btn-danger fa-solid fa-trash"></button>
+        <div class="container-ventas">
+          <div class="header-group">
+            <div>
+              <button
+                type="button"
+                onclick="window.location.href='./registrar-productos.html'"
+                class="btn btn-success"
+              >
+                Registrar
+              </button>
+            </div>
+          </div>
+          <div class="container-main">
+            <div style="display: flex; gap: 20px; flex-wrap: wrap">
+              <div class="card" style="width: 18rem">
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTT_Jp6rhIdZP4F67YwRSmSxWQ_zRmwtjX_4Q&s"
+                  class="card-img-top"
+                  alt="..."
+                />
+                <div class="card-body">
+                  <h5 class="card-title">Aceite 4x3</h5>
+                  <div class="form-check form-switch">
+                    <label style="display: block"
+                      >Desde: <span>10/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Hasta: <span>12/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Cantidad: <span>12</span></label
+                    >
+                    <label style="display: block"
+                      >Precio: <span> 90.32</span></label
+                    >
+                    <label style="display: block"
+                      >Descripción:
+                      <span>
+                        Sustancia grasa, líquida a temperatura ordinaria, de
+                        mayor o menor viscosidad, no miscible con agua y de
+                        menor densidad</span
+                      ></label
+                    >
                   </div>
-                </div>
-                <div class="card" style="width: 18rem;">
-                  <img src="https://www.championautoparts.com/content/dam/marketing/emea/champion/news/align-headligths-header-thumb.jpg" class="card-img-top" alt="...">
-                  <div class="card-body">
-                    <h5 class="card-title">Luces delanteras</h5>
-                        <div class="form-check form-switch">
-                            <label style="display: block;" >Estado:</label>
-                            <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                          </div>
-                      <h4 style="margin-top: 30px;">Opciones:</h4>
-                      <button class=" btn-success fa-solid fa-pen-to-square" onclick="window.location.href='editar-observacion-ordenes.html'"></button>
-                      <button id="btnEliminar" class=" btn-danger fa-solid fa-trash"></button>
-                  </div>
-                </div>
-                <div class="card" style="width: 18rem;">
-                      <img src="https://f.fcdn.app/imgs/c320e0/www.cymaco.com.uy/cym/9d51/original/wysiwyg/1/1280x0/70916208-2715878311764014-869032.jpg" class="card-img-top" alt="...">
-                  <div class="card-body">
-                    <h5 class="card-title">Parte trasera</h5>
-                        <div class="form-check form-switch">
-                            <label style="display: block;" >Estado:</label>
-                            <input style="margin-left: 10px;" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                          </div>
-                              <h4 style="margin-top: 30px;">Opciones:</h4>
-                              <button class=" btn-success fa-solid fa-pen-to-square" onclick="window.location.href='editar-observacion-ordenes.html'"></button>
-                              <button id="btnEliminar" class=" btn-danger fa-solid fa-trash"></button>
-                  </div>
+                  <h4 style="margin-top: 30px">Opciones:</h4>
+                  <button
+                    title="Editar"
+                    onclick="window.location.href='editar-promociones.html'"
+                    class="btn btn-warning btn-sm"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    title="Eliminar"
+                    class="btn btn-danger btn-sm"
+                    id="btnEliminar"
+                    data-id="data-123"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
                 </div>
               </div>
-      </div>
+
+              <div class="card" style="width: 18rem">
+                <img
+                  src="https://asteclub.mx/wp-content/uploads/2024/04/composicion-diferentes-accesorios-coche-min.jpg"
+                  class="card-img-top"
+                  alt="..."
+                />
+                <div class="card-body">
+                  <h5 class="card-title">Filtros 3x2</h5>
+                  <div class="form-check form-switch">
+                    <label style="display: block"
+                      >Desde: <span>15/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Hasta: <span>22/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Cantidad: <span>20</span></label
+                    >
+                    <label style="display: block"
+                      >Precio: <span>45.50</span></label
+                    >
+                    <label style="display: block"
+                      >Descripción:
+                      <span
+                        >Filtros de aceite y aire para diferentes modelos de
+                        vehículos. Compra 3 y paga 2.</span
+                      ></label
+                    >
+                  </div>
+                  <h4 style="margin-top: 30px">Opciones:</h4>
+                  <button
+                    title="Editar"
+                    onclick="window.location.href='editar-promociones.html'"
+                    class="btn btn-warning btn-sm"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    title="Eliminar"
+                    class="btn btn-danger btn-sm"
+                    id="btnEliminar"
+                    data-id="data-123"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card" style="width: 18rem">
+                <img
+                  src="https://mail.nitro.pe/images/2015/junio/bujias_correctas_para_los_autos.jpg"
+                  class="card-img-top"
+                  alt="..."
+                />
+                <div class="card-body">
+                  <h5 class="card-title">Bujías 4x3</h5>
+                  <div class="form-check form-switch">
+                    <label style="display: block"
+                      >Desde: <span>12/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Hasta: <span>14/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Cantidad: <span>30</span></label
+                    >
+                    <label style="display: block"
+                      >Precio: <span>85.50</span></label
+                    >
+                    <label style="display: block"
+                      >Descripción:
+                      <span
+                        >Bujías de iridio de larga duración. Mejora el
+                        rendimiento del motor y reduce el consumo de
+                        combustible.</span
+                      ></label
+                    >
+                  </div>
+                  <h4 style="margin-top: 30px">Opciones:</h4>
+                  <button
+                    title="Editar"
+                    onclick="window.location.href='editar-promociones.html'"
+                    class="btn btn-warning btn-sm"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    title="Eliminar"
+                    class="btn btn-danger btn-sm"
+                    id="btnEliminar"
+                    data-id="data-123"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card" style="width: 18rem">
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1-8s_WRZu1ZeiTzQGtuPyqmvdxMPbm6lKcg&s"
+                  class="card-img-top"
+                  alt="..."
+                />
+                <div class="card-body">
+                  <h5 class="card-title">Liquido de frenos</h5>
+                  <div class="form-check form-switch">
+                    <label style="display: block"
+                      >Desde: <span>15/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Hasta: <span>25/03/2025</span></label
+                    >
+                    <label style="display: block"
+                      >Cantidad: <span>20</span></label
+                    >
+                    <label style="display: block"
+                      >Precio: <span>32.99</span></label
+                    >
+                    <label style="display: block"
+                      >Descripción:
+                      <span
+                        >Líquido de frenos DOT 4 de alta calidad para sistemas
+                        hidráulicos de frenos y embragues.</span
+                      ></label
+                    >
+                  </div>
+                  <h4 style="margin-top: 30px">Opciones:</h4>
+                  <button
+                    title="Editar"
+                    onclick="window.location.href='editar-promociones.html'"
+                    class="btn btn-warning btn-sm"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    title="Eliminar"
+                    class="btn btn-danger btn-sm"
+                    id="btnEliminar"
+                    data-id="data-123"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  <!--FIN VENTAS-->
+    <!--FIN VENTAS-->
 
-  <!-- plugins:js -->
-  <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="../../assets/js/off-canvas.js"></script>
-  <script src="../../assets/js/hoverable-collapse.js"></script>
-  <script src="../../assets/js/misc.js"></script>
-  <script src="../../assets/js/settings.js"></script>
-  <script src="../../assets/js/todolist.js"></script>
+    <!-- plugins:js -->
+    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../../assets/js/off-canvas.js"></script>
+    <script src="../../assets/js/hoverable-collapse.js"></script>
+    <script src="../../assets/js/misc.js"></script>
+    <script src="../../assets/js/settings.js"></script>
+    <script src="../../assets/js/todolist.js"></script>
 
-  <!-- endinject -->
-  <!-- Custom js for this page -->
-  <!-- End custom js for this page -->
-</body>
-
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <!-- End custom js for this page -->
+  </body>
 </html>
