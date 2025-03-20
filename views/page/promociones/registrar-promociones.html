@@ -47,79 +47,129 @@
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
     <style>
-      .container-ventas {
-        background: #f5f5f5;
-        padding: 40px;
-        border-radius: 8px;
-        width: 100%; /* Aseguramos que ocupe el 100% del espacio */
-        max-width: 1400px;
-        margin: 50px auto;
-      }
-
-      .header-group {
-        display: flex;
-        justify-content: flex-end; /* Esto alinea el botón a la derecha */
-        margin-bottom: 30px;
-      }
-
-      /**.btn-success {
-        font-size: 16px;
-        padding: 12px 30px;
-        border-radius: 25px;
-        background-color: #28a745;
-        border: none;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }**/
-
-      .btn-success:hover {
-        background-color: #218838;
-      }
-
       .container-main {
+        background: transparent;
+        padding: 0px;
+        border-radius: 5px;
+        box-shadow: none;
+        width: 1440px;
+        min-height: 30px;
+        margin: 70px;
+      }
+
+      .form-group {
         display: flex;
         flex-wrap: wrap;
-        gap: 30px;
-        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 50px;
+        align-items: flex-end;
       }
 
-      .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 8px;
-      }
-
-      .card:hover {
-        transform: translateY(-5px);
-      }
-
-      .card-img-top {
-        border-radius: 8px 8px 0 0;
-        height: 180px;
-        object-fit: cover;
-      }
-
-      .card-body {
-        padding: 20px;
-        background-color: #ffffff;
-        border-radius: 0 0 8px 8px;
-      }
-
-      .card-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 15px;
-      }
-
-      .form-check form-switch label {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 14px;
-      }
-
-      .btn-group {
+      .form-field {
         display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 150px;
+      }
+
+      .input-button-group {
+        display: flex;
+        align-items: center;
         gap: 10px;
+      }
+
+      label {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      input,
+      select,
+      button {
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      input[type="text"],
+      select {
+        width: 100%;
+      }
+
+      .small-input {
+        width: 130px;
+      }
+
+      .medium-input {
+        width: 200px;
+      }
+
+      .small-button {
+        width: 40px;
+        padding: 5px;
+        text-align: center;
+      }
+
+      .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 80px;
+        gap: 20px;
+      }
+
+      .btn-finalizar {
+        background: green;
+        color: white;
+        padding: 12px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      /* Custom styles to make 'Fecha de Inicio' and 'Fecha de Fin' larger and aligned */
+      .col-md-6 {
+        padding-right: 15px;
+        padding-left: 15px;
+      }
+
+      /* Optional: Add more space between fields */
+      .row > .col-md-6 {
+        margin-bottom: 20px;
+      }
+
+      .image-upload {
+        width: 300px; /* Aumenta el tamaño del área de carga de la imagen */
+        height: 250px; /* Aumenta la altura */
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        text-align: center;
+        color: #666;
+        background-color: #f5f5f5;
+        font-size: 16px;
+        margin-bottom: 15px;
+        margin-left: auto; /* Centra el contenedor */
+        margin-right: auto; /* Centra el contenedor */
+      }
+
+      #previewImage {
+        max-width: 100%; /* Asegura que la imagen no sea más grande que el contenedor */
+        max-height: 100%; /* Asegura que la imagen no exceda el contenedor */
+        object-fit: contain; /* Mantiene la proporción de la imagen */
+      }
+      .card-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 20px; /* Espacio entre los botones */
+        padding: 10px;
+      }
+
+      .card-footer .btn {
+        padding: 10px 20px; /* Un poco más de padding para los botones */
+        font-size: 14px;
       }
     </style>
   </head>
@@ -381,210 +431,120 @@
           </ul>
         </nav>
 
-        <div class="container-ventas">
-          <div class="header-group">
-            <div>
-              <button
-                type="button"
-                onclick="window.location.href='./registrar-productos.html'"
-                class="btn btn-success"
+        <!--  -->
+        <div class="container-main">
+          <div class="card">
+            <div class="card-header">
+              <label
+                ><strong><h3>Registrar Promoción</h3></strong></label
               >
-                Registrar
-              </button>
             </div>
-          </div>
-          <div class="container-main">
-            <div style="display: flex; gap: 20px; flex-wrap: wrap">
-              <div class="card" style="width: 18rem">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTT_Jp6rhIdZP4F67YwRSmSxWQ_zRmwtjX_4Q&s"
-                  class="card-img-top"
-                  alt="..."
-                />
-                <div class="card-body">
-                  <h5 class="card-title">Aceite 4x3</h5>
-                  <div class="form-check form-switch">
-                    <label style="display: block"
-                      >Desde: <span>10/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Hasta: <span>12/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Cantidad: <span>12</span></label
-                    >
-                    <label style="display: block"
-                      >Precio: <span> 90.32</span></label
-                    >
-                    <label style="display: block"
-                      >Descripción:
-                      <span>
-                        Sustancia grasa, líquida a temperatura ordinaria, de
-                        mayor o menor viscosidad, no miscible con agua y de
-                        menor densidad</span
-                      ></label
-                    >
+            <div class="card-body">
+              <div class="row">
+                <!-- Nombre de la Promoción -->
+                <div class="col-md-6">
+                  <div class="form-floating input-group mb-3">
+                    <input type="text" class="form-control" id="descripcion" />
+                    <label for="descripcion">Nombre de la promoción:</label>
                   </div>
-                  <h4 style="margin-top: 30px">Opciones:</h4>
-                  <button
-                    title="Editar"
-                    onclick="window.location.href='editar-promociones.html'"
-                    class="btn btn-warning btn-sm"
-                  >
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button
-                    title="Eliminar"
-                    class="btn btn-danger btn-sm"
-                    id="btnEliminar"
-                    data-id="data-123"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
                 </div>
-              </div>
 
-              <div class="card" style="width: 18rem">
-                <img
-                  src="https://asteclub.mx/wp-content/uploads/2024/04/composicion-diferentes-accesorios-coche-min.jpg"
-                  class="card-img-top"
-                  alt="..."
-                />
-                <div class="card-body">
-                  <h5 class="card-title">Filtros 3x2</h5>
-                  <div class="form-check form-switch">
-                    <label style="display: block"
-                      >Desde: <span>15/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Hasta: <span>22/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Cantidad: <span>20</span></label
-                    >
-                    <label style="display: block"
-                      >Precio: <span>45.50</span></label
-                    >
-                    <label style="display: block"
-                      >Descripción:
-                      <span
-                        >Filtros de aceite y aire para diferentes modelos de
-                        vehículos. Compra 3 y paga 2.</span
-                      ></label
-                    >
+                <!-- Productos -->
+                <div class="col-md-6">
+                  <div class="form-floating input-group mb-3">
+                    <input type="text" class="form-control" id="productos" />
+                    <label for="productos">Productos:</label>
                   </div>
-                  <h4 style="margin-top: 30px">Opciones:</h4>
-                  <button
-                    title="Editar"
-                    onclick="window.location.href='editar-promociones.html'"
-                    class="btn btn-warning btn-sm"
-                  >
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button
-                    title="Eliminar"
-                    class="btn btn-danger btn-sm"
-                    id="btnEliminar"
-                    data-id="data-123"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
+                </div>
+
+                <!-- Fecha de Inicio -->
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="date" class="form-control" id="fechaInicio" />
+                    <label for="fechaInicio">Fecha de Inicio:</label>
+                  </div>
+                </div>
+
+                <!-- Fecha de Fin -->
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="date" class="form-control" id="fechaFin" />
+                    <label for="fechaFin">Fecha de Fin:</label>
+                  </div>
+                </div>
+
+                <!-- Cantidad Máxima -->
+                <div class="col-md-6">
+                  <div class="form-floating input-group mb-3">
+                    <input
+                      type="number"
+                      step="1"
+                      class="form-control"
+                      id="cantidadMaxima"
+                    />
+                    <label for="cantidadMaxima">Cantidad Máxima:</label>
+                  </div>
+                </div>
+
+                <!-- Cantidad -->
+                <div class="col-md-6">
+                  <div class="form-floating input-group mb-3">
+                    <input type="number" class="form-control" id="cantidad" />
+                    <label for="cantidad">Cantidad:</label>
+                  </div>
+                </div>
+
+                <!-- Precio Oferta -->
+                <div class="col-md-6">
+                  <div class="form-floating input-group mb-3">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="precioOferta"
+                    />
+                    <label for="precioOferta">Precio Oferta:</label>
+                  </div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-md-6">
+                  <div class="form-floating input-group mb-3">
+                    <input type="text" class="form-control" id="descripcion" />
+                    <label for="descripcion">Descripción:</label>
+                  </div>
+                </div>
+
+                <div
+                  class="image-upload"
+                  onclick="document.getElementById('imageInput').click();"
+                >
+                  <img id="previewImage" src="" alt="Imagen" width="80" /><br />
+                  <input
+                    type="file"
+                    id="imageInput"
+                    style="display: none"
+                    accept="image/*"
+                    onchange="previewImage(event)"
+                  />
                 </div>
               </div>
-              <div class="card" style="width: 18rem">
-                <img
-                  src="https://mail.nitro.pe/images/2015/junio/bujias_correctas_para_los_autos.jpg"
-                  class="card-img-top"
-                  alt="..."
-                />
-                <div class="card-body">
-                  <h5 class="card-title">Bujías 4x3</h5>
-                  <div class="form-check form-switch">
-                    <label style="display: block"
-                      >Desde: <span>12/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Hasta: <span>14/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Cantidad: <span>30</span></label
-                    >
-                    <label style="display: block"
-                      >Precio: <span>85.50</span></label
-                    >
-                    <label style="display: block"
-                      >Descripción:
-                      <span
-                        >Bujías de iridio de larga duración. Mejora el
-                        rendimiento del motor y reduce el consumo de
-                        combustible.</span
-                      ></label
-                    >
-                  </div>
-                  <h4 style="margin-top: 30px">Opciones:</h4>
-                  <button
-                    title="Editar"
-                    onclick="window.location.href='editar-promociones.html'"
-                    class="btn btn-warning btn-sm"
-                  >
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button
-                    title="Eliminar"
-                    class="btn btn-danger btn-sm"
-                    id="btnEliminar"
-                    data-id="data-123"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="card" style="width: 18rem">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1-8s_WRZu1ZeiTzQGtuPyqmvdxMPbm6lKcg&s"
-                  class="card-img-top"
-                  alt="..."
-                />
-                <div class="card-body">
-                  <h5 class="card-title">Liquido de frenos</h5>
-                  <div class="form-check form-switch">
-                    <label style="display: block"
-                      >Desde: <span>15/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Hasta: <span>25/03/2025</span></label
-                    >
-                    <label style="display: block"
-                      >Cantidad: <span>20</span></label
-                    >
-                    <label style="display: block"
-                      >Precio: <span>32.99</span></label
-                    >
-                    <label style="display: block"
-                      >Descripción:
-                      <span
-                        >Líquido de frenos DOT 4 de alta calidad para sistemas
-                        hidráulicos de frenos y embragues.</span
-                      ></label
-                    >
-                  </div>
-                  <h4 style="margin-top: 30px">Opciones:</h4>
-                  <button
-                    title="Editar"
-                    onclick="window.location.href='editar-promociones.html'"
-                    class="btn btn-warning btn-sm"
-                  >
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button
-                    title="Eliminar"
-                    class="btn btn-danger btn-sm"
-                    id="btnEliminar"
-                    data-id="data-123"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="card-footer">
+              <div style="margin-left: 1150px">
+                <button
+                  class="btn btn-secondary"
+                  onclick="window.location.href='listar-promociones.html'"
+                >
+                  Cancelar
+                </button>
+                <button
+                  class="btn btn-success"
+                  onclick="window.location.href='listar-promociones.html'"
+                >
+                  Aceptar
+                </button>
               </div>
             </div>
           </div>
