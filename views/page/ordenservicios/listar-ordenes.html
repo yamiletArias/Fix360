@@ -118,7 +118,16 @@ tfoot th.total-value {
     background: white; /* Fondo blanco para destacar */
 }
 
-
+.text-left {
+  text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+  padding-left: 0; /* Opcional: elimina cualquier padding adicional a la izquierda */
+}
+#miTabla td {
+        padding: 4px !important; /* Reduce el espacio interno solo en los td */
+        font-size: 15px; /* Reduce el tamaño de fuente solo en los td */
+        line-height: 1 !important; /* Reduce la altura de las filas */
+        white-space: nowrap; /* Evita saltos de línea en las celdas */
+      }
     
 </style>
 
@@ -369,9 +378,9 @@ tfoot th.total-value {
                     <tbody>
                     <tr>
                       <td>1</td>
-                      <td>Juan torres</td>
+                      <td class="text-left">Juan torres</td>
                       <td>Elena</td>
-                      <td>Estefano Gutierrez</td>
+                      <td class="text-left">Estefano Gutierrez</td>
                       <td>H6H-980</td>
                       <td>1400</td>
                       <td>Si</td>
@@ -388,9 +397,9 @@ tfoot th.total-value {
                     </tr>  
                     <tr>
                       <td>2</td>
-                      <td>Jose Perez</td>
+                      <td class="text-left">Jose Perez</td>
                       <td>Elena</td>
-                      <td>Pedro Tasayco</td>
+                      <td class="text-left">Pedro Tasayco</td>
                       <td>JUN-987</td>
                       <td>2460</td>
                       <td>No</td>
@@ -410,9 +419,9 @@ tfoot th.total-value {
                     </tr>
                     <tr>
                       <td>3</td>
-                      <td>Rosario Navarrete</td>
+                      <td class="text-left">Rosario Navarrete</td>
                       <td>Elena</td>
-                      <td>Antony Mendoza</td>
+                      <td class="text-left">Antony Mendoza</td>
                       <td>LO7-12X</td>
                       <td>1895</td>
                       <td>Si</td>
