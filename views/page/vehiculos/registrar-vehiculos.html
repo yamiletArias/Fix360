@@ -427,7 +427,7 @@
                 <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 10px;">
+            <div class="modal-body" >
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-4">
@@ -443,18 +443,18 @@
 
                     <!-- Método de Búsqueda -->
                     <div class="col-md-4">
-                        <div class="form-group">
-                            <label class="d-block"><strong>Método de búsqueda:</strong></label>
-                            <select id="selectMetodo" class="form-select"></select>
+                        <div class="form-floating">
+                          <select id="selectMetodo" class="form-select" style="color: black;"></select>
+                          <label for="selectmetodo">Método de búsqueda:</label>
                         </div>
                     </div>
 
                     <!-- Valor Buscado -->
                     <div class="col-md-4">
-                        <div class="form-group">
-                            <label class="d-block"><strong>Valor buscado:</strong></label>
-                            <input type="text" class="form-control" placeholder="Valor buscado" />
-                        </div>
+                      <div class="form-floating">
+                       <input type="text"  class="form-control" id="vbuscado" style="background-color: white;" placeholder="vbuscado" />
+                        <label for="vbuscado">Valor buscado</label>
+                      </div>
                     </div>
                 </div>
 
