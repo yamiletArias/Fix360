@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KARDEX</title>
+    <!--Font awesome -->
+    <!-- FonAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css" />
+    <link rel="stylesheet" href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css" />
+    <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/swalcustom.js"></script>
+
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="../../assets/css/vertical-light-layout/style.css" />
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+
+    <style>
+        .container-main {
+            background: transparent;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: none;
+            width: 80%;
+            min-height: 50px;
+            margin-left: 50px;
+            margin-top: 50px;
+        }
+
+        .title {
+            text-align: center;
+            /* Centrado del título */
+            font-size: 35px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            /* Espacio debajo del título */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        td {
+            padding: 5px 10px;
+            vertical-align: top;
+        }
+
+        td:first-child {
+            font-weight: bold;
+            width: 150px;
+        }
+
+        .underline {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .underline span {
+            position: relative;
+            z-index: 1;
+            background: white;
+            padding-right: 5px;
+        }
+
+        .underline::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 2px;
+            width: 100%;
+            border-bottom: 2px solid black;
+        }
+
+        /* Separación entre Hora cierre y Saldo Inicial */
+        .spacing {
+            margin-top: 30px;
+            /* Ajusta el espacio aquí */
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .label-container {
+            flex: 1;
+            text-align: center;
+        }
+
+        .input-field {
+            flex: 1;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            font-weight: normal;
+        }
+
+        input[type="text"].editable-input {
+            width: 100%;
+            border: none;
+            /* Sin borde alrededor */
+            outline: none;
+            /* Sin contorno al seleccionar */
+            background-color: transparent;
+            /* Sin fondo para parecer una línea */
+            font-size: 16px;
+            /* Tamaño de fuente */
+            padding: 5px 0;
+            /* Solo un pequeño relleno vertical */
+        }
+
+
+        input[type="date"].editable-input {
+            width: 100%;
+            border: none;
+            /* Sin borde alrededor */
+            outline: none;
+            /* Sin contorno al seleccionar */
+            background-color: transparent;
+            /* Sin fondo para parecer una línea */
+            font-size: 16px;
+            /* Tamaño de fuente */
+            padding: 5px 0;
+            /* Solo un pequeño relleno vertical */
+        }
+
+        input[readonly] {
+            background-color: #f9f9f9;
+        }
+
+        .total {
+            font-weight: bold;
+        }
+        /* Mantener el borde visible en todo momento incluso al enfocar el campo */
+      input:focus,
+      select:focus {
+        outline: none; /* Elimina el contorno predeterminado del navegador */
+        border: 2px solid #000000; /* Mantiene el borde visible */
+        box-shadow: none; /* Elimina cualquier sombra que aparezca al enfocar */
+      }
+    </style>
+
+</head>
+
+<body>
+    <!-- VENTAS -->
+    <div class="container-scroller">
+        <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+                <a class="navbar-brand brand-logo" href="../../index.html">
+                    <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo"
+                        class="logo-dark" />
+                    <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
+                        class="logo-light" />
+                </a>
+                <a class="navbar-brand brand-logo-mini" href="../../index.html"><img
+                        src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
+                <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+                    <span class="icon-menu"></span>
+                </button>
+            </div>
+            <div class="navbar-menu-wrapper d-flex align-items-center">
+                <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
+                    Movimientos Diarios
+                </h2>
+                <ul class="navbar-nav navbar-nav-right">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="icon-speech"></i>
+                            <span class="count">2</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
+                            aria-labelledby="messageDropdown">
+                            <a class="dropdown-item py-3">
+                                <p class="mb-0 font-weight-medium float-start me-2">
+                                    Tienes 2 Recordatorios
+                                </p>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item preview-item">
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis font-weight-medium text-dark">
+                                        Jose Hernandez
+                                    </p>
+                                    <p class="font-weight-light small-text">Cambio de Frenos</p>
+                                </div>
+                            </a>
+                            <a class="dropdown-item preview-item">
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis font-weight-medium text-dark">
+                                        Hernan Atuncar
+                                    </p>
+                                    <p class="font-weight-light small-text">Cambio de aceite</p>
+                                </div>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
+                        <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <img class="img-xs rounded-circle ms-2"
+                                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                                alt="Profile image" />
+                            <span class="font-weight-normal"> Elena </span></a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+                            <div class="dropdown-header text-center">
+                                <img class="img-md rounded-circle"
+                                    src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                                    alt="Profile image" />
+                                <p class="mb-1 mt-3">Elena</p>
+                                <p class="font-weight-light text-muted mb-0">
+                                    fix360@gmail.com
+                                </p>
+                            </div>
+                            <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
+                                Profile
+                                <span class="badge badge-pill badge-danger">1</span></a>
+                            <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i>
+                                Messages</a>
+                            <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i>
+                                Activity</a>
+                            <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
+                                FAQ</a>
+                            <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign
+                                Out</a>
+                        </div>
+                    </li>
+                </ul>
+                <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+                    data-toggle="offcanvas">
+                    <span class="icon-menu"></span>
+                </button>
+            </div>
+        </nav>
+        <div class="container-fluid page-body-wrapper">
+            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+                <ul class="nav">
+                    <li class="nav-item navbar-brand-mini-wrapper">
+                        <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
+                                style="width: 50px"
+                                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                                alt="logo" /></a>
+                    </li>
+                    <li class="nav-item nav-profile">
+                        <a href="#" class="nav-link">
+                            <div class="profile-image">
+                                <img class="img-xs rounded-circle"
+                                    src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                                    alt="profile image" />
+                                <div class="dot-indicator bg-success"></div>
+                            </div>
+                            <div class="text-wrapper">
+                                <p class="profile-name">Elena</p>
+                                <p class="designation">Administrador</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">
+                        <span class="nav-link">Inicio</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../movdiario/listar-movdiario.html">
+                            <span class="menu-title">Movimiento Diario </span>
+                            <i class="fa-solid fa-chart-line menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">
+                        <span class="nav-link">Inventario</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../ventas/listar-ventas.html">
+                            <span class="menu-title">Ventas</span>
+                            <i class="fa-solid fa-tags menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <!--<a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
+                  <span class="menu-title">Icons</span>
+                  <i class="icon-globe menu-icon"></i>
+              </a>-->
+                        <!--<div class="collapse" id="icons">
+              <ul class="nav flex-column sub-menu">
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    href="../../pages/icons/font-awesome.html"
+                    >Font Awesome</a
+                  >
+                </li>
+              </ul>
+            </div>-->
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../compras/listar-compras.html">
+                            <span class="menu-title">Compras</span>
+                            <i class="fa-solid fa-cart-plus menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../productos/listar-producto.html">
+                            <span class="menu-title">Productos</span>
+                            <i class="fa-solid fa-store menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../kardex/listar-kardex.html">
+                            <span class="menu-title">Kardex</span>
+                            <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../cotizaciones/listar-cotizacion.html">
+                            <span class="menu-title">Cotizaciones</span>
+                            <i class="fa-solid fa-list-ol menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../ordenservicios/listar-ordenes.html">
+                            <span class="menu-title">Ordenes de Servicio</span>
+                            <i class="fa-solid fa-car-tunnel menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../promociones/listar-promociones.html">
+                            <span class="menu-title">Promociones</span>
+                            <i class="fa-solid fa-percent menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">
+                        <span class="nav-link">Administracion</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../clientes/listar-cliente.html">
+                            <span class="menu-title">Clientes</span>
+                            <i class="fa-solid fa-building-user menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
+                            <span class="menu-title">Vehiculos</span>
+                            <i class="fa-solid fa-car-side menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">
+                        <span class="nav-link">Contactabilidad</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../contactabilidad/listar-graficos.html">
+                            <span class="menu-title">Graficos</span>
+                            <i class="fa-solid fa-chart-pie menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">
+                        <span class="nav-link">Caja</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../contactabilidad/listar-graficos.html">
+                            <span class="menu-title">Arqueo de caja</span>
+                            <i class="fa-solid fa-chart-pie menu-icon"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="container-main">
+                <h2 class="title">ARQUEO DE CAJA - FIX 360</h2>
+                <table>
+                    <tr>
+                        <td><strong>Presentado por</strong></td>
+                        <td class="underline"><input type="text" value="Elena Castilla" class="editable-input"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fecha</strong></td>
+                        <td class="underline"><input type="date" value="2025-03-24" class="editable-input"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hora inicio</strong></td>
+                        <td class="underline"><input type="text" value="08:00" class="editable-input"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hora cierre</strong></td>
+                        <td class="underline"><input type="text" value="18:00" class="editable-input"></td>
+                    </tr>
+                </table>
+
+
+
+                <div class="spacing"></div>
+
+                <h3>Saldo Inicial</h3>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Saldo restante</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="number" placeholder="S/ -" step="0.01">
+                    </div>
+                    
+                </div>
+
+                <h3>Ingresos</h3>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Efectivo</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Yape</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Plin</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Visa</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Depósito</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+
+                <h3>Egresos</h3>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Pasajes</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Compra de insumos</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Servicios varios</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+
+                <h3>Resumen</h3>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Saldo anterior en efectivo</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Ingreso diario efectivo</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Total efectivo</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Total egresos</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Total efectivo caja</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -" class="total">
+                    </div>
+                </div>
+                <div class="input-container">
+                    <div class="label-container">
+                        <label>Otros aportes registrados</label>
+                        <label><strong>Yape, Plin, Bancos</strong></label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="S/ -" class="total">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!--FIN VENTAS-->
+
+    <!-- plugins:js -->
+    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../../assets/js/off-canvas.js"></script>
+    <script src="../../assets/js/hoverable-collapse.js"></script>
+    <script src="../../assets/js/misc.js"></script>
+    <script src="../../assets/js/settings.js"></script>
+    <script src="../../assets/js/todolist.js"></script>
+
+
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <!-- End custom js for this page -->
+</body>
+
+</html>
