@@ -34,7 +34,7 @@
       padding: 0px;
       border-radius: 5px;
       box-shadow: none;
-      width: 1550px;
+      width: 1495px;
       /* Aumenta el tamaño */
       min-height: 30px;
       /* Aumenta la altura */
@@ -64,9 +64,7 @@
       gap: 10px;
     }
 
-    label {
-      font-weight: bold;
-    }
+    
 
     input,
     select,
@@ -87,6 +85,11 @@
       padding: 5px;
       text-align: center;
     }
+
+    .border{
+      border-radius: 4px;
+    }
+
 
 
   </style>
@@ -299,7 +302,7 @@
         </ul>
       </nav>
       <div class="container-main">
-        <div class="card">
+        <div class="card border">
           <div class="card-header">
             <label><strong>
                 <h3>Nuevo Registro</h3>
@@ -307,21 +310,20 @@
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>tipo de vehiculo:</option>
+              <div class="col-md-4 mb-3">
+                <div class="form-floating">
+                  <select class="form-select" id="ftipov" style="color: black;">
                     <option value="direccion">SUV</option>
                     <option value="mecanica">Camioneta</option>
                     <option value="lubricacion">Sedan</option>
                     <option value="otros">Pick up</option>
                   </select>
+                  <label for="ftipov">Tipo de vehiculo:</label>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>Marca de vehiculo:</option>
+              <div class="col-md-4 ">
+                <div class="form-floating">
+                  <select class="form-select" id="fmarcav" style="color: black;">
                     <option value="direccion">Toyota</option>
                     <option value="mecanica">Honda</option>
                     <option value="lubricacion">Hyundai</option>
@@ -329,53 +331,54 @@
                     <option value="otros">Audi</option>
                     <option value="otros">Porsche</option>
                   </select>
+                  <label for="fmarcav">Marca del vehiculo:</label>
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>Modelo del auto:</option>
+                <div class="form-floating">
+                  <select class="form-select" id="fmodelov" style="color: black;">
                     <option value="mecanico1">4Runner</option>
                     <option value="mecanico2">Agya</option>
                     <option value="mecanico3">Avanza</option>
                     <option value="mecanico3">Corolla</option>
                   </select>
+                  <label for="fmodelov">Modelo del vehiculo:</label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="form-floating"> 
-                    <input type="text" class="form-control" id="floatingInput" />
-                    <label for="floatingInput">Placa:</label>
+                    <input type="text" class="form-control" id="fplaca" placeholder="placadeejemplo" minlength="6" maxlength="6" />
+                    <label for="fplaca">Placa</label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="form-floating">
-                  <input type="text"  class="form-control" id="floatingInput" />
-                  <label for="floatingInput">Año:</label>
+                  <input type="text"  class="form-control" id="fanio" placeholder="anio" minlength="4" maxlength="4" />
+                  <label for="fanio">Año</label>
                 </div>
               </div>
               <div class="col-md-4 mb-3">
                 <div class="form-floating">
-                  <input type="text"  class="form-control" id="floatingInput" />
-                  <label for="floatingInput">N° de serie:</label>
+                  <input type="text"  class="form-control" id="fnumserie"  placeholder="numerodeserie"/>
+                  <label for="fnumserie">N° de serie</label>
                 </div>
               </div>
 
               <div class="col-md-4 mb-3">
                 <div class="form-floating">
-                  <input type="text"  class="form-control" id="floatingInput" />
-                  <label for="floatingInput">Color:</label>
+                  <input type="text"  class="form-control" id="fcolor"  placeholder="#e0aef6"/>
+                  <label for="fcolor">Color</label>
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group">
-                  <select class="form-select-lg">
-                    <option selected>Tipo de combustible:</option>
-                    <option value="mecanico1">Gasolina</option>
+                <div class="form-floating">
+                  <select class="form-select" id="ftcombustible" style="color: black;">
+                    <option value="mecanico1" selected>Gasolina</option>
                     <option value="mecanico2">Diesel</option>
                     <option value="mecanico3">Gas natural</option>
                     <option value="mecanico3">Biocombustible</option>
                   </select>
+                  <label for="ftcombustible">Tipo de combustible:</label>
                 </div>
               </div>
               <div class="col-md-4">

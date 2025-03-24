@@ -143,7 +143,7 @@
       border-top: 2px solid black;
       /* Agrega borde solo en las celdas de total */
       border-bottom: 2px solid black;
-      font-weight: bold;
+      
       background: white;
       /* Fondo blanco para destacar */
     }
@@ -356,8 +356,7 @@
           </li>
         </ul>
       </nav>
-      <div class="container-main">
-        
+      <div class="container-main">     
         <div class="header-group">
           <div>
             <button title="Registrar vehiculo" type="button" onclick="window.location.href='Registrar-vehiculos.html'" class="btn btn-success">
@@ -369,22 +368,24 @@
           <table id="miTabla" class="table table-striped display">
             <thead>
               <tr>
-                <th title="Propietario actual del vehiculo">PROPIETARIO</th>
-                <th title="Tipo de vehiculo">T. VEHICULO</th>
-                <th title="Marca del vehiculo">MARCA</th>
-                <th title="Placa del vehiculo">PLACA</th>
-                <th title="Color del vehiculo">COLOR</th>
-                <th>OPCIONES</th>
+                <td>#</td>
+                <th title="Propietario actual del vehiculo">Propietario</th>
+                <th title="Tipo de vehiculo">T. Vehiculo</th>
+                <th title="Marca del vehiculo">Marca</th>
+                <th title="Placa del vehiculo">Placa</th>
+                <th title="Color del vehiculo">Color</th>
+                <th>Opciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr data-id="1">
-                <th>Jhon Francia</th>
-                <th>Sedan</th>
-                <th>Toyota</th>
-                <th>798-FBH</th>
-                <th>ROJO</th>
-                <th>
+              <tr>
+                <td>1</td>
+                <td>Jhon Francia</td>
+                <td>Sedan</td>
+                <td>Toyota</td>
+                <td>798-FBH</td>
+                <td>ROJO</td>
+                <td>
                   <button title="Detalle del vehiculo" data-bs-toggle="modal" data-bs-target="#miModal"
                     class="btn btn-primary btn-sm">
                     <i class="fa-solid fa-list"></i>
@@ -397,15 +398,16 @@
                     class="btn btn-outline-dark btn-sm" data-id="1">
                   <i class="fa-solid fa-file-alt"></i>
                   </button>
-                </th>
+                </td>
               </tr>
-              <tr data-id="2">
-                <th>Jose Campos</th>
-                <th>Sport</th>
-                <th>Audi</th>
-                <th>F4F-789</th>
-                <th>GRIS</th>
-                <th>
+              <tr>
+                <td>2</td>
+                <td>Jose Campos</td>
+                <td>Sport</td>
+                <td>Audi</td>
+                <td>F4F-789</td>
+                <td>GRIS</td>
+                <td>
                   <button title="Detalle del vehiculo" data-bs-toggle="modal" data-bs-target="#miModal"
                     class="btn btn-primary btn-sm">
                     <i class="fa-solid fa-list"></i>
@@ -418,15 +420,16 @@
                     class="btn btn-outline-dark btn-sm" data-id="1">
                   <i class="fa-solid fa-file-alt"></i>
                   </button>
-                </th>
+                </td>
               </tr>
-              <tr data-id="3">
-                <th>Maria Mercedes</th>
-                <th>SUV</th>
-                <th>Volkswagen</th>
-                <th>DEF-456</th>
-                <th>AZUL</th>
-                <th>
+              <tr>
+                <td>3</td>
+                <td>Maria Mercedes</td>
+                <td>SUV</td>
+                <td>Volkswagen</td>
+                <td>DEF-456</td>
+                <td>AZUL</td>
+                <td>
                   <button title="Detalle del vehiculo" data-bs-toggle="modal" data-bs-target="#miModal"
                     class="btn btn-primary btn-sm">
                     <i class="fa-solid fa-list"></i>
@@ -439,47 +442,12 @@
                     class="btn btn-outline-dark btn-sm" data-id="1">
                   <i class="fa-solid fa-file-alt"></i>
                   </button>
-                </th>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-      <!-- Modal -->
-      <!--<div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Observaciones del Vehículo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>MECÁNICO</th>
-                                    <th>ADMIN</th>
-                                    <th>CLIENTE</th>
-                                    <th>PROPIETARIO</th>
-                                    <th>KILOMETRAJE</th>
-                                    <th>INGRESO GRÚA</th>
-                                    <th>FCH INGRESO</th>
-                                    <th>FCH SALIDA</th>
-                                    <th>OBSERVACIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modalObservacionesBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div> -->
     </div>
   </div>
 
@@ -539,11 +507,11 @@
   <script src="../../assets/js/misc.js"></script>
   <script src="../../assets/js/settings.js"></script>
   <script src="../../assets/js/todolist.js"></script>
-  <!-- DataTables JS -->
+  
+
+
+
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
-
-
-
   <script>
     $(document).ready(function () {
       $('#miTabla').DataTable({
@@ -568,63 +536,9 @@
     });
 
   </script>
-  <!--<script>
-document.querySelectorAll(".btnObservaciones").forEach(button => {
-    button.addEventListener("click", function() {
-        // Obtener el ID de la fila desde el atributo data-id del botón
-        const id = this.getAttribute("data-id");
 
-        // Llenar la tabla de observaciones con los datos correspondientes
-        const observacionesData = {
-            1: [
-                { mecanico: "Juan Torres", admin: "Elena", cliente: "Estefano", propietario: "Jhon Francia", kilometraje: 5400, ingresoGrua: "Bueno", fchIngreso: "10/02/2025", fchSalida: "11/02/2025", observaciones: "Observación" },
-                { mecanico: "Jose Perez", admin: "Elena", cliente: "Pedro Tasayco", propietario: "Taxi Driver S.A.C", kilometraje: 2460, ingresoGrua: "Malo", fchIngreso: "07/01/2025", fchSalida: "09/01/2025", observaciones: "Observación" },
-                { mecanico: "Rosario Navarrete", admin: "Roberto", cliente: "Antony Mendoza", propietario: "Jose Hernandez", kilometraje: 1895, ingresoGrua: "Bueno", fchIngreso: "08/10/2024", fchSalida: "08/11/2024", observaciones: "Observación" }
-            ],
-            2: [
-                { mecanico: "Carlos Ruiz", admin: "Ana", cliente: "Marco León", propietario: "Carlos Soto", kilometraje: 1200, ingresoGrua: "Bueno", fchIngreso: "12/03/2025", fchSalida: "14/03/2025", observaciones: "Observación" },
-                { mecanico: "Luis Gutiérrez", admin: "Sofia", cliente: "Juan Lopez", propietario: "Mercedes", kilometraje: 3500, ingresoGrua: "Malo", fchIngreso: "01/03/2025", fchSalida: "04/03/2025", observaciones: "Observación" }
-            ],
-            3: [
-                { mecanico: "Carlos Diaz", admin: "Patricia", cliente: "Luis Zamora", propietario: "Carlos Pérez", kilometraje: 9000, ingresoGrua: "Bueno", fchIngreso: "15/05/2024", fchSalida: "20/05/2024", observaciones: "Observación" }
-            ]
-        };
-
-        // Obtener el array de observaciones basadas en el ID
-        const observations = observacionesData[id] || [];
-
-        // Limpiar el cuerpo de la tabla en el modal antes de añadir nuevas filas
-        const modalObservacionesBody = document.getElementById("modalObservacionesBody");
-        modalObservacionesBody.innerHTML = "";
-
-        // Insertar las filas correspondientes en el modal
-        observations.forEach(observation => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${observation.mecanico}</td>
-                <td>${observation.admin}</td>
-                <td>${observation.cliente}</td>
-                <td>${observation.propietario}</td>
-                <td>${observation.kilometraje}</td>
-                <td><button class="fa-solid ${observation.ingresoGrua === 'Bueno' ? 'fa-check' : 'fa-xmark'}"></button></td>
-                <td>${observation.fchIngreso}</td>
-                <td>${observation.fchSalida}</td>
-                <td><button class="btnObservaciones " data-id="${id}">Observación</button></td>
-            `;
-            modalObservacionesBody.appendChild(row);
-        });
-
-        // Abrir el modal
-        const modal = new bootstrap.Modal(document.getElementById('miModal'));
-        modal.show();
-    });
-});
-
-</script> -->
-
-  <!-- endinject -->
-  <!-- Custom js for this page -->
-  <!-- End custom js for this page -->
+ <!-- DataTables JS -->
+  
 </body>
 
 </html>

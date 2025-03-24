@@ -389,79 +389,83 @@
           <table id="miTabla" class="table table-striped display">
             <thead>
               <tr>
-                <th>MARCA</th>
-                <th>SUBCATEGORIA</th>
-                <th>DESCRIPCION</th>
-                <th>PRECIO</th>
-                <th>PRESENTACION</th>
-                <th>UND MEDIDA</th>
-                <th>CANTIDAD</th>
-                <th>IMAGEN</th>
-                <th>OPCIONES</th>
+                <th>#</th>
+                <th>Marca</th>
+                <th>Subcategoria</th>
+                <th>Descripcion</th>
+                <th>Precio</th>
+                <th>Presentacion</th>
+                <th>Und. Medida</th>
+                <th>Cantidad</th>
+                <th>Imagen</th>
+                <th>Opciones</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th class="text-left">Shell Helix</th>
-                <th class="text-left">Aceite para auto</th>
-                <th class="text-left">HX7 10W-40</th>
-                <th>50.00</th>
-                <th>Galonera</th>
-                <th>L</th>
-                <th class="text-center">4</th>
-                <th>
+                <td>1</td>
+                <td class="text-left">Shell Helix</td>
+                <td class="text-left">Aceite para auto</td>
+                <td class="text-left">HX7 10W-40</td>
+                <td>50.00</td>
+                <td>Galonera</td>
+                <td>L</td>
+                <td class="text-center">4</td>
+                <td>
                   <img src="https://densalubricantes.com/wp-content/uploads/2023/10/ShellHelixHX710w-405L.jpg"
                     width="80" alt="" />
-                </th>
-                <th>
+                </td>
+                <td>
                   <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                   <button onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
-                </th>
+                </td>
               </tr>
               <tr>
-                <th class="text-left">Mahindra</th>
-                <th class="text-left">Disco de embriague</th>
-                <th class="text-left">Funcar</th>
-                <th>520.00</th>
-                <th>Unidad</th>
-                <th>UND</th>
-                <th class="text-center">1</th>
-                <th>
+                <td>2</td>
+                <td class="text-left">Mahindra</td>
+                <td class="text-left">Disco de embriague</td>
+                <td class="text-left">Funcar</td>
+                <td>520.00</td>
+                <td>Unidad</td>
+                <td>UND</td>
+                <td class="text-center">1</td>
+                <td>
                   <img src="https://funcar.pe/cdn/shop/files/DISCODEEMBRAGUE.jpg?v=1696824072" width="100" alt="" />
-                </th>
-                <th>
+                </td>
+                <td>
                   <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                   <button onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
-                </th>
+                </td>
               </tr>
               <tr>
-                <th class="text-left">Tucson</th>
-                <th class="text-left">Filtro de aceite</th>
-                <th class="text-left">Elantra(2016 - 2022)</th>
-                <th>18.30</th>
-                <th>Unidad</th>
-                <th>UND</th>
-                <th class="text-center">1</th>
-                <th>
-                  <img src="https://funcar.pe/cdn/shop/products/2630035505_1_1800x.jpg?v=1678053841" width="100"
+                <td>3</td>
+                <td class="text-left">Tucson</td>
+                <td class="text-left">Filtro de aceite</td>
+                <td class="text-left">Elantra(2016 - 2022)</td>
+                <td>18.30</td>
+                <td>Unidad</td>
+                <td>UND</td>
+                <td class="text-center">1</td>
+                <td>
+                  <img src="https://funcar.pe/cdn/shop/products/2630035505_1_1800x.jpg?v=1678053841" 
                     alt="" />
-                </th>
-                <th>
+                </td>
+                <td>
                   <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                   <button onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
-                </th>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -490,9 +494,30 @@
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
 
   <script>
+    
     $(document).ready(function () {
-      $("#miTabla").DataTable();
+      $('#miTabla').DataTable({
+        language: {
+          "lengthMenu": "Mostrar _MENU_ registros por página",
+          "zeroRecords": "No se encontraron resultados",
+          "info": "Mostrando página _PAGE_ de _PAGES_",
+          "infoEmpty": "No hay registros disponibles",
+          "infoFiltered": "(filtrado de _MAX_ registros totales)",
+          "search": "Buscar:",
+          "paginate": {
+            "first": "Primero",
+            "last": "Último",
+            "next": "Siguiente",
+            "previous": "Anterior"
+          },
+          "loadingRecords": "Cargando...",
+          "processing": "Procesando...",
+          "emptyTable": "No hay datos disponibles en la tabla"
+        }
+      });
     });
+
+  
 
     // Agregar evento de eliminación a todos los botones con la clase "btnEliminar"
     $(document).on("click", ".btnEliminar", async function () {
@@ -507,6 +532,8 @@
       }
     });
   </script>
+
+
 
   <!-- endinject -->
   <!-- Custom js for this page -->

@@ -453,10 +453,10 @@
       { id: 2, nombre: "Innova Corp", tipodoc: "RUC", nrodoc: "20987654321", telefono: "956789012" }
     ];
 
-    // Función para actualizar la tabla
+    // Función para que se actualize la tabla
     function actualizarTabla() {
       const tabla = document.getElementById("tablaClientes");
-      tabla.innerHTML = ""; // Limpiar tabla
+      tabla.innerHTML = ""; 
 
       const tipoSeleccionado = document.querySelector('input[name="tipoCliente"]:checked').id;
       const datos = tipoSeleccionado === "persona" ? personas : empresas;

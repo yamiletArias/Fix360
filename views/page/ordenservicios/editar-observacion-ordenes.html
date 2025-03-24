@@ -39,6 +39,9 @@
     margin-top: 50px;
 }
 
+.form-check-input{
+  transform: scale(1.5);
+}
 
     .form-group {
         display: flex;
@@ -50,12 +53,7 @@
     .form-group label {
         margin-right: 10px;
     }
-    input, select, button {
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
+   
     input[type="text"], select {
         flex: 1;
     }
@@ -345,7 +343,7 @@ tfoot th.total-value {
         </div>
           <p>estado:</p>
           <div style="padding-left: 50px ; " class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" scale="">
           </div style="padding:50px;">
           <p>Foto:</p>
           <input style="padding:20px;" type="file" id="archivo" name="archivo">
