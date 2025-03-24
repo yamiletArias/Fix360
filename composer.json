@@ -1,0 +1,8 @@
+{
+    "name": "vendor/fix360",
+    "type": "library",
+    "minimum-stability": "stable",
+    "require": {
+        "spipu/html2pdf": "^5.3"
+    }
+}
