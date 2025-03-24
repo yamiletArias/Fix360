@@ -559,6 +559,19 @@
   <script src="../../assets/js/settings.js"></script>
   <script src="../../assets/js/todolist.js"></script>
 
+    <script>
+      document
+        .querySelector("#btnEliminar")
+        .addEventListener("click", async () => {
+          if (
+            await ask("¿Estás seguro de eliminar este registro?", "Usuarios")
+          ) {
+            showToast("Registro eliminado", "SUCCESS", 2000);
+          } else {
+            showToast("Eliminación cancelada", "WARNING", 2000);
+          }
+        });
+    </script>
 
   <script>
     document.querySelector("#btnEliminar").addEventListener("click", async () => {
