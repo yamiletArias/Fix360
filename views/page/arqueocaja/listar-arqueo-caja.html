@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KARDEX</title>
+    <title>SESION VENTAS</title>
     <!--Font awesome -->
     <!-- FonAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -28,6 +28,9 @@
     <!-- End layout styles -->
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
+
     <style>
         .container-main {
             background: transparent;
@@ -42,11 +45,9 @@
 
         .title {
             text-align: center;
-            /* Centrado del título */
             font-size: 35px;
             font-weight: bold;
             margin-bottom: 30px;
-            /* Espacio debajo del título */
         }
 
         table {
@@ -88,9 +89,16 @@
         }
 
         /* Separación entre Hora cierre y Saldo Inicial */
+        .spacing-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 115%;
+            margin-top: 50px;
+        }
+
         .spacing {
-            margin-top: 30px;
-            /* Ajusta el espacio aquí */
+            width: 80%;
         }
 
         .input-container {
@@ -110,6 +118,11 @@
             text-align: center;
         }
 
+        .align-right {
+            text-align: right;
+            /* Alineación solo para los números */
+        }
+
         label {
             display: block;
             font-weight: normal;
@@ -118,46 +131,49 @@
         input[type="text"].editable-input {
             width: 100%;
             border: none;
-            /* Sin borde alrededor */
             outline: none;
-            /* Sin contorno al seleccionar */
-            background-color: transparent;
-            /* Sin fondo para parecer una línea */
-            font-size: 16px;
-            /* Tamaño de fuente */
-            padding: 5px 0;
-            /* Solo un pequeño relleno vertical */
-        }
 
+            font-size: 16px;
+            padding: 5px 0;
+        }
 
         input[type="date"].editable-input {
             width: 100%;
             border: none;
-            /* Sin borde alrededor */
             outline: none;
-            /* Sin contorno al seleccionar */
             background-color: transparent;
-            /* Sin fondo para parecer una línea */
             font-size: 16px;
-            /* Tamaño de fuente */
             padding: 5px 0;
-            /* Solo un pequeño relleno vertical */
-        }
-
-        input[readonly] {
-            background-color: #f9f9f9;
         }
 
         .total {
             font-weight: bold;
         }
-        /* Mantener el borde visible en todo momento incluso al enfocar el campo */
-      input:focus,
-      select:focus {
-        outline: none; /* Elimina el contorno predeterminado del navegador */
-        border: 2px solid #000000; /* Mantiene el borde visible */
-        box-shadow: none; /* Elimina cualquier sombra que aparezca al enfocar */
-      }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border: 1px solid #000000;
+            box-shadow: none;
+        }
+
+        .header-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        input,
+        select,
+        button {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #000000;
+            border-radius: 4px;
+        }
+        .input-color-total{
+            background-color: yellow;
+        }
     </style>
 
 </head>
@@ -181,7 +197,7 @@
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center">
                 <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
-                    Movimientos Diarios
+                    Movimiento
                 </h2>
                 <ul class="navbar-nav navbar-nav-right">
                     <li class="nav-item dropdown">
@@ -383,163 +399,169 @@
                 </ul>
             </nav>
             <div class="container-main">
-                <h2 class="title">ARQUEO DE CAJA - FIX 360</h2>
+                <div class="header-group"  style="padding-left:0px;">
+                    <h2 class="title">ARQUEO DE CAJA - FIX 360</h2>
+                    <button onclick="window.location.href='registrar-ventas.html'" class="btn btn-danger btn-sm" style="height: 50px;">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </button>
+                </div>
                 <table>
                     <tr>
                         <td><strong>Presentado por</strong></td>
-                        <td class="underline"><input type="text" value="Elena Castilla" class="editable-input"></td>
+                        <td class="underline"><input type="text" value="Elena Castilla" class="editable-input" readonly></td>
                     </tr>
                     <tr>
                         <td><strong>Fecha</strong></td>
-                        <td class="underline"><input type="date" value="2025-03-24" class="editable-input"></td>
+                        <td class="underline"><input type="date" id="fecha" value="2025-03-24" class="editable-input" onchange="actualizarValores()"></td>
                     </tr>
                     <tr>
                         <td><strong>Hora inicio</strong></td>
-                        <td class="underline"><input type="text" value="08:00" class="editable-input"></td>
+                        <td class="underline"><input type="text" value="08:00" class="editable-input" readonly></td>
                     </tr>
                     <tr>
                         <td><strong>Hora cierre</strong></td>
-                        <td class="underline"><input type="text" value="18:00" class="editable-input"></td>
+                        <td class="underline"><input type="text" value="18:00" class="editable-input" readonly></td>
                     </tr>
                 </table>
-
-
-
-                <div class="spacing"></div>
-
-                <h3>Saldo Inicial</h3>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Saldo restante</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="number" placeholder="S/ -" step="0.01">
-                    </div>
-                    
-                </div>
-
-                <h3>Ingresos</h3>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Efectivo</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Yape</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Plin</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Visa</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Depósito</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-
-                <h3>Egresos</h3>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Pasajes</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Compra de insumos</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Servicios varios</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-
-                <h3>Resumen</h3>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Saldo anterior en efectivo</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Ingreso diario efectivo</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Total efectivo</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Total egresos</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Total efectivo caja</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -" class="total">
-                    </div>
-                </div>
-                <div class="input-container">
-                    <div class="label-container">
-                        <label>Otros aportes registrados</label>
-                        <label><strong>Yape, Plin, Bancos</strong></label>
-                    </div>
-                    <div class="input-field">
-                        <input type="text" placeholder="S/ -" class="total">
+        
+                <!-- Contenedor adicional para centrar el div spacing -->
+                <div class="spacing-container">
+                    <div class="spacing">
+                        <h3>Saldo Inicial</h3>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Saldo restante</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="saldo-restante" value="S/ 385.00" readonly class="align-right">
+                            </div>
+                        </div>
+        
+                        <h3>Ingresos</h3>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Efectivo</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="ingreso-efectivo" value="S/ 50.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Yape</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="ingreso-yape" value="S/ 30.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Plin</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="ingreso-plin" value="S/ 40.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Visa</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="ingreso-visa" value="S/ 25.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Depósito</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="ingreso-deposito" value="S/ 200.00" readonly class="align-right">
+                            </div>
+                        </div>
+        
+                        <h3>Egresos</h3>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Pasajes</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="egreso-pasajes" value="S/ 16.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Compra de insumos</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="egreso-insumos" value="S/ 20.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Servicios varios</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="egreso-servicios" value="S/ 236.00" readonly class="align-right">
+                            </div>
+                        </div>
+        
+                        <h3>Resumen</h3>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Saldo anterior en efectivo</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="saldo-anterior" value="S/ 385.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Ingreso diario efectivo</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="ingreso-diario" value="S/ 545.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Total efectivo</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="total-efectivo" value="S/ 930.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Total egresos</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="total-egresos" value="S/ 272.00" readonly class="align-right">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Total efectivo caja</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="total-efectivo-caja" value="S/ 658.00" readonly class="align-right input-color-total">
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <div class="label-container">
+                                <label>Otros aportes registrados</label>
+                                <label><strong>Yape, Plin, Bancos</strong></label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" value=" - " readonly class="align-right">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
-    </div>
+
     <!--FIN VENTAS-->
 
     <!-- plugins:js -->
@@ -555,6 +577,49 @@
     <script src="../../assets/js/todolist.js"></script>
 
 
+    <script>
+        function actualizarValores() {
+            var fecha = document.getElementById('fecha').value;
+
+            if (fecha === "2025-03-23") {
+                // Valores para el 23 de marzo de 2025
+                document.getElementById('saldo-restante').value = "S/ 400.00";
+                document.getElementById('ingreso-efectivo').value = "S/ 70.00";
+                document.getElementById('ingreso-yape').value = "S/ 35.00";
+                document.getElementById('ingreso-plin').value = "S/ 50.00";
+                document.getElementById('ingreso-visa').value = "S/ 30.00";
+                document.getElementById('ingreso-deposito').value = "S/ 150.00";
+                document.getElementById('egreso-pasajes').value = "S/ 20.00";
+                document.getElementById('egreso-insumos').value = "S/ 15.00";
+                document.getElementById('egreso-servicios').value = "S/ 200.00";
+                
+                // Resumen
+                document.getElementById('saldo-anterior').value = "S/ 400.00";
+                document.getElementById('ingreso-diario').value = "S/ 545.00";
+                document.getElementById('total-efectivo').value = "S/ 945.00";
+                document.getElementById('total-egresos').value = "S/ 235.00";
+                document.getElementById('total-efectivo-caja').value = "S/ 710.00";
+            } else if (fecha === "2025-03-24") {
+                // Valores para el 24 de marzo de 2025 (manteniendo los valores anteriores)
+                document.getElementById('saldo-restante').value = "S/ 385.00";
+                document.getElementById('ingreso-efectivo').value = "S/ 50.00";
+                document.getElementById('ingreso-yape').value = "S/ 30.00";
+                document.getElementById('ingreso-plin').value = "S/ 40.00";
+                document.getElementById('ingreso-visa').value = "S/ 25.00";
+                document.getElementById('ingreso-deposito').value = "S/ 200.00";
+                document.getElementById('egreso-pasajes').value = "S/ 16.00";
+                document.getElementById('egreso-insumos').value = "S/ 20.00";
+                document.getElementById('egreso-servicios').value = "S/ 236.00";
+                
+                // Resumen
+                document.getElementById('saldo-anterior').value = "S/ 385.00";
+                document.getElementById('ingreso-diario').value = "S/ 545.00";
+                document.getElementById('total-efectivo').value = "S/ 930.00";
+                document.getElementById('total-egresos').value = "S/ 272.00";
+                document.getElementById('total-efectivo-caja').value = "S/ 658.00";
+            }
+        }
+    </script>
     <!-- endinject -->
     <!-- Custom js for this page -->
     <!-- End custom js for this page -->
