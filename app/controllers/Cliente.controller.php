@@ -1,18 +1,14 @@
 <?php
-
-require_once "../models/ClientesModel.php";
+session_start();
+require_once "../models/Cliente.php";
 header('Content-Type: application/json');
 
-$cliente = new Clientes();
+$cliente = new Cliente();
 
 switch ($_SERVER["REQUEST_METHOD"]) {
-    case "POST":
-        if (!isset($_POST["operation"])) {
-            echo json_encode(["status" => false, "message" => "Operación no especificada"]);
-            exit;
-        }
-
+    case 'POST':
         switch ($_POST["operation"]) {
+<<<<<<< HEAD
             case "register":
                 $tipo = $_POST["tipo"];  // Recibimos el tipo, persona o empresa
                 $idcontactabilidad = Conexion::limpiarCadena($_POST["idcontactabilidad"]);
@@ -63,4 +59,32 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
     default:
         echo json_encode(["status" => false, "message" => "Método no permitido"]);
+=======
+            case 'registerCliente':
+                $result = $cliente->registerCliente([
+                    "tipo"              => $_POST["tipo"],
+                    "nombres"           => $_POST["nombres"] ?? null,
+                    "apellidos"         => $_POST["apellidos"] ?? null,
+                    "tipodoc"           => $_POST["tipodoc"] ?? null,
+                    "numdoc"            => $_POST["numdoc"] ?? null,
+                    "direccion"         => $_POST["direccion"] ?? null,
+                    "correo"            => $_POST["correo"]  ?? null,
+                    "telprincipal"      => $_POST["telprincipal"] ?? null,
+                    "telalternativo"    => $_POST["telalternativo"] ?? null,
+                    "nomcomercial"      => $_POST["nomcomercial"] ?? null,
+                    "razonsocial"       => $_POST["razonsocial"] ?? null,
+                    "telefono"          => $_POST["telefono"] ?? null,
+                    "ruc"               => $_POST["ruc"] ?? null,
+                    "idcontactabilidad" => $_POST["idcontactabilidad"]
+                ]);
+
+                if ($result > 0) {
+                    echo json_encode(["status" => true, "idcliente" => $result]);
+                } else {
+                    echo json_encode(["status" => false, "message" => "Error al registrar al cliente"]);
+                }
+                break;
+        }
+        break;
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
 }

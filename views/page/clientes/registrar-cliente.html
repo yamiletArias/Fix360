@@ -286,21 +286,6 @@
             </a>
           </li>
           <li class="nav-item">
-            <!--<a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-                  <span class="menu-title">Icons</span>
-                  <i class="icon-globe menu-icon"></i>
-              </a>-->
-            <!--<div class="collapse" id="icons">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item">
-                  <a
-                    class="nav-link"
-                    href="../../pages/icons/font-awesome.html"
-                    >Font Awesome</a
-                  >
-                </li>
-              </ul>
-            </div>-->
           </li>
           <li class="nav-item">
             <a class="nav-link" href="../compras/listar-compras.html">
@@ -364,6 +349,7 @@
           </li>
         </ul>
       </nav>
+<<<<<<< HEAD
       <form method="POST" action="../../../app/controllers/Cliente.controller.php">
         <div class="container-main">
           <div class="card border">
@@ -390,22 +376,64 @@
                       </select>
                       <label for="floatingdoc">Tipo de Documento:</label>
                     </div>
+=======
+      <div class="container-main">
+        <div class="card border">
+          <div class="card-header">
+            <h2>Nuevo registro de:</h2>
+            <label>
+              <input type="radio" name="tipo" value="persona" onclick="mostrarFormulario('persona')" checked>
+              Persona
+            </label>
+            <label>
+              <input type="radio" name="tipo" value="empresa" onclick="mostrarFormulario('empresa')">
+              Empresa
+            </label>
+          </div>
+          <div class="card-body">
+            <!--Formulario para registrar una persona-->
+            <div id="formPersona">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <select class="form-select" id="tipodoc" style="color: black;">
+                      <option value="DNI">DNI</option>
+                      <option value="Pasaporte">Pasaporte</option>
+                      <option value="cde">Carnet de extranjeria</option>
+                    </select>
+                    <label for="tipodoc">Tipo de Documento:</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-4">
                     <div class="form-floating">
                       <input type="text" class="form-control" id="floatingnumdoc" name="numdoc"
                         placeholder="parece que sin placeholder no tiene ese efecto"><br><br>
                       <label for="floatingnumdoc">N° de Documento</label>
                     </div>
+=======
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="numdoc" placeholder="parece que sin placeholder no tiene ese efecto"><br><br>
+                    <label for="numdoc">N° de Documento</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-4">
                     <div class="form-floating">
                       <input type="email" id="correo" class="form-control" minlength="9" maxlength="9" name="telprincipal"
                         placeholder="celular">
                       <label for="telprincipal">Tel. principal</label>
                     </div>
+=======
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input type="text"  class="form-control" minlength="9" maxlength="9" name="telprincipal"
+                      placeholder="celular">
+                    <label for="telprincipal">Tel. principal</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
                   <div class="col-md-6">
@@ -415,13 +443,21 @@
                     </div>
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-6">
                     <div class="form-floating">
                       <input type="text" id="apellidos" class="form-control" name="apellidos" placeholder="apellido">
                       <label for="apellidos">Apellidos</label>
                     </div>
+=======
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" name="apellidos" class="form-control" placeholder="apellidos">
+                    <label for="apellidos">Apellidos</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-3">
                     <div class="form-floating">
                       <input type="text" id="nombres" class="form-control" name="direccion" placeholder="mi casa"><br><br>
@@ -441,8 +477,28 @@
                         placeholder="956633983"><br><br>
                       <label for="telalternativo">Tel. alternativo</label>
                     </div>
+=======
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" name="direccion" placeholder="mi casa"><br><br>
+                    <label for="direccion">Direccion</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input type="email" name="correo" class="form-control" placeholder="thepunisher2000@gmail.com"><br><br>
+                    <label for="correo">Correo</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input type="text" id="telarternativo" name="telarternativo" class="form-control" minlength="9" maxlength="9"
+                      placeholder="956633983"><br><br>
+                    <label for="telalternativo">Tel. alternativo</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-3">
                     <div class="form-floating">
                       <select class="form-select" style="color: black;" id="contactabilidad" name="idcontactabilidad">
@@ -453,6 +509,17 @@
                       </select>
                       <label for="contactabilidad">Contatabilidad:</label>
                     </div>
+=======
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <select class="form-select" style="color: black;" name="contactabilidad">
+                      <option value="Redes Sociales">Redes Sociales</option>
+                      <option value="Folletos">Folletos</option>
+                      <option value="Campaña Publicitaria">Campaña Publicitaria</option>
+                      <option value="Recomendacion">Recomendacion</option>
+                    </select>
+                    <label for="contactabilidad">Contatabilidad:</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
                 </div>
               </div>
@@ -461,40 +528,76 @@
               <div id="formEmpresa" class="hidden">
                 <div class="row">
 
+<<<<<<< HEAD
                   <div class="col-md-4">
                     <div class="form-floating">
                       <input type="text" id="ruc" class="form-control" name="ruc" placeholder="rucdelaempresa"><br><br>
                       <label for="ruc">RUC</label>
                     </div>
+=======
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input type="text" name="ruc" class="form-control" placeholder="rucdelaempresa"><br><br>
+                    <label for="ruc">RUC</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-4">
                     <div class="form-floating">
                       <input type="text" id="nomcomercial" class="form-control" name="nomcomercial" placeholder="nomcomercial"><br><br>
                       <label for="nomcomercial">Nombre Comercial</label>
                     </div>
+=======
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input type="text" name="nomcomercial" class="form-control" placeholder="nomcomercial"><br><br>
+                    <label for="nomcomercial">Nombre Comercial</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-4">
                     <div class="form-floating">
                       <input type="text" id="razonsocial" class="form-control" name="razonsocial" placeholder="razonsocial"><br><br>
                       <label for="razonsocial">Razón Social</label>
                     </div>
+=======
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input type="text" name="razonsocial" class="form-control" placeholder="razonsocial"><br><br>
+                    <label for="razonsocial">Razón Social</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-4">
                     <div class="form-floating">
                       <input type="text" id="telempresa" class="form-control" name="telempresa" placeholder="telempresa" minlength="9"
                         maxlength="9">
                       <label for="telempresa">Teléfono</label>
                     </div>
+=======
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input type="text" name="telempresa" class="form-control" placeholder="telempresa" minlength="9"
+                      maxlength="9">
+                    <label for="telempresa">Teléfono</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
+<<<<<<< HEAD
                   <div class="col-md-4">
                     <div class="form-floating">
                       <input type="email" id="correoemp" class="form-control"  name="correoemp" placeholder="coreoemp">
                       <label for="correoEmp">Correo</label>
                     </div>
+=======
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input type="email" name="correoemp" class="form-control" placeholder="coreoemp">
+                    <label for="correoEmp">Correo</label>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
                   </div>
 
                   <div class="col-md-4">
@@ -517,7 +620,15 @@
               <button type="submit" class="btn btn-success">Aceptar</button>
             </div>
           </div>
+<<<<<<< HEAD
       </form>
+=======
+          <div class="card-footer text-end">
+            <button onclick="window.location.href='listar-cliente.html'" class=" btn btn-danger">Cancelar</button>
+            <button class="btn btn-success" onclick="registrarCliente(event)">Aceptar</button>
+          </div>
+        </div>
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f
 
       <!-- Formulario Persona -->
 
@@ -561,4 +672,44 @@
   <!-- End custom js for this page -->
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+
+<script>
+  function mostrarFormulario(tipo) {
+    document.getElementById("formPersona").style.display = (tipo === "persona") ? "block" : "none";
+    document.getElementById("formEmpresa").style.display = (tipo === "empresa") ? "block" : "none";
+}
+
+function registrarCliente(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+    let tipoCliente = document.querySelector('input[name="tipo"]:checked').value;
+    formData.append("tipo", tipoCliente);
+
+    if (tipoCliente === "persona") {
+        formData.append("tipodoc", document.querySelector('select[name="tipodoc"]').value);
+        formData.append("numdoc", document.querySelector('input[name="numdoc"]').value);
+        formData.append("nombres", document.querySelector('input[name="nombres"]').value);
+        formData.append("apellidos", document.querySelector('input[name="apellidos"]').value);
+        formData.append("correo", document.querySelector('input[name="correo"]').value);
+    } else {
+        formData.append("ruc", document.querySelector('input[name="ruc"]').value);
+        formData.append("nomcomercial", document.querySelector('input[name="nomcomercial"]').value);
+        formData.append("razonsocial", document.querySelector('input[name="razonsocial"]').value);
+        formData.append("correoemp", document.querySelector('input[name="correoemp"]').value);
+    }
+
+    fetch("backend.php", {
+        method: "POST",
+        body: formData
+    }).then(response => response.json())
+      .then(data => console.log(data));
+}
+
+</script>
+
+>>>>>>> 788210d8d451980873c4f55946267f5e1de3c09f

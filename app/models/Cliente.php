@@ -1,20 +1,10 @@
 <?php
-
 require_once "../models/Conexion.php";
 
-/**
- * Clase ClientesModel
- * Maneja las operaciones CRUD de la tabla 'clientes'
- */
-class Clientes extends Conexion {
+class Cliente extends Conexion {
+  private $pdo;
 
-  protected $pdo;
-
-  /**
-   * Constructor
-   * Obtiene la conexión a la base de datos.
-   */
-  public function __CONSTRUCT() {
+  public function __CONSTRUCT(){
     $this->pdo = parent::getConexion();
   }
 
@@ -59,98 +49,49 @@ class Clientes extends Conexion {
 
 
   /**
-   * Obtener todos los clientes con la información de la empresa o persona asociada
-   * @return array Lista de clientes
+   * Para esta funcion se utilizara una Transaccion.
+   * Que en PHP sirve para que una accion no se realize si no es que se ejecuta correctamente
+   * si no logra hacerlo, se hace un rollback y mantiene los datos intactos 
+   * Se tienen 2 Catch para saber con exactitud si fue un error o de la DB o del servidor
    */
-  public function getAll() {
-    try {
-      $query = "CALL spListClientes()";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute();
-      return $cmd->fetchAll(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-      die($e->getMessage());
-    }
-  }
+  public function registerCliente($params = []): int {
+    $this->pdo->beginTransaction(); 
 
-  /**
-   * Registrar un nuevo cliente
-   * @param int|null $idempresa ID de la empresa (puede ser NULL)
-   * @param int|null $idpersona ID de la persona (puede ser NULL)
-   * @param int $idcontactabilidad ID de la forma de contacto
-   * @return array Resultado de la operación
-   */
-  public function add($idempresa, $idpersona, $idcontactabilidad) {
-    $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spRegisterCliente(?, ?, ?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idempresa, $idpersona, $idcontactabilidad]);
-      $resultado["status"] = true;
-      $resultado["message"] = "Cliente registrado correctamente";
-    } catch (Exception $e) {
-      $resultado["message"] = $e->getMessage();
-    } finally {
-      return $resultado;
-    }
-  }
+      $cmd = $this->pdo->prepare("CALL spRegisterCliente(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+      $cmd->execute([
+        $params["tipo"],
+        $params["nombres"],
+        $params["apellidos"],
+        $params["tipodoc"],
+        $params["numdoc"],
+        $params["direccion"],
+        $params["correo"],
+        $params["telprincipal"],
+        $params["telalternativo"],
+        $params["nomcomercial"],
+        $params["razonsocial"],
+        $params["telefono"],
+        $params["ruc"],
+        $params["idcontactabilidad"]
+      ]);
 
-  /**
-   * Buscar un cliente por su ID
-   * @param int $idcliente ID del cliente
-   * @return array Datos del cliente encontrado
-   */
-  public function find($idcliente) {
-    try {
-      $query = "CALL spGetClienteById(?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idcliente]);
-      return $cmd->fetch(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-      die($e->getMessage());
-    }
-  }
+      $result = $cmd->fetch(PDO::FETCH_ASSOC);
+      $cmd->closeCursor();
+      $this->pdo->commit();
 
-  /**
-   * Actualizar un cliente
-   * @param int $idcliente ID del cliente a actualizar
-   * @param int|null $idempresa Nuevo ID de la empresa asociada (puede ser NULL)
-   * @param int|null $idpersona Nuevo ID de la persona asociada (puede ser NULL)
-   * @param int $idcontactabilidad Nuevo ID de la forma de contacto
-   * @return array Resultado de la operación
-   */
-  public function update($idcliente, $idempresa, $idpersona, $idcontactabilidad) {
-    $resultado = ["status" => false, "message" => ""];
-    try {
-      $query = "CALL spUpdateCliente(?, ?, ?, ?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idcliente, $idempresa, $idpersona, $idcontactabilidad]);
-      $resultado["status"] = true;
-      $resultado["message"] = "Cliente actualizado correctamente";
-    } catch (Exception $e) {
-      $resultado["message"] = $e->getMessage();
-    } finally {
-      return $resultado;
-    }
-  }
+      return $result['idcliente'];
 
-  /**
-   * Eliminar un cliente
-   * @param int $idcliente ID del cliente a eliminar
-   * @return array Resultado de la operación
-   */
-  public function delete($idcliente) {
-    $resultado = ["status" => false, "message" => ""];
-    try {
-      $query = "CALL spDeleteCliente(?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$idcliente]);
-      $resultado["status"] = true;
-      $resultado["message"] = "Cliente eliminado correctamente";
-    } catch (Exception $e) {
-      $resultado["message"] = $e->getMessage();
-    } finally {
-      return $resultado;
+    } catch (Exception $e){
+      $this->pdo->rollBack();
+      error_log("Error del servidor: " . $e->getMessage());
+
+      return -1;
+    }
+    catch(PDOException $e) {
+      $this->pdo->rollBack();
+      error_log("Error DB: " - $e->getMessage());
+      return -1;  
     }
   }
 }
