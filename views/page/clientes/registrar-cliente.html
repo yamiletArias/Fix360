@@ -368,7 +368,7 @@
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <select class="form-select" id="tipodoc" style="color: black;">
+                    <select class="form-select" name="tipodoc" id="tipodoc" style="color: black;">
                       <option value="DNI">DNI</option>
                       <option value="Pasaporte">Pasaporte</option>
                       <option value="cde">Carnet de extranjeria</option>
@@ -379,14 +379,14 @@
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="numdoc" placeholder="parece que sin placeholder no tiene ese efecto"><br><br>
+                    <input type="text" class="form-control" name="numdoc" id="numdoc" placeholder="parece que sin placeholder no tiene ese efecto"><br><br>
                     <label for="numdoc">N° de Documento</label>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text"  class="form-control" minlength="9" maxlength="9" name="telprincipal"
+                    <input type="text"  id="telprincipal" class="form-control" minlength="9" maxlength="9" name="telprincipal"
                       placeholder="celular">
                     <label for="telprincipal">Tel. principal</label>
                   </div>
@@ -394,27 +394,27 @@
 
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" id="nombres" class="form-control" placeholder="nombrealazar"><br><br>
+                    <input type="text" id="nombres" class="form-control" name="nombres" placeholder="nombrealazar"><br><br>
                     <label for="nombres">Nombres</label>
                   </div>
                 </div>
 
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" name="apellidos" class="form-control" placeholder="apellidos">
+                    <input type="text" name="apellidos" class="form-control" id="apellidos" placeholder="apellidos">
                     <label for="apellidos">Apellidos</label>
                   </div>
                 </div>
 
                 <div class="col-md-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control" name="direccion" placeholder="mi casa"><br><br>
+                    <input type="text" class="form-control" name="direccion" id="direccion" placeholder="mi casa"><br><br>
                     <label for="direccion">Direccion</label>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="form-floating">
-                    <input type="email" name="correo" class="form-control" placeholder="thepunisher2000@gmail.com"><br><br>
+                    <input type="email" name="correo" class="form-control" id="correo" placeholder="thepunisher2000@gmail.com"><br><br>
                     <label for="correo">Correo</label>
                   </div>
                 </div>
@@ -428,7 +428,7 @@
 
                 <div class="col-md-3">
                   <div class="form-floating">
-                    <select class="form-select" style="color: black;" name="contactabilidad">
+                    <select class="form-select" id="idcontactabilidad" style="color: black;" name="contactabilidad">
                       <option value="Redes Sociales">Redes Sociales</option>
                       <option value="Folletos">Folletos</option>
                       <option value="Campaña Publicitaria">Campaña Publicitaria</option>
@@ -483,7 +483,7 @@
                 <div class="col-md-4">
                   <div class="form-floating">
                     <select class="form-select" id="contactabilidad" style="color: black;">
-                      <option value="DNI">Redes Sociales</option>
+                      <option value="">Redes Sociales</option>
                       <option value="Pasaporte">Folletos</option>
                       <option value="cde">Campaña Publicitaria</option>
                       <option value="cde">Recomendacion</option>
