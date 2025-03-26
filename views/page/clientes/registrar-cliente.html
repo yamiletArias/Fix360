@@ -375,14 +375,12 @@
                     </select>
                     <label for="tipodoc">Tipo de Documento:</label>
                   </div>
-                </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
                     <input type="text" class="form-control" name="numdoc" id="numdoc" placeholder="parece que sin placeholder no tiene ese efecto"><br><br>
                     <label for="numdoc">N° de Documento</label>
                   </div>
-                </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
@@ -390,21 +388,19 @@
                       placeholder="celular">
                     <label for="telprincipal">Tel. principal</label>
                   </div>
-                </div>
 
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <input type="text" id="nombres" class="form-control" name="nombres" placeholder="nombrealazar"><br><br>
-                    <label for="nombres">Nombres</label>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="text" id="nombres" class="form-control" name="nombres" placeholder="nombrealazar"><br><br>
+                      <label for="nombres">Nombres</label>
+                    </div>
                   </div>
-                </div>
 
                 <div class="col-md-6">
                   <div class="form-floating">
                     <input type="text" name="apellidos" class="form-control" id="apellidos" placeholder="apellidos">
                     <label for="apellidos">Apellidos</label>
                   </div>
-                </div>
 
                 <div class="col-md-3">
                   <div class="form-floating">
@@ -424,7 +420,6 @@
                       placeholder="956633983"><br><br>
                     <label for="telalternativo">Tel. alternativo</label>
                   </div>
-                </div>
 
                 <div class="col-md-3">
                   <div class="form-floating">
@@ -438,32 +433,28 @@
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Formulario Empresa -->
-            <div id="formEmpresa" class="hidden">
-              <div class="row">
+              <!-- Formulario Empresa -->
+              <div id="formEmpresa" class="hidden">
+                <div class="row">
 
                 <div class="col-md-4">
                   <div class="form-floating">
                     <input type="text" name="ruc" class="form-control" placeholder="rucdelaempresa"><br><br>
                     <label for="ruc">RUC</label>
                   </div>
-                </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
                     <input type="text" name="nomcomercial" class="form-control" placeholder="nomcomercial"><br><br>
                     <label for="nomcomercial">Nombre Comercial</label>
                   </div>
-                </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
                     <input type="text" name="razonsocial" class="form-control" placeholder="razonsocial"><br><br>
                     <label for="razonsocial">Razón Social</label>
                   </div>
-                </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
@@ -471,28 +462,31 @@
                       maxlength="9">
                     <label for="telempresa">Teléfono</label>
                   </div>
-                </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
                     <input type="email" name="correoemp" class="form-control" placeholder="coreoemp">
                     <label for="correoEmp">Correo</label>
                   </div>
-                </div>
 
-                <div class="col-md-4">
-                  <div class="form-floating">
-                    <select class="form-select" id="contactabilidad" style="color: black;">
-                      <option value="">Redes Sociales</option>
-                      <option value="Pasaporte">Folletos</option>
-                      <option value="cde">Campaña Publicitaria</option>
-                      <option value="cde">Recomendacion</option>
-                    </select>
-                    <label for="contactabilidad">Contatabilidad:</label>
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <select class="form-select" id="contactabilidad" name="idcontactabilidad" style="color: black;">
+                        <option value="1">Redes Sociales</option>
+                        <option value="2">Folletos</option>
+                        <option value="3">Campaña Publicitaria</option>
+                        <option value="4">Recomendacion</option>
+                      </select>
+                      <label for="contactabilidad">Contatabilidad:</label>
+                    </div>
                   </div>
-                </div>
 
+                </div>
               </div>
+            </div>
+            <div class="card-footer text-end">
+              <button type="button" class="btn btn-danger" onclick="window.location.href='listar-cliente.html'">Cancelar</button>
+              <button type="submit" class="btn btn-success">Aceptar</button>
             </div>
           </div>
           <div class="card-footer text-end">
@@ -501,10 +495,10 @@
           </div>
         </div>
 
-        <!-- Formulario Persona -->
+      <!-- Formulario Persona -->
 
-      </div>
     </div>
+  </div>
   </div>
   <!--FIN VENTAS-->
 
@@ -525,6 +519,18 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
     integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
     crossorigin="anonymous"></script>
+
+  <script>
+    function mostrarFormulario(tipo) {
+      if (tipo === 'persona') {
+        document.getElementById("formPersona").style.display = "block";
+        document.getElementById("formEmpresa").style.display = "none";
+      } else {
+        document.getElementById("formPersona").style.display = "none";
+        document.getElementById("formEmpresa").style.display = "block";
+      }
+    }
+  </script>
 
   <!-- endinject -->
   <!-- Custom js for this page -->
