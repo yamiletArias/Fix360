@@ -1,54 +1,37 @@
 <?php
-
-require_once "../models/ClientesModel.php";
+session_start();
+require_once "../models/Cliente.php";
 header('Content-Type: application/json');
 
-$cliente = new Clientes();
+$cliente = new Cliente();
 
 switch ($_SERVER["REQUEST_METHOD"]) {
-    case "POST":
-        if (!isset($_POST["operation"])) {
-            echo json_encode(["status" => false, "message" => "Operación no especificada"]);
-            exit;
-        }
-
+    case 'POST':
         switch ($_POST["operation"]) {
-            case "register":
-                $result = $cliente->add(
-                    isset($_POST["idempresa"]) ? Conexion::limpiarCadena($_POST["idempresa"]) : null,
-                    isset($_POST["idpersona"]) ? Conexion::limpiarCadena($_POST["idpersona"]) : null,
-                    Conexion::limpiarCadena($_POST["idcontactabilidad"])
-                );
-                echo json_encode($result);
-                break;
+            case 'registerCliente':
+                $result = $cliente->registerCliente([
+                    "tipo"              => $_POST["tipo"],
+                    "nombres"           => $_POST["nombres"] ?? null,
+                    "apellidos"         => $_POST["apellidos"] ?? null,
+                    "tipodoc"           => $_POST["tipodoc"] ?? null,
+                    "numdoc"            => $_POST["numdoc"] ?? null,
+                    "direccion"         => $_POST["direccion"] ?? null,
+                    "correo"            => $_POST["correo"]  ?? null,
+                    "telprincipal"      => $_POST["telprincipal"] ?? null,
+                    "telalternativo"    => $_POST["telalternativo"] ?? null,
+                    "nomcomercial"      => $_POST["nomcomercial"] ?? null,
+                    "razonsocial"       => $_POST["razonsocial"] ?? null,
+                    "telefono"          => $_POST["telefono"] ?? null,
+                    "ruc"               => $_POST["ruc"] ?? null,
+                    "idcontactabilidad" => $_POST["idcontactabilidad"]
+                ]);
 
-            case "update":
-                $result = $cliente->update(
-                    Conexion::limpiarCadena($_POST["idcliente"]),
-                    isset($_POST["idempresa"]) ? Conexion::limpiarCadena($_POST["idempresa"]) : null,
-                    isset($_POST["idpersona"]) ? Conexion::limpiarCadena($_POST["idpersona"]) : null,
-                    Conexion::limpiarCadena($_POST["idcontactabilidad"])
-                );
-                echo json_encode($result);
+                if ($result > 0) {
+                    echo json_encode(["status" => true, "idcliente" => $result]);
+                } else {
+                    echo json_encode(["status" => false, "message" => "Error al registrar al cliente"]);
+                }
                 break;
-
-            case "delete":
-                echo json_encode($cliente->delete(Conexion::limpiarCadena($_POST["idcliente"])));
-                break;
-
-            default:
-                echo json_encode(["status" => false, "message" => "Operación no válida"]);
         }
         break;
-
-    case "GET":
-        if (isset($_GET["idcliente"])) {
-            echo json_encode($cliente->find(Conexion::limpiarCadena($_GET["idcliente"])));
-        } else {
-            echo json_encode($cliente->getAll());
-        }
-        break;
-    
-    default:
-        echo json_encode(["status" => false, "message" => "Método no permitido"]);
 }
