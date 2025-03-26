@@ -18,6 +18,46 @@ class Clientes extends Conexion {
     $this->pdo = parent::getConexion();
   }
 
+   // Método para registrar una persona
+  public function addPersona($nombres, $apellidos, $tipodoc, $numdoc, $correo, $telprincipal, $telalternativo, $direccion, $idcontactabilidad) {
+    $resultado = ["status" => false, "message" => ""];
+
+    try {
+        // Aquí ejecutas el procedimiento almacenado o consulta SQL para registrar a la persona
+        $query = "CALL spRegisterPersona(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $cmd = $this->pdo->prepare($query);
+        $cmd->execute([$nombres, $apellidos, $tipodoc, $numdoc, $correo, $telprincipal, $telalternativo, $direccion, $idcontactabilidad]);
+
+        $resultado["status"] = true;
+        $resultado["message"] = "Persona registrada correctamente";
+    } catch (Exception $e) {
+        $resultado["message"] = $e->getMessage();
+    } finally {
+        return $resultado;
+    }
+  }
+
+  // Método para registrar una empresa
+  public function addEmpresa($ruc, $nomcomercial, $razonsocial, $telempresa, $correoemp, $idcontactabilidad) {
+    $resultado = ["status" => false, "message" => ""];
+
+    try {
+        // Aquí ejecutas el procedimiento almacenado o consulta SQL para registrar la empresa
+        $query = "CALL spRegisterEmpresa(?, ?, ?, ?, ?, ?)";
+        $cmd = $this->pdo->prepare($query);
+        $cmd->execute([$ruc, $nomcomercial, $razonsocial, $telempresa, $correoemp, $idcontactabilidad]);
+
+        $resultado["status"] = true;
+        $resultado["message"] = "Empresa registrada correctamente";
+    } catch (Exception $e) {
+        $resultado["message"] = $e->getMessage();
+    } finally {
+        return $resultado;
+    }
+  }
+
+
+
   /**
    * Obtener todos los clientes con la información de la empresa o persona asociada
    * @return array Lista de clientes

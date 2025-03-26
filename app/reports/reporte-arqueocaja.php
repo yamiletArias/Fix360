@@ -16,17 +16,17 @@ use Spipu\Html2Pdf\Exception\Html2PdfException;
 use Spipu\Html2Pdf\Exception\ExceptionFormatter;
 
 try {
+
     ob_start();
     
-    echo "<h1>Aqueo de Cajas</h1>";
-
-    include 'contenido_adicional.php';
+    require_once './content/data-reporte-caja.php';
+    
     $content = ob_get_clean();
 
-    $html2pdf = new Html2Pdf('P', 'A4', 'fr', true, 'UTF-8', array(15, 5, 15, 5));
+    $html2pdf = new Html2Pdf('P', 'A4', 'fr', true, 'UTF-8', array(10, 15, 10, 5));
     $html2pdf->pdf->SetDisplayMode('fullpage');
     $html2pdf->writeHTML($content);
-    $html2pdf->output('ArqueoCaja.pdf');
+    $html2pdf->output('reporteCaja.pdf');
 } catch (Html2PdfException $e) {
     $html2pdf->clean();
 
