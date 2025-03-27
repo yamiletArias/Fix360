@@ -129,5 +129,5 @@ BEGIN
         END $$
         DELIMITER $$        
         
-        SELECT * FROM personas;
+         -- select * from personas;
          
