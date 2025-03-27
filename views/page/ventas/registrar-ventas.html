@@ -418,84 +418,41 @@
         <!-- venta.php -->
         <div class="container-ventas">
           <!-- Formulario de venta -->
-          <form action="venta.controller.php" method="POST">
+          <form action="Venta.controller.php" method="POST">
             <div class="header-group">
               <div class="form-group">
                 <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    name="tipo"
-                    type="radio"
-                    id="factura"
-                    value="factura"
-                  />
-                  <label class="form-check-label" for="factura">
-                    Factura
-                  </label>
+                  <input class="form-check-input" name="tipo" type="radio" id="factura" value="factura" />
+                  <label class="form-check-label" for="factura">Factura</label>
                 </div>
                 <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    name="tipo"
-                    type="radio"
-                    id="boleta"
-                    value="boleta"
-                    checked
-                  />
-                  <label class="form-check-label" for="boleta"> Boleta </label>
+                  <input class="form-check-input" name="tipo" type="radio" id="boleta" value="boleta" checked />
+                  <label class="form-check-label" for="boleta">Boleta</label>
                 </div>
+                
               </div>
               <div class="right-group">
-                <input
-                  type="text"
-                  class="small-input"
-                  name="numserie"
-                  placeholder="N° serie"
-                  required
-                />
-                <input
-                  name="numcomprobante"
-                  type="text"
-                  class="small-input"
-                  placeholder="N° comprobante"
-                  required
-                />
+                <input type="text" class="small-input" name="numserie" placeholder="N° serie" required disabled />
+                <input name="numcomprobante" type="text" class="small-input" placeholder="N° comprobante" required disabled />
               </div>
             </div>
 
             <!-- Proveedor, fecha y moneda -->
             <div class="form-group">
-              <input type="text" class="medium-input" name="nomcliente[]" id="nomcliente" placeholder="Buscar Cliente" required />
+              <input type="text" class="medium-input" name="nomcliente" id="nomcliente" placeholder="Buscar Cliente" required />
               <input type="date" name="fecha" id="fecha" required />
               <select class="small-input" name="tipomoneda" required>
                 <option value="Soles">Soles</option>
-                <option value="Dolares">Dolares</option>
+                <option value="Dolares">Dólares</option>
               </select>
             </div>
 
             <!-- Productos -->
             <div class="form-group">
-              <input type="text" class="medium-input" name="producto[]" id="producto" placeholder="Buscar Producto" required />
-              <input
-                type="number"
-                class="small-input"
-                name="precio[]"
-                placeholder="PRECIO"
-                required
-              />
-              <input
-                type="number"
-                class="small-input"
-                name="cantidad[]"
-                placeholder="CANTIDAD"
-                required
-              />
-              <input
-                type="number"
-                class="small-input"
-                name="descuento[]"
-                placeholder="DESCUENTO"
-              />
+              <input type="text" class="medium-input" name="producto" id="producto" placeholder="Buscar Producto" required />
+              <input type="number" class="small-input" name="precio" placeholder="PRECIO" required />
+              <input type="number" class="small-input" name="cantidad" placeholder="CANTIDAD" required />
+              <input type="number" class="small-input" name="descuento" placeholder="DESCUENTO" />
               <button type="button" class="btn btn-success" id="agregarProducto">AGREGAR</button>
             </div>
 
@@ -509,18 +466,15 @@
                     <th>CANTIDAD</th>
                     <th>DSCT</th>
                     <th>Importe</th>
-                    <th>
-                      <button class="btn btn-danger btn-sm">
-                        <i class="fas fa-times"></i>
-                      </button>
-                    </th>
+                    <th><button class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- agregarán los productos dinámicamente -->
+                  <!-- productos agregados dinámicamente -->
                 </tbody>
               </table>
             </div>
+          
 
             <!-- Botón para finalizar la venta -->
             <div class="btn-container">
@@ -559,29 +513,59 @@
       });
     </script>
 <script>
-  $(document).ready(function () {
-    $('#nomcliente').on('input', function () {
-      var search = $(this).val();
-      if (search.length > 2) {
-        $.getJSON('buscar_cliente.php', { search: search }, function(data) {
-          if (data && !data.error) {
-            var suggestions = data.map(function(cliente) {
-              return '<option value="' + cliente.nomcliente + '" data-id="' + cliente.idcliente + '">';
-            }).join('');
-            $('#nomcliente').after('<datalist id="clientesDataList">' + suggestions + '</datalist>');
-            $('#nomcliente').attr('list', 'clientesDataList');
-          }
-        });
-      }
-    });
+$(document).ready(function () {
+  $('#nomcliente').on('input', function () {
+    var search = $(this).val();
+    if (search.length > 2) {
+      $.getJSON('buscar_cliente.php', { search: search }, function(data) {
+        if (data && !data.error) {
+          var suggestions = data.map(function(cliente) {
+            return '<option value="' + cliente.nomcliente + '" data-id="' + cliente.idcliente + '">';
+          }).join('');
+          $('#nomcliente').after('<datalist id="clientesDataList">' + suggestions + '</datalist>');
+          $('#nomcliente').attr('list', 'clientesDataList');
+        }
+      });
+    }
   });
+});
+
 </script>
 <script>
   $(document).ready(function () {
     $('#fecha').val(new Date().toISOString().split("T")[0]);
   });
 </script>
-    <script>
+<script>
+  $(document).ready(function () {
+  $('#agregarProducto').click(function () {
+    var producto = $('#producto').val();
+    var precio = $('#precio').val();
+    var cantidad = $('#cantidad').val();
+    var descuento = $('#descuento').val();
+
+    if (producto && precio && cantidad) {
+      var importe = (parseFloat(precio) * parseInt(cantidad)) - (parseFloat(descuento) || 0);
+      $('#miTabla tbody').append(`
+        <tr>
+          <td>${producto}</td>
+          <td>${precio}</td>
+          <td>${cantidad}</td>
+          <td>${descuento}</td>
+          <td>${importe.toFixed(2)}</td>
+          <td><button type="button" class="btn btn-danger btn-sm eliminarProducto">Eliminar</button></td>
+        </tr>
+      `);
+    }
+  });
+
+  $(document).on('click', '.eliminarProducto', function () {
+    $(this).closest('tr').remove();
+  });
+});
+
+</script>
+    <!-- <script>
       // Lógica para agregar productos dinámicamente a la tabla
       $(document).ready(function () {
         $("#agregarProducto").click(function () {
@@ -595,7 +579,6 @@
               parseFloat(precio) * parseInt(cantidad) -
               (parseFloat(descuento) || 0);
 
-            // Añadir nueva fila a la tabla
             $("#miTabla tbody").append(`
                   <tr>
                       <td>${producto}</td>
@@ -609,42 +592,42 @@
           }
         });
 
-        // Lógica para eliminar un producto de la tabla
         $(document).on("click", ".eliminarProducto", function () {
           $(this).closest("tr").remove();
         });
       });
-    </script>
+    </script> -->
     <script>
       $(document).ready(function () {
-        $('#producto').on('input', function () {
-          var search = $(this).val();
-          if (search.length > 2) {
-            $.getJSON('buscar_producto.php', { search: search }, function(data) {
-              if (data && !data.error) {
-                var suggestions = data.map(function(producto) {
-                  return '<option value="' + producto.nombre + '" data-id="' + producto.idproducto + '" data-precio="' + producto.precio + '">';
-                }).join('');
-                $('#producto').after('<datalist id="productosDataList">' + suggestions + '</datalist>');
-                $('#producto').attr('list', 'productosDataList');
-              }
-            });
-          }
-        });
-    
-        $('#producto').on('change', function() {
-          var selected = $(this).find(':selected');
-          var precio = selected.data('precio');
-          var cantidad = 1;
-          var descuento = 0;
-    
-          $('#precio').val(precio);
-          $('#cantidad').val(cantidad);
-          $('#descuento').val(descuento);
-        });
+  $('#producto').on('input', function () {
+    var search = $(this).val();
+    if (search.length > 2) {
+      $.getJSON('buscar_producto.php', { search: search }, function(data) {
+        if (data && !data.error) {
+          var suggestions = data.map(function(producto) {
+            return '<option value="' + producto.nombre + '" data-id="' + producto.idproducto + '" data-precio="' + producto.precio + '">';
+          }).join('');
+          $('#producto').after('<datalist id="productosDataList">' + suggestions + '</datalist>');
+          $('#producto').attr('list', 'productosDataList');
+        }
       });
+    }
+  });
+
+  $('#producto').on('change', function() {
+    var selected = $(this).find(':selected');
+    var precio = selected.data('precio');
+    var cantidad = 1;
+    var descuento = 0;
+
+    $('#precio').val(precio);
+    $('#cantidad').val(cantidad);
+    $('#descuento').val(descuento);
+  });
+});
+
     </script>
-    <script>
+    <!-- <script>
       $(document).ready(function () {
         $('#agregarProducto').click(function () {
           var producto = $('#producto').val();
@@ -671,6 +654,7 @@
           $(this).closest('tr').remove();
         });
       });
-    </script>
+    </script> -->
+
   </body>
 </html>
