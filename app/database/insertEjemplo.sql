@@ -41,7 +41,6 @@ INSERT INTO promociones (promocion, fechainicio, fechafin, cantidadmax)
 VALUES 
 ('Descuento 10%', '2025-01-01 00:00:00', '2025-01-31 23:59:59', 100),
 ('Repuestos Gratis', '2025-02-01 00:00:00', '2025-02-28 23:59:59', 50);
-
 -- INSERT para la tabla 'condiciones'
 INSERT INTO condiciones (idpromocion, descripcion)
 VALUES 
@@ -63,7 +62,6 @@ INSERT INTO subcategorias (idcategoria, subcategoria)
 VALUES (1, 'Motores de 4 cilindros'), (2, 'Transmisiones automáticas');
 
 -- INSERT para la tabla 'clientes'
--- Ajusté los INSERTs para no insertar valores NULL en columnas NOT NULL
 INSERT INTO clientes (idempresa, idpersona, idcontactabilidad)
 VALUES (1, NULL, 1), (2, NULL, 2), (NULL, 1, 1), (NULL, 2, 2);
 
@@ -91,7 +89,6 @@ VALUES
 (1, 'ABC123', '2020', 15000.00, 'XYZ123456789', 'Blanco', 'Gasolina'),
 (2, 'DEF456', '2021', 12000.00, 'XYZ987654321', 'Azul', 'Diésel');
 
-
 -- Luego, insertar los propietarios
 INSERT INTO propietarios (idcliente, idvehiculo, fechainicio, fechafinal)
 VALUES 
@@ -115,14 +112,12 @@ INSERT INTO ventas (idcliente, idcolaborador, tipocom, fechahora, numserie, numc
 VALUES 
 (1, 1, 'boleta', NOW(), 'B001', '0001'),
 (2, 2, 'factura', NOW(), 'F001', '0002');
-
 -- INSERT para 'productos'
 INSERT INTO productos (idmarca, idsubcategoria, descripcion, precio, presentacion, undmedida, cantidad)
 VALUES
 (1, 1, 'Descripción del Producto A', 100.00, 'Caja', 'Unidad', 50),
 (2, 2, 'Descripción del Producto B', 200.00, 'Paquete', 'Unidad', 30),
 (1, 1, 'Descripción del Producto C', 150.00, 'Caja', 'Unidad', 20);
-
 -- INSERT para 'detalleventa'
 INSERT INTO detalleventa (idproducto, idventa, idorden, idpromocion, cantidad, numserie, precioventa, descuento)
 VALUES
@@ -131,12 +126,12 @@ VALUES
 (3, 2, 2, 2, 3, '{"seriales": ["C345", "C346", "C347"]}', 120.00, 0.00);
 
 
-
 -- Consultas de ejemplo
 SELECT * FROM empresas WHERE idempresa IN (1, 2);
 SELECT * FROM personas WHERE idpersona IN (1, 2);
 SELECT * FROM contactabilidad WHERE idcontactabilidad IN (1, 2);
-SELECT * FROM detalleventa;
+SELECT * FROM ventas;
+SELECT * FROM clientes;
 SELECT * FROM productos;
 SELECT * FROM promociones WHERE idpromocion IN (1, 2, 3);
 
@@ -146,3 +141,5 @@ SELECT * FROM productos WHERE idproducto IN (1, 2, 3);
 -- Mostrar la estructura de la tabla 'clientes' y 'productos'
 SHOW CREATE TABLE clientes;
 DESCRIBE productos;
+SELECT * FROM personas WHERE numdoc = '12345678';
+

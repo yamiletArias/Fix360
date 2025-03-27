@@ -1,19 +1,19 @@
 <?php
-require_once '../config/Server.php';
+require_once '../models/Conexion.php';
 require_once '../models/Venta.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $pdo = new PDO(SGBD, USER, PASS);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Obtener la conexión usando el método estático de la clase Conexion
+        $conexion = Conexion::getConexion();
 
+        // Crear una instancia de la clase Venta pasando la conexión
+        $venta = new Venta($conexion);
+
+        // Obtener los datos del POST
         $tipo = $_POST['tipo'];
-
-        $numserie = $_POST['numserie'] ?: 'V' . str_pad(rand(1000, 9999), 4, '0', STR_PAD_LEFT); // o se puede calcular según un patrón
-        $numcomprobante = 'C' . str_pad(rand(100000, 999999), 6, '0', STR_PAD_LEFT); // O lo generas según la lógica de tu base de datos
-
-        //$numserie = isset($_POST['numserie']) && !empty($_POST['numserie']) ? $_POST['numserie'] : null;
-        //$numcomprobante = $_POST['numcomprobante'];
+        $numserie = $_POST['numserie'] ?: 'V' . str_pad(rand(1000, 9999), 4, '0', STR_PAD_LEFT); 
+        $numcomprobante = 'C' . str_pad(rand(100000, 999999), 6, '0', STR_PAD_LEFT); 
 
         $nomcliente = $_POST['nomcliente'];
         $fecha = $_POST['fecha'];
@@ -24,17 +24,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cantidades = $_POST['cantidad']; 
         $descuentos = isset($_POST['descuento']) ? $_POST['descuento'] : [];
 
-        $venta = new Venta($pdo);
+        // Registrar la venta
+        $venta->registrarVenta($tipo, $numserie, $numcomprobante, $nomcliente, $fecha, $tipomoneda);
 
-        $venta->registrarVenta($tipo, $numserie, $numcomprobante, $nomprovedor, $fecha, $tipomoneda);
+        // Registrar los productos
         $venta->registrarProductos($productos, $precios, $cantidades, $descuentos, $numcomprobante);
 
-
+        // Calcular el total de la venta
         $totalVenta = array_sum(array_map(function($precio, $cantidad, $descuento) {
             return $precio * $cantidad - $descuento;
         }, $precios, $cantidades, $descuentos));
 
-        // Devolver la nueva venta
+        // Responder con los datos de la venta
         echo json_encode([
             'success' => 'Venta registrada exitosamente',
             'venta' => [
@@ -45,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]
         ]);
     } catch (Exception $e) {
+        // Manejo de excepciones en caso de error
         echo json_encode(['error' => $e->getMessage()]);
     }
 }

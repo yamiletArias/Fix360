@@ -7,17 +7,17 @@
  
  
 DELIMITER $$
-CREATE PROCEDURE spRegisterPersona(
-IN _nombres 		VARCHAR(50),
-IN _apellidos 		VARCHAR(50),
-IN _tipodoc 		VARCHAR(30),
-IN _numdoc 			VARCHAR(20),
-IN _direccion 		VARCHAR(70),
-IN _correo 			VARCHAR(100),
-IN _telprincipal 	VARCHAR(20),
-IN _telalternativo 	VARCHAR(20)
+create procedure spRegisterPersona(
+in _nombres 		varchar(50),
+in _apellidos 		varchar(50),
+in _tipodoc 		varchar(30),
+in _numdoc 			varchar(20),
+in _direccion 		varchar(70),
+in _correo 			varchar(100),
+in _telprincipal 	varchar(20),
+in _telalternativo 	varchar(20)
 )
-BEGIN
+begin
 INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal, telalternativo)
 		VALUES (_nombres, _apellidos, _tipodoc, _numdoc, _direccion, _correo, _telprincipal, _telalternativo);
         SELECT LAST_INSERT_ID() AS idpersona;
@@ -25,41 +25,41 @@ END $$
 DELIMITER $$
 
 DELIMITER $$
-CREATE PROCEDURE spRegisterClientePersona(
-IN _idpersona INT,
-IN _idempresa INT,
-IN _idcontactabilidad INT
+create procedure spRegisterClientePersona(
+in _idpersona int,
+in _idempresa int,
+in _idcontactabilidad int
 )
-BEGIN
+begin
 INSERT INTO clientes (idpersona, idempresa, idcontactabilidad)
 		VALUES (_idpersona, NULL, _idcontactabilidad);
-END $$
+end $$
 DELIMITER $$
 
 DELIMITER $$
-CREATE PROCEDURE spRegisterClienteEmpresa(
-IN _idpersona INT,
-IN _idempresa INT,
-IN _idcontactabilidad INT
+create procedure spRegisterClienteEmpresa(
+in _idpersona int,
+in _idempresa int,
+in _idcontactabilidad int
 )
-BEGIN 
+begin 
 INSERT INTO clientes (idpersona, idempresa, idcontactabilidad)
 		VALUES (NULL, _idempresa, _idcontactabilidad);
-END $$
+end $$
 DELIMITER $$
 
-CREATE PROCEDURE spRegisterEmpresa(
-IN _nomcomercial VARCHAR(80),
-IN _razonsocial VARCHAR(80),
-IN _telefono VARCHAR(20),
-IN _ruc CHAR(11)
+create procedure spRegisterEmpresa(
+in _nomcomercial varchar(80),
+in _razonsocial varchar(80),
+in _telefono varchar(20),
+in _ruc char(11)
 )
-BEGIN
-INSERT INTO empresas (nomcomercial, razonsocial, telefono, ruc) VALUES
+begin
+insert into empresas (nomcomercial, razonsocial, telefono, ruc) values
 (_nomcomercial, _razonsocial, _telefono, _ruc);
 
  SELECT LAST_INSERT_ID() AS idempresa; 
-END $$
+end $$
 DELIMITER $$
 
 DELIMITER $$
@@ -80,8 +80,8 @@ CREATE PROCEDURE spRegisterCliente(
 	IN _idcontactabilidad 	INT	
 )
 BEGIN
-	DECLARE _idpersona INT DEFAULT NULL;
-	DECLARE _idempresa INT DEFAULT NULL;
+	DECLARE _idpersona INT default null;
+	DECLARE _idempresa INT default null;
 	
 	START TRANSACTION;
 	
@@ -94,40 +94,43 @@ BEGIN
 		
 		SET _idpersona = LAST_INSERT_ID(); /*hace de que ahora el valor que tiene el id de persona es el ultimo del que se tiene registro */
 		
-		CALL spRegisterClientePersona(_idpersona,NULL,_idcontactabilidad); 
-	
+		CALL spRegisterClientePersona(_idpersona,null,_idcontactabilidad); 
+		
 		/* ahora si se selecciono empresa, se insertara ahi y luego al de cliente*/
 		
 		ELSEIF _tipo = 'empresa' THEN
 		
-        CALL spRegisterEmpresa(_nomcomercial, _razonsocial, _telefono, _ruc);
+        call spRegisterEmpresa(_nomcomercial, _razonsocial, _telefono, _ruc);
 		
 		SET _idempresa = LAST_INSERT_ID(); /*lo mismo, solo que ahora se le asigna el ultimo id que se ha registrado de la tabla de empresa*/
 		
-		CALL spRegisterClienteEmpresa(NULL,_idempresa, _idcontactabilidad);
+		call spRegisterClienteEmpresa(null,_idempresa, _idcontactabilidad);
 		
 		END IF;
 		
 		COMMIT;
 		
+		SELECT COALESCE(_idpersona, _idempresa) AS idcliente; /* esta linea devuelve el id del cliente insertado*/
+		
 		END $$
 		DELIMITER $$
         
         DELIMITER $$
-        INSERT INTO contactabilidad (contactabilidad) VALUES 
-        ('Folletos'),
+        insert into contactabilidad (contactabilidad) values 
+        ('folletos'),
         ('Campaña publicitaria'),
-        ('Recomendacion'),
-        ('Redes sociales');
+        ('Recomendacion');
         DELIMITER $$
         -- select * from contactabilidad;
         -- drop procedure spGetAllContactabilidad;
         DELIMITER $$
-        CREATE PROCEDURE spGetAllContactabilidad()
+        create procedure spGetAllContactabilidad()
         BEGIN 
-        SELECT idcontactabilidad, contactabilidad FROM contactabilidad ORDER BY contactabilidad ASC;
+        select * from contactabilidad order by contactabilidad ASC;
         END $$
-        DELIMITER $$        
+        DELIMITER $$
         
-        SELECT * FROM personas;
-         
+        
+        
+        
+        

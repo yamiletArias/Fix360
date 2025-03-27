@@ -9,6 +9,7 @@ class Venta extends Conexion{
         $this->pdo = $pdo;
     }
 
+    // Registrar la venta principal
     public function registrarVenta($tipo, $numserie, $numcomprobante, $nomcliente, $fecha, $tipomoneda) {
         $this->pdo->beginTransaction();
         try {
@@ -22,6 +23,7 @@ class Venta extends Conexion{
         }
     }
 
+    // Registrar los productos asociados a la venta
     public function registrarProductos($productos, $precios, $cantidades, $descuentos, $numcomprobante) {
         try {
             for ($i = 0; $i < count($productos); $i++) {
