@@ -13,11 +13,11 @@ CREATE PROCEDURE spRegistrarCliente(
 	IN _direccion 				VARCHAR(70),
 	IN _correo 					VARCHAR(100),
 	IN _telprincipal 			VARCHAR(20),
-	IN _telalternativo 		VARCHAR(20),
+	IN _telalternativo 			VARCHAR(20),
 	IN _nomcomercial 			VARCHAR(80),
 	IN _razonsocial 			VARCHAR(80),
 	IN _telefono 				VARCHAR(20),
-	IN _ruc 						CHAR(11),
+	IN _ruc 					CHAR(11),
 	IN _idcontactabilidad 	INT	
 )
 BEGIN
