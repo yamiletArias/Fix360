@@ -1,37 +1,51 @@
 <?php
-session_start();
+header("Content-Type: application/json");
 require_once "../models/Cliente.php";
-header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-$cliente = new Cliente();
+// Leer datos JSON enviados desde el frontend
+$data = json_decode(file_get_contents("php://input"), true);
 
-switch ($_SERVER["REQUEST_METHOD"]) {
-    case 'POST':
-        switch ($_POST["operation"]) {
-            case 'registerCliente':
-                $result = $cliente->registerCliente([
-                    "tipo"              => $_POST["tipo"],
-                    "nombres"           => $_POST["nombres"] ?? null,
-                    "apellidos"         => $_POST["apellidos"] ?? null,
-                    "tipodoc"           => $_POST["tipodoc"] ?? null,
-                    "numdoc"            => $_POST["numdoc"] ?? null,
-                    "direccion"         => $_POST["direccion"] ?? null,
-                    "correo"            => $_POST["correo"]  ?? null,
-                    "telprincipal"      => $_POST["telprincipal"] ?? null,
-                    "telalternativo"    => $_POST["telalternativo"] ?? null,
-                    "nomcomercial"      => $_POST["nomcomercial"] ?? null,
-                    "razonsocial"       => $_POST["razonsocial"] ?? null,
-                    "telefono"          => $_POST["telefono"] ?? null,
-                    "ruc"               => $_POST["ruc"] ?? null,
-                    "idcontactabilidad" => $_POST["idcontactabilidad"]
-                ]);
-
-                if ($result > 0) {
-                    echo json_encode(["status" => true, "idcliente" => $result]);
-                } else {
-                    echo json_encode(["status" => false, "message" => "Error al registrar al cliente"]);
-                }
-                break;
-        }
-        break;
+if (!$data) {
+    echo json_encode(["error" => "No se recibieron datos"]);
+    exit;
 }
+
+$operation = $data["operation"] ?? "";
+
+if ($operation === "registerClient") {
+    $cliente = new Cliente();
+
+    $params = [
+        "tipo"             => $data["tipo"] ?? "",
+        "nombres"          => $data["nombres"] ?? "",
+        "apellidos"        => $data["apellidos"] ?? "",
+        "tipodoc"          => $data["tipodoc"] ?? "",
+        "numdoc"           => $data["numdoc"] ?? "",
+        "direccion"        => $data["direccion"] ?? "",
+        "correo"           => $data["correo"] ?? "",
+        "telprincipal"     => $data["telprincipal"] ?? "",
+        "telalternativo"   => $data["telalternativo"] ?? "",
+        "nomcomercial"     => $data["nomcomercial"] ?? "",
+        "razonsocial"      => $data["razonsocial"] ?? "",
+        "telefono"         => $data["telefono"] ?? "",
+        "ruc"              => $data["ruc"] ?? "",
+        "idcontactabilidad" => $data["idcontactabilidad"] ?? 0
+    ];
+
+    // Validación básica
+    if (empty($params["tipo"]) || empty($params["idcontactabilidad"])) {
+        echo json_encode(["error" => "Faltan datos obligatorios"]);
+        exit;
+    }
+
+    $result = $cliente->registerCliente($params);
+    echo json_encode($result);
+    exit;
+}
+
+// Si la operación no es válida, enviar un solo error y salir
+echo json_encode(["error" => "Operación no válida"]);
+exit;
+?>

@@ -131,7 +131,7 @@ INSERT INTO subcategorias (idcategoria, nombre) VALUES
 (33,'TRICETA'),
 (34,'VALVULA PCV VALVE');
 
-insert into marcas (nombre, tipo) values
+INSERT INTO marcas (nombre, tipo) VALUES
 ('Toyota','vehiculo'),
 ('Honda','vehiculo'),
 ('Ford','vehiculo'),
@@ -148,9 +148,7 @@ insert into marcas (nombre, tipo) values
 ('Chery','vehiculo'),
 ('Daihatsu','vehiculo');
 
-
-
-insert into tipovehiculos (tipov) values 
+INSERT INTO tipovehiculos (tipov) VALUES 
 ('Sedan'),
 ('Hatchback'),
 ('SUV'),
@@ -161,7 +159,7 @@ insert into tipovehiculos (tipov) values
 ('Convertible'),
 ('Compacto');
 
-insert into modelos (idtipov,idmarca,modelo) values
+INSERT INTO modelos (idtipov,idmarca,modelo) VALUES
 (1,1,'ejemplo1'),
 (1,2,'ejemplo10'),
 (1,3,'ejemplo11'),
@@ -242,4 +240,6 @@ insert into modelos (idtipov,idmarca,modelo) values
 (9,7,'ejemplo80'),
 (9,8,'ejemplo81'),
 (9,9,'ejemplo9');
+
+
 

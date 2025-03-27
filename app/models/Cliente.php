@@ -2,27 +2,24 @@
 require_once "../models/Conexion.php";
 
 class Cliente extends Conexion {
+
   private $pdo;
 
-  public function __CONSTRUCT(){
+  public function __CONSTRUCT() {
     $this->pdo = parent::getConexion();
   }
 
-   // Método para registrar una persona
-
-
-
   /**
-   * Para esta funcion se utilizara una Transaccion.
-   * Que en PHP sirve para que una accion no se realize si no es que se ejecuta correctamente
-   * si no logra hacerlo, se hace un rollback y mantiene los datos intactos 
-   * Se tienen 2 Catch para saber con exactitud si fue un error o de la DB o del servidor
+   * Registra un cliente en la base de datos utilizando un procedimiento almacenado.
+   * No maneja transacciones aquí porque ya están en el SP.
+   * 
+   * @param array $params Arreglo con los datos del cliente.
+   * @return array Retorna el resultado de la operación o un mensaje de error.
    */
-  public function registerCliente($params = []): int {
-    $this->pdo->beginTransaction(); 
-
+  public function registerCliente($params = []): array {
     try {
-      $cmd = $this->pdo->prepare("CALL spRegisterCliente(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+      $query = "CALL spRegisterCliente(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["tipo"],
         $params["nombres"],
@@ -42,20 +39,15 @@ class Cliente extends Conexion {
 
       $result = $cmd->fetch(PDO::FETCH_ASSOC);
       $cmd->closeCursor();
-      $this->pdo->commit();
+      
+      return $result ?: ["message" => "Registro exitoso"];
 
-      return $result['idcliente'];
-
-    } catch (Exception $e){
-      $this->pdo->rollBack();
+    } catch (PDOException $e) {
+      error_log("Error DB: " . $e->getMessage());
+      return ["error" => "Error en la base de datos"];
+    } catch (Exception $e) {
       error_log("Error del servidor: " . $e->getMessage());
-
-      return -1;
-    }
-    catch(PDOException $e) {
-      $this->pdo->rollBack();
-      error_log("Error DB: " - $e->getMessage());
-      return -1;  
+      return ["error" => "Error inesperado en el servidor"];
     }
   }
 }

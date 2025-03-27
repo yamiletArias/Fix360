@@ -40,7 +40,7 @@
       padding: 30px;
 
 
-      width: 95%;
+      width: 85%;
       /* Aumenta el tamaño */
       min-height: 50px;
       /* Aumenta la altura */
@@ -369,7 +369,7 @@
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <select class="form-select" name="tipodoc" id="tipodoc" style="color: black;">
+                    <select class="form-select" required name="tipodoc" id="tipodoc" style="color: black;">
                       <option value="DNI">DNI</option>
                       <option value="Pasaporte">Pasaporte</option>
                       <option value="cde">Carnet de extranjeria</option>
@@ -380,15 +380,15 @@
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" class="form-control" name="numdoc" id="numdoc"
-                      placeholder="parece que sin placeholder no tiene ese efecto"><br><br>
+                    <input type="text" class="form-control" name="numdoc" id="numdoc" minlength="8" maxlength="20"
+                      placeholder="parece que sin placeholder no tiene ese efecto" required><br><br>
                     <label for="numdoc">N° de Documento</label>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" id="telprincipal" class="form-control" minlength="9" maxlength="9"
+                    <input type="text" id="telprincipal" class="form-control" minlength="9" maxlength="9" required
                       name="telprincipal" placeholder="celular">
                     <label for="telprincipal">Tel. principal</label>
                   </div>
@@ -396,7 +396,7 @@
 
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" id="nombres" class="form-control" name="nombres"
+                    <input type="text" id="nombres" class="form-control" name="nombres" minlength="2" maxlength="100" required
                       placeholder="nombrealazar"><br><br>
                     <label for="nombres">Nombres</label>
                   </div>
@@ -404,28 +404,28 @@
 
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" name="apellidos" class="form-control" id="apellidos" placeholder="apellidos">
+                    <input type="text" name="apellidos" class="form-control" id="apellidos" minlength="2" maxlength="100" placeholder="apellidos" required>
                     <label for="apellidos">Apellidos</label>
                   </div>
                 </div>
 
                 <div class="col-md-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control" name="direccion" id="direccion"
+                    <input type="text" class="form-control" name="direccion" id="direccion" minlength="5" maxlength="100" 
                       placeholder="mi casa"><br><br>
                     <label for="direccion">Direccion</label>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="form-floating">
-                    <input type="email" name="correo" class="form-control" id="correo"
+                    <input type="email" name="correo" class="form-control" id="correo" minlength="10" maxlength="100"
                       placeholder="thepunisher2000@gmail.com"><br><br>
                     <label for="correo">Correo</label>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="form-floating">
-                    <input type="text" id="telarternativo" name="telarternativo" class="form-control" minlength="9"
+                    <input type="text" id="telalternativo" name="telalternativo" class="form-control" minlength="9"
                       maxlength="9" placeholder="956633983"><br><br>
                     <label for="telalternativo">Tel. alternativo</label>
                   </div>
@@ -433,10 +433,10 @@
 
                 <div class="col-md-3">
                   <div class="form-floating">
-                    <select class="form-select" id="contactabilidad" name="contactabilidad" style="color: black;">
+                    <select class="form-select" id="cpersona" name="cpersona" style="color: black;" required>
                       <option value="">Seleccione una opción</option>
                     </select>
-                    <label for="contactabilidad">Contatabilidad:</label>
+                    <label for="cpersona">Contactabilidad:</label>
                   </div>
                 </div>
               </div>
@@ -448,28 +448,28 @@
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" name="ruc" class="form-control" placeholder="rucdelaempresa"><br><br>
+                    <input type="text" name="ruc" class="form-control" placeholder="rucdelaempresa" minlength="11" maxlength="11" required><br><br>
                     <label for="ruc">RUC</label>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" name="nomcomercial" class="form-control" placeholder="nomcomercial"><br><br>
+                    <input type="text" name="nomcomercial" class="form-control" placeholder="nomcomercial" minlength="5" maxlength="100" required><br><br>
                     <label for="nomcomercial">Nombre Comercial</label>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" name="razonsocial" class="form-control" placeholder="razonsocial"><br><br>
+                    <input type="text" name="razonsocial" class="form-control" placeholder="razonsocia0l" minlength="5" maxlength="100" required><br><br>
                     <label for="razonsocial">Razón Social</label>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" name="telempresa" class="form-control" placeholder="telempresa" minlength="9"
+                    <input type="text" name="telempresa" class="form-control" placeholder="telempresa" minlength="9" required
                       maxlength="9">
                     <label for="telempresa">Teléfono</label>
                   </div>
@@ -477,17 +477,17 @@
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="email" name="correoemp" class="form-control" placeholder="coreoemp">
+                    <input type="email" name="correoemp" class="form-control" placeholder="coreoemp" minlength="10" maxlength="100">
                     <label for="correoEmp">Correo</label>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <select class="form-select" id="contactabilidad" name="contactabilidad" style="color: black;">
+                    <select class="form-select" id="cempresa" name="cempresa" style="color: black;" required>
                       <option value="">Seleccione una opción</option>
                     </select>
-                    <label for="contactabilidad">Contactabilidad:</label>
+                    <label for="cempresa">Contactabilidad:</label>
                   </div>
                 </div>
 
@@ -496,8 +496,8 @@
           </div>
           <div class="card-footer text-end">
             <button type="button" class="btn btn-danger"
-              onclick="window.location.href='listar-cliente.html'">Cancelar</button>
-            <button type="submit" class="btn btn-success">Aceptar</button>
+              onclick="registrarCliente()" >Cancelar</button>
+            <button type="button" id="btnRegistrar" class="btn btn-success">Aceptar</button>
           </div>
         </div>
       </div>
@@ -515,51 +515,135 @@
 </html>
 
 <script>
-  document.addEventListener("DOMContentLoaded",() =>{
-    const formPersona = document.getElementById("formPersona");
-    const formEmpresa = document.getElementById("formEmpresa");
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector("#btnRegistrar").addEventListener("click", registrarCliente);
+});
 
-    const selectContactabilidad = document.querySelector("#contactabilidad");
-    let dataContactabilidad = [];
+function mostrarFormulario(tipo) {
+    if (tipo === "persona") {
+        document.getElementById("formPersona").classList.remove("hidden");
+        document.getElementById("formEmpresa").classList.add("hidden");
+    } else {
+        document.getElementById("formEmpresa").classList.remove("hidden");
+        document.getElementById("formPersona").classList.add("hidden");
+    }
+}
 
-    const listContactabilidad = async () => {
-      const params = new FormData();
-      params.append("operation", "getContactabilidad");
-      try{
-        const response = await fetch('<?php ?>/app/controllers/Contactabilidad.controller.php',{
-          method: "POST",
-          body: params
+async function registrarCliente() {
+    let tipoSeleccionado = document.querySelector('input[name="tipo"]:checked');
+
+    if (!tipoSeleccionado) {
+        showToast("Selecciona un tipo de cliente", "WARNING");
+        return;
+    }
+
+    let tipo = tipoSeleccionado.value;
+    let datos = { tipo };
+
+    if (tipo === "persona") {
+        datos.nombres = document.getElementById("nombres").value.trim();
+        datos.apellidos = document.getElementById("apellidos").value.trim();
+        datos.tipodoc = document.getElementById("tipodoc").value;
+        datos.numdoc = document.getElementById("numdoc").value.trim();
+        datos.direccion = document.getElementById("direccion").value.trim();
+        datos.correo = document.getElementById("correo").value.trim();
+        datos.telprincipal = document.getElementById("telprincipal").value.trim();
+        datos.telalternativo = document.getElementById("telalternativo").value.trim();
+        datos.idcontactabilidad = document.getElementById("cpersona").value;
+    } else {
+        datos.ruc = document.getElementById("ruc").value.trim();
+        datos.nomcomercial = document.getElementById("nomcomercial").value.trim();
+        datos.razonsocial = document.getElementById("razonsocial").value.trim();
+        datos.telefono = document.getElementById("telempresa").value.trim();
+        datos.correo = document.getElementById("correoemp").value.trim();
+        datos.idcontactabilidad = document.getElementById("cempresa").value;
+    }
+
+    try {
+        let response = await fetch("http://localhost/fix360/app/controllers/Cliente.controller.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ operation: "registerClient", ...datos })
         });
 
-        if(!response.ok){
-          throw new Error('Error en la solicitud de contactabilidad');
+        let textResponse = await response.text();
+        console.log("Respuesta del servidor:", textResponse);
+
+        try {
+            let result = JSON.parse(textResponse);
+            if (result.status === true) {
+                showToast("Cliente registrado con éxito", "SUCCESS", 2000, "listar-cliente.html");
+                limpiarCampos();
+            } else {
+                showToast(result.error || "Error en el registro", "ERROR");
+            }
+        } catch (error) {
+            console.error("Error al parsear JSON:", error);
+            showToast("Error en la respuesta del servidor", "ERROR");
         }
 
-        const data = await response.json();
-        dataContactabilidad = data;
+    } catch (error) {
+        console.error("Error en fetch:", error);
+        showToast("Error en la petición al servidor", "ERROR");
+    }
+}
 
-        selectContactabilidad.innerHTML = '<option value="">Seleccione un campo</option>';
-        data.forEach(element =>{
-          const tagOption = document.createElement("option");
-          tagOption.value = element.idcontactabilidad;
-          tagOption.textContent = element.contactabilidad;
-          selectContactabilidad.appendChild(tagOption);
+function limpiarCampos() {
+    let campos = [
+        "nombres", "apellidos", "tipodoc", "numdoc", "direccion", 
+        "correo", "telprincipal", "telalternativo", "cpersona", 
+        "ruc", "nomcomercial", "razonsocial", "telempresa", "correoemp", "cempresa"
+    ];
+
+    campos.forEach(id => {
+        let elemento = document.getElementById(id);
+        if (elemento) elemento.value = "";
+    });
+}
+
+  </script>
+  
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("http://localhost/fix360/app/controllers/Contactabilidad.controller.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "operation=getContactabilidad",
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Respuesta del servidor:", data); // Verifica la respuesta en consola
+
+        // Verifica que data es un array antes de usar forEach
+        if (!Array.isArray(data)) {
+            console.error("Error: La respuesta del servidor no es un array", data);
+            return;
+        }
+
+        // Obtiene los selects
+        let selectPersona = document.getElementById("cpersona");
+        let selectEmpresa = document.getElementById("cempresa");
+
+        // Limpia los selects y deja la opción por defecto
+        selectPersona.innerHTML = "<option value=''>Seleccione una opción</option>";
+        selectEmpresa.innerHTML = "<option value=''>Seleccione una opción</option>";
+
+        // Agrega las opciones a ambos selects
+        data.forEach(item => {
+            let option1 = document.createElement("option");
+            let option2 = document.createElement("option");
+
+            option1.value = item.idcontactabilidad;
+            option1.textContent = item.contactabilidad;
+            option2.value = item.idcontactabilidad;
+            option2.textContent = item.contactabilidad;
+
+            selectPersona.appendChild(option1);
+            selectEmpresa.appendChild(option2);
         });
-
-      } catch (error) {
-        console.error("ERROR al traer lista de contactabilidad", error.message);
-      }
-    };
-
-    listContactabilidad();
-  })
-
-
-  function mostrarFormulario(tipo) {
-    document.getElementById("formPersona").style.display = (tipo === "persona") ? "block" : "none";
-    document.getElementById("formEmpresa").style.display = (tipo === "empresa") ? "block" : "none";
-  }
-
+    })
+    .catch(error => console.error("Error:", error));
+});
 </script>
 
 <!-- plugins:js -->

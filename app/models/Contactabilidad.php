@@ -1,5 +1,5 @@
 <?php
-require_once "/app/models/Conexion.php";
+require_once __DIR__ . "/Conexion.php";
 
 class Contactabilidad extends Conexion {
    private $pdo;
