@@ -3,43 +3,53 @@
 require_once "../models/Conexion.php";
 
 class Venta extends Conexion{
+    
     private $pdo;
 
-    public function __construct($pdo) {
-        $this->pdo = $pdo;
+    public function __CONSTRUCT() {
+      $this->pdo = parent::getConexion();
     }
+    
+    public function getAll(): array{
+        $result = [];
+        try{
+            $sql = "SELECT * FROM vs_ventas ORDER BY id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
 
-    // Registrar la venta principal
-    public function registrarVenta($tipo, $numserie, $numcomprobante, $nomcliente, $fecha, $tipomoneda) {
-        $this->pdo->beginTransaction();
-        try {
-            $stmt = $this->pdo->prepare("CALL spRegistroVentas(?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$tipo, $numserie, $numcomprobante, $nomcliente, $fecha, $tipomoneda]);
-            $this->pdo->commit();
-            return true;
-        } catch (PDOException $e) {
-            $this->pdo->rollBack();
-            throw new Exception("Error al registrar la venta: " . $e->getMessage());
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e){
+            throw new Exception($e->getMessage());
         }
+        return $result;
     }
 
-    // Registrar los productos asociados a la venta
-    public function registrarProductos($productos, $precios, $cantidades, $descuentos, $numcomprobante) {
-        try {
-            for ($i = 0; $i < count($productos); $i++) {
-                $producto = $productos[$i];
-                $precio = $precios[$i];
-                $cantidad = $cantidades[$i];
-                $descuento = $descuentos[$i];
+    public function add($params = []):int{
+        $numRow = 0;
+        try{
+            $sql = "INSERT INTO ventas (idcliente, idcolaborador, tipocom, fechahora, numserie, numcom)";
+            $stmt = $this->pdo->prepare($sql);
 
-                $stmtDetalle = $this->pdo->prepare("CALL spRegistrarDetalleVenta(?, ?, ?, ?, ?)");
-                $stmtDetalle->execute([$producto, $precio, $cantidad, $descuento, $numcomprobante]);
-            }
-            return true;
-        } catch (PDOException $e) {
-            throw new Exception("Error al registrar los productos: " . $e->getMessage());
+            $stmt->execute(
+                array(
+                    $params["idcliente"],
+                    $params["idcolaborador"],
+                    $params["idproducto"],
+                    $params["idpromocion"],
+                    $params["tipocom"],
+                    $params["fechahora"],
+                    $params["numserie"],
+                    $params["numcom"]
+                )
+            );
+            $numRow = $stmt->rowCount();
         }
+        catch(PDOException $e){
+            throw new Exception($e->getMessage());
+        }
+        return $numRow;
     }
+
 }
 
 ?>

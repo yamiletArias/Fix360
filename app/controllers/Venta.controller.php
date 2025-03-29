@@ -1,53 +1,37 @@
 <?php
-require_once '../models/Conexion.php';
-require_once '../models/Venta.php';
+//require_once '../models/Conexion.php';
+//require_once '../models/Venta.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        // Obtener la conexión usando el método estático de la clase Conexion
-        $conexion = Conexion::getConexion();
+if (isset($_SERVER['REQUEST_METHOD'])){
+    header('Content-Type: application/json; charset=utf-8');
 
-        // Crear una instancia de la clase Venta pasando la conexión
-        $venta = new Venta($conexion);
+    require_once '../models/Venta.php';
+    $venta = new Venta();
 
-        // Obtener los datos del POST
-        $tipo = $_POST['tipo'];
-        $numserie = $_POST['numserie'] ?: 'V' . str_pad(rand(1000, 9999), 4, '0', STR_PAD_LEFT); 
-        $numcomprobante = 'C' . str_pad(rand(100000, 999999), 6, '0', STR_PAD_LEFT); 
+    switch ($_SERVER['REQUEST_METHOD']){
+        case 'GET':
+            echo json_encode($venta->getAll());
+            break;
+        case 'POST':
+            $input = file_get_contents('php//input');
+            $dataJSON = json_decode($input, true);
 
-        $nomcliente = $_POST['nomcliente'];
-        $fecha = $_POST['fecha'];
-        $tipomoneda = $_POST['tipomoneda'];
+            $registro = [
+                'idcliente'         => htmlspecialchars($dataJSON['idcliente']),
+                'idproducto'         => htmlspecialchars($dataJSON['idproducto']),
+                'tipocom'           => htmlspecialchars($dataJSON['tipocom']),
+                'numserie'          => htmlspecialchars($dataJSON['numserie']),
+                'numcom'            => htmlspecialchars($dataJSON['numcom']),
+                'fechahora'         => htmlspecialchars($dataJSON['fechahora']),
+                'cantidad'         => htmlspecialchars($dataJSON['cantidad']),
+                'precioventa'         => htmlspecialchars($dataJSON['precioventa']),
+                'descuento'         => htmlspecialchars($dataJSON['descuento'])
+            ];
 
-        $productos = $_POST['producto']; 
-        $precios = $_POST['precio']; 
-        $cantidades = $_POST['cantidad']; 
-        $descuentos = isset($_POST['descuento']) ? $_POST['descuento'] : [];
-
-        // Registrar la venta
-        $venta->registrarVenta($tipo, $numserie, $numcomprobante, $nomcliente, $fecha, $tipomoneda);
-
-        // Registrar los productos
-        $venta->registrarProductos($productos, $precios, $cantidades, $descuentos, $numcomprobante);
-
-        // Calcular el total de la venta
-        $totalVenta = array_sum(array_map(function($precio, $cantidad, $descuento) {
-            return $precio * $cantidad - $descuento;
-        }, $precios, $cantidades, $descuentos));
-
-        // Responder con los datos de la venta
-        echo json_encode([
-            'success' => 'Venta registrada exitosamente',
-            'venta' => [
-                'tipo' => $tipo,
-                'numcomprobante' => $numcomprobante,
-                'fecha' => $fecha,
-                'importe' => number_format($totalVenta, 2),
-            ]
-        ]);
-    } catch (Exception $e) {
-        // Manejo de excepciones en caso de error
-        echo json_encode(['error' => $e->getMessage()]);
+            $nventa = $venta->add($registro);
+            echo json_encode(["rows" => $nventa]);
+            break;
     }
 }
+
 ?>

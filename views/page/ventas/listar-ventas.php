@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SESION VENTAS</title>
+  <!--Font awesome -->
+  <!-- FonAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css" />
+  <link rel="stylesheet" href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css" />
+  <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../../assets/js/swalcustom.js"></script>
+
+  <!-- endinject -->
+  <!-- Plugin css for this page -->
+  <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
+  <!-- End plugin css for this page -->
+  <!-- inject:css -->
+  <!-- endinject -->
+  <!-- Layout styles -->
+  <link rel="stylesheet" href="../../assets/css/vertical-light-layout/style.css" />
+  <!-- End layout styles -->
+  <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+
+  <link rel="stylesheet" href="./dia.css" />
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
+
+  <style>
+    .container-ventas {
+      background: transparent;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: none;
+      width: 2900px;
+      /* Aumenta el tamaño */
+      min-height: 700px;
+      /* Aumenta la altura */
+      margin-left: 50px;
+      /* Lo mueve más a la derecha */
+      margin-top: 50px;
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      margin-top: 25px;
+      gap: 15px;
+    }
+
+    .form-group label {
+      margin-right: 10px;
+    }
+
+    input,
+    select,
+    button {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    input[type="text"],
+    select {
+      flex: 1;
+    }
+
+    input[type="date"] {
+      width: 160px;
+    }
+
+    .small-input {
+      width: 130px;
+    }
+
+    .medium-input {
+      width: 200px;
+    }
+
+    .table-container {
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ccc;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 40px;
+    }
+
+    .btn-finalizar {
+      background: green;
+      color: white;
+      padding: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .header-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .right-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    tfoot th {
+      border: none;
+      /* Quita los bordes de todos los <th> en el footer */
+      background: transparent;
+      /* Fondo transparente */
+    }
+
+    tfoot th.total-label,
+    tfoot th.total-value {
+      border-top: 2px solid black;
+      /* Agrega borde solo en las celdas de total */
+      border-bottom: 2px solid black;
+      font-weight: bold;
+      background: white;
+      /* Fondo blanco para destacar */
+    }
+
+    #miTabla td {
+      padding: 2px !important;
+      /* Reduce el espacio interno solo en los td */
+      font-size: 15px;
+      /* Reduce el tamaño de fuente solo en los td */
+      line-height: 1 !important;
+      /* Reduce la altura de las filas */
+      white-space: nowrap;
+      /* Evita saltos de línea en las celdas */
+    }
+
+    #miTabla td:first-child,
+    #miTabla th:first-child {
+      text-align: center;
+    }
+
+    #miTablaSemana td {
+      padding: 2px !important;
+      /* Reduce el espacio interno solo en los td */
+      font-size: 15px;
+      /* Reduce el tamaño de fuente solo en los td */
+      line-height: 1 !important;
+      /* Reduce la altura de las filas */
+      white-space: nowrap;
+      /* Evita saltos de línea en las celdas */
+    }
+
+    #miTablaSemana td:first-child,
+    #miTablaSemana th:first-child {
+      text-align: center;
+    }
+
+    #miTablaMes td {
+      padding: 2px !important;
+      /* Reduce el espacio interno solo en los td */
+      font-size: 15px;
+      /* Reduce el tamaño de fuente solo en los td */
+      line-height: 1 !important;
+      /* Reduce la altura de las filas */
+      white-space: nowrap;
+      /* Evita saltos de línea en las celdas */
+    }
+
+    #miTablaMes td:first-child,
+    #miTablaMes th:first-child {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- VENTAS -->
+  <div class="container-scroller">
+    <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+        <a class="navbar-brand brand-logo" href="../../index.html">
+          <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo"
+            class="logo-dark" />
+          <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
+            class="logo-light" />
+        </a>
+        <a class="navbar-brand brand-logo-mini" href="../../index.html"><img
+            src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
+        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+          <span class="icon-menu"></span>
+        </button>
+      </div>
+      <div class="navbar-menu-wrapper d-flex align-items-center">
+        <h2 class="mb-0 font-weight-medium d-none d-lg-flex">Ventas</h2>
+        <ul class="navbar-nav navbar-nav-right">
+          <li class="nav-item dropdown">
+            <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <i class="icon-speech"></i>
+              <span class="count">2</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
+              aria-labelledby="messageDropdown">
+              <a class="dropdown-item py-3">
+                <p class="mb-0 font-weight-medium float-start me-2">
+                  Tienes 2 Recordatorios
+                </p>
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item preview-item">
+                <div class="preview-item-content flex-grow py-2">
+                  <p class="preview-subject ellipsis font-weight-medium text-dark">
+                    Jose Hernandez
+                  </p>
+                  <p class="font-weight-light small-text">Cambio de Frenos</p>
+                </div>
+              </a>
+              <a class="dropdown-item preview-item">
+                <div class="preview-item-content flex-grow py-2">
+                  <p class="preview-subject ellipsis font-weight-medium text-dark">
+                    Hernan Atuncar
+                  </p>
+                  <p class="font-weight-light small-text">Cambio de aceite</p>
+                </div>
+              </a>
+            </div>
+          </li>
+          <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
+            <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <img class="img-xs rounded-circle ms-2"
+                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+              <span class="font-weight-normal"> Elena </span></a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+              <div class="dropdown-header text-center">
+                <img class="img-md rounded-circle"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+                <p class="mb-1 mt-3">Elena</p>
+                <p class="font-weight-light text-muted mb-0">
+                  fix360@gmail.com
+                </p>
+              </div>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
+                Profile
+                <span class="badge badge-pill badge-danger">1</span></a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i>
+                Messages</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i>
+                Activity</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
+                FAQ</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
+            </div>
+          </li>
+        </ul>
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+          data-toggle="offcanvas">
+          <span class="icon-menu"></span>
+        </button>
+      </div>
+    </nav>
+    <div class="container-fluid page-body-wrapper">
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+          <li class="nav-item navbar-brand-mini-wrapper">
+            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
+                style="width: 50px" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                alt="logo" /></a>
+          </li>
+          <li class="nav-item nav-profile">
+            <a href="#" class="nav-link">
+              <div class="profile-image">
+                <img class="img-xs rounded-circle"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
+                <div class="dot-indicator bg-success"></div>
+              </div>
+              <div class="text-wrapper">
+                <p class="profile-name">Elena</p>
+                <p class="designation">Administrador</p>
+              </div>
+            </a>
+          </li>
+          <li class="nav-item nav-category">
+            <span class="nav-link">Inicio</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../movdiario/listar-movdiario.html">
+              <span class="menu-title">Movimiento Diario </span>
+              <i class="fa-solid fa-chart-line menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item nav-category">
+            <span class="nav-link">Inventario</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../ventas/listar-ventas.html">
+              <span class="menu-title">Ventas</span>
+              <i class="fa-solid fa-tags menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <!--<a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
+                    <span class="menu-title">Icons</span>
+                    <i class="icon-globe menu-icon"></i>
+                </a>-->
+            <!--<div class="collapse" id="icons">
+                <ul class="nav flex-column sub-menu">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      href="../../pages/icons/font-awesome.html"
+                      >Font Awesome</a
+                    >
+                  </li>
+                </ul>
+              </div>-->
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../compras/listar-compras.html">
+              <span class="menu-title">Compras</span>
+              <i class="fa-solid fa-cart-plus menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../productos/listar-producto.html">
+              <span class="menu-title">Productos</span>
+              <i class="fa-solid fa-store menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../kardex/listar-kardex.html">
+              <span class="menu-title">Kardex</span>
+              <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../cotizaciones/listar-cotizacion.html">
+              <span class="menu-title">Cotizaciones</span>
+              <i class="fa-solid fa-list-ol menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../ordenservicios/listar-ordenes.html">
+              <span class="menu-title">Ordenes de Servicio</span>
+              <i class="fa-solid fa-car-tunnel menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../promociones/listar-promociones.html">
+              <span class="menu-title">Promociones</span>
+              <i class="fa-solid fa-percent menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item nav-category">
+            <span class="nav-link">Administracion</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../clientes/listar-cliente.html">
+              <span class="menu-title">Clientes</span>
+              <i class="fa-solid fa-building-user menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
+              <span class="menu-title">Vehiculos</span>
+              <i class="fa-solid fa-car-side menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item nav-category">
+            <span class="nav-link">Contactabilidad</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../contactabilidad/listar-graficos.html">
+              <span class="menu-title">Graficos</span>
+              <i class="fa-solid fa-chart-pie menu-icon"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="container-ventas">
+        <div class="header-group">
+          <div class="form-group">
+            <div class="btn-group" role="group" aria-label="Basic example">
+              <button id="btnDia" type="button" class="btn btn-primary">
+                Día
+              </button>
+              <button id="btnSemana" type="button" class="btn btn-primary">
+                Semana
+              </button>
+              <button id="btnMes" type="button" class="btn btn-primary">
+                Mes
+              </button>
+            </div>
+            <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
+          </div>
+          <div>
+            <button type="button" onclick="window.location.href='registrar-ventas.html'" class="btn btn-success">
+              Registrar
+            </button>
+          </div>
+        </div>
+
+        <div id="tableDia" class="table-container">
+          <!-- Tabla Día -->
+          <table id="miTabla" class="table table-striped display">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>T. Comprobante</th>
+                <th>N° Comprobante</th>
+                <th>Fecha Hora</th>
+                <!-- <th>Importe</th> -->
+                <th>Opciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- contenido dinamico -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalle de la Venta 001-0022</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Cliente: Jose Hernandez</p>
+          <div class="table-container">
+            <!-- Tabla Día -->
+            <table id="miTabla" class="table table-striped display">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Productos</th>
+                  <th>Precio</th>
+                  <th>Moneda</th>
+                  <th>Descuento</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Filtro de aceite</td>
+                  <td>120.00</td>
+                  <td>Soles</td>
+                  <td>0%</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Pastillas de freno</td>
+                  <td>150.00</td>
+                  <td>Soles</td>
+                  <td>0%</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Amortiguador delantero</td>
+                  <td>250.00</td>
+                  <td>Soles</td>
+                  <td>0%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--FIN VENTAS-->
+
+  <!-- plugins:js -->
+  <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page -->
+  <!-- End plugin js for this page -->
+  <!-- inject:js -->
+  <script src="../../assets/js/off-canvas.js"></script>
+  <script src="../../assets/js/hoverable-collapse.js"></script>
+  <script src="../../assets/js/misc.js"></script>
+  <script src="../../assets/js/settings.js"></script>
+  <script src="../../assets/js/todolist.js"></script>
+  <!-- jQuery (necesario para DataTables) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+      function obtenerVentas() {
+        fetch(`/Fix360/app/controllers/Venta.controller.php`, {
+          method: 'GET'
+        })
+          .then(response => response.json())
+          .then(data => {
+            const tabla = document.querySelector("#miTabla tbody");
+            tabla.innerHTML = '';
+
+            if (data.length === 0) {
+              tabla.innerHTML = `<tr><td colspan="6">No hay ventas registradas.</td></tr>`;
+            } else {
+              data.forEach(element => {
+                tabla.innerHTML += `
+              <tr data-id="${element.id}">
+                <td>${element.id}</td>
+                <td>${element.cliente}</td>
+                <td>${element.tipocom}</td>
+                <td>${element.numcom}</td>
+                <td>${element.fechahora}</td>
+                <td>
+                  <button title="Editar" onclick="window.location.href='editar-ventas.html'" class="btn btn-warning btn-sm">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button title="Eliminar" class="btn btn-danger btn-sm btnEliminar" data-id="${element.id}">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                  <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">
+                    <i class="fa-solid fa-circle-info"></i>
+                  </button>
+                </td>
+              </tr>
+            `;
+              });
+            }
+
+            if (!$.fn.dataTable.isDataTable('#miTabla')) {
+              $('#miTabla').DataTable();
+            }
+          })
+          .catch(error => {
+            console.error("Error al obtener los datos:", error);
+          });
+      }
+
+      // Delegar el evento de clic a la tabla para los botones "Eliminar"
+      document.querySelector("#miTabla tbody").addEventListener("click", async function (event) {
+        if (event.target && event.target.matches("button.btnEliminar")) {
+          const id = event.target.getAttribute("data-id"); // Obtener el ID del registro a eliminar
+
+          // Usar la función ask para confirmar la eliminación
+          if (await ask("¿Estás seguro de eliminar este registro?", "Venta")) {
+            showToast("Registro eliminado correctamente", "SUCCESS");
+            console.log(`Eliminando registro con ID: ${id}`);
+          } else {
+            showToast("Operación cancelada", "WARNING");
+          }
+        }
+      });
+
+      // Inicializar las tablas con DataTables y manejar las vistas de diferentes tablas
+      $(document).ready(function () {
+        var tableDia = $("#miTabla").DataTable();
+        var tableSemana = $("#miTablaSemana").DataTable();
+        var tableMes = $("#miTablaMes").DataTable();
+
+        // Función para alternar entre las tablas
+        $("#btnDia").on("click", function () {
+          $("#tableDia").show();
+          $("#tableSemana").hide();
+          $("#tableMes").hide();
+        });
+
+        $("#btnSemana").on("click", function () {
+          $("#tableSemana").show();
+          $("#tableDia").hide();
+          $("#tableMes").hide();
+        });
+
+        $("#btnMes").on("click", function () {
+          $("#tableMes").show();
+          $("#tableDia").hide();
+          $("#tableSemana").hide();
+        });
+      });
+
+      // Llamar la función para obtener las ventas cuando la página se cargue
+      obtenerVentas();
+    });
+  </script>
+
+
+  <!-- endinject -->
+  <!-- Custom js for this page -->
+  <!-- End custom js for this page -->
+</body>
+
+</html>
