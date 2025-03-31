@@ -2,6 +2,103 @@
 DELIMITER $$
 
 CREATE PROCEDURE spRegistroVentas(
+    IN p_idcliente INT,
+    IN p_tipocom ENUM('boleta', 'factura'),
+    IN p_numserie VARCHAR(10),
+    IN p_numcom VARCHAR(10),
+    IN p_productos JSON -- Un JSON que contenga los detalles de los productos (idproducto, cantidad, precio, descuento)
+)
+BEGIN
+    -- Declaramos las variables locales al principio del bloque BEGIN
+    DECLARE v_idventa INT;
+    DECLARE v_idproducto INT;
+    DECLARE v_cantidad INT;
+    DECLARE v_precio DECIMAL(7,2);
+    DECLARE v_descuento DECIMAL(5,2);
+    DECLARE done INT DEFAULT FALSE;
+
+    -- Inserción en la tabla ventas
+    INSERT INTO ventas (
+        idcliente,
+        tipocom,
+        numserie,
+        numcom,
+        fechahora,
+        moneda
+    )
+    VALUES (
+        p_idcliente,
+        p_tipocom,
+        p_numserie,
+        p_numcom,
+        CURRENT_TIMESTAMP,
+        'PEN' -- Por ejemplo, 'PEN' para soles peruanos
+    );
+
+    -- Obtener el ID de la venta recién insertada
+    SET v_idventa = LAST_INSERT_ID();
+
+    -- Declarar el cursor para iterar sobre los productos del JSON
+    DECLARE product_cursor CURSOR FOR 
+        SELECT value->>"$.idproducto", value->>"$.cantidad", value->>"$.precio", value->>"$.descuento"
+        FROM JSON_TABLE(p_productos, "$[*]" COLUMNS (
+            idproducto INT PATH "$.idproducto",
+            cantidad INT PATH "$.cantidad",
+            precio DECIMAL(7,2) PATH "$.precio",
+            descuento DECIMAL(5,2) PATH "$.descuento"
+        )) AS jt;
+
+    -- Handlers para el cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Abrimos el cursor
+    OPEN product_cursor;
+
+    -- Iteramos sobre los productos y los insertamos en detalleventa
+    read_loop: LOOP
+        FETCH product_cursor INTO v_idproducto, v_cantidad, v_precio, v_descuento;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Inserción en detalleventa
+        INSERT INTO detalleventa (
+            idventa,
+            idproducto,
+            cantidad,
+            precioventa,
+            descuento
+        )
+        VALUES (
+            v_idventa,
+            v_idproducto,
+            v_cantidad,
+            v_precio,
+            v_descuento
+        );
+    END LOOP;
+
+    -- Cerramos el cursor
+    CLOSE product_cursor;
+    
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE spRegistroVentas(
     IN _tipo               VARCHAR(10),
     IN _numserie           CHAR(12),
     IN _numcomprobante     CHAR(8),

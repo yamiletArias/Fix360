@@ -108,10 +108,10 @@ VALUES
 (2, 2, TRUE, 'transmision_foto.jpg');
 
 -- INSERT para 'ventas'
-INSERT INTO ventas (idcliente, idcolaborador, tipocom, fechahora, numserie, numcom)
+INSERT INTO ventas (idcliente, idcolaborador, tipocom, fechahora, numserie, numcom, moneda)
 VALUES 
-(1, 1, 'boleta', NOW(), 'B001', '0001'),
-(2, 2, 'factura', NOW(), 'F001', '0002');
+(1, 1, 'boleta', NOW(), 'B001', '0001', 'Soles'),
+(2, 2, 'factura', NOW(), 'F001', '0002', 'Dolares');
 -- INSERT para 'productos'
 INSERT INTO productos (idmarca, idsubcategoria, descripcion, precio, presentacion, undmedida, cantidad)
 VALUES
@@ -130,9 +130,10 @@ VALUES
 SELECT * FROM empresas WHERE idempresa IN (1, 2);
 SELECT * FROM personas WHERE idpersona IN (1, 2);
 SELECT * FROM contactabilidad WHERE idcontactabilidad IN (1, 2);
-SELECT * FROM ventas;
-SELECT * FROM clientes;
+SELECT * FROM detalleventa;
+SELECT * FROM empresas;
 SELECT * FROM productos;
+SELECT * FROM clientes;
 SELECT * FROM promociones WHERE idpromocion IN (1, 2, 3);
 
 SELECT idcolaborador FROM colaboradores WHERE idcolaborador IN (1, 2);

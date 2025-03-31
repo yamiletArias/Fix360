@@ -1,26 +1,50 @@
 <?php
+// Incluir la clase de conexión
 require_once '../models/Conexion.php';
 
-// Verificar si se está enviando el parámetro 'search' a través del método GET
-if (isset($_GET['search'])) {
-    $search = $_GET['search'];
+class Cliente extends Conexion {
 
-    try {
-        // Obtener la conexión a la base de datos usando la clase Conexion
-        $pdo = Conexion::getConexion();
-
-        // Preparar la consulta SQL para buscar los clientes que coincidan con el texto ingresado
-        $stmt = $pdo->prepare("SELECT idcliente, nomcliente FROM clientes WHERE nomcliente LIKE :search LIMIT 10");
-        $stmt->execute(['search' => "%$search%"]);
-        
-        // Obtener los resultados como un arreglo asociativo
-        $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Devolver los resultados como JSON
-        echo json_encode($clientes);
-    } catch (PDOException $e) {
-        // Si ocurre un error, devolver el mensaje de error
-        echo json_encode(['error' => $e->getMessage()]);
+    // Método para buscar clientes
+    public function searchClients($query) {
+        try {
+            // Obtener la conexión a la base de datos utilizando el método estático
+            $pdo = Conexion::getConexion();  // Aquí obtenemos la conexión desde la clase Conexion
+            
+            // Consulta SQL para buscar clientes
+            $sql = "SELECT idcliente, nombre FROM clientes WHERE nombre LIKE :query LIMIT 10"; // Ajusta la consulta según tu estructura
+            
+            // Preparar la consulta
+            $stmt = $pdo->prepare($sql);
+            
+            // Ejecutar la consulta con el parámetro
+            $stmt->execute(['query' => '%' . $query . '%']);
+            
+            // Devolver los resultados
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // En caso de error en la base de datos, devolver el error en formato JSON
+            return ["error" => "Error en la base de datos: " . $e->getMessage()];
+        }
     }
+}
+
+// Verificar si se recibe el parámetro 'q' por GET
+if (isset($_GET['q'])) {
+    $query = $_GET['q']; // Obtener el término de búsqueda
+    
+    // Validar el parámetro para evitar caracteres inesperados
+    $query = htmlspecialchars($query);  // Evitar caracteres maliciosos
+    
+    // Crear una instancia del modelo Cliente
+    $clienteModel = new Cliente();
+    
+    // Buscar los clientes con el término proporcionado
+    $clientes = $clienteModel->searchClients($query);
+
+    // Establecer cabecera para JSON
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // Retornar los resultados como JSON
+    echo json_encode($clientes);
 }
 ?>
