@@ -1,6 +1,8 @@
 <?php
 require_once "../models/Conexion.php";
 
+
+
 class Cliente extends Conexion {
 
   private $pdo;
@@ -9,19 +11,24 @@ class Cliente extends Conexion {
     $this->pdo = parent::getConexion();
   }
 
-  /**
-   * Registra un cliente en la base de datos utilizando un procedimiento almacenado.
-   * No maneja transacciones aquí porque ya están en el SP.
-   * 
-   * @param array $params Arreglo con los datos del cliente.
-   * @return array Retorna el resultado de la operación o un mensaje de error.
-   */
-  public function registerCliente($params = []): array {
+  /* public function getAll(): array{
+    result = [];
+
     try {
-      $query = "CALL spRegisterCliente(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([
-        $params["tipo"],
+      $sql = "";
+    } catch (\PDOException $e) {
+      throw new Exception($e->getMessage());
+    }
+
+  } */
+
+ 
+  public function registerClientePersona($params = []): int {
+    $numRows = 0;
+    try {
+      $query = "CALL spRegisterClientePersona(?,?,?,?,?,?,?,?,?)";
+      $stmt = $this->pdo->prepare($query);
+      $stmt->execute(array(
         $params["nombres"],
         $params["apellidos"],
         $params["tipodoc"],
@@ -30,24 +37,38 @@ class Cliente extends Conexion {
         $params["correo"],
         $params["telprincipal"],
         $params["telalternativo"],
-        $params["nomcomercial"],
-        $params["razonsocial"],
-        $params["telefono"],
-        $params["ruc"],
         $params["idcontactabilidad"]
-      ]);
+      ));
 
-      $result = $cmd->fetch(PDO::FETCH_ASSOC);
-      $cmd->closeCursor();
-      
-      return $result ?: ["message" => "Registro exitoso"];
+      $numRows = $stmt->rowCount();
 
     } catch (PDOException $e) {
       error_log("Error DB: " . $e->getMessage());
-      return ["error" => "Error en la base de datos"];
-    } catch (Exception $e) {
-      error_log("Error del servidor: " . $e->getMessage());
-      return ["error" => "Error inesperado en el servidor"];
-    }
+      return $numRows;
+    } 
+    return $numRows;
+  }
+
+  public function registerClienteEmpresa($params = []): int {
+    $numRows = 0;
+    try {
+      $query = "CALL spRegisterClienteEmpresa(?,?,?,?,?,?)";
+      $stmt = $this->pdo->prepare($query);
+      $stmt->execute(array(
+        $params["ruc"],
+        $params["nomcomercial"],
+        $params["razonsocial"],
+        $params["telefono"],
+        $params["correo"],
+        $params["idcontactabilidad"]
+      ));
+
+      $numRows = $stmt->rowCount();
+
+    } catch (PDOException $e) {
+      error_log("Error DB: " . $e->getMessage());
+      return $numRows;
+    } 
+    return $numRows;
   }
 }
