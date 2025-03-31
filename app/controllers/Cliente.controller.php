@@ -1,51 +1,56 @@
 <?php
-header("Content-Type: application/json");
-require_once "../models/Cliente.php";
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-// Leer datos JSON enviados desde el frontend
-$data = json_decode(file_get_contents("php://input"), true);
+if (isset($_SERVER['REQUEST_METHOD'])) {
+    header('Content-type: application/json; charset=utf-8');
 
-if (!$data) {
-    echo json_encode(["error" => "No se recibieron datos"]);
-    exit;
-}
-
-$operation = $data["operation"] ?? "";
-
-if ($operation === "registerClient") {
+    require_once "../models/Cliente.php";
+    require_once "../helpers/helper.php";
     $cliente = new Cliente();
 
-    $params = [
-        "tipo"             => $data["tipo"] ?? "",
-        "nombres"          => $data["nombres"] ?? "",
-        "apellidos"        => $data["apellidos"] ?? "",
-        "tipodoc"          => $data["tipodoc"] ?? "",
-        "numdoc"           => $data["numdoc"] ?? "",
-        "direccion"        => $data["direccion"] ?? "",
-        "correo"           => $data["correo"] ?? "",
-        "telprincipal"     => $data["telprincipal"] ?? "",
-        "telalternativo"   => $data["telalternativo"] ?? "",
-        "nomcomercial"     => $data["nomcomercial"] ?? "",
-        "razonsocial"      => $data["razonsocial"] ?? "",
-        "telefono"         => $data["telefono"] ?? "",
-        "ruc"              => $data["ruc"] ?? "",
-        "idcontactabilidad" => $data["idcontactabilidad"] ?? 0
-    ];
+    switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            // echo json_encode($cliente->getAll());
+            break;
 
-    // Validación básica
-    if (empty($params["tipo"]) || empty($params["idcontactabilidad"])) {
-        echo json_encode(["error" => "Faltan datos obligatorios"]);
-        exit;
+        case 'POST':
+            $input = file_get_contents('php://input');
+            $dataJSON = json_decode($input, true);
+
+            $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? "");
+
+            if ($tipo === "persona") {
+                // Registro de cliente como persona
+                $registro = [
+                    "nombres"           => Helper::limpiarCadena($dataJSON['nombres'] ?? ""),
+                    "apellidos"         => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
+                    "tipodoc"           => Helper::limpiarCadena($dataJSON['tipodoc'] ?? ""),
+                    "numdoc"            => Helper::limpiarCadena($dataJSON['numdoc'] ?? ""),
+                    "direccion"         => Helper::limpiarCadena($dataJSON['direccion'] ?? ""),
+                    "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
+                    "telprincipal"      => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
+                    "telalternativo"    => Helper::limpiarCadena($dataJSON['telalternativo'] ?? ""),
+                    "idcontactabilidad" => $dataJSON["idcontactabilidad"]
+                ];
+                $n = $cliente->registerClientePersona($registro);
+            } 
+            elseif ($tipo === "empresa") {
+                // Registro de cliente como empresa
+                $registro = [
+                    "ruc"               => Helper::limpiarCadena($dataJSON['ruc'] ?? ""),
+                    "nomcomercial"      => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
+                    "razonsocial"       => Helper::limpiarCadena($dataJSON['razonsocial'] ?? ""),
+                    "telefono"          => Helper::limpiarCadena($dataJSON['telefono'] ?? ""),
+                    "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
+                    "idcontactabilidad" => $dataJSON["idcontactabilidad"]
+                ];
+                $n = $cliente->registerClienteEmpresa($registro);
+            } 
+            else {
+                echo json_encode(["status" => false, "message" => "Tipo de cliente no válido"]);
+                exit;
+            }
+
+            echo json_encode(["rows" => $n]);
+            break;
     }
-
-    $result = $cliente->registerCliente($params);
-    echo json_encode($result);
-    exit;
 }
-
-// Si la operación no es válida, enviar un solo error y salir
-echo json_encode(["error" => "Operación no válida"]);
-exit;
-?>

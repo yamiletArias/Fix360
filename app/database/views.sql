@@ -91,3 +91,9 @@ INNER JOIN productos p ON k.idproducto = p.idproducto;
 
 
 
+-- create view vwClientePrincipal
+
+
+SELECT * FROM vwModelosConTipoYMarca;
+
+

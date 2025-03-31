@@ -10,9 +10,9 @@ nombres 		 	VARCHAR(50)			NOT NULL,
 apellidos 	 	VARCHAR(50)			NOT NULL,
 tipodoc 		 	VARCHAR(30)			NOT NULL,
 numdoc 		 	CHAR(20)				NOT NULL,
-direccion 	 	VARCHAR(70)			NOT NULL,
-correo 		 	VARCHAR(100)		NOT NULL,
-telprincipal 	VARCHAR(20)			NOT NULL,
+direccion 	 	VARCHAR(70)			NULL,
+correo 		 	VARCHAR(100)		NULL,
+telprincipal 	VARCHAR(20)			NULL,
 telalternativo VARCHAR(20)   		NULL,
 CONSTRAINT uq_numdoc UNIQUE(numdoc)
 

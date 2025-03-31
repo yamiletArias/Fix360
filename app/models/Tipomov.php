@@ -1,6 +1,6 @@
 <?php
 
-require_once "../models/Conexion.php";
+require_once __DIR__ . "/Conexion.php";
 
 /**
  * Clase Tipomovimiento
@@ -22,7 +22,8 @@ class Tipomovimiento extends Conexion {
    * Obtener todos los tipos de movimiento
    * @return array Lista de tipos de movimiento
    */
-  public function getAll() {
+  public function getAll():array {
+    $result = [];
     try {
       $query = "CALL spGetAllTipomovimientos()";
       $cmd = $this->pdo->prepare($query);

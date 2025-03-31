@@ -1,66 +1,200 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Ventas</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        #searchInput {
-            margin-bottom: 10px;
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <h2>Lista de Ventas</h2>
-    <input type="text" id="searchInput" placeholder="Buscar en la tabla...">
-    <table id="ventasTable">
-        <thead>
-            <tr>
-                <th>ID Venta</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Monto</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>001</td>
-                <td>Juan Pérez</td>
-                <td>2025-03-10</td>
-                <td>$150.00</td>
-            </tr>
-            <tr>
-                <td>002</td>
-                <td>María Gómez</td>
-                <td>2025-03-11</td>
-                <td>$200.00</td>
-            </tr>
-        </tbody>
-    </table>
-    <script>
-        document.getElementById("searchInput").addEventListener("keyup", function() {
-            let filter = this.value.toLowerCase();
-            let rows = document.querySelectorAll("#ventasTable tbody tr");
-            rows.forEach(row => {
-                let text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? "" : "none";
-            });
-        });
-    </script>
-</body>
-</html>
+<div class="container-main">
+    <form action="" autocomplete="off" id="formCliente">
+      <div class="card border">
+        <div class="card-header">
+          <h2>Nuevo registro de:</h2>
+          <label>
+            <input type="radio" name="tipo" value="persona" onclick="mostrarFormulario('persona')" checked>
+            Persona
+          </label>
+          <label>
+            <input type="radio" name="tipo" value="empresa" onclick="mostrarFormulario('empresa')">
+            Empresa
+          </label>
+        </div>
+        <div class="card-body">
+          <!-- Formulario Persona -->
+          <div id="formPersona">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <select class="form-select" required name="tipodoc" id="tipodoc">
+                    <option value="DNI" selected>DNI</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                    <option value="cde">Carnet de extranjería</option>
+                  </select>
+                  <label for="tipodoc">Tipo de Documento:</label>
+                </div>
+              </div>
+  
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="text" class="form-control" name="numdoc" id="numdoc" minlength="8" maxlength="20" required>
+                  <label for="numdoc">N° de Documento</label>
+                </div>
+              </div>
+  
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="text" id="telprincipal" class="form-control" minlength="9" maxlength="9" required name="telprincipal">
+                  <label for="telprincipal">Tel. principal</label>
+                </div>
+              </div>
+  
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" id="nombres" class="form-control" name="nombres" minlength="2" maxlength="100" required>
+                  <label for="nombres">Nombres</label>
+                </div>
+              </div>
+  
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" name="apellidos" class="form-control" id="apellidos" minlength="2" maxlength="100" required>
+                  <label for="apellidos">Apellidos</label>
+                </div>
+              </div>
+  
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <input type="text" class="form-control" name="direccion" id="direccion" minlength="5" maxlength="100">
+                  <label for="direccion">Dirección</label>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <input type="email" name="correo" class="form-control" id="correo" minlength="10" maxlength="100">
+                  <label for="correo">Correo</label>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <input type="text" id="telalternativo" name="telalternativo" class="form-control" minlength="9" maxlength="9">
+                  <label for="telalternativo">Tel. alternativo</label>
+                </div>
+              </div>
+  
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <select class="form-select" id="cpersona" name="cpersona" required>
+                    <option value="">Seleccione una opción</option>
+                  </select>
+                  <label for="cpersona">Contactabilidad:</label>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Formulario Empresa -->
+          <div id="formEmpresa" class="d-none">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="text" name="ruc" class="form-control" minlength="11" maxlength="11" required>
+                  <label for="ruc">RUC</label>
+                </div>
+              </div>
+  
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="text" name="nomcomercial" class="form-control" minlength="5" maxlength="100" required>
+                  <label for="nomcomercial">Nombre Comercial</label>
+                </div>
+              </div>
+  
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="text" name="razonsocial" class="form-control" minlength="5" maxlength="100" required>
+                  <label for="razonsocial">Razón Social</label>
+                </div>
+              </div>
+  
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="text" name="telempresa" class="form-control" minlength="9" required maxlength="9">
+                  <label for="telempresa">Teléfono</label>
+                </div>
+              </div>
+  
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="email" name="correoemp" class="form-control" minlength="10" maxlength="100">
+                  <label for="correoemp">Correo</label>
+                </div>
+              </div>
+  
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <select class="form-select" id="cempresa" name="cempresa" required>
+                    <option value="">Seleccione una opción</option>
+                  </select>
+                  <label for="cempresa">Contactabilidad:</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer text-end">
+          <button type="reset" class="btn btn-danger">Cancelar</button>
+          <button type="submit" id="btnRegistrar" class="btn btn-success">Aceptar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+  const formCliente = document.querySelector("#formCliente");
+  const formPersona = document.querySelector("#formPersona");
+  const formEmpresa = document.querySelector("#formEmpresa");
+
+  function mostrarFormulario(tipo) {
+    if (tipo === "persona") {
+      formPersona.classList.remove("d-none");
+      formEmpresa.classList.add("d-none");
+    } else {
+      formPersona.classList.add("d-none");
+      formEmpresa.classList.remove("d-none");
+    }
+  }
+
+  function registrarCliente() {
+    const tipo = document.querySelector("input[name='tipo']:checked").value;
+    let datos = {};
+
+    if (tipo === "persona") {
+      datos = {
+        tipo,
+        tipodoc: document.querySelector("#tipodoc").value,
+        numdoc: document.querySelector("#numdoc").value,
+        nombres: document.querySelector("#nombres").value,
+      };
+    } else {
+      datos = {
+        tipo,
+        ruc: document.querySelector("[name='ruc']").value,
+        razonsocial: document.querySelector("[name='razonsocial']").value,
+      };
+    }
+
+    fetch("../../app/controllers/ClienteController.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+  }
+
+  formCliente.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (confirm("¿Desea registrar el cliente?")) {
+      registrarCliente();
+    }
+  });
+});
+
+  </script>
+  
