@@ -1,4 +1,7 @@
 <?php
+
+CONST NAMEVIEW = "Registro de clientes";
+
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
@@ -148,7 +151,9 @@ require_once "../../partials/header.php";
   </div>
   </div>
  <?php
+
   require_once "../../partials/_footer.php";
+  
  ?>
 </body>
 

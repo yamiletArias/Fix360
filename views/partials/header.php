@@ -11,26 +11,26 @@
     integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- plugins:css -->
-  <link rel="stylesheet" href="<?= SERVERURL?>views/assets/vendors/simple-line-icons/css/simple-line-icons.css" />
-  <link rel="stylesheet" href="<?= SERVERURL?>views/assets/vendors/flag-icon-css/css/flag-icons.min.css" />
-  <link rel="stylesheet" href="<?= SERVERURL?>views/assets/vendors/css/vendor.bundle.base.css" />
+  <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/simple-line-icons/css/simple-line-icons.css" />
+  <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/flag-icon-css/css/flag-icons.min.css" />
+  <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/css/vendor.bundle.base.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/swalcustom.js"></script>
 
   <!-- endinject -->
   <!-- Plugin css for this page -->
-  <link rel="stylesheet" href="<?= SERVERURL?>views/assets/vendors/font-awesome/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/font-awesome/css/font-awesome.min.css" />
   <!-- End plugin css for this page -->
   <!-- inject:css -->
   <!-- endinject -->
   <!-- Layout styles -->
-  <link rel="stylesheet" href="<?= SERVERURL?>views/assets/css/vertical-light-layout/style.css" />
+  <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/css/vertical-light-layout/style.css" />
   <!-- End layout styles -->
-  <link rel="shortcut icon" href="<?= SERVERURL?>views/assets/images/favicon.png" />
-  
+  <link rel="shortcut icon" href="<?= SERVERURL ?>views/assets/images/favicon.png" />
 
-   <!-- DataTables CSS -->
-   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
     .container-main {
@@ -68,7 +68,7 @@
       gap: 10px;
     }
 
-    
+
 
     input,
     select,
@@ -78,22 +78,16 @@
       border-radius: 0px;
     }
 
-    input[type="text"],
-    
-
-
     .small-button {
       width: 40px;
       padding: 5px;
       text-align: center;
     }
 
-    .border{
+    
+    .border {
       border-radius: 4px;
     }
-
-
-
   </style>
 </head>
 
@@ -115,9 +109,7 @@
         </button>
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center">
-        <h2 class="mb-0 font-weight-medium d-none d-lg-flex">
-          Registro de Vehiculos
-        </h2>
+        <h2 class="mb-0 font-weight-medium d-none d-lg-flex"><?= NAMEVIEW ?></h2>
         <ul class="navbar-nav navbar-nav-right">
           <li class="nav-item dropdown">
             <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown"
@@ -210,7 +202,7 @@
             <span class="nav-link">Inicio</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../movdiario/listar-movdiario.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/movdiario/listar-movdiario.php">
               <span class="menu-title">Movimiento Diario </span>
               <i class="fa-solid fa-chart-line menu-icon"></i>
             </a>
@@ -219,43 +211,43 @@
             <span class="nav-link">Inventario</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../ventas/listar-ventas.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
               <span class="menu-title">Ventas</span>
               <i class="fa-solid fa-tags menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../compras/listar-compras.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/compras/listar-compras.php">
               <span class="menu-title">Compras</span>
               <i class="fa-solid fa-cart-plus menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../productos/listar-producto.php">
+            <a class="nav-link" href=".<?= SERVERURL ?>views/page/productos/listar-producto.php">
               <span class="menu-title">Productos</span>
               <i class="fa-solid fa-store menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../kardex/listar-kardex.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/kardex/listar-kardex.php">
               <span class="menu-title">Kardex</span>
               <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../cotizaciones/listar-cotizacion.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/cotizaciones/listar-cotizacion.php">
               <span class="menu-title">Cotizaciones</span>
               <i class="fa-solid fa-list-ol menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../ordenservicios/listar-ordenes.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
               <span class="menu-title">Ordenes de Servicio</span>
               <i class="fa-solid fa-car-tunnel menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../promociones/listar-promociones.php">
+            <a class="nav-link" href=".<?= SERVERURL ?>views/page/promociones/listar-promociones.php">
               <span class="menu-title">Promociones</span>
               <i class="fa-solid fa-percent menu-icon"></i>
             </a>
@@ -264,13 +256,13 @@
             <span class="nav-link">Administracion</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../clientes/listar-cliente.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/clientes/listar-cliente.php">
               <span class="menu-title">Clientes</span>
               <i class="fa-solid fa-building-user menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../vehiculos/listar-vehiculos.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/vehiculos/listar-vehiculos.php">
               <span class="menu-title">Vehiculos</span>
               <i class="fa-solid fa-car-side menu-icon"></i>
             </a>
@@ -279,7 +271,7 @@
             <span class="nav-link">Contactabilidad</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../contactabilidad/listar-graficos.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/contactabilidad/listar-graficos.php">
               <span class="menu-title">Graficos</span>
               <i class="fa-solid fa-chart-pie menu-icon"></i>
             </a>
