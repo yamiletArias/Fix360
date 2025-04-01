@@ -7,10 +7,10 @@ CREATE PROCEDURE spRegistroVentas(
     IN _nomcliente         VARCHAR(40),
     IN _fecha              DATE,
     IN _tipomoneda         VARCHAR(10),
-    IN _producto           JSON,
-    IN _precio             JSON,
-    IN _cantidad           JSON,
-    IN _descuento          JSON
+    IN _productos          JSON,   -- Nombres de productos
+    IN _precio             JSON,   -- Precios
+    IN _cantidad           JSON,   -- Cantidades
+    IN _descuento          JSON    -- Descuentos
 )
 BEGIN
     DECLARE _idcliente INT;
@@ -35,6 +35,11 @@ BEGIN
     -- Obtener el idcliente según el nombre del cliente
     SELECT idcliente INTO _idcliente FROM clientes WHERE nombres = _nomcliente LIMIT 1;
 
+    -- Si no se encuentra el cliente, generar un error
+    IF _idcliente IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cliente no encontrado';
+    END IF;
+
     -- Asignar un idcolaborador (esto debe ser dinámico según el usuario autenticado)
     SET _idcolaborador = 1;  -- Asumiendo que el colaborador es el ID 1 por defecto.
 
@@ -46,12 +51,17 @@ BEGIN
     SET _idventa = LAST_INSERT_ID();
 
     -- Calcular el número de productos en el JSON
-    SET num_productos = JSON_LENGTH(_producto);
+    SET num_productos = JSON_LENGTH(_productos);
 
     -- Insertar los productos en la tabla detalleventa
     WHILE i < num_productos DO
-        -- Obtener el id del producto desde el JSON
-        SET _idproducto = CAST(JSON_UNQUOTE(JSON_EXTRACT(_producto, CONCAT('$[', i, ']'))) AS UNSIGNED);
+        -- Obtener el id del producto desde el nombre (buscando en la tabla productos)
+        SET _idproducto = (SELECT idproducto FROM productos WHERE descripcion = JSON_UNQUOTE(JSON_EXTRACT(_productos, CONCAT('$[', i, ']'))) LIMIT 1);
+
+        -- Si no se encuentra el producto, generar un error
+        IF _idproducto IS NULL THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Producto no encontrado';
+        END IF;
 
         -- Obtener el precio, cantidad y descuento desde el JSON
         SET _precio = CAST(JSON_UNQUOTE(JSON_EXTRACT(_precio, CONCAT('$[', i, ']'))) AS DECIMAL(7,2)); 
@@ -70,7 +80,10 @@ END $$
 
 DELIMITER ;
 
+DESCRIBE clientes;
 
+
+SHOW PROCEDURE STATUS WHERE Db = 'dbfix360';
 
 SHOW PROCEDURE STATUS WHERE Name = 'spRegistroVentas';
 

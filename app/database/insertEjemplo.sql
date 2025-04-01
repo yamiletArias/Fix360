@@ -132,6 +132,7 @@ SELECT * FROM personas WHERE idpersona IN (1, 2);
 SELECT * FROM contactabilidad WHERE idcontactabilidad IN (1, 2);
 SELECT * FROM ventas;
 SELECT * FROM empresas;
+SELECT * FROM personas;
 SELECT * FROM productos;
 SELECT * FROM clientes;
 SELECT * FROM promociones WHERE idpromocion IN (1, 2, 3);
