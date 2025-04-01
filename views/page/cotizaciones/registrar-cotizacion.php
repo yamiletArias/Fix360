@@ -1,4 +1,5 @@
 <?php
+CONST NAMEVIEW = "Registro de cotizacion";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
