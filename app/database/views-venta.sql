@@ -19,7 +19,7 @@ SELECT
     CASE
         WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
         WHEN C.idpersona IS NOT NULL THEN P.nombres
-    END AS cliente,
+    END AS clientes,
     P2.descripcion AS producto,
     V.tipocom,
     V.numserie,
@@ -36,6 +36,17 @@ LEFT JOIN empresas E ON C.idempresa = E.idempresa
 LEFT JOIN personas P ON C.idpersona = P.idpersona
 INNER JOIN productos P2 ON DV.idproducto = P2.idproducto;
 
+
+
+SELECT * FROM clientes WHERE idcliente = 4;
+
+
+
+
+
+
+
+SELECT * FROM clientes WHERE idcliente = 1;
 
 SELECT * FROM ventas WHERE idventa = 1;
 SELECT * FROM detalleventa WHERE idventa = 1;

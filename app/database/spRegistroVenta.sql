@@ -1,92 +1,78 @@
-
 DELIMITER $$
 
 CREATE PROCEDURE spRegistroVentas(
-    IN p_idcliente INT,
-    IN p_tipocom ENUM('boleta', 'factura'),
-    IN p_numserie VARCHAR(10),
-    IN p_numcom VARCHAR(10),
-    IN p_productos JSON -- Un JSON que contenga los detalles de los productos (idproducto, cantidad, precio, descuento)
+    IN _tipo               VARCHAR(10),
+    IN _numserie           CHAR(12),
+    IN _numcomprobante     CHAR(8),
+    IN _nomcliente         VARCHAR(40),
+    IN _fecha              DATE,
+    IN _tipomoneda         VARCHAR(10),
+    IN _producto           JSON,
+    IN _precio             JSON,
+    IN _cantidad           JSON,
+    IN _descuento          JSON
 )
 BEGIN
-    -- Declaramos las variables locales al principio del bloque BEGIN
-    DECLARE v_idventa INT;
-    DECLARE v_idproducto INT;
-    DECLARE v_cantidad INT;
-    DECLARE v_precio DECIMAL(7,2);
-    DECLARE v_descuento DECIMAL(5,2);
-    DECLARE done INT DEFAULT FALSE;
+    DECLARE _idcliente INT;
+    DECLARE _idcolaborador INT;
+    DECLARE _idventa INT;
+    DECLARE _idproducto INT;
+    DECLARE i INT DEFAULT 0;
+    DECLARE num_productos INT;
+    DECLARE _new_numserie CHAR(12);
+    DECLARE _precio DECIMAL(7,2);
+    DECLARE _cantidad INT;
+    DECLARE _descuento DECIMAL(5,2);
 
-    -- Inserción en la tabla ventas
-    INSERT INTO ventas (
-        idcliente,
-        tipocom,
-        numserie,
-        numcom,
-        fechahora,
-        moneda
-    )
-    VALUES (
-        p_idcliente,
-        p_tipocom,
-        p_numserie,
-        p_numcom,
-        CURRENT_TIMESTAMP,
-        'PEN' -- Por ejemplo, 'PEN' para soles peruanos
-    );
+    -- Generación automática del número de serie si no se envía uno
+    IF _numserie IS NULL THEN
+        SET _new_numserie = (SELECT CONCAT('V', LPAD(COALESCE(MAX(CAST(SUBSTRING(numserie, 2) AS UNSIGNED)), 0) + 1, 5, '0'))
+                             FROM ventas);
+    ELSE
+        SET _new_numserie = _numserie;
+    END IF;
 
-    -- Obtener el ID de la venta recién insertada
-    SET v_idventa = LAST_INSERT_ID();
+    -- Obtener el idcliente según el nombre del cliente
+    SELECT idcliente INTO _idcliente FROM clientes WHERE nombres = _nomcliente LIMIT 1;
 
-    -- Declarar el cursor para iterar sobre los productos del JSON
-    DECLARE product_cursor CURSOR FOR 
-        SELECT value->>"$.idproducto", value->>"$.cantidad", value->>"$.precio", value->>"$.descuento"
-        FROM JSON_TABLE(p_productos, "$[*]" COLUMNS (
-            idproducto INT PATH "$.idproducto",
-            cantidad INT PATH "$.cantidad",
-            precio DECIMAL(7,2) PATH "$.precio",
-            descuento DECIMAL(5,2) PATH "$.descuento"
-        )) AS jt;
+    -- Asignar un idcolaborador (esto debe ser dinámico según el usuario autenticado)
+    SET _idcolaborador = 1;  -- Asumiendo que el colaborador es el ID 1 por defecto.
 
-    -- Handlers para el cursor
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    -- Insertar en la tabla ventas
+    INSERT INTO ventas (idcliente, idcolaborador, tipocom, numserie, numcom, fechahora, moneda)
+    VALUES (_idcliente, _idcolaborador, _tipo, _new_numserie, _numcomprobante, _fecha, _tipomoneda);
 
-    -- Abrimos el cursor
-    OPEN product_cursor;
+    -- Obtener el id de la venta insertada
+    SET _idventa = LAST_INSERT_ID();
 
-    -- Iteramos sobre los productos y los insertamos en detalleventa
-    read_loop: LOOP
-        FETCH product_cursor INTO v_idproducto, v_cantidad, v_precio, v_descuento;
-        IF done THEN
-            LEAVE read_loop;
-        END IF;
+    -- Calcular el número de productos en el JSON
+    SET num_productos = JSON_LENGTH(_producto);
 
-        -- Inserción en detalleventa
-        INSERT INTO detalleventa (
-            idventa,
-            idproducto,
-            cantidad,
-            precioventa,
-            descuento
-        )
-        VALUES (
-            v_idventa,
-            v_idproducto,
-            v_cantidad,
-            v_precio,
-            v_descuento
-        );
-    END LOOP;
+    -- Insertar los productos en la tabla detalleventa
+    WHILE i < num_productos DO
+        -- Obtener el id del producto desde el JSON
+        SET _idproducto = CAST(JSON_UNQUOTE(JSON_EXTRACT(_producto, CONCAT('$[', i, ']'))) AS UNSIGNED);
 
-    -- Cerramos el cursor
-    CLOSE product_cursor;
-    
-END$$
+        -- Obtener el precio, cantidad y descuento desde el JSON
+        SET _precio = CAST(JSON_UNQUOTE(JSON_EXTRACT(_precio, CONCAT('$[', i, ']'))) AS DECIMAL(7,2)); 
+        SET _cantidad = CAST(JSON_UNQUOTE(JSON_EXTRACT(_cantidad, CONCAT('$[', i, ']'))) AS UNSIGNED); 
+        SET _descuento = CAST(JSON_UNQUOTE(JSON_EXTRACT(_descuento, CONCAT('$[', i, ']'))) AS DECIMAL(5,2));
+
+        -- Insertar en la tabla detalleventa
+        INSERT INTO detalleventa (idventa, idproducto, cantidad, precioventa, descuento, numserie)
+        VALUES (_idventa, _idproducto, _cantidad, _precio, _descuento, _new_numserie);
+
+        -- Incrementar el índice
+        SET i = i + 1;
+    END WHILE;
+
+END $$
 
 DELIMITER ;
 
 
 
+SHOW PROCEDURE STATUS WHERE Name = 'spRegistroVentas';
 
 
 
