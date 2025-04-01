@@ -40,10 +40,14 @@
       box-shadow: none;
       width: 75%;
       /* Aumenta el tamaño */
-      min-height: 30px;
+      
       /* Aumenta la altura */
-      margin: 90px;
+      margin:50px;
     }
+    #selectMetodo {
+    background-color: white !important;
+    cursor: pointer;
+  }
 
     .form-group {
       display: flex;
@@ -68,7 +72,7 @@
       gap: 10px;
     }
 
-
+    
 
     input,
     select,
@@ -208,7 +212,7 @@
             </a>
           </li>
           <li class="nav-item nav-category">
-            <span class="nav-link">Inventario</span>
+            <span class="nav-link ">Inventario</span>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">

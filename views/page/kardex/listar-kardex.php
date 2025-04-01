@@ -1,6 +1,6 @@
 <?php
 
-CONST NAMEVIEW = "Kardex";
+const NAMEVIEW = "Kardex";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -69,33 +69,37 @@ require_once "../../partials/header.php";
       </table>
     </div>
   </div>
+</div>
+</div>
+
+<?php
+
+require_once "../../partials/_footer.php";
+
+?>
 
 
-  <?php
-
-  require_once "../../partials/_footer.php";
-  
- ?>
-
-  <script>
-    $(document).ready(function() {
-      let timeoutId; // Variable para almacenar el temporizador de debounce
-
-      $("#busqueda").on("input", function() {
-        clearTimeout(timeoutId); // Cancela la ejecución anterior
-
-        timeoutId = setTimeout(() => {
-          let query = $(this).val();
-          if (query.length > 2) { // Evita búsquedas con pocas letras
-            console.log("Buscando:", query);
 
 
-          }
-        }, 500); // Espera 500ms después de que el usuario deja de escribir
-      });
+<script>
+  $(document).ready(function() {
+    let timeoutId; // Variable para almacenar el temporizador de debounce
+
+    $("#busqueda").on("input", function() {
+      clearTimeout(timeoutId); // Cancela la ejecución anterior
+
+      timeoutId = setTimeout(() => {
+        let query = $(this).val();
+        if (query.length > 2) { // Evita búsquedas con pocas letras
+          console.log("Buscando:", query);
+
+
+        }
+      }, 500); // Espera 500ms después de que el usuario deja de escribir
     });
-  </script>
+  });
+</script>
 
-  </body>
+</body>
 
-  </html>
+</html>

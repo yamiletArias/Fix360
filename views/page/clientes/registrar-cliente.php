@@ -150,11 +150,7 @@ require_once "../../partials/header.php";
   </div>
   </div>
   </div>
- <?php
 
-  require_once "../../partials/_footer.php";
-  
- ?>
 </body>
 
 </html>
@@ -342,5 +338,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
  
 </script>
+<?php
+
+require_once "../../partials/_footer.php";
+
+?>
 
 

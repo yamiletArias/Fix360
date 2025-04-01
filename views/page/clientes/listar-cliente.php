@@ -8,7 +8,7 @@ require_once "../../partials/header.php";
 
 ?>
       <div class="container-main">
-        <div class="mb-3">
+        <div class="mb-3" style="margin-left: 20px;">
           <label class="form-label"><strong>Tipo de Cliente:</strong></label>
           <div class="form-group">
             <div class="form-check form-check-inline">
@@ -20,8 +20,10 @@ require_once "../../partials/header.php";
               <input class="form-check-input" type="radio" name="tipoCliente" id="empresa" onchange="actualizarTabla()">
               <label class="form-check-label" for="empresa">Empresa</label>
             </div>
-              <button style="margin-left: 1050px;" onclick="window.location.href='registrar-cliente.html'"
+            <div style="margin-left:1020px;" >
+              <button onclick="window.location.href='registrar-cliente.php'"
               class="btn btn-success">Registrar</button>
+            </div>
           </div>
         </div>
         <div class="table-container">

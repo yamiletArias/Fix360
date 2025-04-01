@@ -8,10 +8,10 @@ require_once "../../partials/header.php";
 
 ?>
       <div class="container-main">
-        <div class="header-group">
+        <div class="header-group text-end">
           <div>
-            <button title="Registrar vehiculo" type="button" onclick="window.location.href='Registrar-vehiculos.html'"
-              class="btn btn-success">
+            <button title="Registrar vehiculo" type="button" onclick="window.location.href='registrar-vehiculos.php'"
+              class="btn btn-success ">
               Registrar
             </button>
           </div>
