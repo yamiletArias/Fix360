@@ -1,3 +1,55 @@
+-- registro de ventas
+DELIMITER $$
+
+CREATE PROCEDURE registrarVenta(
+    IN p_idcliente INT,
+    IN p_tipocom VARCHAR(10),
+    IN p_numserie VARCHAR(10),
+    IN p_numcom VARCHAR(20),
+    IN p_fechahora DATETIME,
+    IN p_moneda VARCHAR(10),
+    IN p_productos JSON
+)
+BEGIN
+    DECLARE v_idventa INT;
+    DECLARE i INT DEFAULT 0;
+    DECLARE v_producto JSON;
+    DECLARE v_idproducto INT;
+    DECLARE v_precioventa DECIMAL(10, 2);
+    DECLARE v_cantidad INT;
+    DECLARE v_descuento DECIMAL(10, 2);
+
+    -- Insertar la venta en la tabla ventas
+    INSERT INTO ventas (idcliente, tipocom, numserie, numcom, fechahora, moneda)
+    VALUES (p_idcliente, p_tipocom, p_numserie, p_numcom, p_fechahora, p_moneda);
+
+    -- Obtener el ID de la venta recién insertada
+    SET v_idventa = LAST_INSERT_ID();
+
+    -- Insertar los productos en la tabla detalleventa
+    WHILE i < JSON_LENGTH(p_productos) DO
+        SET v_producto = JSON_EXTRACT(p_productos, CONCAT('$[', i, ']'));
+        SET v_idproducto = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.idproducto'));
+        SET v_precioventa = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.precioventa'));
+        SET v_cantidad = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.cantidad'));
+        SET v_descuento = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.descuento'));
+
+        INSERT INTO detalleventa (idventa, idproducto, precioventa, cantidad, descuento)
+        VALUES (v_idventa, v_idproducto, v_precioventa, v_cantidad, v_descuento);
+
+        SET i = i + 1;
+    END WHILE;
+
+END $$
+
+DELIMITER ;
+
+
+DESCRIBE ventas;
+SELECT * FROM clientes WHERE idcliente = 12345;
+
+-- fin registro
+
 DELIMITER $$
 
 CREATE PROCEDURE spRegistroVentas(
