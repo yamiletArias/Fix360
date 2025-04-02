@@ -1,8 +1,6 @@
 <?php
 require_once "../models/Conexion.php";
 
-
-
 class Cliente extends Conexion {
 
   private $pdo;
@@ -10,18 +8,6 @@ class Cliente extends Conexion {
   public function __CONSTRUCT() {
     $this->pdo = parent::getConexion();
   }
-
-  /* public function getAll(): array{
-    result = [];
-
-    try {
-      $sql = "";
-    } catch (\PDOException $e) {
-      throw new Exception($e->getMessage());
-    }
-
-  } */
-
  
   public function registerClientePersona($params = []): int {
     $numRows = 0;
