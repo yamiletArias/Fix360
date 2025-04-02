@@ -167,3 +167,4 @@ FROM
   LEFT JOIN empresas e
     ON c.idempresa = e.idempresa;
 
+-- select * from propietarios;
