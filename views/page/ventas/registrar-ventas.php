@@ -21,11 +21,8 @@ require_once "../../partials/header.php";
       border-radius: 8px;
       box-shadow: none;
       width: 1500px;
-      /* Aumenta el tamaño */
       min-height: 700px;
-      /* Aumenta la altura */
       margin-left: 80px;
-      /* Lo mueve más a la derecha */
       margin-top: 50px;
     }
 
@@ -45,11 +42,8 @@ require_once "../../partials/header.php";
     input:focus,
     select:focus {
       outline: none;
-      /* Elimina el contorno predeterminado del navegador */
       border: 1px solid #ccc;
-      /* Mantiene el borde visible */
       box-shadow: none;
-      /* Elimina cualquier sombra que aparezca al enfocar */
     }
 
     input,
@@ -78,6 +72,21 @@ require_once "../../partials/header.php";
       width: 200px;
     }
 
+    /* Aseguramos que todos los campos en el formulario tengan el mismo tamaño */
+    input[type="text"].medium-input,
+    input[type="date"].medium-input,
+    select.medium-input {
+      width: 200px;
+    }
+
+    /* Estilo para los productos */
+    input[type="text"].medium-input,
+    input[type="number"].small-input {
+      width: 200px;
+      margin-right: 10px;
+    }
+
+    /* Tabla de productos */
     .table-container {
       margin-top: 30px;
     }
@@ -126,20 +135,143 @@ require_once "../../partials/header.php";
       display: flex;
       align-items: center;
       gap: 5px;
-      /* Reducimos el espacio entre el radio button y el texto */
     }
 
     .form-check-input {
       margin-right: 2px;
-      /* Muy poco margen para que el radio button esté casi pegado a la palabra */
+    }
+
+    /* Estilo para el select con búsqueda */
+    /* Estilo para el select con búsqueda */
+    .select-box {
+      position: relative;
+      width: 200px;
+    }
+
+    .select-options input {
+      cursor: pointer;
+      padding: 12px;
+      background-color: transparent;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .content {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+    }
+
+    .search input {
+      display: none;
+      /* Ocultamos el campo de búsqueda inicialmente */
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: #fff;
+    }
+
+    .search input:focus {
+      border-color: #007bff;
+      /* Resaltar el borde al hacer clic */
+    }
+
+    .options {
+      position: absolute;
+      top: 35px;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: white;
+      z-index: 9999;
+      display: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .options li {
+      padding: 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .options li:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Mostrar el fondo blanco del input de búsqueda cuando se hace clic */
+    .select-options input:focus+.content .search input {
+      display: block;
+      background-color: #fff;
+    }
+
+    /* Estilo adicional cuando se selecciona un cliente de la lista */
+    .options li.selected {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .autocomplete {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .autocomplete-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .autocomplete-items {
+      position: absolute;
+      border: 1px solid #d4d4d4;
+      border-top: none;
+      z-index: 99;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border-radius: 0 0 4px 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .autocomplete-items div {
+      padding: 10px;
+      cursor: pointer;
+      background-color: #fff;
+    }
+
+    .autocomplete-items div:hover {
+      background-color: #4e99e9;
+      color: #ffffff;
+    }
+
+    .autocomplete-active {
+      background-color: #4e99e9 !important;
+      color: #ffffff;
+    }
+
+    .autocomplete-items .default-option {
+      background-color: #4e99e9;
+      color: #ffffff;
     }
   </style>
 </head>
 
 <body>
-  <!-- venta.php -->
+
   <div class="container-ventas">
-    <!-- Formulario de venta -->
     <form action="Venta.controller.php" method="POST">
       <div class="header-group">
         <div class="form-group">
@@ -152,7 +284,6 @@ require_once "../../partials/header.php";
             <input name="tipo" type="radio" id="boleta" value="boleta" checked>
             Boleta
           </label>
-
         </div>
         <div class="right-group">
           <input type="text" class="small-input" name="numserie" id="numserie" placeholder="N° serie" required
@@ -164,13 +295,16 @@ require_once "../../partials/header.php";
 
       <!-- Cliente, fecha y moneda -->
       <div class="form-group">
-        <input type="text" class="medium-input" name="nomcliente" id="nomcliente" placeholder="Buscar Cliente" required
-          autocomplete="off" />
-        <ul id="clientesResultado" class="search-results"></ul>
+        <!-- Campo de búsqueda de cliente con la misma estructura que el select -->
+        <div class="autocomplete">
+          <input id="myInput" type="text" class="autocomplete-input" placeholder="Buscar Cliente">
+        </div>
 
-        <input type="date" name="fecha" id="fecha" required />
+        <!-- Campo de fecha con la misma estructura de tamaño -->
+        <input type="date" class="medium-input" name="fecha" id="fecha" required />
 
-        <select class="small-input" name="tipomoneda" required>
+        <!-- Select de moneda con la misma estructura de tamaño -->
+        <select class="medium-input" name="tipomoneda" id="tipomoneda" required>
           <option value="Soles">Soles</option>
           <option value="Dolares">Dólares</option>
         </select>
@@ -178,7 +312,10 @@ require_once "../../partials/header.php";
 
       <!-- Productos -->
       <div class="form-group">
-        <input type="text" class="medium-input" name="producto" id="producto" placeholder="Buscar Producto" required />
+        <div class="autocomplete">
+          <input id="myInputProduct" type="text" class="autocomplete-input" placeholder="Buscar Producto">
+        </div>
+
         <input type="number" class="small-input" name="precio" id="precio" placeholder="Precio" required />
         <input type="number" class="small-input" name="cantidad" id="cantidad" placeholder="Cantidad" required />
         <input type="number" class="small-input" name="descuento" id="descuento" placeholder="Descuento" />
@@ -197,11 +334,12 @@ require_once "../../partials/header.php";
               <th>CANTIDAD</th>
               <th>DSCT</th>
               <th>Importe</th>
-              <th>
+              <th>Acción</th>
+              <!-- <th>
                 <button class="btn btn-danger btn-sm">
                   <i class="fas fa-times"></i>
                 </button>
-              </th>
+              </th> -->
             </tr>
           </thead>
           <tbody>
@@ -218,6 +356,7 @@ require_once "../../partials/header.php";
       </div>
     </form>
   </div>
+
   <!--FIN VENTAS-->
   </div>
   </div>
@@ -242,6 +381,142 @@ require_once "../../partials/header.php";
 
   <!-- DataTables JS -->
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const inputElement = document.getElementById("myInput");
+      const inputProductElement = document.getElementById("myInputProduct");
+      let currentFocus = -1;
+
+      // Función para mostrar las opciones de autocompletado para clientes
+      function mostrarOpcionesCliente(input) {
+        // Cerrar cualquier lista abierta de valores autocompletados
+        cerrarListas();
+
+        // No mostrar nada si el input está vacío
+        if (!input.value) return;
+
+        // Petición al servidor para obtener los clientes
+        const searchTerm = input.value;
+        fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=cliente`)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data); // Verificar los resultados en la consola
+            const itemsDiv = document.createElement("div");
+            itemsDiv.setAttribute("id", "autocomplete-list");
+            itemsDiv.setAttribute("class", "autocomplete-items");
+            input.parentNode.appendChild(itemsDiv);
+
+            // Si no hay coincidencias, no hacer nada
+            if (data.length === 0) {
+              const noResultsDiv = document.createElement("div");
+              noResultsDiv.textContent = 'No se encontraron clientes';
+              itemsDiv.appendChild(noResultsDiv);
+              return;
+            }
+
+            // Mostrar los resultados obtenidos
+            data.forEach(function (cliente) {
+              const optionDiv = document.createElement("div");
+              optionDiv.textContent = cliente.cliente;
+
+              // Agregar evento de clic
+              optionDiv.addEventListener("click", function () {
+                input.value = cliente.cliente;
+                cerrarListas();
+              });
+
+              itemsDiv.appendChild(optionDiv);
+            });
+          })
+          .catch(err => console.error('Error al obtener los clientes: ', err));
+      }
+
+      // Función para mostrar las opciones de autocompletado para productos
+      function mostrarOpcionesProducto(input) {
+        // Cerrar cualquier lista abierta de valores autocompletados
+        cerrarListas();
+
+        // No mostrar nada si el input está vacío
+        if (!input.value) return;
+
+        // Petición al servidor para obtener los productos
+        const searchTerm = input.value;
+        fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data); // Verificar los resultados en la consola
+            const itemsDiv = document.createElement("div");
+            itemsDiv.setAttribute("id", "autocomplete-list-producto");
+            itemsDiv.setAttribute("class", "autocomplete-items");
+            input.parentNode.appendChild(itemsDiv);
+
+            // Si no hay coincidencias, no hacer nada
+            if (data.length === 0) {
+              const noResultsDiv = document.createElement("div");
+              noResultsDiv.textContent = 'No se encontraron productos';
+              itemsDiv.appendChild(noResultsDiv);
+              return;
+            }
+
+            // Mostrar los resultados obtenidos
+            data.forEach(function (producto) {
+              const optionDiv = document.createElement("div");
+              optionDiv.textContent = producto.subcategoria_producto;
+
+              // Agregar evento de clic
+              optionDiv.addEventListener("click", function () {
+                input.value = producto.subcategoria_producto;
+                document.getElementById('precio').value = producto.precio;  // Actualizar el precio
+                $("#cantidad").val(1);  // Establecer cantidad a 1 por defecto
+                $("#descuento").val(0); // Establecer descuento a 0 por defecto
+                cerrarListas();
+              });
+
+              itemsDiv.appendChild(optionDiv);
+            });
+          })
+          .catch(err => console.error('Error al obtener los productos: ', err));
+      }
+
+      // Función para cerrar todas las listas de autocompletado
+      function cerrarListas(elemento) {
+        const items = document.getElementsByClassName("autocomplete-items");
+        for (let i = 0; i < items.length; i++) {
+          if (elemento !== items[i] && elemento !== inputElement) {
+            items[i].parentNode.removeChild(items[i]);
+          }
+        }
+      }
+
+      // Manejar eventos de input para mostrar opciones para clientes
+      inputElement.addEventListener("input", function () {
+        mostrarOpcionesCliente(this);
+      });
+
+      // Mostrar opciones al hacer clic en el input para clientes
+      inputElement.addEventListener("click", function () {
+        mostrarOpcionesCliente(this);
+      });
+
+      // Manejar eventos de input para mostrar opciones para productos
+      inputProductElement.addEventListener("input", function () {
+        mostrarOpcionesProducto(this);
+      });
+
+      // Mostrar opciones al hacer clic en el input para productos
+      inputProductElement.addEventListener("click", function () {
+        mostrarOpcionesProducto(this);
+      });
+
+      // Cerrar lista cuando se hace clic fuera
+      document.addEventListener("click", function (e) {
+        cerrarListas(e.target);
+      });
+    });
+  </script>
+
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -300,8 +575,107 @@ require_once "../../partials/header.php";
     });
   </script>
 
+  <script>
+    $(document).ready(function () {
+      // Inicializa el DataTable
+      const tabla = $('#miTabla').DataTable();
+
+      // Cuando el usuario hace clic en "AGREGAR"
+      $("#agregarProducto").click(function () {
+        const producto = $("#myInputProduct").val(); // El nombre del producto
+        const precio = $("#precio").val(); // Precio del producto
+        const cantidad = $("#cantidad").val(); // Cantidad del producto
+        const descuento = $("#descuento").val(); // Descuento del producto
+
+        // Verificar si los campos de producto, precio y cantidad son válidos
+        if (!producto || !precio || !cantidad || isNaN(precio) || isNaN(cantidad)) {
+          alert("Por favor, complete todos los campos (producto, precio, cantidad).");
+          return;
+        }
+
+        // Calcular el importe (precio * cantidad - descuento)
+        const importe = (parseFloat(precio) * parseInt(cantidad)) - parseFloat(descuento);
+
+        // Agregar la fila a la tabla
+        tabla.row.add([
+          producto,            // Nombre del producto
+          precio,             // Precio
+          cantidad,           // Cantidad
+          descuento,          // Descuento
+          importe.toFixed(2), // Importe
+          '<button class="btn btn-danger btn-sm eliminarProducto"><i class="fas fa-times"></i></button>'  // Botón para eliminar la fila
+        ]).draw(false);
+
+        // Limpiar los campos después de agregar el producto
+        $("#myInputProduct").val(""); // Limpiar el input de producto
+        $("#precio").val("");        // Limpiar el input de precio
+        $("#cantidad").val("");      // Limpiar el input de cantidad
+        $("#descuento").val("");    // Limpiar el input de descuento
+      });
+
+      // Eliminar una fila del DataTable
+      $(document).on("click", ".eliminarProducto", function () {
+        $(this).closest("tr").remove();
+      });
+    });
+
+  </script>
 
   <script>
+    $("#finalizarBtn").click(function () {
+    const tipoComprobante = $("input[name='tipo']:checked").val();  // Factura o Boleta
+    const numSerie = $("#numserie").val();
+    const numComprobante = $("#numcom").val();
+    const cliente = $("#myInput").val();  // El nombre del cliente
+    const fecha = $("#fecha").val();
+    const moneda = $("#tipomoneda").val();
+
+    // Obtener los productos de la tabla
+    const productos = [];
+    $('#miTabla tbody tr').each(function() {
+        const producto = $(this).find('td').eq(0).text();  // Nombre del producto
+        const precio = $(this).find('td').eq(1).text();  // Precio
+        const cantidad = $(this).find('td').eq(2).text();  // Cantidad
+        const descuento = $(this).find('td').eq(3).text();  // Descuento
+        const importe = $(this).find('td').eq(4).text();  // Importe
+
+        // Aquí debes hacer una búsqueda del ID del producto basado en el nombre
+        productos.push({
+            producto_id: producto,  // Necesitarás obtener el ID del producto
+            precio: parseFloat(precio),
+            cantidad: parseInt(cantidad),
+            descuento: parseFloat(descuento),
+            importe: parseFloat(importe)
+        });
+    });
+
+    // Enviar los datos al servidor
+    $.ajax({
+        url: 'http://localhost/Fix360/app/controllers/Venta.controller.php',
+        method: 'POST',
+        data: {
+            tipo: tipoComprobante,
+            numserie: numSerie,
+            numcomprobante: numComprobante,
+            cliente: cliente,  // Aquí debes enviar el ID del cliente
+            fecha: fecha,
+            tipomoneda: moneda,
+            productos: productos
+        },
+        success: function(response) {
+            console.log(response);
+            alert("Venta registrada exitosamente");
+        },
+        error: function(error) {
+            console.error(error);
+            alert("Hubo un error al registrar la venta");
+        }
+    });
+});
+  </script>
+
+
+  <!-- <script>
     $(document).ready(function () {
       $(document).ready(function () {
         // Inicializa el DataTable solo una vez.
@@ -311,9 +685,9 @@ require_once "../../partials/header.php";
         }
         $('#miTabla').DataTable(); // Inicializar el DataTable
 
-        $("#producto").on("input", function () {
-          const producto = $("#producto").val();
-          if (producto) {
+        $("#myInputProduc").on("input", function () {
+          const producto = $("#myInputProduc").val();
+          if (myInputProduc) {
             $("#cantidad").val(1);
             $("#descuento").val(0);
           } else {
@@ -323,7 +697,7 @@ require_once "../../partials/header.php";
         });
 
         $("#agregarProducto").click(function () {
-          const producto = $("#producto").val();
+          const producto = $("#myInputProduc").val();
           const precio = $("#precio").val();
           const cantidad = $("#cantidad").val() || 1;
           const descuento = $("#descuento").val() || 0;
@@ -335,12 +709,12 @@ require_once "../../partials/header.php";
           }
 
           const importe = parseFloat(precio) * parseInt(cantidad) - parseFloat(descuento);
-          const idproducto = $("#producto").data("idproducto"); // Asegúrate de que este campo tiene el ID del producto.
+          const idproducto = $("#myInputProduc").data("idproducto"); // Asegúrate de que este campo tiene el ID del producto.
 
           // Agregar la fila a la tabla
           const tabla = $("#miTabla").DataTable();
           tabla.row.add([
-            producto,
+            myInputProduc,
             precio,
             cantidad,
             descuento,
@@ -349,7 +723,7 @@ require_once "../../partials/header.php";
           ]).draw(false);
 
           // Limpiar los campos después de agregar el producto
-          $("#producto").val("");
+          $("#myInputProduc").val("");
           $("#precio").val("");
           $("#cantidad").val("");
           $("#descuento").val("");
@@ -360,9 +734,9 @@ require_once "../../partials/header.php";
         });
       });
     });
-  </script>
+  </script> -->
 
-  <script>
+  <!-- <script>
     $(document).ready(function () {
       const urlVenta = 'http://localhost/fix360/app/controllers/Venta.controller.php';
 
@@ -423,7 +797,7 @@ require_once "../../partials/header.php";
       });
     });
 
-  </script>
+  </script> -->
 
 
   <!-- <script>

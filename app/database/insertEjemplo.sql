@@ -123,8 +123,11 @@ INSERT INTO detalleventa (idproducto, idventa, idorden, idpromocion, cantidad, n
 VALUES
 (1, 1, 1, 1, 2, '{"seriales": ["A123", "A124"]}', 150.00, 10.00),
 (2, 1, 2, 2, 1, '{"seriales": ["B234"]}', 200.00, 5.00),
-(3, 2, 2, 2, 3, '{"seriales": ["C345", "C346", "C347"]}', 120.00, 0.00);
+(3, 2, 2, 2, 3, '{"seriales": ["C345", "C346", "C347"]}', 120.00, 0.00),
 
+(1, 1, 1, 1, 2, 'B-0111970', 150.00, 10.00),
+(2, 1, 2, 2, 1, 'B-0169120', 200.00, 5.00),
+(3, 2, 2, 2, 3, 'B-0060100', 120.00, 0.00);
 
 -- Consultas de ejemplo
 SELECT * FROM empresas WHERE idempresa IN (1, 2);

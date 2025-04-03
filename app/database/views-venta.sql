@@ -21,7 +21,7 @@ SELECT
         WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
         WHEN C.idpersona IS NOT NULL THEN P.nombres
     END AS clientes,
-    CONCAT(S.subcategoria, ' - ', P2.descripcion) AS subcategoria_producto,
+    CONCAT(S.subcategoria, ' ', P2.descripcion) AS subcategoria_producto,
     V.tipocom,
     V.numserie,
     V.numcom,
@@ -50,6 +50,12 @@ SELECT
 FROM clientes C
 LEFT JOIN empresas E ON C.idempresa = E.idempresa
 LEFT JOIN personas P ON C.idpersona = P.idpersona;
+
+SELECT idcliente, cliente
+FROM vs_clientes
+WHERE cliente LIKE CONCAT('%', ?, '%')
+LIMIT 10;
+
 
 -- producto
 CREATE VIEW vs_productos_categoria_subcategoria AS

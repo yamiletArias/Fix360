@@ -1,54 +1,122 @@
 -- registro de ventas
 DELIMITER $$
 
-CREATE PROCEDURE registrarVenta(
-    IN p_idcliente INT,
+CREATE PROCEDURE registrarVentaCompleta(
     IN p_tipocom VARCHAR(10),
     IN p_numserie VARCHAR(10),
     IN p_numcom VARCHAR(20),
-    IN p_fechahora DATETIME,
+    IN p_idcliente INT,
+    IN p_fechahora DATE,
     IN p_moneda VARCHAR(10),
-    IN p_productos JSON
+    IN p_productos JSON -- Usamos JSON para recibir los productos
 )
 BEGIN
-    DECLARE v_idventa INT;
+    -- Declarar las variables antes de cualquier otro comando
+    DECLARE idventa INT;
     DECLARE i INT DEFAULT 0;
-    DECLARE v_producto JSON;
-    DECLARE v_idproducto INT;
-    DECLARE v_precioventa DECIMAL(10, 2);
-    DECLARE v_cantidad INT;
-    DECLARE v_descuento DECIMAL(10, 2);
+    DECLARE producto_id INT;
+    DECLARE precio DECIMAL(10,2);
+    DECLARE cantidad INT;
+    DECLARE descuento DECIMAL(10,2);
+    DECLARE importe DECIMAL(10,2);
 
     -- Insertar la venta en la tabla ventas
-    INSERT INTO ventas (idcliente, tipocom, numserie, numcom, fechahora, moneda)
-    VALUES (p_idcliente, p_tipocom, p_numserie, p_numcom, p_fechahora, p_moneda);
+    INSERT INTO ventas (tipocom, numserie, numcom, idcliente, fechahora, moneda)
+    VALUES (p_tipocom, p_numserie, p_numcom, p_idcliente, p_fechahora, p_moneda);
 
-    -- Obtener el ID de la venta recién insertada
-    SET v_idventa = LAST_INSERT_ID();
+    -- Obtener el ID de la venta insertada
+    SET idventa = LAST_INSERT_ID();
 
-    -- Insertar los productos en la tabla detalleventa
+    -- Iterar sobre los productos y agregarlos a la tabla detalleventa
     WHILE i < JSON_LENGTH(p_productos) DO
-        SET v_producto = JSON_EXTRACT(p_productos, CONCAT('$[', i, ']'));
-        SET v_idproducto = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.idproducto'));
-        SET v_precioventa = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.precioventa'));
-        SET v_cantidad = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.cantidad'));
-        SET v_descuento = JSON_UNQUOTE(JSON_EXTRACT(v_producto, '$.descuento'));
+        SET producto_id = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].idproducto')));
+        SET precio = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].precio')));
+        SET cantidad = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].cantidad')));
+        SET descuento = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].descuento')));
+        SET importe = (precio * cantidad) - descuento;
 
-        INSERT INTO detalleventa (idventa, idproducto, precioventa, cantidad, descuento)
-        VALUES (v_idventa, v_idproducto, v_precioventa, v_cantidad, v_descuento);
+        -- Insertar en detalleventa
+        INSERT INTO detalleventa (idventa, idproducto, precioventa, cantidad, descuento, importe)
+        VALUES (idventa, producto_id, precio, cantidad, descuento, importe);
 
         SET i = i + 1;
     END WHILE;
+
+    -- Registrar en la vista (vs_registro_venta)
+    INSERT INTO vs_registro_venta (clientes, subcategoria_producto, tipocom, numserie, numcom, fechahora, moneda, precioventa, cantidad, descuento)
+    SELECT 
+        CASE
+            WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
+            WHEN C.idpersona IS NOT NULL THEN P.nombres
+        END AS clientes,
+        CONCAT(S.subcategoria, ' - ', P2.descripcion) AS subcategoria_producto,
+        V.tipocom,
+        V.numserie,
+        V.numcom,
+        V.fechahora,
+        V.moneda,
+        DV.precioventa,
+        DV.cantidad,
+        DV.descuento
+    FROM ventas V
+    INNER JOIN detalleventa DV ON V.idventa = DV.idventa
+    INNER JOIN clientes C ON V.idcliente = C.idcliente
+    LEFT JOIN empresas E ON C.idempresa = E.idempresa
+    LEFT JOIN personas P ON C.idpersona = P.idpersona
+    INNER JOIN productos P2 ON DV.idproducto = P2.idproducto
+    INNER JOIN subcategorias S ON P2.idsubcategoria = S.idsubcategoria
+    WHERE V.idventa = idventa;
 
 END $$
 
 DELIMITER ;
 
 
-DESCRIBE ventas;
-SELECT * FROM clientes WHERE idcliente = 12345;
-
 -- fin registro
+
+-- buscarcliente
+DELIMITER $$
+CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
+BEGIN
+    SELECT 
+        C.idcliente,
+        CASE
+            WHEN C.idempresa IS NOT NULL AND E.nomcomercial IS NOT NULL THEN E.nomcomercial
+            WHEN C.idpersona IS NOT NULL AND P.nombres IS NOT NULL THEN P.nombres
+        END AS cliente,
+        C.idempresa,
+        C.idpersona
+    FROM clientes C
+    LEFT JOIN empresas E ON C.idempresa = E.idempresa
+    LEFT JOIN personas P ON C.idpersona = P.idpersona
+    WHERE 
+        (E.nomcomercial LIKE CONCAT('%', termino_busqueda, '%') AND E.nomcomercial IS NOT NULL)
+        OR 
+        (P.nombres LIKE CONCAT('%', termino_busqueda, '%') AND P.nombres IS NOT NULL)
+    LIMIT 10;
+END $$
+DELIMITER ;
+
+-- fin busqueda cliente
+
+-- Buscar producto
+DELIMITER $$
+
+CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
+BEGIN
+    SELECT 
+        subcategoria_producto,
+        precio
+    FROM vs_productos_subcategoria_producto
+    WHERE subcategoria_producto LIKE CONCAT('%', termino_busqueda, '%')
+    LIMIT 10;
+END $$
+
+DELIMITER ;
+
+
+
+-- fin busqueda producto
 
 DELIMITER $$
 
