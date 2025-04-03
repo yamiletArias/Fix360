@@ -1,5 +1,5 @@
 <?php
-// Requiere la conexión a la base de datos y la clase Venta
+
 require_once "../models/Conexion.php";
 
 class Venta extends Conexion
@@ -8,7 +8,7 @@ class Venta extends Conexion
 
     public function __CONSTRUCT()
     {
-        $this->pdo = parent::getConexion();  // Usar la conexión heredada de la clase Conexion
+        $this->pdo = parent::getConexion(); 
     }
 
     public function getAll(): array
@@ -31,7 +31,6 @@ class Venta extends Conexion
     {
         $result = [];
         try {
-            // Llamar al procedimiento almacenado 'buscar_cliente'
             $sql = "CALL buscar_cliente(:termino)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
@@ -64,7 +63,7 @@ class Venta extends Conexion
     public function registrarVenta($tipocom, $numserie, $numcom, $idcliente, $fechahora, $moneda, $productos)
     {
         try {
-            // Iniciar transacción
+
             $this->pdo->beginTransaction();
 
             // Registrar la venta principal en la tabla 'ventas'
@@ -79,10 +78,8 @@ class Venta extends Conexion
             $stmt->bindParam(':moneda', $moneda);
             $stmt->execute();
 
-            // Obtener el ID de la venta recién insertada
             $idventa = $this->pdo->lastInsertId();
 
-            // Insertar los productos relacionados con la venta
             $sql_productos = "INSERT INTO venta_productos (idventa, idproducto, precio, cantidad, descuento, importe)
                           VALUES (:idventa, :idproducto, :precio, :cantidad, :descuento, :importe)";
             $stmt_producto = $this->pdo->prepare($sql_productos);
@@ -98,9 +95,6 @@ class Venta extends Conexion
                 $stmt_producto->execute();
             }
 
-            // Confirmar la transacción
-            $this->pdo->commit();
-            return ['status' => 'success', 'message' => 'Venta registrada correctamente'];
         } catch (Exception $e) {
             // Si ocurre un error, deshacer la transacción
             $this->pdo->rollBack();

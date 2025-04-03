@@ -84,10 +84,11 @@ VALUES
 (2, 2, 'Ranger');
 
 -- Insert for 'vehiculos' table
-INSERT INTO vehiculos (idmodelo, placa, anio, kilometraje, numserie, color, tipocombustible)
+INSERT INTO vehiculos (idmodelo, placa, anio, numserie, color, tipocombustible)
 VALUES
-(1, 'ABC123', '2020', 15000.00, 'XYZ123456789', 'Blanco', 'Gasolina'),
-(2, 'DEF456', '2021', 12000.00, 'XYZ987654321', 'Azul', 'Diésel');
+(1, 'ABC123', '2020', 'XYZ123456789', 'Blanco', 'Gasolina'),
+(2, 'DEF456', '2021', 'XYZ987654321', 'Azul', 'Diésel');
+
 
 -- Luego, insertar los propietarios
 INSERT INTO propietarios (idcliente, idvehiculo, fechainicio, fechafinal)
@@ -133,7 +134,7 @@ VALUES
 SELECT * FROM empresas WHERE idempresa IN (1, 2);
 SELECT * FROM personas WHERE idpersona IN (1, 2);
 SELECT * FROM contactabilidad WHERE idcontactabilidad IN (1, 2);
-SELECT * FROM ventas;
+SELECT * FROM detalleventa;
 SELECT * FROM empresas;
 SELECT * FROM personas;
 SELECT * FROM productos;

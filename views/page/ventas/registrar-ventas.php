@@ -391,24 +391,19 @@ require_once "../../partials/header.php";
 
       // Función para mostrar las opciones de autocompletado para clientes
       function mostrarOpcionesCliente(input) {
-        // Cerrar cualquier lista abierta de valores autocompletados
         cerrarListas();
 
-        // No mostrar nada si el input está vacío
         if (!input.value) return;
 
-        // Petición al servidor para obtener los clientes
         const searchTerm = input.value;
         fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=cliente`)
           .then(response => response.json())
           .then(data => {
-            console.log(data); // Verificar los resultados en la consola
             const itemsDiv = document.createElement("div");
             itemsDiv.setAttribute("id", "autocomplete-list");
             itemsDiv.setAttribute("class", "autocomplete-items");
             input.parentNode.appendChild(itemsDiv);
 
-            // Si no hay coincidencias, no hacer nada
             if (data.length === 0) {
               const noResultsDiv = document.createElement("div");
               noResultsDiv.textContent = 'No se encontraron clientes';
@@ -416,15 +411,14 @@ require_once "../../partials/header.php";
               return;
             }
 
-            // Mostrar los resultados obtenidos
             data.forEach(function (cliente) {
               const optionDiv = document.createElement("div");
               optionDiv.textContent = cliente.cliente;
 
-              // Agregar evento de clic
               optionDiv.addEventListener("click", function () {
-                input.value = cliente.cliente;
-                cerrarListas();
+                  input.value = cliente.cliente;  // Esto es el nombre del cliente
+                  clienteId = cliente.idcliente; // Obtén el idcliente
+                  cerrarListas();
               });
 
               itemsDiv.appendChild(optionDiv);
@@ -433,6 +427,8 @@ require_once "../../partials/header.php";
           .catch(err => console.error('Error al obtener los clientes: ', err));
       }
 
+      // Función para mostrar las opciones de autocompletado para productos
+      // Mostrar opciones para productos
       // Función para mostrar las opciones de autocompletado para productos
       function mostrarOpcionesProducto(input) {
         // Cerrar cualquier lista abierta de valores autocompletados
@@ -446,7 +442,7 @@ require_once "../../partials/header.php";
         fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`)
           .then(response => response.json())
           .then(data => {
-            console.log(data); // Verificar los resultados en la consola
+            console.log(data);
             const itemsDiv = document.createElement("div");
             itemsDiv.setAttribute("id", "autocomplete-list-producto");
             itemsDiv.setAttribute("class", "autocomplete-items");
@@ -465,14 +461,26 @@ require_once "../../partials/header.php";
               const optionDiv = document.createElement("div");
               optionDiv.textContent = producto.subcategoria_producto;
 
-              // Agregar evento de clic
+              // Evento de clic para seleccionar el producto
               optionDiv.addEventListener("click", function () {
+
                 input.value = producto.subcategoria_producto;
-                document.getElementById('precio').value = producto.precio;  // Actualizar el precio
-                $("#cantidad").val(1);  // Establecer cantidad a 1 por defecto
-                $("#descuento").val(0); // Establecer descuento a 0 por defecto
+                document.getElementById('precio').value = producto.precio;
+                $("#cantidad").val(1);
+                $("#descuento").val(0);
+
+                // Asegúrate de que el idproducto esté correctamente asignado
+                selectedProduct = {
+                  idproducto: producto.idproducto,
+                  subcategoria_producto: producto.subcategoria_producto,
+                  precio: producto.precio
+                };
+                //console.log(selectedProduct);  
+
                 cerrarListas();
               });
+
+
 
               itemsDiv.appendChild(optionDiv);
             });
@@ -495,7 +503,7 @@ require_once "../../partials/header.php";
         mostrarOpcionesCliente(this);
       });
 
-      // Mostrar opciones al hacer clic en el input para clientes
+      // Evento de clic para seleccionar cliente
       inputElement.addEventListener("click", function () {
         mostrarOpcionesCliente(this);
       });
@@ -577,15 +585,13 @@ require_once "../../partials/header.php";
 
   <script>
     $(document).ready(function () {
-      // Inicializa el DataTable
       const tabla = $('#miTabla').DataTable();
 
-      // Cuando el usuario hace clic en "AGREGAR"
       $("#agregarProducto").click(function () {
-        const producto = $("#myInputProduct").val(); // El nombre del producto
-        const precio = $("#precio").val(); // Precio del producto
-        const cantidad = $("#cantidad").val(); // Cantidad del producto
-        const descuento = $("#descuento").val(); // Descuento del producto
+        const producto = selectedProduct;  // Asegúrate de que selectedProduct tenga el idproducto
+        const precio = $("#precio").val();
+        const cantidad = $("#cantidad").val();
+        const descuento = $("#descuento").val();
 
         // Verificar si los campos de producto, precio y cantidad son válidos
         if (!producto || !precio || !cantidad || isNaN(precio) || isNaN(cantidad)) {
@@ -593,85 +599,108 @@ require_once "../../partials/header.php";
           return;
         }
 
-        // Calcular el importe (precio * cantidad - descuento)
         const importe = (parseFloat(precio) * parseInt(cantidad)) - parseFloat(descuento);
 
-        // Agregar la fila a la tabla
+        // Agregar la fila a la tabla y asociar el idproducto con el atributo data-idproducto
         tabla.row.add([
-          producto,            // Nombre del producto
-          precio,             // Precio
-          cantidad,           // Cantidad
-          descuento,          // Descuento
-          importe.toFixed(2), // Importe
-          '<button class="btn btn-danger btn-sm eliminarProducto"><i class="fas fa-times"></i></button>'  // Botón para eliminar la fila
+          selectedProduct.subcategoria_producto,
+          precio,
+          cantidad,
+          descuento,
+          importe.toFixed(2),
+          '<button class="btn btn-danger btn-sm eliminarProducto"><i class="fas fa-times"></i></button>'
         ]).draw(false);
+        $('#miTabla tbody tr:last').data('idproducto', selectedProduct.idproducto);
+        // Asignar el idproducto al data-idproducto de la fila
+        const lastRow = $("#miTabla tbody tr:last-child");
+        lastRow.data('idproducto', producto.idproducto);
 
-        // Limpiar los campos después de agregar el producto
-        $("#myInputProduct").val(""); // Limpiar el input de producto
-        $("#precio").val("");        // Limpiar el input de precio
-        $("#cantidad").val("");      // Limpiar el input de cantidad
-        $("#descuento").val("");    // Limpiar el input de descuento
+        // Limpiar campos
+        $("#myInputProduct").val("");
+        $("#precio").val("");
+        $("#cantidad").val("");
+        $("#descuento").val("");
       });
 
-      // Eliminar una fila del DataTable
+
       $(document).on("click", ".eliminarProducto", function () {
         $(this).closest("tr").remove();
       });
     });
-
   </script>
 
   <script>
     $("#finalizarBtn").click(function () {
-    const tipoComprobante = $("input[name='tipo']:checked").val();  // Factura o Boleta
-    const numSerie = $("#numserie").val();
-    const numComprobante = $("#numcom").val();
-    const cliente = $("#myInput").val();  // El nombre del cliente
-    const fecha = $("#fecha").val();
-    const moneda = $("#tipomoneda").val();
+      const tipoComprobante = $("input[name='tipo']:checked").val();
+      const numSerie = $("#numserie").val();
+      const numComprobante = $("#numcom").val();
+      const cliente = $("#myInput").val(); // Nombre del cliente
+      const fecha = $("#fecha").val();
+      const moneda = $("#tipomoneda").val();
 
-    // Obtener los productos de la tabla
-    const productos = [];
-    $('#miTabla tbody tr').each(function() {
-        const producto = $(this).find('td').eq(0).text();  // Nombre del producto
-        const precio = $(this).find('td').eq(1).text();  // Precio
-        const cantidad = $(this).find('td').eq(2).text();  // Cantidad
-        const descuento = $(this).find('td').eq(3).text();  // Descuento
-        const importe = $(this).find('td').eq(4).text();  // Importe
+      // Verifica si el clienteId está definido antes de enviarlo
+      if (!clienteId) {
+        alert("Debe seleccionar un cliente.");
+        return;
+      }
 
-        // Aquí debes hacer una búsqueda del ID del producto basado en el nombre
-        productos.push({
-            producto_id: producto,  // Necesitarás obtener el ID del producto
-            precio: parseFloat(precio),
-            cantidad: parseInt(cantidad),
-            descuento: parseFloat(descuento),
-            importe: parseFloat(importe)
-        });
-    });
+      // Obtener los productos de la tabla
+      const productos = [];
+      $('#miTabla tbody tr').each(function () {
+        const producto = $(this).find('td').eq(0).text();
+        const precio = $(this).find('td').eq(1).text();
+        const cantidad = $(this).find('td').eq(2).text();
+        const descuento = $(this).find('td').eq(3).text();
+        const importe = $(this).find('td').eq(4).text();
+        const idproducto = $(this).data('idproducto');  // Asegúrate de obtener el idproducto correctamente
 
-    // Enviar los datos al servidor
-    $.ajax({
-        url: 'http://localhost/Fix360/app/controllers/Venta.controller.php',
-        method: 'POST',
-        data: {
-            tipo: tipoComprobante,
-            numserie: numSerie,
-            numcomprobante: numComprobante,
-            cliente: cliente,  // Aquí debes enviar el ID del cliente
-            fecha: fecha,
-            tipomoneda: moneda,
-            productos: productos
-        },
-        success: function(response) {
-            console.log(response);
-            alert("Venta registrada exitosamente");
-        },
-        error: function(error) {
-            console.error(error);
-            alert("Hubo un error al registrar la venta");
+        if (!idproducto) {
+          console.error("Falta el idproducto en este producto.");
         }
-    });
+
+        productos.push({
+          idproducto: idproducto,  // Asegúrate de que idproducto esté correctamente asignado
+          precio: parseFloat(precio),
+          cantidad: parseInt(cantidad),
+          descuento: parseFloat(descuento),
+          importe: parseFloat(importe)
+        });
+      });
+
+      console.log({
+          tipo: tipoComprobante,
+          numserie: numSerie,
+          numcomprobante: numComprobante,
+          cliente: clienteId,
+          fecha: fecha,
+          tipomoneda: moneda,
+          productos: productos
+      });
+
+
+      $.ajax({
+    url: 'http://localhost/Fix360/app/controllers/Venta.controller.php',
+    method: 'POST',
+    data: {
+        tipo: tipoComprobante,
+        numserie: numSerie,
+        numcomprobante: numComprobante,
+        cliente: clienteId,  // Verifica que clienteId esté correctamente definido
+        fecha: fecha,
+        tipomoneda: moneda,
+        productos: JSON.stringify(productos)  // Envía los productos correctamente
+    },
+    success: function (response) {
+        console.log(response);
+        alert("Venta registrada exitosamente");
+    },
+    error: function (error) {
+        console.error(error);
+        alert("Hubo un error al registrar la venta");
+    }
 });
+    });
+
   </script>
 
 

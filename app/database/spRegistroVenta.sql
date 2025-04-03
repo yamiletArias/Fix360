@@ -14,7 +14,7 @@ BEGIN
     -- Declarar las variables antes de cualquier otro comando
     DECLARE idventa INT;
     DECLARE i INT DEFAULT 0;
-    DECLARE producto_id INT;
+    DECLARE idproducto INT;
     DECLARE precio DECIMAL(10,2);
     DECLARE cantidad INT;
     DECLARE descuento DECIMAL(10,2);
@@ -29,7 +29,7 @@ BEGIN
 
     -- Iterar sobre los productos y agregarlos a la tabla detalleventa
     WHILE i < JSON_LENGTH(p_productos) DO
-        SET producto_id = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].idproducto')));
+        SET idproducto = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].idproducto')));
         SET precio = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].precio')));
         SET cantidad = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].cantidad')));
         SET descuento = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].descuento')));
@@ -37,10 +37,11 @@ BEGIN
 
         -- Insertar en detalleventa
         INSERT INTO detalleventa (idventa, idproducto, precioventa, cantidad, descuento, importe)
-        VALUES (idventa, producto_id, precio, cantidad, descuento, importe);
+        VALUES (idventa, idproducto, precio, cantidad, descuento, importe);
 
         SET i = i + 1;
     END WHILE;
+
 
     -- Registrar en la vista (vs_registro_venta)
     INSERT INTO vs_registro_venta (clientes, subcategoria_producto, tipocom, numserie, numcom, fechahora, moneda, precioventa, cantidad, descuento)
@@ -70,7 +71,6 @@ BEGIN
 END $$
 
 DELIMITER ;
-
 
 -- fin registro
 
@@ -114,7 +114,25 @@ END $$
 
 DELIMITER ;
 
+-- Buscar producto
+DELIMITER $$
 
+CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
+BEGIN
+    SELECT 
+        P.idproducto,
+        CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
+        P.precio
+    FROM productos P
+    INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
+    WHERE 
+        (S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%'))
+    LIMIT 10;
+END $$
+
+DELIMITER ;
+
+CALL buscar_producto('Motores');
 
 -- fin busqueda producto
 
