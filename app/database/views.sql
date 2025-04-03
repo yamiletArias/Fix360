@@ -81,7 +81,7 @@ FROM
 SELECT
   m.idmovimiento,
   m.fecha,
-  p.nombre AS producto,
+  p.nombres AS producto,
   tm.flujo,
   tm.tipomov,
   m.cantidad,
@@ -168,4 +168,42 @@ FROM
     ON c.idempresa = e.idempresa;
 
 -- select * from propietarios;
-select * from vehiculos;
+
+
+CREATE OR REPLACE VIEW vwClientesPersona AS
+SELECT
+c.idcliente,
+p.idpersona,
+p.nombres,
+p.apellidos,
+p.tipodoc,
+p.numdoc,
+p.numruc,
+p.direccion,
+p.correo,
+p.telprincipal,
+p.telalternativo
+FROM
+clientes c
+LEFT JOIN personas p
+ON c.idpersona = p.idpersona
+WHERE c.idempresa IS NULL;
+
+-- select nombres, apellidos,tipodoc,numdoc from vwClientesPersona;
+
+CREATE OR REPLACE VIEW vwClientesEmpresa AS
+SELECT 
+c.idcliente,
+e.idempresa,
+e.nomcomercial,
+e.razonsocial,
+e.telefono,
+e.correo,
+e.ruc
+FROM
+clientes c
+LEFT JOIN empresas e
+ON c.idempresa = e.idempresa
+WHERE c.idpersona IS NULL;
+
+-- select nomcomercial,razonsocial,ruc,telefono from vwClientesEmpresa;

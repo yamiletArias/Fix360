@@ -43,20 +43,26 @@ require_once "../../partials/header.php";
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="text" id="telprincipal" class="form-control" minlength="9" maxlength="9" name="telprincipal" placeholder="celular">
-                <label for="telprincipal">Tel. principal</label>
+                <input type="text" name="numruc" class="form-control" id="numruc" minlength="11" maxlength="11" placeholder="N° RUC">
+                <label for="numruc">N° RUC</label>
               </div>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <div class="form-floating">
                 <input type="text" id="nombres" class="form-control" name="nombres" minlength="2" maxlength="100" required placeholder="nombrealazar">
                 <label for="nombres">Nombres</label>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-floating">
                 <input type="text" name="apellidos" class="form-control" id="apellidos" minlength="2" maxlength="100" placeholder="apellidos" required>
                 <label for="apellidos">Apellidos</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input type="text" id="telprincipal" class="form-control" minlength="9" maxlength="9" name="telprincipal" placeholder="celular">
+                <label for="telprincipal">Tel. principal</label>
               </div>
             </div>
             <div class="col-md-3">
@@ -201,7 +207,12 @@ require_once "../../partials/header.php";
         showToast('El campo "Número de documento" es obligatorio', 'ERROR', 3000);
       }
 
-      // Restricción según el tipo de documento
+      let numruc = document.querySelector('#numruc').value.trim();
+      if (numruc && !/^10\d{9}$/.test(numruc)) {
+        esValido = false;
+        showToast('El N° de RUC debe comenzar con 10 y tener 11 digitos', 'ERROR', 3000);
+      }
+
       let tipodoc = document.querySelector('#tipodoc').value.trim();
       let numdoc = document.querySelector('#numdoc').value.trim();
       if (tipodoc === "DNI") {
@@ -309,7 +320,10 @@ require_once "../../partials/header.php";
       });
       const data = await response.json();
       if (data.rows > 0) {
-        showToast('Cliente registrado exitosamente.', 'SUCCESS', 3000);
+        showToast('Cliente registrado exitosamente.', 'SUCCESS', 1500);
+        setTimeout(() => {
+          window.location.href = 'listar-cliente.php';
+        }, 1500);
         // Opcional: limpiar los campos o redirigir a otra página
       } else {
         showToast('Hubo un error al registrar al cliente. Intenta nuevamente.', 'ERROR', 3000);
@@ -341,6 +355,7 @@ require_once "../../partials/header.php";
           apellidos: document.querySelector('#apellidos').value.trim(),
           tipodoc: document.querySelector('#tipodoc').value.trim(),
           numdoc: document.querySelector('#numdoc').value.trim(),
+          numruc: document.querySelector('#numruc').value.trim(),
           direccion: document.querySelector('#direccion').value.trim(),
           correo: document.querySelector('#correo').value.trim(),
           telprincipal: document.querySelector('#telprincipal').value.trim(),

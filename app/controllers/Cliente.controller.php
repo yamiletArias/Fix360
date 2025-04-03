@@ -9,7 +9,15 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            // echo json_encode($cliente->getAll());
+            // Se espera que se envíe un parámetro GET "tipo" (persona o empresa)
+            $tipo = Helper::limpiarCadena($_GET['tipo'] ?? 'persona');
+            if ($tipo === 'persona') {
+                echo json_encode($cliente->getAllClientesPersona());
+            } elseif ($tipo === 'empresa') {
+                echo json_encode($cliente->getAllClientesEmpresa());
+            } else {
+                echo json_encode(["error" => "Tipo de cliente no válido"]);
+            }
             break;
 
         case 'POST':
@@ -25,6 +33,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                     "apellidos"         => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
                     "tipodoc"           => Helper::limpiarCadena($dataJSON['tipodoc'] ?? ""),
                     "numdoc"            => Helper::limpiarCadena($dataJSON['numdoc'] ?? ""),
+                    "numruc"            => Helper::limpiarCadena($dataJSON['numruc'] ?? ""),
                     "direccion"         => Helper::limpiarCadena($dataJSON['direccion'] ?? ""),
                     "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
                     "telprincipal"      => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
@@ -32,8 +41,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                     "idcontactabilidad" => $dataJSON["idcontactabilidad"]
                 ];
                 $n = $cliente->registerClientePersona($registro);
-            } 
-            elseif ($tipo === "empresa") {
+            } elseif ($tipo === "empresa") {
                 // Registro de cliente como empresa
                 $registro = [
                     "ruc"               => Helper::limpiarCadena($dataJSON['ruc'] ?? ""),
@@ -44,8 +52,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                     "idcontactabilidad" => $dataJSON["idcontactabilidad"]
                 ];
                 $n = $cliente->registerClienteEmpresa($registro);
-            } 
-            else {
+            } else {
                 echo json_encode(["status" => false, "message" => "Tipo de cliente no válido"]);
                 exit;
             }
