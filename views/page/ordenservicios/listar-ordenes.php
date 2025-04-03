@@ -8,6 +8,8 @@ require_once "../../partials/header.php";
 
 ?>
 
+
+
 <div class="container-main">
   <div class="header-group">
     <div class="form-group">
@@ -24,7 +26,7 @@ require_once "../../partials/header.php";
     </div>
 
     <div>
-      <button type="button" onclick="window.location.href='registrar-ordenes.html'" class="btn btn-success ">Registrar</button>
+      <button type="button" onclick="window.location.href='registrar-ordenes.php'" class="btn btn-success ">Registrar</button>
     </div>
 
   </div>

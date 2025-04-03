@@ -156,7 +156,6 @@ require_once "../../partials/header.php";
 </html>
 
 
-
 <script>
   // Función para mostrar/ocultar formularios según el tipo de cliente
   function mostrarFormulario(tipo) {

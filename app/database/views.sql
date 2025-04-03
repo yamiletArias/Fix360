@@ -168,3 +168,4 @@ FROM
     ON c.idempresa = e.idempresa;
 
 -- select * from propietarios;
+select * from vehiculos;

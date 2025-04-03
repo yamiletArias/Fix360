@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/simple-line-icons/css/simple-line-icons.css" />
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/flag-icon-css/css/flag-icons.min.css" />
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/css/vendor.bundle.base.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/swalcustom.js"></script>
 
@@ -278,6 +279,15 @@
             <a class="nav-link" href="<?= SERVERURL ?>views/page/contactabilidad/listar-graficos.php">
               <span class="menu-title">Graficos</span>
               <i class="fa-solid fa-chart-pie menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item nav-category">
+            <span class="nav-link">Caja</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/arqueocaja/listar-arqueo-caja.php">
+              <span class="menu-title">Arqueo de caja</span>
+              <i class="fa-solid fa-table menu-icon"></i>
             </a>
           </li>
         </ul>

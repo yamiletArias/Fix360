@@ -13,27 +13,39 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             // Puedes agregar funcionalidad para listar vehículos si lo requieres.
             break;
 
-        case 'POST':
-            $input = file_get_contents('php://input');
-            $dataJSON = json_decode($input, true);
+            case 'POST':
+                $input = file_get_contents('php://input');
+                
+                $dataJSON = json_decode($input, true);
             
-            // Limpiar y extraer los datos enviados
-            $registro = [
-                "idmodelo"       => Helper::limpiarCadena($dataJSON["idmodelo"] ?? ""),
-                "placa"          => Helper::limpiarCadena($dataJSON["placa"] ?? ""),
-                "anio"           => Helper::limpiarCadena($dataJSON["anio"] ?? ""),
-                "kilometraje"    => $dataJSON["kilometraje"] ?? 0,
-                "numserie"       => Helper::limpiarCadena($dataJSON["numserie"] ?? ""),
-                "color"          => Helper::limpiarCadena($dataJSON["color"] ?? ""),
-                "tipocombustible"=> Helper::limpiarCadena($dataJSON["tipocombustible"] ?? ""),
-                "criterio"       => Helper::limpiarCadena($dataJSON["criterio"] ?? ""),
-                "tipoBusqueda"   => Helper::limpiarCadena($dataJSON["tipoBusqueda"] ?? "")
-            ];
+                if ($dataJSON === null) {
+                    echo json_encode(["error" => "JSON inválido"]);
+                    error_log("JSON Recibido: " . $input);
+                    exit;
+                }
             
-            $n = $vehiculo->registerVehiculoYPropietario($registro);
+                $registro = [
+                    "idmodelo"       => Helper::limpiarCadena($dataJSON["idmodelo"] ?? ""),
+                    "placa"          => Helper::limpiarCadena($dataJSON["placa"] ?? ""),
+                    "anio"           => Helper::limpiarCadena($dataJSON["anio"] ?? ""),
+                    "numserie"       => Helper::limpiarCadena($dataJSON["numserie"] ?? ""),
+                    "color"          => Helper::limpiarCadena($dataJSON["color"] ?? ""),
+                    "tipocombustible"=> Helper::limpiarCadena($dataJSON["tipocombustible"] ?? ""),
+                    "criterio"       => Helper::limpiarCadena($dataJSON["criterio"] ?? ""),
+                    "tipoBusqueda"   => Helper::limpiarCadena($dataJSON["tipoBusqueda"] ?? ""),
+                    "idcliente"      => Helper::limpiarCadena($dataJSON["idcliente"] ?? ""),
+                ];
             
-            echo json_encode(["rows" => $n]);
-            break;
+                $n = $vehiculo->registerVehiculoYPropietario($registro);
+            
+                if ($n === 0) {
+                    echo json_encode(["error" => "No se pudo registrar el vehículo"]);
+                    error_log("JSON Recibido: " . $input);
+                } else {
+                    echo json_encode(["success" => "Vehículo registrado", "rows" => $n]);
+                }
+                break;
+            
     }
 }
 ?>

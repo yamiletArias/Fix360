@@ -14,7 +14,7 @@ require_once "../../partials/header.php";
 
         <div class="col-md-4 mb-3">
           <div class="form-floating">
-            <select class="form-select" id="tipov" name="tipov" style="color: black;">
+            <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
               <option value="">Seleccione una opcion</option>
             </select>
             <label for="tipov">Tipo de vehiculo:</label>
@@ -23,7 +23,7 @@ require_once "../../partials/header.php";
 
         <div class="col-md-4 ">
           <div class="form-floating">
-            <select class="form-select" id="marcav" name="marcav" style="color: black;">
+            <select class="form-select" id="marcav" name="marcav" style="color: black;" required>
               <option value="">Seleccione una opcion</option>
 
             </select>
@@ -33,7 +33,7 @@ require_once "../../partials/header.php";
 
         <div class="col-md-4">
           <div class="form-floating">
-            <select class="form-select" id="modelo" name="modelo" style="color: black;">
+            <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
               <option value="">Seleccione una opcion</option>
             </select>
             <label for="modelo">Modelo del vehiculo:</label>
@@ -42,13 +42,15 @@ require_once "../../partials/header.php";
 
         <div class="col-md-4">
           <div class="form-floating">
-            <input type="text" class="form-control" id="fplaca" placeholder="placadeejemplo" minlength="6" maxlength="6" />
+            <input type="text" class="form-control" id="fplaca" placeholder="placadeejemplo" minlength="6" required
+              maxlength="6" />
             <label for="fplaca">Placa</label>
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-floating">
-            <input type="text" class="form-control" id="fanio" placeholder="anio" minlength="4" maxlength="4" />
+            <input type="text" class="form-control" id="fanio" placeholder="anio" minlength="4" maxlength="4"
+              required />
             <label for="fanio">Año</label>
           </div>
         </div>
@@ -84,25 +86,30 @@ require_once "../../partials/header.php";
         </div>
         <div class="col-md-4">
           <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control" id="floatingInput" />
+            <input type="text" disabled class="form-control" id="floatingInput" value="1" />
             <label for="floatingInput">Propietario:</label>
-            <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">
+
+            <input type="hidden" id="hiddenIdCliente" />
+            <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
+              data-bs-target="#miModal">
               ...
             </button>
           </div>
         </div>
       </div>
     </div>
+
     <div class="card-footer">
       <div class="text-end">
         <button class="btn btn-secondary" onclick="window.location.href='listar-vehiculos.php'">
           Cancelar
         </button>
-        <button class="btn btn-success" type="submit">
+        <button class="btn btn-success" id="btnRegistrarVehiculo">
           Aceptar
         </button>
       </div>
     </div>
+
   </div>
 </div>
 </div>
@@ -116,16 +123,16 @@ require_once "../../partials/_footer.php";
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
   <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
     <div class="modal-content">
-      
+
       <!-- Encabezado -->
       <div class="modal-header">
         <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      
+
       <!-- Cuerpo -->
       <div class="modal-body">
-        
+
         <!-- Fila para Tipo de Propietario -->
         <div class="row mb-3">
           <div class="col">
@@ -133,17 +140,19 @@ require_once "../../partials/_footer.php";
             <!-- Contenedor de radio buttons -->
             <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
               <div class="form-check form-check-inline" style="margin-right:40px;">
-                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona" onclick="actualizarOpciones(); buscarPropietario();" checked>
+                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
+                  onclick="actualizarOpciones(); buscarPropietario();" checked>
                 <label class="form-check-label" for="rbtnpersona" style="margin-left:5px;">Persona</label>
               </div>
               <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa" onclick="actualizarOpciones(); buscarPropietario();">
+                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
+                  onclick="actualizarOpciones(); buscarPropietario();">
                 <label class="form-check-label" for="rbtnempresa" style="margin-left:5px;">Empresa</label>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Fila para Método de Búsqueda -->
         <div class="row mb-3">
           <div class="col">
@@ -155,17 +164,18 @@ require_once "../../partials/_footer.php";
             </div>
           </div>
         </div>
-        
+
         <!-- Fila para Valor Buscado -->
         <div class="row mb-3">
           <div class="col">
             <div class="form-floating">
-              <input type="text" class="form-control" id="vbuscado" style="background-color: white;" placeholder="Valor buscado" />
+              <input type="text" class="form-control" id="vbuscado" style="background-color: white;"
+                placeholder="Valor buscado" />
               <label for="vbuscado">Valor buscado</label>
             </div>
           </div>
         </div>
-        
+
         <!-- Tabla de Resultados -->
         <p class="mt-3"><strong>Resultado:</strong></p>
         <div class="table-responsive">
@@ -184,18 +194,18 @@ require_once "../../partials/_footer.php";
           </table>
         </div>
       </div>
-      
+
       <!-- Pie del Modal -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
-      
+
     </div>
   </div>
 </div>
 
 <script>
-  // Actualiza las opciones del select según el radio button seleccionado
+  // Función para actualizar las opciones del select según el tipo de propietario (persona/empresa)
   function actualizarOpciones() {
     const select = document.getElementById("selectMetodo");
     const personaSeleccionada = document.getElementById("rbtnpersona").checked;
@@ -210,80 +220,201 @@ require_once "../../partials/_footer.php";
     }
   }
 
-  // Función para buscar propietarios según el criterio y actualizar la tabla
+  // Función para buscar propietarios en el modal y llenar la tabla de resultados
   function buscarPropietario() {
     const tipo = document.getElementById("rbtnpersona").checked ? "persona" : "empresa";
     const metodo = document.getElementById("selectMetodo").value;
     const valor = document.getElementById("vbuscado").value.trim();
-    
-    // Si no hay valor, limpiar la tabla y salir
+
+    // Si no se ingresa valor, limpia la tabla
     if (valor === "") {
       document.querySelector("#tabla-resultado tbody").innerHTML = "";
       return;
     }
-    
+
     // Construir la URL de la consulta (ajusta la ruta según tu estructura)
     const url = `http://localhost/fix360/app/controllers/Propietario.controller.php?tipo=${encodeURIComponent(tipo)}&metodo=${encodeURIComponent(metodo)}&valor=${encodeURIComponent(valor)}`;
-    
+
     fetch(url)
       .then(response => response.json())
       .then(data => {
         const tbody = document.querySelector("#tabla-resultado tbody");
         tbody.innerHTML = "";
-        // Iterar sobre los resultados y construir las filas de la tabla
+        // Crear filas para cada resultado
         data.forEach((item, index) => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${item.nombre}</td>
-            <td>${item.documento}</td>
-            <td>
-              <button type="button" class="btn btn-success btn-sm btn-confirmar" data-id="${item.idcliente}">
-                <i class="fa-solid fa-circle-check"></i>
-              </button>
-            </td>
-          `;
+          <td>${index + 1}</td>
+          <td>${item.nombre}</td>
+          <td>${item.documento}</td>
+          <td>
+            <button type="button" class="btn btn-success btn-sm btn-confirmar" data-id="${item.idcliente}" data-bs-dismiss="modal">
+  <i class="fa-solid fa-circle-check"></i>
+</button>
+          </td>
+        `;
           tbody.appendChild(tr);
         });
       })
       .catch(error => console.error("Error en búsqueda:", error));
   }
-  
-  // Escuchar cambios en el input de búsqueda para disparar la búsqueda (puedes agregar debounce)
-  document.getElementById("vbuscado").addEventListener("keyup", buscarPropietario);
-  
-  // Actualizar opciones del select cuando se cambia el radio button y realizar una búsqueda
-  document.getElementById("rbtnpersona").addEventListener("click", function() {
-    actualizarOpciones();
-    buscarPropietario();
-  });
-  document.getElementById("rbtnempresa").addEventListener("click", function() {
-    actualizarOpciones();
-    buscarPropietario();
-  });
-  
-  // Escuchar clics en la tabla para el botón Confirmar
-  document.querySelector("#tabla-resultado").addEventListener("click", function(e) {
+
+  // Cuando se hace clic en el botón "Confirmar" del modal
+  document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
     if (e.target.closest(".btn-confirmar")) {
       const btn = e.target.closest(".btn-confirmar");
       const idcliente = btn.getAttribute("data-id");
-      // Aquí puedes manejar la selección: asignar el id a un campo oculto, cerrar el modal, etc.
-      console.log("Propietario seleccionado, ID:", idcliente);
-      // Ejemplo:
-      // document.getElementById("hiddenIdCliente").value = idcliente;
-      // $('#miModal').modal('hide');
+
+      // Obtener el nombre desde la fila (segunda columna)
+      const fila = btn.closest("tr");
+      const nombre = fila.cells[1].textContent;
+
+      // Guardar el id y el nombre en los inputs correspondientes
+      document.getElementById("hiddenIdCliente").value = idcliente;
+      document.getElementById("floatingInput").value = nombre;
+
+      // Cerrar el modal después de un pequeño delay
+      setTimeout(() => {
+        const modalEl = document.getElementById("miModal");
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.hide();
+      }, 100);
     }
   });
-  
-  // Inicializar opciones al cargar el modal
+
+  // Escuchar el input de búsqueda para disparar la consulta (puedes agregar debounce para evitar llamadas excesivas)
+  document.getElementById("vbuscado").addEventListener("keyup", buscarPropietario);
+
+  // Actualizar opciones del select y disparar búsqueda al cambiar los radio buttons
+  document.getElementById("rbtnpersona").addEventListener("click", function () {
+    actualizarOpciones();
+    buscarPropietario();
+  });
+  document.getElementById("rbtnempresa").addEventListener("click", function () {
+    actualizarOpciones();
+    buscarPropietario();
+  });
+
+  // Inicializar las opciones del select al cargar el modal
   document.addEventListener("DOMContentLoaded", actualizarOpciones);
+
+  // --- Registro de Vehículo y Propietario ---
+  // Escuchar el botón "Aceptar" del formulario de vehículo
+  document.getElementById("btnRegistrarVehiculo").addEventListener("click", function (e) {
+    e.preventDefault();
+
+    // Recopilar los datos del formulario de vehículo
+    const data = {
+      idmodelo: document.getElementById("modelo").value,
+      placa: document.getElementById("fplaca").value.trim(),
+      anio: document.getElementById("fanio").value.trim(),
+      numserie: document.getElementById("fnumserie").value.trim(),
+      color: document.getElementById("fcolor").value.trim(),
+      tipocombustible: document.getElementById("ftcombustible").value,
+      // Enviar directamente el idcliente obtenido del modal
+      idcliente: document.getElementById("hiddenIdCliente").value
+    };
+
+    // Validar que se tenga seleccionado un propietario
+    if (!data.idmodelo || !data.placa || !data.anio || !data.numserie || !data.idcliente) {
+      alert("Por favor, completa todos los campos obligatorios y selecciona un propietario.");
+      return;
+    }
+
+    // Enviar la información al controlador (ajusta la URL según tu estructura)
+    fetch("http://localhost/fix360/app/controllers/Vehiculo.controller.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(resp => {
+        if (resp.rows > 0) {
+          alert("Registro exitoso.");
+          // Aquí puedes limpiar el formulario o redirigir
+        } else {
+          console.log("Error en el registro." );
+          err => {
+        console.error("Error en la solicitud:", err);
+      }
+          
+        }
+      })
+      .catch(err => {
+        console.error("Error en la solicitud:", err);
+      });
+
+  });
+
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tipovSelect = document.getElementById("tipov");
+    const marcavSelect = document.getElementById("marcav");
+    const modeloSelect = document.getElementById("modelo");
+
+    // Cargar select de tipo de vehículo
+    fetch("http://localhost/fix360/app/controllers/Tipov.controller.php")
+      .then(response => response.json())
+      .then(data => {
+        // Asumiendo que cada registro trae campos 'idtipov' y 'tipov'
+        data.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.idtipov; // Ajusta según el nombre del campo real
+          option.textContent = item.tipov; // Ajusta según el nombre del campo real
+          tipovSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error("Error al cargar tipos de vehículo:", error));
+
+    // Cargar select de marcas
+    fetch("http://localhost/fix360/app/controllers/Marca.controller.php")
+      .then(response => response.json())
+      .then(data => {
+        // Asumiendo que cada registro trae campos 'idmarca' y 'marca'
+        data.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.idmarca; // Ajusta según el nombre del campo real
+          option.textContent = item.nombre; // Ajusta según el nombre del campo real
+          marcavSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error("Error al cargar marcas:", error));
+
+    // Función para cargar modelos basado en tipo y marca seleccionados
+    function cargarModelos() {
+      const idtipov = tipovSelect.value;
+      const idmarca = marcavSelect.value;
+
+      // Limpiar el select de modelos y agregar opción por defecto
+      modeloSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
+
+      // Solo llamar al controller si ambos selects tienen un valor
+      if (idtipov && idmarca) {
+        fetch(`http://localhost/fix360/app/controllers/Modelo.controller.php?idtipov=${encodeURIComponent(idtipov)}&idmarca=${encodeURIComponent(idmarca)}`)
+          .then(response => response.json())
+          .then(data => {
+            // Asumiendo que cada registro trae campos 'idmodelo' y 'modelo'
+            data.forEach(item => {
+              const option = document.createElement("option");
+              option.value = item.idmodelo;
+              option.textContent = item.modelo;
+              modeloSelect.appendChild(option);
+            });
+          })
+          .catch(error => console.error("Error al cargar modelos:", error));
+      }
+    }
+
+    // Agregar event listeners para que cuando cambie el tipo o la marca se actualice el select de modelos
+    tipovSelect.addEventListener("change", cargarModelos);
+    marcavSelect.addEventListener("change", cargarModelos);
+  });
 </script>
 
 
-<!-- endinject -->
-<!-- Custom js for this page -->
-<!-- En
- d custom js for this page -->
+
 </body>
 
 </html>

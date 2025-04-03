@@ -28,27 +28,27 @@ class Vehiculo extends Conexion {
   public function registerVehiculoYPropietario($params = []): int {
     $numRows = 0;
     try {
-      $query = "CALL spRegistrarVehiculoYPropietario(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-      $stmt = $this->pdo->prepare($query);
-      $stmt->execute(array(
-        $params["idmodelo"],
-        $params["placa"],
-        $params["anio"],
-        $params["kilometraje"],
-        $params["numserie"],
-        $params["color"],
-        $params["tipocombustible"],
-        $params["criterio"],
-        $params["tipoBusqueda"]
-      ));
-      
-      $numRows = $stmt->rowCount();
-      
+        $query = "CALL spRegistrarVehiculoYPropietario(?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Agregar un "?" más para idcliente
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            $params["idmodelo"],
+            $params["placa"],
+            $params["anio"],
+            $params["numserie"],
+            $params["color"],
+            $params["tipocombustible"],
+            $params["criterio"],
+            $params["tipoBusqueda"],
+            $params["idcliente"] // Agregar este campo
+        ]);
+
+        $numRows = $stmt->rowCount();
+
     } catch (PDOException $e) {
-      error_log("Error DB: " . $e->getMessage());
-      return $numRows;
+        error_log("Error DB: " . $e->getMessage());
     }
     return $numRows;
-  }
+}
+
 }
 ?>

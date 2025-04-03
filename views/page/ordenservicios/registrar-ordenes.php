@@ -7,6 +7,12 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 
 ?>
+
+<style>
+    select{
+        width: 100%;
+    }
+</style>
 <div class="container-main">
     <div class="card">
         <div class="card-header">
@@ -52,14 +58,14 @@ require_once "../../partials/header.php";
                     <div class="form-floating input-group mb-3">
                         <input type="text" disabled class="form-control" id="floatingInput">
                         <label for="floatingInput">Propietario:</label>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">...</button>
+                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">...</button>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-floating input-group mb-3">
                         <input type="text" disabled class="form-control" id="floatingInput">
                         <label for="floatingInput">Cliente:</label>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">...</button>
+                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">...</button>
                     </div>
                 </div>
 
@@ -87,7 +93,7 @@ require_once "../../partials/header.php";
             </div>
         </div>
         <div class="card-footer">
-            <div style="margin-left: 1150px;">
+            <div class="text-end">
                 <button class="btn btn-danger" onclick="window.location.href='listar-ordenes.html'">Cancelar</button>
                 <button class="btn btn-success" onclick="window.location.href='listar-ordenes.html'">Aceptar</button>
             </div>

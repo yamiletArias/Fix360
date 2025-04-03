@@ -19,7 +19,9 @@
     <script src="<?= SERVERURL?>views/assets/vendors/chart.js/chart.umd.js"></script>
     <script src="<?= SERVERURL?>views/assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
     <script src="<?= SERVERURL?>views/assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= SERVERURL?>views/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+
     <script src="<?= SERVERURL?>views/assets/vendors/moment/moment.min.js"></script>
     <script src="<?= SERVERURL?>views/assets/vendors/daterangepicker/daterangepicker.js"></script>
     <script src="<?= SERVERURL?>views/assets/vendors/chartist/chartist.min.js"></script>
@@ -36,7 +38,7 @@
     <!-- Custom js for this page -->
     <script src="<?= SERVERURL?>views/assets/js/dashboard.js"></script>
 
-    <script src="<?= SERVERURL?>views/assets/vendors/js/vendor.bundle.base.js"></script>
+    
   <!-- endinject -->
   <!-- Plugin js for this page -->
   <!-- End plugin js for this page -->

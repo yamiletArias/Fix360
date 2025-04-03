@@ -172,5 +172,12 @@ SELECT
 FROM marcas m
 CROSS JOIN tipovehiculos tv;
 
+INSERT INTO contactabilidad (contactabilidad)
+VALUES
+  ('Redes sociales'),
+  ('Folletos'),
+  ('Campaña publicitaria'),
+  ('Recomendacion');
+
 
 
