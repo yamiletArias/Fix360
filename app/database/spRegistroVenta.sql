@@ -122,9 +122,10 @@ BEGIN
     SELECT 
         P.idproducto,
         CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-        P.precio
+        DV.precioventa
     FROM productos P
     INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
+    INNER JOIN detalleventa DV ON P.iddetventa= DV.ididdetventa
     WHERE 
         (S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%'))
     LIMIT 10;

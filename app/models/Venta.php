@@ -42,12 +42,11 @@ class Venta extends Conexion
         return $result;
     }
 
-    // Buscar productos utilizando el procedimiento almacenado
+    // Buscar productos 
     public function buscarProducto(string $termino): array
     {
         $result = [];
         try {
-            // Llamar al procedimiento almacenado 'buscar_producto'
             $sql = "CALL buscar_producto(:termino)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
@@ -80,8 +79,8 @@ class Venta extends Conexion
 
             $idventa = $this->pdo->lastInsertId();
 
-            $sql_productos = "INSERT INTO venta_productos (idventa, idproducto, precio, cantidad, descuento, importe)
-                          VALUES (:idventa, :idproducto, :precio, :cantidad, :descuento, :importe)";
+            $sql_productos = "INSERT INTO productos (idventa, idproducto, precio, cantidad, descuento)
+                          VALUES (:idventa, :idproducto, :precio, :cantidad, :descuento)";
             $stmt_producto = $this->pdo->prepare($sql_productos);
 
             // Recorrer los productos y registrarlos
@@ -91,7 +90,7 @@ class Venta extends Conexion
                 $stmt_producto->bindParam(':precio', $producto['precio']);
                 $stmt_producto->bindParam(':cantidad', $producto['cantidad']);
                 $stmt_producto->bindParam(':descuento', $producto['descuento']);
-                $stmt_producto->bindParam(':importe', $producto['importe']);
+                //$stmt_producto->bindParam(':importe', $producto['importe']);
                 $stmt_producto->execute();
             }
 

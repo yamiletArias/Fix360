@@ -13,11 +13,11 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 if (isset($_GET['type']) && $_GET['type'] == 'producto') {
                     // Buscar productos
                     $termino = $_GET['q'];
-                    echo json_encode($venta->buscarProducto($termino)); // Llamamos a la función buscarProducto
+                    echo json_encode($venta->buscarProducto($termino));
                 } else {
                     // Buscar clientes
                     $termino = $_GET['q'];
-                    echo json_encode($venta->buscarCliente($termino)); // Llamamos a la función buscarCliente
+                    echo json_encode($venta->buscarCliente($termino)); 
                 }
             } else {
                 echo json_encode($venta->getAll());
@@ -30,16 +30,14 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 isset($data['tipocom']) && isset($data['numserie']) && isset($data['numcom']) &&
                 isset($data['cliente']) && isset($data['fechahora']) && isset($data['moneda']) && isset($data['productos'])
             ){
-                // Aquí captura correctamente los datos recibidos
                 $tipocom = $_POST['tipocom'];
                 $numserie = $_POST['numserie'];
                 $numcom = $_POST['numcom'];
-                $cliente = $_POST['cliente']; // Cliente Id
+                $cliente = $_POST['cliente'];
                 $fechahora = $_POST['fechahora'];
                 $moneda = $_POST['moneda'];
                 $productos = $_POST['productos'];
 
-                // Registrar la venta
                 $resultado = $venta->registrarVenta($tipocom, $numserie, $numcom, 
                 $cliente, $fechahora, $moneda, $productos);
 
