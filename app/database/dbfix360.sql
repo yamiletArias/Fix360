@@ -10,6 +10,7 @@ nombres 		 	VARCHAR(50)			NOT NULL,
 apellidos 	 	VARCHAR(50)			NOT NULL,
 tipodoc 		 	VARCHAR(30)			NOT NULL,
 numdoc 		 	CHAR(20)				NOT NULL,
+numruc 			char(11) 			null,
 direccion 	 	VARCHAR(70)			NULL,
 correo 		 	VARCHAR(100)		NULL,
 telprincipal 	VARCHAR(20)			NULL,
@@ -190,7 +191,7 @@ idvehiculo 		INT 					PRIMARY KEY 		AUTO_INCREMENT,
 idmodelo 		INT 					NOT NULL,
 placa 			CHAR(7)				NOT NULL,
 anio				CHAR(4)				NOT NULL,
-numserie 		VARCHAR(20)			NOT NULL,
+numserie 		VARCHAR(20)			  NULL,
 color 			VARCHAR(50)			NOT NULL,
 tipocombustible VARCHAR(30) 		NOT NULL,
 CONSTRAINT fk_idmodelo FOREIGN KEY (idmodelo) REFERENCES modelos (idmodelo),
@@ -207,8 +208,8 @@ idvehiculo 			INT 			NOT NULL,
 fechainicio 		DATE 			DEFAULT CURRENT_TIMESTAMP,
 fechafinal 			DATE 			NULL,
 CONSTRAINT fk_idcliente_8 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
-CONSTRAINT fk_idvehiculo_8 FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo)
-
+CONSTRAINT fk_idvehiculo_8 FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo),
+constraint uq_propietario unique (idcliente,idvehiculo,fechainicio)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS ordenservicios;

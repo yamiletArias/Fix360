@@ -10,7 +10,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            // Puedes agregar funcionalidad para listar vehículos si lo requieres.
+            if($_GET['task'] == 'getAll') {echo json_encode($vehiculo->getAll());}
             break;
 
             case 'POST':
