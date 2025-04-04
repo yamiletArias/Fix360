@@ -8,6 +8,19 @@ class Vehiculo extends Conexion {
   public function __CONSTRUCT() {
     $this->pdo = parent::getConexion();
   }
+
+  public function getAll():array{
+    $result = [];
+    try {
+      $sql = "SELECT * FROM vwVehiculos order by idvehiculo DESC";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute();
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+      throw new Exception($e->getMessage());
+    }
+    return $result;
+  }
   
   /**
    * Registra el vehículo y asigna al propietario (persona o empresa) utilizando el procedimiento almacenado.
@@ -49,6 +62,8 @@ class Vehiculo extends Conexion {
     }
     return $numRows;
 }
+
+
 
 }
 ?>

@@ -14,6 +14,7 @@ CREATE PROCEDURE spRegisterClientePersona (
   IN _apellidos VARCHAR (50),
   IN _tipodoc VARCHAR (30),
   IN _numdoc CHAR(20),
+  in _numruc char(11),
   IN _direccion VARCHAR (70),
   IN _correo VARCHAR (100),
   IN _telprincipal VARCHAR (20),
@@ -28,6 +29,7 @@ BEGIN
     apellidos,
     tipodoc,
     numdoc,
+    numruc,
     direccion,
     correo,
     telprincipal,
@@ -39,6 +41,7 @@ BEGIN
       _apellidos,
       _tipodoc,
       _numdoc,
+      _numruc,
       _direccion,
       _correo,
       _telprincipal,
@@ -151,21 +154,6 @@ END $$
 
 DELIMITER $$
 
-DELIMITER $$
-
-CREATE PROCEDURE spGetModelosByTipoMarca (IN p_idtipov INT, IN p_idmarca INT)
-BEGIN
-  SELECT
-    m.idmodelo,
-    m.modelo
-  FROM
-    Modelos m
-  WHERE m.idtipov = p_idtipov
-    AND m.idmarca = p_idmarca;
-END $$
-
-DELIMITER $$
-
 CREATE PROCEDURE spBuscarPersona (
   IN _tipoBusqueda VARCHAR (20),
   IN _criterio VARCHAR (100)
@@ -227,7 +215,7 @@ END $$
 DELIMITER $$
 
 -- call spBuscarEmpresa ('nombrecomercial', 'SAC');
-select * from clientes;
+-- select * from clientes;
 -- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
 DELIMITER $$
 

@@ -30,72 +30,7 @@ require_once "../../partials/header.php";
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Jhon Francia</td>
-                <td>Sedan</td>
-                <td>Toyota</td>
-                <td>798-FBH</td>
-                <td>ROJO</td>
-                <td>
-                  <button title="Detalle del vehiculo" data-bs-toggle="modal" data-bs-target="#miModal"
-                    class="btn btn-primary btn-sm">
-                    <i class="fa-solid fa-list"></i>
-                  </button>
-                  <button title="Editar vehiculo" onclick="window.location.href='editar-vehiculos.html'"
-                    class="btn btn-warning btn-sm">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button title="Historial del vehiculo" onclick="window.location.href='historial-vehiculos.html'"
-                    class="btn btn-outline-dark btn-sm" data-id="1">
-                    <i class="fa-solid fa-file-alt"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Jose Campos</td>
-                <td>Sport</td>
-                <td>Audi</td>
-                <td>F4F-789</td>
-                <td>GRIS</td>
-                <td>
-                  <button title="Detalle del vehiculo" data-bs-toggle="modal" data-bs-target="#miModal"
-                    class="btn btn-primary btn-sm">
-                    <i class="fa-solid fa-list"></i>
-                  </button>
-                  <button title="Editar vehiculo" onclick="window.location.href='editar-vehiculos.html'"
-                    class="btn btn-warning btn-sm">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button title="Historial del vehiculo" onclick="window.location.href='historial-vehiculos.html'"
-                    class="btn btn-outline-dark btn-sm" data-id="1">
-                    <i class="fa-solid fa-file-alt"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Maria Mercedes</td>
-                <td>SUV</td>
-                <td>Volkswagen</td>
-                <td>DEF-456</td>
-                <td>AZUL</td>
-                <td>
-                  <button title="Detalle del vehiculo" data-bs-toggle="modal" data-bs-target="#miModal"
-                    class="btn btn-primary btn-sm">
-                    <i class="fa-solid fa-list"></i>
-                  </button>
-                  <button title="Editar vehiculo" onclick="window.location.href='editar-vehiculos.html'"
-                    class="btn btn-warning btn-sm">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button title="Historial del vehiculo" onclick="window.location.href='historial-vehiculos.html'"
-                    class="btn btn-outline-dark btn-sm" data-id="1">
-                    <i class="fa-solid fa-file-alt"></i>
-                  </button>
-                </td>
-              </tr>
+
             </tbody>
           </table>
         </div>
@@ -154,6 +89,41 @@ require_once "../../partials/_footer.php";
 ?>
 
     
+<script>
+const tabla = document.querySelector("#mitabla tbody");
+let  enlace = null;
+
+function obtenerDatos() {
+  
+  fetch(`../../../app/controllers/Vehiculo.controller.php?task=getAll`,{
+    method: 'GET'
+  })
+  .then(response =>{return response.json()})
+  .then(data =>{
+    data.forEach(element =>{
+      let i = 0;
+      tabla.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${element.propietario}</td>
+        <td>${element.tipov} </td>
+        <td>${element.marca} </td>
+        <td>${element.placa} </td>
+        <td>${element.color} </td>
+        <td> 
+        <a href = 'editar-vehiculo.php?id=${element.id}' class='btn btn-sm-warning'> <i class= "fa-solid fa-pen-to-square"></i> </a>  
+        </td>
+      </tr>
+  
+      `;
+    });
+  })
+  .catch(error =>{console.error(error)});
+}
+document.addEventListener("DOMContentLoaded", () =>{
+  obtenerDatos();
+})
+</script>
 
 </body>
 
