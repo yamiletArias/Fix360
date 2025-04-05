@@ -114,14 +114,6 @@ require_once "../../partials/header.php";
       margin-top: 40px;
     }
 
-    .btn-finalizar {
-      background: green;
-      color: white;
-      padding: 12px;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
 
     .header-group {
       display: flex;
@@ -205,9 +197,6 @@ require_once "../../partials/header.php";
       font-size: 14px;
     }
 
-    .options li:hover {
-      background-color: #f1f1f1;
-    }
 
     /* Mostrar el fondo blanco del input de búsqueda cuando se hace clic */
     .select-options input:focus+.content .search input {
@@ -391,6 +380,7 @@ require_once "../../partials/header.php";
       let currentFocus = -1;
 
       let clienteId = null;
+      let selectedProduct = {}; // Definir aquí para evitar errores más tarde
 
       // Función para mostrar las opciones de autocompletado para clientes
       function mostrarOpcionesCliente(input) {
@@ -426,13 +416,11 @@ require_once "../../partials/header.php";
                 cerrarListas();
               });
 
-
               itemsDiv.appendChild(optionDiv);
             });
           })
           .catch(err => console.error('Error al obtener los clientes: ', err));
       }
-
 
       // Función para mostrar las opciones de autocompletado para productos
       function mostrarOpcionesProducto(input) {
@@ -516,6 +504,123 @@ require_once "../../partials/header.php";
       document.addEventListener("click", function (e) {
         cerrarListas(e.target);
       });
+
+      // Función para verificar si el producto ya está en el detalle de venta
+      function estaDuplicado(idproducto = 0) {
+        let estado = false;
+        let i = 0;
+
+        if (detalleVenta.length > 0) {
+          while (i < detalleVenta.length && !estado) {
+            if (detalleVenta[i].idproducto == idproducto) {
+              estado = true; // El producto ya está en el detalle
+            }
+            i++;
+          }
+        }
+
+        return estado;
+      }
+
+      // Manejar el formulario y agregar productos al detalle de venta
+      const agregarProductoBtn = document.querySelector("#agregarProducto");
+      const tabla = document.querySelector("#tabla-detalle tbody");
+      const detalleVenta = [];
+
+      agregarProductoBtn.addEventListener("click", function () {
+        const productoNombre = inputProductElement.value;
+        const productoPrecio = parseFloat(document.getElementById('precio').value);
+        const productoCantidad = parseFloat(document.getElementById('cantidad').value);
+        const productoDescuento = parseFloat(document.getElementById('descuento').value);
+
+        if (!productoNombre || isNaN(productoPrecio) || isNaN(productoCantidad)) {
+          alert("Por favor, complete todos los campos correctamente.");
+          return;
+        }
+
+        // Verificar si el producto ya ha sido agregado
+        if (estaDuplicado(selectedProduct.idproducto)) {
+          alert("Este producto ya ha sido agregado.");
+
+          // Limpiar los campos de entrada si el producto es duplicado
+          inputProductElement.value = ""; // Limpiar el nombre del producto
+          document.getElementById('precio').value = ""; // Limpiar el precio
+          document.getElementById('cantidad').value = 1; // Restablecer la cantidad a 1
+          document.getElementById('descuento').value = 0; // Restablecer el descuento a 0
+
+          return;
+        }
+
+        // Calcular el importe
+        const importe = (productoPrecio * productoCantidad) - productoDescuento;
+
+        // Crear una nueva fila en la tabla
+        const nuevaFila = document.createElement("tr");
+
+        const celdaNumero = document.createElement("td");
+        celdaNumero.textContent = tabla.rows.length + 1;
+        nuevaFila.appendChild(celdaNumero);
+
+        const celdaProducto = document.createElement("td");
+        celdaProducto.textContent = productoNombre;
+        nuevaFila.appendChild(celdaProducto);
+
+        const celdaPrecio = document.createElement("td");
+        celdaPrecio.textContent = productoPrecio.toFixed(2);
+        nuevaFila.appendChild(celdaPrecio);
+
+        const celdaCantidad = document.createElement("td");
+        celdaCantidad.textContent = productoCantidad;
+        nuevaFila.appendChild(celdaCantidad);
+
+        const celdaDescuento = document.createElement("td");
+        celdaDescuento.textContent = productoDescuento.toFixed(2);
+        nuevaFila.appendChild(celdaDescuento);
+
+        const celdaImporte = document.createElement("td");
+        celdaImporte.textContent = importe.toFixed(2);
+        nuevaFila.appendChild(celdaImporte);
+
+        const celdaAcciones = document.createElement("td");
+        const btnEliminar = document.createElement("button");
+        btnEliminar.textContent = "X";
+        btnEliminar.classList.add("btn", "btn-danger");
+        btnEliminar.addEventListener("click", function () {
+          nuevaFila.remove();
+          actualizarNumeros();
+        });
+        celdaAcciones.appendChild(btnEliminar);
+        nuevaFila.appendChild(celdaAcciones);
+
+        tabla.appendChild(nuevaFila);
+
+        // Agregar el producto al detalle de venta
+        const detalle = {
+          idproducto: selectedProduct.idproducto,
+          producto: productoNombre,
+          precio: productoPrecio,
+          cantidad: productoCantidad,
+          descuento: productoDescuento,
+          importe: importe.toFixed(2)
+        };
+
+        // Añadir el detalle de venta al array
+        detalleVenta.push(detalle);
+
+        // Limpiar los campos de entrada después de agregar
+        inputProductElement.value = "";
+        document.getElementById('precio').value = "";
+        document.getElementById('cantidad').value = 1;
+        document.getElementById('descuento').value = 0;
+      });
+
+      // Actualizar los números de fila en la tabla
+      function actualizarNumeros() {
+        const filas = tabla.getElementsByTagName("tr");
+        for (let i = 0; i < filas.length; i++) {
+          filas[i].children[0].textContent = i + 1; // Actualizar el número de la fila
+        }
+      }
     });
   </script>
 
@@ -565,673 +670,142 @@ require_once "../../partials/header.php";
   </script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const formulario = document.querySelector("#formulario-detalleventa");
-      const cliente = document.querySelector("#cliente");
-      const producto = document.querySelector("#producto");
-      const precio = document.querySelector("#precio");
-      const cantidad = document.querySelector("#cantidad");
-      const descuento = document.querySelector("#descuento");
-      const tabla = document.querySelector("#tabla-detalle tbody");
-      const agregarProductoBtn = document.querySelector("#agregarProducto");
+    document.addEventListener('DOMContentLoaded', function () {
+      let clienteId = null;
+      const finalizarBtn = document.getElementById('finalizarBtn');
+      const formularioDetalle = document.getElementById('formulario-detalleventa');
+      const tablaDetalle = document.querySelector("#tabla-detalle tbody");
 
-      let detalleVenta = [];
-
-      agregarProductoBtn.addEventListener("click", function () {
-        const productoNombre = producto.value;
-        const productoPrecio = parseFloat(precio.value);
-        const productoCantidad = parseFloat(cantidad.value);
-        const productoDescuento = parseFloat(descuento.value);
-
-        if (!productoNombre || isNaN(productoPrecio) || isNaN(productoCantidad)) {
-          alert("Por favor, complete todos los campos correctamente.");
-          return;
-        }
-
-        const importe = (productoPrecio * productoCantidad) - productoDescuento;
-
-        const nuevaFila = document.createElement("tr");
-
-        const celdaNumero = document.createElement("td");
-        celdaNumero.textContent = tabla.rows.length + 1;
-        nuevaFila.appendChild(celdaNumero);
-
-        const celdaProducto = document.createElement("td");
-        celdaProducto.textContent = productoNombre;
-        nuevaFila.appendChild(celdaProducto);
-
-        const celdaPrecio = document.createElement("td");
-        celdaPrecio.textContent = productoPrecio.toFixed(2);
-        nuevaFila.appendChild(celdaPrecio);
-
-        const celdaCantidad = document.createElement("td");
-        celdaCantidad.textContent = productoCantidad;
-        nuevaFila.appendChild(celdaCantidad);
-
-        const celdaDescuento = document.createElement("td");
-        celdaDescuento.textContent = productoDescuento.toFixed(2);
-        nuevaFila.appendChild(celdaDescuento);
-
-        const celdaImporte = document.createElement("td");
-        celdaImporte.textContent = importe.toFixed(2);
-        nuevaFila.appendChild(celdaImporte);
-
-        const celdaAcciones = document.createElement("td");
-        const btnEliminar = document.createElement("button");
-        btnEliminar.textContent = "X";
-        btnEliminar.classList.add("btn", "btn-danger");
-        btnEliminar.addEventListener("click", function () {
-          nuevaFila.remove();
-          actualizarNumeros();
-        });
-        celdaAcciones.appendChild(btnEliminar);
-        nuevaFila.appendChild(celdaAcciones);
-
-        tabla.appendChild(nuevaFila);
-
-        // Imprimir detalle de venta en consola
-        const detalle = {
-          producto: productoNombre,
-          precio: productoPrecio,
-          cantidad: productoCantidad,
-          descuento: productoDescuento,
-          importe: importe.toFixed(2)
-        };
-
-        console.log("Detalle de venta agregado: ", detalle);
-
-        producto.value = "";
-        precio.value = "";
-        cantidad.value = 1;
-        descuento.value = 0;
+      // Mostrar opciones de autocompletado para cliente
+      const inputElement = document.getElementById("cliente");
+      inputElement.addEventListener("input", function () {
+        mostrarOpcionesCliente(this);
       });
 
+      inputElement.addEventListener("click", function () {
+        mostrarOpcionesCliente(this);
+      });
 
-      function actualizarNumeros() {
-        const filas = tabla.getElementsByTagName("tr");
-        for (let i = 0; i < filas.length; i++) {
-          filas[i].children[0].textContent = i + 1; // Actualizar el número de la fila
+      // Función para mostrar las opciones de autocompletado para clientes
+      function mostrarOpcionesCliente(input) {
+        cerrarListas();
+        if (!input.value) return;
+
+        const searchTerm = input.value;
+        fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=cliente`)
+          .then(response => response.json())
+          .then(data => {
+            const itemsDiv = document.createElement("div");
+            itemsDiv.setAttribute("id", "autocomplete-list");
+            itemsDiv.setAttribute("class", "autocomplete-items");
+            input.parentNode.appendChild(itemsDiv);
+
+            if (data.length === 0) {
+              const noResultsDiv = document.createElement("div");
+              noResultsDiv.textContent = 'No se encontraron clientes';
+              itemsDiv.appendChild(noResultsDiv);
+              return;
+            }
+
+            data.forEach(function (cliente) {
+              const optionDiv = document.createElement("div");
+              optionDiv.textContent = cliente.cliente;
+
+              // Guardar el idcliente al seleccionar el cliente
+              optionDiv.addEventListener("click", function () {
+                input.value = cliente.cliente;
+                clienteId = cliente.idcliente;
+                console.log("Cliente seleccionado: ", cliente.cliente, cliente.idcliente); 
+                cerrarListas();
+              });
+
+              itemsDiv.appendChild(optionDiv);
+            });
+          })
+          .catch(err => console.error('Error al obtener los clientes: ', err));
+      }
+
+      // Función para cerrar todas las listas de autocompletado
+      function cerrarListas(elemento) {
+        const items = document.getElementsByClassName("autocomplete-items");
+        for (let i = 0; i < items.length; i++) {
+          if (elemento !== items[i] && elemento !== inputElement) {
+            items[i].parentNode.removeChild(items[i]);
+          }
         }
       }
 
+      // Evento del botón Finalizar
+      finalizarBtn.addEventListener("click", function () {
+        if (!clienteId) {
+          alert("Por favor, selecciona un cliente antes de finalizar la venta.");
+          return;
+        }
+
+        // Recopilar los datos del formulario
+        const tipoComprobante = document.querySelector('input[name="tipo"]:checked').value; // 'factura' o 'boleta'
+        const numSerie = document.getElementById("numserie").value;
+        const numComprobante = document.getElementById("numcom").value;
+        const clienteNombre = document.getElementById("cliente").value;
+        const fecha = document.getElementById("fecha").value;
+        const moneda = document.getElementById("tipomoneda").value;
+
+        // Recopilar los productos del detalle de venta
+        const detalleVenta = [];
+        const filas = tablaDetalle.querySelectorAll("tr");
+        filas.forEach((fila, index) => {
+          const celdas = fila.querySelectorAll("td");
+          detalleVenta.push({
+            idproducto: celdas[1].textContent,
+            precio: parseFloat(celdas[2].textContent),
+            cantidad: parseInt(celdas[3].textContent),
+            descuento: parseFloat(celdas[4].textContent),
+            importe: parseFloat(celdas[5].textContent)
+          });
+        });
+
+        // Verificar que haya productos en el detalle
+        if (detalleVenta.length === 0) {
+          alert("Debe agregar al menos un producto para finalizar la venta.");
+          return;
+        }
+
+        // Preparar los datos para enviar al servidor
+        const ventaData = {
+          idcliente: clienteId,
+          tipocom: tipoComprobante,
+          fechahora: fecha,
+          numserie: numSerie,
+          numcom: numComprobante,
+          moneda: moneda,
+          detalle: detalleVenta
+        };
+
+        // Enviar los datos al servidor usando fetch()
+        fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(ventaData)
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              alert('Venta registrada correctamente');
+              window.location.href = '/ventas/listar';
+            } else {
+              alert('Error al registrar la venta: ' + data.message);
+            }
+          })
+          .catch(error => {
+            console.error("Error al enviar la solicitud:", error);
+            alert('Hubo un error al registrar la venta. Inténtalo nuevamente.');
+          });
+      });
     });
   </script>
 
-  <!-- <script>
-    document.getElementById("finalizarBtn").addEventListener("click", function () {
-      const tipocom = document.querySelector('input[name="tipo"]:checked').value;
-      const fechahora = document.getElementById("fecha").value;
-      const numserie = document.getElementById("numserie").value;
-      const numcom = document.getElementById("numcom").value;
-      const moneda = document.getElementById("tipomoneda").value;
-
-      if (!clienteId) {
-        alert("Por favor, selecciona un cliente válido.");
-        return;
-      }
-
-      // Aquí recolectas detalleVenta (de tu tabla)
-      const detalle = [];
-      document.querySelectorAll("#tabla-detalle tbody tr").forEach(tr => {
-        const tds = tr.querySelectorAll("td");
-        detalle.push({
-          producto: tds[1].textContent,
-          precio: parseFloat(tds[2].textContent),
-          cantidad: parseFloat(tds[3].textContent),
-          descuento: parseFloat(tds[4].textContent),
-          importe: parseFloat(tds[5].textContent)
-        });
-      });
-
-      fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "finalizarVenta",
-          idcliente: clienteId,
-          tipocom,
-          fechahora,
-          numserie,
-          numcom,
-          moneda,
-          detalle
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log("Respuesta del servidor:", data);
-          alert(data.message);
-        })
-        .catch(err => {
-          console.error("Error al enviar la venta:", err);
-        });
-    });
-  </script> -->
-
-
-  <!-- <script>
-    $(document).ready(function () {
-      const tabla = 
-
-      $("#agregarProducto").click(function () {
-        const producto = selectedProduct;  // Asegúrate de que selectedProduct tenga el idproducto
-        const precio = $("#precio").val();
-        const cantidad = $("#cantidad").val();
-        const descuento = $("#descuento").val();
-
-        // Verificar si los campos de producto, precio y cantidad son válidos
-        if (!producto || !precio || !cantidad || isNaN(precio) || isNaN(cantidad)) {
-          alert("Por favor, complete todos los campos (producto, precio, cantidad).");
-          return;
-        }
-
-        const importe = (parseFloat(precio) * parseInt(cantidad)) - parseFloat(descuento);
-
-        // Agregar la fila a la tabla y asociar el idproducto con el atributo data-idproducto
-        tabla.row.add([
-          selectedProduct.subcategoria_producto,
-          precio,
-          cantidad,
-          descuento,
-          importe.toFixed(2),
-          '<button class="btn btn-danger btn-sm eliminarProducto"><i class="fas fa-times"></i></button>'
-        ]).draw(false);
-        $('#miTabla tbody tr:last').data('idproducto', selectedProduct.idproducto);
-        // Asignar el idproducto al data-idproducto de la fila
-        const lastRow = $("#miTabla tbody tr:last-child");
-        lastRow.data('idproducto', producto.idproducto);
-
-        // Limpiar campos
-        $("#myInputProduct").val("");
-        $("#precio").val("");
-        $("#cantidad").val("");
-        $("#descuento").val("");
-      });
-
-
-      $(document).on("click", ".eliminarProducto", function () {
-        $(this).closest("tr").remove();
-      });
-    });
-  </script> -->
-
-  <!-- <script>
-    $("#finalizarBtn").click(function () {
-      const tipoComprobante = $("input[name='tipo']:checked").val();
-      const numSerie = $("#numserie").val();
-      const numComprobante = $("#numcom").val();
-      const cliente = $("#myInput").val(); // Nombre del cliente
-      const fecha = $("#fecha").val();
-      const moneda = $("#tipomoneda").val();
-
-      // Verifica si el clienteId está definido antes de enviarlo
-      if (!clienteId) {
-        alert("Debe seleccionar un cliente.");
-        return;
-      }
-
-      // Obtener los productos de la tabla
-      const productos = [];
-      $('#miTabla tbody tr').each(function () {
-        const producto = $(this).find('td').eq(0).text();
-        const precio = $(this).find('td').eq(1).text();
-        const cantidad = $(this).find('td').eq(2).text();
-        const descuento = $(this).find('td').eq(3).text();
-        const importe = $(this).find('td').eq(4).text();
-        const idproducto = $(this).data('idproducto');  // Asegúrate de obtener el idproducto correctamente
-
-        if (!idproducto) {
-          console.error("Falta el idproducto en este producto.");
-        }
-
-        productos.push({
-          idproducto: idproducto,  // Asegúrate de que idproducto esté correctamente asignado
-          precio: parseFloat(precio),
-          cantidad: parseInt(cantidad),
-          descuento: parseFloat(descuento),
-          importe: parseFloat(importe)
-        });
-      });
-
-      console.log({
-        tipo: tipoComprobante,
-        numserie: numSerie,
-        numcomprobante: numComprobante,
-        cliente: clienteId,
-        fecha: fecha,
-        tipomoneda: moneda,
-        productos: productos
-      });
-
-
-      $.ajax({
-        url: 'http://localhost/Fix360/app/controllers/Venta.controller.php',
-        method: 'POST',
-        data: {
-          tipo: tipoComprobante,
-          numserie: numSerie,
-          numcomprobante: numComprobante,
-          cliente: clienteId,  // Verifica que clienteId esté correctamente definido
-          fecha: fecha,
-          tipomoneda: moneda,
-          productos: JSON.stringify(productos)  // Envía los productos correctamente
-        },
-        success: function (response) {
-          console.log(response);
-          alert("Venta registrada exitosamente");
-        },
-        error: function (error) {
-          console.error(error);
-          alert("Hubo un error al registrar la venta");
-        }
-      });
-    });
-
-  </script> -->
-
-
-  <!-- <script>
-    $(document).ready(function () {
-      $(document).ready(function () {
-        // Inicializa el DataTable solo una vez.
-        const tabla = $('#miTabla').DataTable();
-        if (tabla.settings()[0]) {
-          tabla.destroy(); // Destruir si ya existe
-        }
-        $('#miTabla').DataTable(); // Inicializar el DataTable
-
-        $("#myInputProduc").on("input", function () {
-          const producto = $("#myInputProduc").val();
-          if (myInputProduc) {
-            $("#cantidad").val(1);
-            $("#descuento").val(0);
-          } else {
-            $("#cantidad").val("");
-            $("#descuento").val("");
-          }
-        });
-
-        $("#agregarProducto").click(function () {
-          const producto = $("#myInputProduc").val();
-          const precio = $("#precio").val();
-          const cantidad = $("#cantidad").val() || 1;
-          const descuento = $("#descuento").val() || 0;
-
-          // Verificar que los campos de producto y precio no estén vacíos
-          if (!producto || !precio || isNaN(precio) || isNaN(cantidad)) {
-            alert("Por favor, complete todos los campos (producto, precio).");
-            return;
-          }
-
-          const importe = parseFloat(precio) * parseInt(cantidad) - parseFloat(descuento);
-          const idproducto = $("#myInputProduc").data("idproducto"); // Asegúrate de que este campo tiene el ID del producto.
-
-          // Agregar la fila a la tabla
-          const tabla = $("#miTabla").DataTable();
-          tabla.row.add([
-            myInputProduc,
-            precio,
-            cantidad,
-            descuento,
-            importe.toFixed(2),
-            '<button class="btn btn-danger btn-sm eliminarProducto"><i class="fas fa-times"></i></button>'
-          ]).draw(false);
-
-          // Limpiar los campos después de agregar el producto
-          $("#myInputProduc").val("");
-          $("#precio").val("");
-          $("#cantidad").val("");
-          $("#descuento").val("");
-        });
-
-        $(document).on("click", ".eliminarProducto", function () {
-          $(this).closest("tr").remove();
-        });
-      });
-    });
-  </script> -->
-
-  <!-- <script>
-    $(document).ready(function () {
-      const urlVenta = 'http://localhost/fix360/app/controllers/Venta.controller.php';
-
-      $("#finalizarBtn").click(function () {
-        const tipoComprobante = $("input[name='tipo']:checked").val();
-        const numSerie = $("#numserie").val();
-        const numCom = $("#numcom").val();
-        const nombreCliente = $("#nomcliente").val(); // Asegúrate de que esto sea el nombre del cliente
-        const fecha = $("#fecha").val();
-        const moneda = $("select[name='tipomoneda']").val();
-
-        const productos = [];
-        const tabla = $("#miTabla").DataTable();
-        tabla.rows().every(function () {
-          const data = this.data();
-          productos.push({
-            idproducto: data[0],  // Assuming this is the product ID
-            precioventa: data[1], // Price of the product
-            cantidad: data[2],    // Quantity
-            descuento: data[3],   // Discount
-            producto: data[4]     // Description of the product (no HTML)
-          });
-        });
-
-        const ventaData = {
-          nomcliente: nombreCliente,
-          tipocom: tipoComprobante,
-          numserie: numSerie,
-          numcom: numCom,
-          fechahora: fecha,
-          moneda: moneda,
-          productos: productos
-        };
-
-        console.log("Venta Data to be sent:", JSON.stringify(ventaData));
-
-
-        $.ajax({
-          url: urlVenta,
-          type: 'POST',
-          contentType: 'application/json', // Especifica que estamos enviando JSON
-          data: JSON.stringify(ventaData),  // Convierte el objeto JS a JSON
-          success: function (response) {
-            console.log("Respuesta del servidor:", response);
-            if (response.status === 'success') {
-              alert(response.message);
-            } else {
-              alert(response.message);
-            }
-          },
-
-          error: function (xhr, status, error) {
-            console.log("Error: " + error);
-          }
-        });
-
-
-      });
-    });
-
-  </script> -->
-
-
-  <!-- <script>
-    $("#finalizarBtn").click(function () {
-      var cliente = $("#nomcliente").val(); // Nombre del cliente (opcional si usas el ID)
-      var idcliente = $("#nomcliente").data('idcliente'); // Aquí obtenemos el ID del cliente
-      var tipoComprobante = $('input[name="tipo"]:checked').val();
-      var numSerie = $("#numserie").val();
-      var numComprobante = $("#numcom").val();
-      var fecha = $("#fecha").val();
-      var moneda = $("select[name='tipomoneda']").val();
-
-      // Verificar que todos los campos estén completos
-      if (!idcliente || !tipoComprobante || !numSerie || !numComprobante || !fecha || !moneda) {
-        alert("Por favor, complete todos los campos.");
-        return;
-      }
-
-      var productos = [];
-      $("#miTabla tbody tr").each(function () {
-        var producto = {
-          idproducto: $(this).find("td:eq(0)").text(), // ID del producto
-          precioventa: parseFloat($(this).find("td:eq(1)").text()),
-          cantidad: parseInt($(this).find("td:eq(2)").text()),
-          descuento: parseFloat($(this).find("td:eq(3)").text()) || 0,
-        };
-        productos.push(producto);
-      });
-
-      // Verifica los datos de la venta antes de enviarlos
-      console.log("Venta Data:", {
-        cliente,
-        tipoComprobante,
-        numSerie,
-        numComprobante,
-        fecha,
-        moneda,
-        productos
-      });
-
-      if (productos.length === 0) {
-        alert("Debe agregar al menos un producto.");
-        return;
-      }
-
-      var ventaData = {
-        idcliente: idcliente,  // Usamos el ID del cliente
-        tipocom: tipoComprobante,
-        numserie: numSerie,
-        numcom: numComprobante,
-        fechahora: fecha,
-        moneda: moneda,
-        productos: productos,
-      };
-
-      // Verifica el objeto de venta antes de enviarlo
-      //console.log("Venta Data (JSON):", JSON.stringify(ventaData));
-
-      $.ajax({
-        url: "http://localhost/Fix360/app/controllers/Venta.controller.php",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(ventaData),
-        success: function (response) {
-          console.log("Respuesta del servidor:", response); // Imprime la respuesta del servidor
-          if (response.status === "success") {
-            alert("Venta registrada con éxito. ID de venta: " + response.idventa);
-          } else {
-            alert("Hubo un error al guardar la venta.");
-          }
-        },
-        error: function (error) {
-          console.error("Error en la solicitud AJAX:", error);
-          alert("Hubo un error al guardar la venta.");
-        },
-      });
-
-    });
-
-  </script> -->
-
-  <!-- <script>
-      $("#nomcliente").on("input", function () {
-        var search = $(this).val();
-    
-        if (search.length > 2) {
-          // Verifica que la ruta esté correcta
-          $.getJSON("/fix360/app/models/buscar_cliente.php", { q: search })
-            .done(function (data) {
-              // Limpiar los resultados previos
-              $("#clientesResultado").empty();
-    
-              // Mostrar los resultados
-              if (data.length > 0) {
-                data.forEach((cliente) => {
-                  const li = document.createElement("li");
-                  li.textContent = cliente.nombre; // Asegúrate de que el campo sea 'nombre' o el que corresponda
-                  li.addEventListener("click", function () {
-                    nomClienteInput.value = cliente.nombre; // Usar 'cliente.nombre' o el campo correcto
-                    clientesResultado.innerHTML = ""; // Limpiar resultados
-                  });
-                  clientesResultado.appendChild(li);
-                });
-              } else {
-                $("#clientesResultado").append(
-                  "<li>No se encontraron resultados</li>"
-                );
-              }
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-              console.error("Error en la solicitud:", textStatus, errorThrown);
-            });
-        } else {
-          $("#clientesResultado").empty(); // Limpiar resultados si la búsqueda tiene menos de 2 caracteres
-        }
-      });
-    </script> -->
-
-  <!-- <script>
-      $(document).ready(function () {
-        $("#producto").on("input", function () {
-          var search = $(this).val();
-          if (search.length > 2) {
-            $.getJSON(
-              "../../app/models/buscar_producto.php",
-              { search: search },
-              function (data) {
-                if (data && !data.error) {
-                  var suggestions = data
-                    .map(function (producto) {
-                      return (
-                        '<option value="' +
-                        producto.nombre +
-                        '" data-id="' +
-                        producto.idproducto +
-                        '" data-precio="' +
-                        producto.precio +
-                        '">'
-                      ); // Agregamos el precio al option
-                    })
-                    .join("");
-                  $("#producto").after(
-                    '<datalist id="productosDataList">' +
-                      suggestions +
-                      "</datalist>"
-                  );
-                  $("#producto").attr("list", "productosDataList");
-                }
-              }
-            );
-          }
-        });
-
-        $("#producto").on("change", function () {
-          var selected = $(this).find(":selected");
-          var precio = selected.data("precio");
-          var cantidad = 1; // Establecemos la cantidad a 1
-          var descuento = 0; // Establecemos el descuento a 0
-
-          $("#precio").val(precio);
-          $("#cantidad").val(cantidad);
-          $("#descuento").val(descuento);
-        });
-      });
-    </script> -->
-
-  <!-- <script>
-        // Lógica para agregar productos dinámicamente a la tabla
-        $(document).ready(function () {
-          $("#agregarProducto").click(function () {
-            const producto = $("input[name='producto[]']").last().val();
-            const precio = $("input[name='precio[]']").last().val();
-            const cantidad = $("input[name='cantidad[]']").last().val();
-            const descuento = $("input[name='descuento[]']").last().val();
-            
-            if (producto && precio && cantidad) {
-              const importe =
-              parseFloat(precio) * parseInt(cantidad) -
-              (parseFloat(descuento) || 0);
-              
-              $("#miTabla tbody").append(`
-              <tr>
-                <td>${producto}</td>
-                <td>${precio}</td>
-                <td>${cantidad}</td>
-                <td>${descuento}</td>
-                <td>${importe.toFixed(2)}</td>
-                <td><button type="button" class="btn btn-danger btn-sm eliminarProducto">Eliminar</button></td>
-              </tr>
-              `);
-            }
-          });
-          
-          $(document).on("click", ".eliminarProducto", function () {
-            $(this).closest("tr").remove();
-          });
-        });
-      </script> -->
-  <!-- <script>
-        document
-          .getElementById("finalizarBtn")
-          .addEventListener("click", function () {
-            // Obtener los datos que necesitas enviar (ejemplo con variables)
-            const tipo = "boleta"; // Tipo de venta
-            const numserie = "V00001"; // Número de serie
-            const numcomprobante = "0001"; // Número de comprobante
-            const nomcliente = "Juan Pérez"; // Nombre del cliente
-            const fecha = "2025-03-27"; // Fecha
-            const tipomoneda = "S/.";
-      
-            const productos = JSON.stringify([1, 2, 3]); // Ejemplo de ID de productos
-            const precios = JSON.stringify([100, 200, 150]); // Precios de los productos
-            const cantidades = JSON.stringify([1, 2, 3]); // Cantidades de los productos
-            const descuentos = JSON.stringify([0, 10, 5]); // Descuentos de los productos
-      
-            // Usar Fetch API para enviar los datos al servidor
-            fetch("Venta.controller.php", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                tipo: tipo,
-                numserie: numserie,
-                numcomprobante: numcomprobante,
-                nomcliente: nomcliente,
-                fecha: fecha,
-                tipomoneda: tipomoneda,
-                productos: productos,
-                precios: precios,
-                cantidades: cantidades,
-                descuentos: descuentos,
-              }),
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                // Aquí puedes manejar la respuesta del servidor
-                if (data.success) {
-                  alert("Venta finalizada con éxito!");
-                } else {
-                  alert("Hubo un error al finalizar la venta.");
-                }
-              })
-              .catch((error) => {
-                console.error("Error:", error);
-                alert("Error al enviar la solicitud.");
-              });
-          });
-      </script> -->
-  <!-- <script>
-      $(document).ready(function () {
-        $('#agregarProducto').click(function () {
-          var producto = $('#producto').val();
-          var precio = $('#precio').val();
-          var cantidad = $('#cantidad').val();
-          var descuento = $('#descuento').val();
-          
-          if (producto && precio && cantidad) {
-            var importe = (parseFloat(precio) * parseInt(cantidad)) - (parseFloat(descuento) || 0);
-            $('#miTabla tbody').append(`
-            <tr>
-              <td>${producto}</td>
-              <td>${precio}</td>
-              <td>${cantidad}</td>
-              <td>${descuento}</td>
-              <td>${importe.toFixed(2)}</td>
-              <td><button type="button" class="btn btn-danger btn-sm eliminarProducto">Eliminar</button></td>
-            </tr>
-            `);
-          }
-        });
-        
-        $(document).on('click', '.eliminarProducto', function () {
-          $(this).closest('tr').remove();
-        });
-      });
-    </script> -->
 </body>
 
 </html>

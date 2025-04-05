@@ -8,7 +8,7 @@ CREATE PROCEDURE registrar_venta_detalle (
     IN p_numserie VARCHAR(10),
     IN p_numcom VARCHAR(10),
     IN p_moneda VARCHAR(20),
-    IN p_detalle JSON
+    IN p_detalleventa JSON
 )
 BEGIN
     DECLARE v_idventa INT;
@@ -23,7 +23,7 @@ BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
         ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al registrar la venta. Se realizó ROLLBACK.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al registrar la venta.';
     END;
 
     -- Verificar si el cliente existe
@@ -55,7 +55,6 @@ BEGIN
 
     SET v_idventa = LAST_INSERT_ID();
 
-    -- Insertar cada ítem del detalle
     WHILE i < detalle_length DO
         SET v_idproducto = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].idproducto')));
         SET v_cantidad = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].cantidad')));
@@ -63,21 +62,18 @@ BEGIN
         SET v_precioventa = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].precioventa')));
         SET v_descuento = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].descuento')));
 
-        -- Validar producto
         IF NOT EXISTS (SELECT 1 FROM productos WHERE idproducto = v_idproducto) THEN
             SET v_error_message = CONCAT('Producto con ID ', v_idproducto, ' no existe.');
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = v_error_message;
         END IF;
 
-        -- Insertar detalle
         INSERT INTO detalleventa (
             idproducto, 
             idventa, 
             cantidad, 
             numserie, 
             precioventa, 
-            descuento
-        )
+            descuento)
         VALUES (
             v_idproducto, 
             v_idventa, 
@@ -86,19 +82,15 @@ BEGIN
             v_precioventa, 
             v_descuento
         );
-
         SET i = i + 1;
     END WHILE;
-
     COMMIT;
 END$$
-
 DELIMITER ;
 
 
--- registro de ventas
+-- registro de ventas prueba
 DELIMITER $$
-
 CREATE PROCEDURE registrarVentaCompleta(
     IN p_tipocom VARCHAR(10),
     IN p_numserie VARCHAR(10),
@@ -106,10 +98,9 @@ CREATE PROCEDURE registrarVentaCompleta(
     IN p_idcliente INT,
     IN p_fechahora DATE,
     IN p_moneda VARCHAR(10),
-    IN p_productos JSON -- Usamos JSON para recibir los productos
+    IN p_productos JSON 
 )
 BEGIN
-    -- Declarar las variables antes de cualquier otro comando
     DECLARE idventa INT;
     DECLARE i INT DEFAULT 0;
     DECLARE idproducto INT;
@@ -117,31 +108,19 @@ BEGIN
     DECLARE cantidad INT;
     DECLARE descuento DECIMAL(10,2);
     DECLARE importe DECIMAL(10,2);
-
-    -- Insertar la venta en la tabla ventas
     INSERT INTO ventas (tipocom, numserie, numcom, idcliente, fechahora, moneda)
     VALUES (p_tipocom, p_numserie, p_numcom, p_idcliente, p_fechahora, p_moneda);
-
-    -- Obtener el ID de la venta insertada
     SET idventa = LAST_INSERT_ID();
-
-    -- Iterar sobre los productos y agregarlos a la tabla detalleventa
     WHILE i < JSON_LENGTH(p_productos) DO
         SET idproducto = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].idproducto')));
         SET precio = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].precio')));
         SET cantidad = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].cantidad')));
         SET descuento = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].descuento')));
         SET importe = (precio * cantidad) - descuento;
-
-        -- Insertar en detalleventa
         INSERT INTO detalleventa (idventa, idproducto, precioventa, cantidad, descuento, importe)
         VALUES (idventa, idproducto, precio, cantidad, descuento, importe);
-
         SET i = i + 1;
     END WHILE;
-
-
-    -- Registrar en la vista (vs_registro_venta)
     INSERT INTO vs_registro_venta (clientes, subcategoria_producto, tipocom, numserie, numcom, fechahora, moneda, precioventa, cantidad, descuento)
     SELECT 
         CASE
@@ -165,10 +144,8 @@ BEGIN
     INNER JOIN productos P2 ON DV.idproducto = P2.idproducto
     INNER JOIN subcategorias S ON P2.idsubcategoria = S.idsubcategoria
     WHERE V.idventa = idventa;
-
 END $$
 DELIMITER ;
-
 -- fin registro
 
 -- buscarcliente
@@ -194,29 +171,26 @@ BEGIN
     LIMIT 10;
 END$$
 DELIMITER ;
-
 -- fin busqueda cliente
 
 -- Buscar producto
 DELIMITER $$
-
 CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
 BEGIN
     SELECT 
-        P.idproducto,  -- Incluimos el idproducto
+        P.idproducto,
         CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-        DV.precioventa  -- Obtenemos precioventa desde detalleventa
+        DV.precioventa
     FROM productos P
     INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
-    LEFT JOIN detalleventa DV ON P.idproducto = DV.idproducto  -- Aseguramos que relacionamos correctamente los productos y los precios
+    LEFT JOIN detalleventa DV ON P.idproducto = DV.idproducto
     WHERE 
         (S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%'))
     LIMIT 10;
 END $$
-
 DELIMITER ;
 
--- producto con precioventa
+-- producto con precioventa prueba
 DELIMITER $$
 CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
 BEGIN
@@ -229,9 +203,8 @@ BEGIN
 END $$
 DELIMITER ;
 
--- Buscar producto
+-- Buscar producto prueba2
 DELIMITER $$
-
 CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
 BEGIN
     SELECT 
@@ -247,7 +220,6 @@ BEGIN
 END $$
 DELIMITER ;
 
-CALL buscar_producto('Motores');
 
 -- fin busqueda producto
 

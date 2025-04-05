@@ -18,6 +18,9 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/swalcustom.js"></script>
 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
+  integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+
   <!-- endinject -->
   <!-- Plugin css for this page -->
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/font-awesome/css/font-awesome.min.css" />
@@ -34,15 +37,12 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-    .container-main {
+    /* .container-main {
       background: transparent;
       padding: 0px;
       border-radius: 5px;
       box-shadow: none;
       width: 75%;
-      /* Aumenta el tamaño */
-      
-      /* Aumenta la altura */
       margin:50px;
     }
     #selectMetodo {
@@ -56,7 +56,7 @@
       gap: 20px;
       margin-bottom: 20px;
       align-items: flex-end;
-      /* Alinea los elementos correctamente */
+
     }
 
     .form-field {
@@ -69,7 +69,6 @@
     .input-button-group {
       display: flex;
       align-items: center;
-      /* Alinea el input y el botón */
       gap: 10px;
     }
 
@@ -92,7 +91,7 @@
     
     .border {
       border-radius: 4px;
-    }
+    } */
   </style>
 </head>
 

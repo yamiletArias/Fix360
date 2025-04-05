@@ -25,37 +25,27 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             break;
 
         case 'POST':
-            $inputData = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents("php://input"), true);
 
-            // Validar que la acción esté definida
-            if (isset($inputData['action']) && $inputData['action'] === 'finalizarVenta') {
-                // Validación de campos requeridos
-                if (empty($inputData['idcliente']) || empty($inputData['tipocom']) || empty($inputData['fechahora']) ||
-                    empty($inputData['numserie']) || empty($inputData['numcom']) || empty($inputData['moneda']) ||
-                    empty($inputData['detalle'])) {
-                    echo json_encode(["status" => "error", "message" => "Faltan datos requeridos."]);
-                    return;
-                }
-
+            if (isset($data['idcliente'], $data['tipocom'], $data['fechahora'], $data['numserie'], $data['numcom'], $data['moneda'], $data['detalleventa'])) {
                 try {
-                    $idcliente = $inputData['idcliente'];
-                    $tipocom = $inputData['tipocom'];
-                    $fechahora = $inputData['fechahora'];
-                    $numserie = $inputData['numserie'];
-                    $numcom = $inputData['numcom'];
-                    $moneda = $inputData['moneda'];
-                    $detalle = $inputData['detalle'];
+                    // Llamar al método para registrar la venta
+                    $venta->registrarVentaDetalle(
+                        $data['idcliente'],
+                        $data['tipocom'],
+                        $data['fechahora'],
+                        $data['numserie'],
+                        $data['numcom'],
+                        $data['moneda'],
+                        $data['detalleventa']
+                    );
 
-                    $venta->registrarVenta($idcliente, $tipocom, $fechahora, $numserie, $numcom, $moneda, $detalle);
-
-                    echo json_encode(["status" => "success", "message" => "Venta registrada correctamente."]);
+                    echo json_encode(['status' => 'success', 'message' => 'Venta registrada correctamente.']);
                 } catch (Exception $e) {
-                    
-                    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             } else {
-                // Si no se ha especificado la acción
-                echo json_encode(["status" => "error", "message" => "Acción no reconocida"]);
+                echo json_encode(['status' => 'error', 'message' => 'Faltan parámetros en la solicitud.']);
             }
             break;
 
