@@ -1,5 +1,4 @@
 <?php
-
 require_once "../models/Conexion.php";
 
 class Venta extends Conexion
@@ -8,7 +7,7 @@ class Venta extends Conexion
 
     public function __CONSTRUCT()
     {
-        $this->pdo = parent::getConexion(); 
+        $this->pdo = parent::getConexion();
     }
 
     public function getAll(): array
@@ -20,11 +19,10 @@ class Venta extends Conexion
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception("Error al obtener las ventas: " . $e->getMessage());
         }
         return $result;
     }
-
 
     // Buscar clientes utilizando el procedimiento almacenado
     public function buscarCliente(string $termino): array
@@ -37,12 +35,12 @@ class Venta extends Conexion
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception("Error al buscar clientes: " . $e->getMessage());
         }
         return $result;
     }
 
-    // Buscar productos 
+    // Buscar productos
     public function buscarProducto(string $termino): array
     {
         $result = [];
@@ -53,53 +51,46 @@ class Venta extends Conexion
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception("Error al buscar productos: " . $e->getMessage());
         }
         return $result;
     }
 
-    // Método para registrar una venta
-    public function registrarVenta($tipocom, $numserie, $numcom, $idcliente, $fechahora, $moneda, $productos)
+    // Método para registrar la venta y el detalle
+    public function registrarVenta($idcliente, $tipocom, $fechahora, $numserie, $numcom, $moneda, $detalle)
     {
+        // Validar que el ID de cliente es numérico
+        if (!is_numeric($idcliente)) {
+            throw new Exception("El ID del cliente no es válido.");
+        }
+
+        // Verificar si el cliente existe
+        $stmtCliente = $this->pdo->prepare("SELECT COUNT(*) FROM clientes WHERE idcliente = :idcliente");
+        $stmtCliente->bindParam(':idcliente', $idcliente, PDO::PARAM_INT);
+        $stmtCliente->execute();
+
+        if ($stmtCliente->fetchColumn() == 0) {
+            throw new Exception("El cliente con ID $idcliente no existe.");
+        }
+
+        // Insertar la venta y el detalle
+        $sql = "CALL registrar_venta_detalle(:idcliente, :tipocom, :fechahora, :numserie, :numcom, :moneda, :detalle)";
+        $stmt = $this->pdo->prepare($sql);
+        $jsonDetalle = json_encode($detalle);
+
+        $stmt->bindParam(':idcliente', $idcliente, PDO::PARAM_INT);
+        $stmt->bindParam(':tipocom', $tipocom, PDO::PARAM_STR);
+        $stmt->bindParam(':fechahora', $fechahora, PDO::PARAM_STR);
+        $stmt->bindParam(':numserie', $numserie, PDO::PARAM_STR);
+        $stmt->bindParam(':numcom', $numcom, PDO::PARAM_STR);
+        $stmt->bindParam(':moneda', $moneda, PDO::PARAM_STR);
+        $stmt->bindParam(':detalle', $jsonDetalle, PDO::PARAM_STR);
+
         try {
-
-            $this->pdo->beginTransaction();
-
-            // Registrar la venta principal en la tabla 'ventas'
-            $sql = "INSERT INTO ventas (tipocom, numserie, numcom, idcliente, fechahora, moneda)
-                VALUES (:tipocom, :numserie, :numcom, :idcliente, :fechahora, :moneda)";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':tipocom', $tipocom);
-            $stmt->bindParam(':numserie', $numserie);
-            $stmt->bindParam(':numcom', $numcom);
-            $stmt->bindParam(':idcliente', $idcliente);
-            $stmt->bindParam(':fechahora', $fechahora);
-            $stmt->bindParam(':moneda', $moneda);
             $stmt->execute();
-
-            $idventa = $this->pdo->lastInsertId();
-
-            $sql_productos = "INSERT INTO productos (idventa, idproducto, precio, cantidad, descuento)
-                          VALUES (:idventa, :idproducto, :precio, :cantidad, :descuento)";
-            $stmt_producto = $this->pdo->prepare($sql_productos);
-
-            // Recorrer los productos y registrarlos
-            foreach ($productos as $producto) {
-                $stmt_producto->bindParam(':idventa', $idventa);
-                $stmt_producto->bindParam(':idproducto', $producto['idproducto']);
-                $stmt_producto->bindParam(':precio', $producto['precio']);
-                $stmt_producto->bindParam(':cantidad', $producto['cantidad']);
-                $stmt_producto->bindParam(':descuento', $producto['descuento']);
-                //$stmt_producto->bindParam(':importe', $producto['importe']);
-                $stmt_producto->execute();
-            }
-
-        } catch (Exception $e) {
-            // Si ocurre un error, deshacer la transacción
-            $this->pdo->rollBack();
-            return ['status' => 'error', 'message' => $e->getMessage()];
+        } catch (PDOException $e) {
+            throw new Exception("Error al registrar la venta: " . $e->getMessage());
         }
     }
-
 }
 ?>

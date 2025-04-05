@@ -344,11 +344,9 @@ require_once "../../partials/header.php";
             <tbody>
               <!-- Datos asíncronos -->
             </tbody>
-
           </table>
         </div>
       </div>
-
 
       <!-- Botón para finalizar la venta -->
       <div class="btn-container">
@@ -359,6 +357,7 @@ require_once "../../partials/header.php";
     </form>
   </div>
 
+  <!--FIN VENTAS-->
   <!--FIN VENTAS-->
   </div>
   </div>
@@ -391,6 +390,8 @@ require_once "../../partials/header.php";
       const inputProductElement = document.getElementById("producto");
       let currentFocus = -1;
 
+      let clienteId = null;
+
       // Función para mostrar las opciones de autocompletado para clientes
       function mostrarOpcionesCliente(input) {
         cerrarListas();
@@ -417,11 +418,14 @@ require_once "../../partials/header.php";
               const optionDiv = document.createElement("div");
               optionDiv.textContent = cliente.cliente;
 
+              // Guardar el idcliente al seleccionar el cliente
               optionDiv.addEventListener("click", function () {
                 input.value = cliente.cliente;  // Esto es el nombre del cliente
-                clienteId = cliente.idcliente; // Obtén el idcliente
+                clienteId = cliente.idcliente; // Ahora se asigna el idcliente correctamente
+                console.log("Cliente seleccionado: ", cliente.cliente, cliente.idcliente); // Imprimir cliente en consola
                 cerrarListas();
               });
+
 
               itemsDiv.appendChild(optionDiv);
             });
@@ -429,61 +433,54 @@ require_once "../../partials/header.php";
           .catch(err => console.error('Error al obtener los clientes: ', err));
       }
 
-      // Función para mostrar las opciones de autocompletado para productos
-      // Mostrar opciones para productos
+
       // Función para mostrar las opciones de autocompletado para productos
       function mostrarOpcionesProducto(input) {
-    // Cerrar cualquier lista abierta de valores autocompletados
-    cerrarListas();
+        cerrarListas();
 
-    // No mostrar nada si el input está vacío
-    if (!input.value) return;
+        if (!input.value) return;
 
-    // Petición al servidor para obtener los productos
-    const searchTerm = input.value;
-    fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`)
-      .then(response => response.json())
-      .then(data => {
-        const itemsDiv = document.createElement("div");
-        itemsDiv.setAttribute("id", "autocomplete-list-producto");
-        itemsDiv.setAttribute("class", "autocomplete-items");
-        input.parentNode.appendChild(itemsDiv);
+        const searchTerm = input.value;
+        fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`)
+          .then(response => response.json())
+          .then(data => {
+            const itemsDiv = document.createElement("div");
+            itemsDiv.setAttribute("id", "autocomplete-list-producto");
+            itemsDiv.setAttribute("class", "autocomplete-items");
+            input.parentNode.appendChild(itemsDiv);
 
-        // Si no hay coincidencias, no hacer nada
-        if (data.length === 0) {
-          const noResultsDiv = document.createElement("div");
-          noResultsDiv.textContent = 'No se encontraron productos';
-          itemsDiv.appendChild(noResultsDiv);
-          return;
-        }
+            if (data.length === 0) {
+              const noResultsDiv = document.createElement("div");
+              noResultsDiv.textContent = 'No se encontraron productos';
+              itemsDiv.appendChild(noResultsDiv);
+              return;
+            }
 
-        // Mostrar los resultados obtenidos
-        data.forEach(function (producto) {
-          const optionDiv = document.createElement("div");
-          optionDiv.textContent = producto.subcategoria_producto;
+            data.forEach(function (producto) {
+              const optionDiv = document.createElement("div");
+              optionDiv.textContent = producto.subcategoria_producto;
 
-          optionDiv.addEventListener("click", function () {
+              optionDiv.addEventListener("click", function () {
+                input.value = producto.subcategoria_producto;
+                document.getElementById('precio').value = producto.precioventa;
+                $("#cantidad").val(1);
+                $("#descuento").val(0);
 
-            input.value = producto.subcategoria_producto;
-            document.getElementById('precio').value = producto.precioventa;
-            $("#cantidad").val(1); // Restablecer cantidad a 1
-            $("#descuento").val(0); // Restablecer descuento a 0
+                selectedProduct = {
+                  idproducto: producto.idproducto,
+                  subcategoria_producto: producto.subcategoria_producto,
+                  precio: producto.precioventa
+                };
 
-            selectedProduct = {
-              idproducto: producto.idproducto,
-              subcategoria_producto: producto.subcategoria_producto,
-              precio: producto.precioventa
-            };
+                console.log("Producto seleccionado: ", selectedProduct); // Imprimir producto en consola
+                cerrarListas();
+              });
 
-            cerrarListas();
-
-          });
-
-          itemsDiv.appendChild(optionDiv);
-        });
-      })
-      .catch(err => console.error('Error al obtener los productos: ', err));
-}
+              itemsDiv.appendChild(optionDiv);
+            });
+          })
+          .catch(err => console.error('Error al obtener los productos: ', err));
+      }
 
       // Función para cerrar todas las listas de autocompletado
       function cerrarListas(elemento) {
@@ -522,7 +519,6 @@ require_once "../../partials/header.php";
     });
   </script>
 
-
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const numSerieInput = document.getElementById("numserie");
@@ -559,9 +555,7 @@ require_once "../../partials/header.php";
         });
       });
     });
-
   </script>
-
 
   <script>
     $(document).ready(function () {
@@ -581,16 +575,14 @@ require_once "../../partials/header.php";
       const tabla = document.querySelector("#tabla-detalle tbody");
       const agregarProductoBtn = document.querySelector("#agregarProducto");
 
-      let detalleVenta = []; 
+      let detalleVenta = [];
 
       agregarProductoBtn.addEventListener("click", function () {
-
         const productoNombre = producto.value;
         const productoPrecio = parseFloat(precio.value);
         const productoCantidad = parseFloat(cantidad.value);
         const productoDescuento = parseFloat(descuento.value);
 
-        // Validar que los campos tengan valores correctos
         if (!productoNombre || isNaN(productoPrecio) || isNaN(productoCantidad)) {
           alert("Por favor, complete todos los campos correctamente.");
           return;
@@ -600,9 +592,8 @@ require_once "../../partials/header.php";
 
         const nuevaFila = document.createElement("tr");
 
-        // Crear celdas para cada columna
         const celdaNumero = document.createElement("td");
-        celdaNumero.textContent = tabla.rows.length + 1; // Número de la fila
+        celdaNumero.textContent = tabla.rows.length + 1;
         nuevaFila.appendChild(celdaNumero);
 
         const celdaProducto = document.createElement("td");
@@ -625,7 +616,6 @@ require_once "../../partials/header.php";
         celdaImporte.textContent = importe.toFixed(2);
         nuevaFila.appendChild(celdaImporte);
 
-        // Crear celda para las acciones (por ejemplo, eliminar)
         const celdaAcciones = document.createElement("td");
         const btnEliminar = document.createElement("button");
         btnEliminar.textContent = "X";
@@ -637,17 +627,26 @@ require_once "../../partials/header.php";
         celdaAcciones.appendChild(btnEliminar);
         nuevaFila.appendChild(celdaAcciones);
 
-        // Agregar la fila a la tabla
         tabla.appendChild(nuevaFila);
 
-        // Limpiar los campos para agregar un nuevo producto
+        // Imprimir detalle de venta en consola
+        const detalle = {
+          producto: productoNombre,
+          precio: productoPrecio,
+          cantidad: productoCantidad,
+          descuento: productoDescuento,
+          importe: importe.toFixed(2)
+        };
+
+        console.log("Detalle de venta agregado: ", detalle);
+
         producto.value = "";
         precio.value = "";
         cantidad.value = 1;
         descuento.value = 0;
       });
 
-      
+
       function actualizarNumeros() {
         const filas = tabla.getElementsByTagName("tr");
         for (let i = 0; i < filas.length; i++) {
@@ -655,13 +654,61 @@ require_once "../../partials/header.php";
         }
       }
 
-      function finalizarBtn(){
-        
-      }
     });
-
   </script>
 
+  <!-- <script>
+    document.getElementById("finalizarBtn").addEventListener("click", function () {
+      const tipocom = document.querySelector('input[name="tipo"]:checked').value;
+      const fechahora = document.getElementById("fecha").value;
+      const numserie = document.getElementById("numserie").value;
+      const numcom = document.getElementById("numcom").value;
+      const moneda = document.getElementById("tipomoneda").value;
+
+      if (!clienteId) {
+        alert("Por favor, selecciona un cliente válido.");
+        return;
+      }
+
+      // Aquí recolectas detalleVenta (de tu tabla)
+      const detalle = [];
+      document.querySelectorAll("#tabla-detalle tbody tr").forEach(tr => {
+        const tds = tr.querySelectorAll("td");
+        detalle.push({
+          producto: tds[1].textContent,
+          precio: parseFloat(tds[2].textContent),
+          cantidad: parseFloat(tds[3].textContent),
+          descuento: parseFloat(tds[4].textContent),
+          importe: parseFloat(tds[5].textContent)
+        });
+      });
+
+      fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "finalizarVenta",
+          idcliente: clienteId,
+          tipocom,
+          fechahora,
+          numserie,
+          numcom,
+          moneda,
+          detalle
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log("Respuesta del servidor:", data);
+          alert(data.message);
+        })
+        .catch(err => {
+          console.error("Error al enviar la venta:", err);
+        });
+    });
+  </script> -->
 
 
   <!-- <script>

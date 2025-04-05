@@ -1,3 +1,101 @@
+-- Procedimiento para registrar la venta y el detalle
+DELIMITER $$
+
+CREATE PROCEDURE registrar_venta_detalle (
+    IN p_idcliente INT,
+    IN p_tipocom VARCHAR(10),
+    IN p_fechahora DATETIME,
+    IN p_numserie VARCHAR(10),
+    IN p_numcom VARCHAR(10),
+    IN p_moneda VARCHAR(20),
+    IN p_detalle JSON
+)
+BEGIN
+    DECLARE v_idventa INT;
+    DECLARE i INT DEFAULT 0;
+    DECLARE v_idproducto INT;
+    DECLARE v_cantidad INT;
+    DECLARE v_numserie VARCHAR(100);
+    DECLARE v_precioventa DECIMAL(7,2);
+    DECLARE v_descuento DECIMAL(5,2);
+    DECLARE detalle_length INT;
+    DECLARE v_error_message VARCHAR(255);
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al registrar la venta. Se realizó ROLLBACK.';
+    END;
+
+    -- Verificar si el cliente existe
+    IF NOT EXISTS (SELECT 1 FROM clientes WHERE idcliente = p_idcliente) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El cliente no existe.';
+    END IF;
+
+    SET detalle_length = JSON_LENGTH(p_detalle);
+
+    START TRANSACTION;
+
+    -- Insertar la venta
+    INSERT INTO ventas (
+        idcliente, 
+        tipocom, 
+        fechahora, 
+        numserie, 
+        numcom, 
+        moneda
+    )
+    VALUES (
+        p_idcliente, 
+        p_tipocom, 
+        p_fechahora, 
+        p_numserie, 
+        p_numcom, 
+        p_moneda
+    );
+
+    SET v_idventa = LAST_INSERT_ID();
+
+    -- Insertar cada ítem del detalle
+    WHILE i < detalle_length DO
+        SET v_idproducto = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].idproducto')));
+        SET v_cantidad = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].cantidad')));
+        SET v_numserie = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].numserie')));
+        SET v_precioventa = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].precioventa')));
+        SET v_descuento = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].descuento')));
+
+        -- Validar producto
+        IF NOT EXISTS (SELECT 1 FROM productos WHERE idproducto = v_idproducto) THEN
+            SET v_error_message = CONCAT('Producto con ID ', v_idproducto, ' no existe.');
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = v_error_message;
+        END IF;
+
+        -- Insertar detalle
+        INSERT INTO detalleventa (
+            idproducto, 
+            idventa, 
+            cantidad, 
+            numserie, 
+            precioventa, 
+            descuento
+        )
+        VALUES (
+            v_idproducto, 
+            v_idventa, 
+            v_cantidad, 
+            v_numserie, 
+            v_precioventa, 
+            v_descuento
+        );
+
+        SET i = i + 1;
+    END WHILE;
+
+    COMMIT;
+END$$
+
+DELIMITER ;
+
+
 -- registro de ventas
 DELIMITER $$
 
@@ -69,12 +167,12 @@ BEGIN
     WHERE V.idventa = idventa;
 
 END $$
-
 DELIMITER ;
 
 -- fin registro
 
 -- buscarcliente
+-- Procedimiento para buscar clientes
 DELIMITER $$
 CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
 BEGIN
@@ -94,7 +192,7 @@ BEGIN
         OR 
         (P.nombres LIKE CONCAT('%', termino_busqueda, '%') AND P.nombres IS NOT NULL)
     LIMIT 10;
-END $$
+END$$
 DELIMITER ;
 
 -- fin busqueda cliente
@@ -105,13 +203,30 @@ DELIMITER $$
 CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
 BEGIN
     SELECT 
-        subcategoria_producto,
-        precio
-    FROM vs_productos_subcategoria_producto
-    WHERE subcategoria_producto LIKE CONCAT('%', termino_busqueda, '%')
+        P.idproducto,  -- Incluimos el idproducto
+        CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
+        DV.precioventa  -- Obtenemos precioventa desde detalleventa
+    FROM productos P
+    INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
+    LEFT JOIN detalleventa DV ON P.idproducto = DV.idproducto  -- Aseguramos que relacionamos correctamente los productos y los precios
+    WHERE 
+        (S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%'))
     LIMIT 10;
 END $$
 
+DELIMITER ;
+
+-- producto con precioventa
+DELIMITER $$
+CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
+BEGIN
+    SELECT 
+        subcategoria_producto,
+        precioventa
+    FROM vs_registro_venta
+    WHERE subcategoria_producto LIKE CONCAT('%', termino_busqueda, '%')
+    LIMIT 10;
+END $$
 DELIMITER ;
 
 -- Buscar producto
@@ -130,7 +245,6 @@ BEGIN
         (S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%'))
     LIMIT 10;
 END $$
-
 DELIMITER ;
 
 CALL buscar_producto('Motores');

@@ -17,7 +17,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 } else {
                     // Buscar clientes
                     $termino = $_GET['q'];
-                    echo json_encode($venta->buscarCliente($termino)); 
+                    echo json_encode($venta->buscarCliente($termino));
                 }
             } else {
                 echo json_encode($venta->getAll());
@@ -25,26 +25,40 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             break;
 
         case 'POST':
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (
-                isset($data['tipocom']) && isset($data['numserie']) && isset($data['numcom']) &&
-                isset($data['cliente']) && isset($data['fechahora']) && isset($data['moneda']) && isset($data['productos'])
-            ){
-                $tipocom = $_POST['tipocom'];
-                $numserie = $_POST['numserie'];
-                $numcom = $_POST['numcom'];
-                $cliente = $_POST['cliente'];
-                $fechahora = $_POST['fechahora'];
-                $moneda = $_POST['moneda'];
-                $productos = $_POST['productos'];
+            $inputData = json_decode(file_get_contents('php://input'), true);
 
-                $resultado = $venta->registrarVenta($tipocom, $numserie, $numcom, 
-                $cliente, $fechahora, $moneda, $productos);
+            // Validar que la acción esté definida
+            if (isset($inputData['action']) && $inputData['action'] === 'finalizarVenta') {
+                // Validación de campos requeridos
+                if (empty($inputData['idcliente']) || empty($inputData['tipocom']) || empty($inputData['fechahora']) ||
+                    empty($inputData['numserie']) || empty($inputData['numcom']) || empty($inputData['moneda']) ||
+                    empty($inputData['detalle'])) {
+                    echo json_encode(["status" => "error", "message" => "Faltan datos requeridos."]);
+                    return;
+                }
 
-                echo json_encode($resultado);
+                try {
+                    $idcliente = $inputData['idcliente'];
+                    $tipocom = $inputData['tipocom'];
+                    $fechahora = $inputData['fechahora'];
+                    $numserie = $inputData['numserie'];
+                    $numcom = $inputData['numcom'];
+                    $moneda = $inputData['moneda'];
+                    $detalle = $inputData['detalle'];
+
+                    $venta->registrarVenta($idcliente, $tipocom, $fechahora, $numserie, $numcom, $moneda, $detalle);
+
+                    echo json_encode(["status" => "success", "message" => "Venta registrada correctamente."]);
+                } catch (Exception $e) {
+                    
+                    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+                }
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Faltan datos']);
+                // Si no se ha especificado la acción
+                echo json_encode(["status" => "error", "message" => "Acción no reconocida"]);
             }
             break;
+
     }
 }
+?>
