@@ -181,18 +181,46 @@ VALUES
   ('Recomendacion');
   
   
-insert into vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
-values
-(1,'98654','2020','asda5s46d54as6d5','rojo','allinol'),
-(2,'321qwe','2021','a65das4d65a4','azul','GNV'),
-(3,'fgh987','2022','987vas98das7','blanco','GLP'),
-(4,'321vbn','2023','asvda65c4wq','negro','Gas'),
-(5,'64n87a','2024','sacd4a65c14','gris','GNV'),
-(6,'s1lt6r','2025','8465c32a132za','amarillo','GNV'),
-(7,'aw4bq4','2018','as9c3x21a3z','verde','GLP');
+INSERT INTO vehiculos (idmodelo, placa, anio, numserie, color, tipocombustible) VALUES
+(1, 'ABC1234', '2018', 'SER12345', 'Rojo', 'Gasolina'),
+(2, 'DEF5678', '2020', 'SER23456', 'Negro', 'Gasolina'),
+(3, 'GHI9012', '2019', NULL, 'Blanco', 'Diésel'),
+(4, 'JKL3456', '2017', 'SER45678', 'Gris', 'Gasolina'),
+(5, 'MNO7890', '2021', NULL, 'Azul', 'Eléctrico'),
+(1, 'PQR1234', '2016', 'SER56789', 'Verde', 'Gasolina'),
+(2, 'STU5678', '2022', NULL, 'Amarillo', 'Gas'),
+(3, 'VWX9012', '2015', 'SER67890', 'Plomo', 'Gasolina'),
+(4, 'YZA3456', '2023', NULL, 'Negro', 'Eléctrico'),
+(5, 'BCD7890', '2024', 'SER78901', 'Rojo', 'Híbrido');
 
-insert into propietarios (idcliente, idvehiculo)
-values
+
+INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, numruc, direccion, correo, telprincipal, telalternativo) VALUES
+('Carlos', 'Ramírez', 'DNI', '75849320', '20123456789', 'Av. Los Pinos 123', 'carlos.ramirez@mail.com', '987654321', NULL),
+('Lucía', 'Fernández', 'DNI', '84920315', NULL, 'Jr. Lima 456', NULL, '912345678', '900123456'),
+('Juan', 'Gómez', 'Pasaporte', 'PA1234567', '20654321876', NULL, 'juan.gomez@mail.com', NULL, '989898989'),
+('María', 'Quispe', 'Carnet Extranjería', 'CE998877', NULL, NULL, NULL, '955667788', NULL),
+('Pedro', 'Vargas', 'DNI', '78541236', NULL, 'Av. Bolívar 678', 'pedro.vargas@mail.com', '901112233', '922334455'),
+('Ana', 'Torres', 'DNI', '80321459', '20987654321', NULL, 'ana.torres@mail.com', NULL, NULL),
+('Jorge', 'Lopez', 'DNI', '71239845', NULL, NULL, NULL, NULL, NULL),
+('Carmen', 'Rojas', 'DNI', '75488933', '20765432109', 'Calle 13 #56', 'carmen.rojas@mail.com', '998877665', '988776655'),
+('Luis', 'Huamán', 'DNI', '70123456', NULL, 'Av. Grau 999', NULL, '934567890', NULL),
+('Elena', 'Salas', 'Pasaporte', 'PA7654321', '20876543210', NULL, NULL, NULL, NULL);
+
+INSERT INTO empresas (nomcomercial, razonsocial, telefono, correo, ruc) VALUES
+('Tech Solutions', 'Tech Solutions S.A.C.', '987654321', 'contacto@techsolutions.com', '20111111111'),
+('InnovaSoft', 'InnovaSoft EIRL', '912345678', 'ventas@innovasoft.pe', '20222222222'),
+('Green Corp', 'Green Corporation S.A.', '901234567', 'info@greencorp.com', '20333333333'),
+('Constructiva', 'Constructiva S.A.C.', '945612378', 'contacto@constructiva.pe', '20444444444'),
+('ModaFlex', 'ModaFlex EIRL', '923456789', 'modaflex@tienda.com', '20555555555'),
+('BioLife', 'BioLife Perú S.A.C.', '987123456', 'biolife@salud.pe', '20666666666'),
+('ServiRed', 'Servicios Integrales Red S.A.C.', '999888777', 'soporte@servired.com', '20777777777'),
+('Educativa360', 'Educativa360 S.A.C.', '934567890', 'admin@educativa360.com', '20888888888'),
+('AutoPerú', 'AutoPerú Automotriz S.A.', '922334455', 'autoperu@vehiculos.com', '20999999999'),
+('ViajesExpress', 'Viajes Express S.R.L.', '955667788', 'reservas@viajesexpress.pe', '20100000001');
+
+
+INSERT INTO propietarios (idcliente, idvehiculo)
+VALUES
 (1,1),
 (2,2),
 (1,3),
@@ -202,6 +230,29 @@ values
 (1,7);
 -- select * from propietarios;
 
+INSERT INTO clientes (idempresa, idpersona, idcontactabilidad) VALUES
+(1, NULL, 1),
+(2, NULL, 2),
+(NULL, 1, 3),
+(NULL, 2, 4),
+(3, NULL, 1),
+(NULL, 3, 2),
+(4, NULL, 3),
+(NULL, 4, 4),
+(5, NULL, 1),
+(NULL, 5, 2);
+
+INSERT INTO propietarios (idcliente, idvehiculo, fechainicio, fechafinal) VALUES
+(1, 1, '2022-01-10', '2023-02-15'),
+(2, 2, '2021-05-20', NULL),
+(3, 3, '2023-07-01', NULL),
+(4, 4, '2020-11-30', '2022-11-30'),
+(5, 5, '2024-03-12', NULL),
+(6, 6, '2022-08-09', '2023-09-01'),
+(7, 7, '2023-04-25', NULL),
+(8, 8, '2021-12-12', '2022-12-12'),
+(9, 9, '2023-09-19', NULL),
+(10, 10, '2024-01-01', NULL);
 
 
 

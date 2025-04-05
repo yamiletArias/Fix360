@@ -207,32 +207,37 @@ ON c.idempresa = e.idempresa
 WHERE c.idpersona IS NULL;
 
 
-create or replace view vwVehiculos AS
-select
-case
-when c.idpersona is null then em.nomcomercial
-else pe.nombres
-end as propietario,
+CREATE OR REPLACE VIEW vwVehiculos AS
+SELECT
+CASE
+WHEN c.idpersona IS NULL THEN em.nomcomercial
+ELSE CONCAT(pe.nombres,' ',pe.apellidos)
+END AS propietario,
 v.idvehiculo,
 t.tipov,
 ma.nombre,
 v.placa,
-v.color
-from
+v.color,
+m.modelo,
+v.anio,
+v.numserie,
+v.tipocombustible
+FROM
 propietarios p
-left join vehiculos v
-on p.idvehiculo = v.idvehiculo
-left join clientes c
-on p.idcliente = c.idcliente
-left join modelos m
-on v.idmodelo = m.idmodelo
-left join tipovehiculos t
-on m.idtipov = t.idtipov
-left join marcas ma
-on m.idmarca = ma.idmarca
-left join personas pe
-on c.idpersona = pe.idpersona
-left join empresas em
-on c.idempresa = em.idempresa;
+LEFT JOIN vehiculos v
+ON p.idvehiculo = v.idvehiculo
+LEFT JOIN clientes c
+ON p.idcliente = c.idcliente
+LEFT JOIN modelos m
+ON v.idmodelo = m.idmodelo
+LEFT JOIN tipovehiculos t
+ON m.idtipov = t.idtipov
+LEFT JOIN marcas ma
+ON m.idmarca = ma.idmarca
+LEFT JOIN personas pe
+ON c.idpersona = pe.idpersona
+LEFT JOIN empresas em
+ON c.idempresa = em.idempresa;
 
 -- select * from vwVehiculos;
+SELECT * FROM vwVehiculos ORDER BY idvehiculo DESC;
