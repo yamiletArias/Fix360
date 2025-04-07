@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-    /* .container-main {
+     .container-main {
       background: transparent;
       padding: 0px;
       border-radius: 5px;
@@ -91,7 +91,7 @@
     
     .border {
       border-radius: 4px;
-    } */
+    } 
   </style>
 </head>
 
@@ -187,7 +187,7 @@
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
-            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
+            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php"><img
                 style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
           </li>
           <li class="nav-item nav-profile">

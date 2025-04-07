@@ -3,7 +3,7 @@
 <?php
 // Datos
 $token = 'apis-token-14104.g67iElklbuoH8v51T7cOgcVhrMLGicKv';
-$dni = '71689010';
+$dni = '71775587';
 
 // Iniciar llamada a API
 $curl = curl_init();

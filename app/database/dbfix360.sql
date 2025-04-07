@@ -24,8 +24,8 @@ CREATE TABLE empresas(
 idempresa 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
 nomcomercial  	VARCHAR(80)		NOT NULL,
 razonsocial 	VARCHAR(80)		NOT NULL,
-telefono 		VARCHAR(20)		NOT NULL,
-correo 			VARCHAR(100)	NOT NULL,
+telefono 		VARCHAR(20)	NULL,
+correo 			VARCHAR(100)	NULL,
 ruc 				CHAR(11)			NOT NULL,
 CONSTRAINT uq_ruc UNIQUE(ruc)
 
