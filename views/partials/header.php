@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-    /* .container-main {
+     .container-main {
       background: transparent;
       padding: 0px;
       border-radius: 5px;
@@ -91,7 +91,7 @@
     
     .border {
       border-radius: 4px;
-    } */
+    } 
   </style>
 </head>
 
@@ -100,13 +100,13 @@
   <div class="container-scroller">
     <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
       <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo" href="../../index.html">
+        <a class="navbar-brand brand-logo" href="../movdiario/listar-movdiario.php">
           <img src="../../../images/logofix360.png" alt="logo" style="width: 200px;"
             class="logo-dark" />
           <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
             class="logo-light" />
         </a>
-        <a class="navbar-brand brand-logo-mini" href="../../index.html"><img
+        <a class="navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php"><img
             src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
           <span class="icon-menu"></span>
@@ -187,7 +187,7 @@
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
-            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
+            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php"><img
                 style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
           </li>
           <li class="nav-item nav-profile">
@@ -227,7 +227,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href=".<?= SERVERURL ?>views/page/productos/listar-producto.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/productos/listar-producto.php">
               <span class="menu-title">Productos</span>
               <i class="fa-solid fa-store menu-icon"></i>
             </a>
@@ -251,7 +251,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href=".<?= SERVERURL ?>views/page/promociones/listar-promociones.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/promociones/listar-promociones.php">
               <span class="menu-title">Promociones</span>
               <i class="fa-solid fa-percent menu-icon"></i>
             </a>

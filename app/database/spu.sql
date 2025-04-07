@@ -95,9 +95,28 @@ END $$
 
 DELIMITER $$
 
--- select * from contactabilidad;
- -- drop procedure spGetAllContactabilidad;
+
  DELIMITER $$
+ CREATE PROCEDURE spRegisterVehiculo(
+IN _idmodelo INT,
+IN _placa CHAR(7),
+IN _anio CHAR(4),
+IN _numserie VARCHAR(50),
+IN _color VARCHAR(20),
+IN _tipocombustible VARCHAR(20),
+IN _idcliente INT
+)
+BEGIN
+DECLARE _idvehiculo INT;
+
+INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
+VALUES (_idmodelo,_placa,_anio,_numserie,_color,_tipocombustible);
+SET _idvehiculo = LAST_INSERT_ID();
+INSERT INTO propietarios (idcliente, idvehiculo) VALUES
+(_idcliente, _idvehiculo);
+
+END $$
+DELIMITER $$
 
 CREATE PROCEDURE spGetAllContactabilidad ()
 BEGIN
@@ -178,8 +197,8 @@ END $$
 
 DELIMITER $$
 
-CALL spBuscarPersona ('dni', '761');
-CALL spBuscarPersona ('nombre', 'herna') -- select * from personas;
+-- CALL spBuscarPersona ('dni', '761');
+-- CALL spBuscarPersona ('nombre', 'herna') -- select * from personas;
  DROP PROCEDURE IF EXISTS spBuscarEmpresa;
 DELIMITER $$
 
@@ -435,21 +454,7 @@ IN _idcontactabilidad INT
  END $$ 
  DELIMITER $$
  
- DELIMITER $$
- CREATE PROCEDURE spRegisterVehiculo(
-IN _idmodelo INT,
-IN _placa CHAR(7),
-IN _anio CHAR(4),
-IN _numserie VARCHAR(50),
-IN _color VARCHAR(20),
-IN _tipocombustible VARCHAR(20),
-IN _idcliente INT
-)
-BEGIN
-INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible,idcliente)
-VALUES (_idmodelo,_placa,_numserie,_color,_tipocombustible,_idcliente);
-END $$
-DELIMITER $$
+
 
 
 

@@ -38,10 +38,10 @@ class Vehiculo extends Conexion {
    *
    * @return int Número de filas afectadas o 0 en caso de error.
    */
-  public function registerVehiculoYPropietario($params = []): int {
+  public function registerVehiculo($params = []): int {
     $numRows = 0;
     try {
-        $query = "CALL spRegistrarVehiculoYPropietario(?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Agregar un "?" más para idcliente
+        $query = "CALL spRegisterVehiculo( ?, ?, ?, ?, ?, ?, ?)"; // Agregar un "?" más para idcliente
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([
             $params["idmodelo"],
@@ -50,8 +50,6 @@ class Vehiculo extends Conexion {
             $params["numserie"],
             $params["color"],
             $params["tipocombustible"],
-            $params["criterio"],
-            $params["tipoBusqueda"],
             $params["idcliente"] // Agregar este campo
         ]);
 
@@ -59,6 +57,7 @@ class Vehiculo extends Conexion {
 
     } catch (PDOException $e) {
         error_log("Error DB: " . $e->getMessage());
+        return $numRows;
     }
     return $numRows;
 }

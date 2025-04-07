@@ -7,6 +7,7 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 
 ?>
+
         <div class="container-main">
           <div class="card">
             <div class="card-header">
@@ -17,9 +18,9 @@ require_once "../../partials/header.php";
             <div class="card-body">
               <div class="row">
                 <!-- Marca -->
-                <div class="col-md-6">
-                  <div class="form-floating mb-3">
-                    <select class="form-control" id="marca">
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="marca" name="marca" style="color: black;" required>
                       <option>Marca</option>
                     </select>
                     <label for="marca">Marca:</label>
@@ -27,47 +28,14 @@ require_once "../../partials/header.php";
                 </div>
 
                 <!-- Subcategoria -->
-                <div class="col-md-6">
-                  <div class="form-floating mb-3">
+                <div class="col-md-4">
+                  <div class="form-floating">
                     <input type="text" class="form-control" id="subcategoria" />
                     <label for="subcategoria">Subcategoría:</label>
                   </div>
                 </div>
 
-                <!-- Precio -->
-                <div class="col-md-6">
-                  <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="precio" />
-                    <label for="precio">Precio:</label>
-                  </div>
-                </div>
-
-                <!-- Cantidad -->
-                <div class="col-md-6">
-                  <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="cantidad" />
-                    <label for="cantidad">Cantidad:</label>
-                  </div>
-                </div>
-
-                <!-- Medida -->
-                <div class="col-md-6">
-                  <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="medida" />
-                    <label for="medida">Medida:</label>
-                  </div>
-                </div>
-
-                <!-- Presentación -->
-                <div class="col-md-6">
-                  <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="presentacion" />
-                    <label for="presentacion">Presentación:</label>
-                  </div>
-                </div>
-
-                <!-- Descripción -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="form-floating mb-3">
                     <textarea
                       class="form-control"
@@ -77,6 +45,36 @@ require_once "../../partials/header.php";
                     <label for="descripcion">Descripción:</label>
                   </div>
                 </div>
+
+                <div class="col-md-3">
+                  <div class="form-floating ">
+                    <input type="text" class="form-control" id="presentacion" placeholder="presentacion" />
+                    <label for="presentacion">Presentación</label>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="cantidad"  placeholder="cantidad"/>
+                    <label for="cantidad">Cantidad</label>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="medida" placeholder="medida" />
+                    <label for="medida">Medida</label>
+                  </div>
+                </div>
+
+                <!-- Precio -->
+                <div class="col-md-3">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="precio" placeholder="presio" />
+                    <label for="precio">Precio</label>
+                  </div>
+                </div>
+
               </div>
 
               <!-- Imagen -->
@@ -100,13 +98,13 @@ require_once "../../partials/header.php";
               <div style="display: flex; justify-content: flex-end; gap: 20px">
                 <button
                   class="btn btn-secondary"
-                  onclick="window.location.href='listar-Producto.html'"
+                  onclick="window.location.href='listar-Producto.php'"
                 >
                   Cancelar
                 </button>
                 <button
                   class="btn btn-success"
-                  onclick="window.location.href='listar-Producto.html'"
+                  onclick="window.location.href='listar-Producto.php'"
                 >
                   Finalizar
                 </button>

@@ -269,9 +269,9 @@ require_once "../../partials/header.php";
 
       // Restricción para el RUC: 11 dígitos y comenzar con 10 o 20
       let ruc = document.querySelector('[name="ruc"]').value.trim();
-      if (!/^(10|20)\d{9}$/.test(ruc)) {
+      if (!/^(20)\d{9}$/.test(ruc)) {
         esValido = false;
-        showToast('El RUC debe tener 11 dígitos y comenzar con 10 o 20', 'ERROR', 3000);
+        showToast('El RUC debe tener 11 dígitos y comenzar con 20', 'ERROR', 3000);
       }
 
       // Validación de correo (si tiene valor)

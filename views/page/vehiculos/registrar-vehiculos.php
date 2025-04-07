@@ -8,6 +8,7 @@ require_once "../../partials/header.php";
 ?>
 <!---hasta aqui sera el header-->
 <div class="container-main">
+  <form action="" id="FormVehiculo">
   <div class="card border" style="margin-top:50px;">
     <div class="card-body">
       <div class="row">
@@ -86,11 +87,11 @@ require_once "../../partials/header.php";
         </div>
         <div class="col-md-4">
           <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control" id="floatingInput" value="1" />
+            <input type="text" disabled class="form-control" id="floatingInput"/>
             <label for="floatingInput">Propietario:</label>
 
             <input type="hidden" id="hiddenIdCliente" />
-            <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
+            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
               data-bs-target="#miModal">
               ...
             </button>
@@ -104,12 +105,12 @@ require_once "../../partials/header.php";
         <button class="btn btn-secondary" onclick="window.location.href='listar-vehiculos.php'">
           Cancelar
         </button>
-        <button class="btn btn-success" id="btnRegistrarVehiculo">
+        <button type="submit" class="btn btn-success" id="btnRegistrarVehiculo">
           Aceptar
         </button>
       </div>
     </div>
-
+    </form>
   </div>
 </div>
 </div>

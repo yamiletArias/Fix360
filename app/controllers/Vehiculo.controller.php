@@ -31,12 +31,10 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                     "numserie"       => Helper::limpiarCadena($dataJSON["numserie"] ?? ""),
                     "color"          => Helper::limpiarCadena($dataJSON["color"] ?? ""),
                     "tipocombustible"=> Helper::limpiarCadena($dataJSON["tipocombustible"] ?? ""),
-                    "criterio"       => Helper::limpiarCadena($dataJSON["criterio"] ?? ""),
-                    "tipoBusqueda"   => Helper::limpiarCadena($dataJSON["tipoBusqueda"] ?? ""),
                     "idcliente"      => Helper::limpiarCadena($dataJSON["idcliente"] ?? ""),
                 ];
             
-                $n = $vehiculo->registerVehiculoYPropietario($registro);
+                $n = $vehiculo->registerVehiculo($registro);
             
                 if ($n === 0) {
                     echo json_encode(["error" => "No se pudo registrar el vehículo"]);
