@@ -14,15 +14,18 @@ class Subcategoria extends Conexion {
      * Retorna todas las subcategorías con su respectiva categoría.
      * @return array
      */
-    public function getAll() {
+    public function getSubcategoriaByCategoria() {
+        $result = [];
         try {
-            $query = "CALL spListSubcategorias()";
+            $query = "CALL spGetSubcategoriaByCategoria()";
             $cmd = $this->pdo->prepare($query);
             $cmd->execute();
             return $cmd->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             die($e->getMessage());
         }
+
+        return $result;
     }
 
     /**

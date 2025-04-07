@@ -2,8 +2,8 @@ DROP VIEW IF EXISTS vwCategoriasSubcategorias;
 
 CREATE VIEW vwCategoriasSubcategorias AS
 SELECT
-  c.nombre AS categoria,
-  s.nombre AS subcategoria
+  c.categoria AS categoria,
+  s.subcategoria AS subcategoria
 FROM
   subcategorias s
   INNER JOIN categorias c
@@ -99,8 +99,6 @@ LEFT JOIN marcas m
 ON p.idmarca = m.idmarca
 LEFT JOIN subcategorias s
 ON p.idsubcategoria = s.idsubcategoria;
-
-CREATE OR REPLACE 
 
 -- select * from vwVehiculos;
 -- select * from vehiculos;

@@ -36,4 +36,20 @@ class Marca extends Conexion {
     return $result;
   }
 
+  public function getAllMarcaProducto():array {
+    $result = [];
+    try {
+      $query = "CALL spGetAllMarcaProducto()";
+      $cmd = $this->pdo->prepare($query);
+      $cmd->execute();
+      $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (Exception $e) {
+      die($e->getMessage());
+    }
+
+    return $result;
+
+  }
+
 }

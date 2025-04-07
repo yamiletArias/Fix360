@@ -370,7 +370,7 @@ require_once "../../partials/_footer.php";
       .catch(error => console.error("Error al cargar tipos de vehículo:", error));
 
     // Cargar select de marcas
-    fetch("http://localhost/fix360/app/controllers/Marca.controller.php")
+    fetch("http://localhost/fix360/app/controllers/Marca.controller.php?task=getAllMarcaVehiculo")
       .then(response => response.json())
       .then(data => {
         // Asumiendo que cada registro trae campos 'idmarca' y 'marca'
