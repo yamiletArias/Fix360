@@ -16,7 +16,7 @@ class Categoria extends Conexion {
      */
     public function getAll() {
         try {
-            $query = "CALL spListCategorias()";
+            $query = "CALL spGetAllCategoria()";
             $cmd = $this->pdo->prepare($query);
             $cmd->execute();
             return $cmd->fetchAll(PDO::FETCH_ASSOC);

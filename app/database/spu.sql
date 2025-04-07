@@ -130,6 +130,24 @@ END $$
 DELIMITER $$
 
 DELIMITER $$
+CREATE PROCEDURE spGetSubcategoriaByCategoria (
+IN _idcategoria INT
+)
+BEGIN
+SELECT 
+s.idsubcategoria,
+s.subcategoria
+FROM
+subcategorias s
+WHERE 
+s.idcategoria = _idcategoria;
+END $$
+
+DELIMITER $$
+
+-- call spGetSubcategoriaByCategoria(1); 
+-- select * from subcategorias order by idsubcategoria asc;
+DELIMITER $$
 
 CREATE PROCEDURE spGetModelosByTipoMarca (IN p_idtipov INT, IN p_idmarca INT)
 BEGIN
@@ -144,9 +162,28 @@ END $$
 
 DELIMITER $$
 
--- CALL spGetModelosByTipoMarca(2,3);
+DELIMITER $$
+CREATE PROCEDURE spGetAllMarcaProducto()
+BEGIN
+SELECT
+* 
+FROM 
+marcas 
+WHERE tipo != 'vehiculo';
+END $$
  DELIMITER $$
-
+ 
+ DELIMITER $$
+ CREATE PROCEDURE spGetAllCategoria()
+ BEGIN
+ SELECT 
+ *
+ FROM
+ categorias;
+ END $$
+ DELIMITER $$
+ 
+ DELIMITER $$
 CREATE PROCEDURE spGetAllMarcaVehiculo ()
 BEGIN
   SELECT
@@ -233,226 +270,29 @@ END $$
 
 DELIMITER $$
 
--- call spBuscarEmpresa ('nombrecomercial', 'SAC');
--- select * from clientes;
--- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS spRegistrarVehiculoYPropietario;
-DELIMITER $$
-CREATE PROCEDURE spRegistrarVehiculoYPropietario(
-    IN _idmodelo INT,
-    IN _placa CHAR(7),
-    IN _anio CHAR(4),
-    IN _numserie VARCHAR(20),
-    IN _color VARCHAR(50),
-    IN _tipocombustible VARCHAR(30),
-    IN _criterio VARCHAR(100),
-    IN _tipoBusqueda VARCHAR(20),
-    IN _idcliente INT
+CREATE PROCEDURE spRegisterProducto(
+IN _idsubcategoria INT,
+IN _idmarca INT,
+IN _descripcion VARCHAR(50),
+IN _precio DECIMAL(7,2),
+IN _presentacion VARCHAR(40),
+IN _undmedida VARCHAR(40),
+IN _cantidad DECIMAL(10,2),
+IN _img 		VARCHAR(255)
 )
 BEGIN
-    DECLARE _idvehiculo INT;
-    DECLARE _idcliente INT;
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        -- Si ocurre un error, revierte la transacción
-        SELECT 'Cliente encontrado:', _idcliente;
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al registrar vehículo o propietario';
-    END;
-
-    -- Inicia la transacción
-    START TRANSACTION;
-
-    -- 1. Registrar el vehículo y obtener su ID
-    INSERT INTO vehiculos (idmodelo, placa, anio, numserie, color, tipocombustible)
-    VALUES (_idmodelo, _placa, _anio, _numserie, _color, _tipocombustible);
-    
-    SET _idvehiculo = LAST_INSERT_ID();
-
-    -- 2. Buscar el ID del cliente según el criterio de búsqueda
-    IF _tipoBusqueda = 'DNI' THEN
-        SELECT idcliente INTO _idcliente FROM clientes WHERE idpersona = (SELECT idpersona FROM personas WHERE numdoc = _criterio);
-    ELSEIF _tipoBusqueda = 'NOMBRE' THEN
-        SELECT idcliente INTO _idcliente FROM clientes WHERE idpersona = 
-            (SELECT idpersona FROM personas WHERE CONCAT(nombres, ' ', apellidos) LIKE CONCAT('%', _criterio, '%') LIMIT 1);
-    ELSEIF _tipoBusqueda = 'RUC' THEN
-        SELECT idcliente INTO _idcliente FROM clientes WHERE idempresa = (SELECT idempresa FROM empresas WHERE ruc = _criterio);
-    ELSEIF _tipoBusqueda = 'RAZONSOCIAL' THEN
-        SELECT idcliente INTO _idcliente FROM clientes WHERE idempresa = 
-            (SELECT idempresa FROM empresas WHERE razonsocial LIKE CONCAT('%', _criterio, '%') LIMIT 1);
-    ELSEIF _tipoBusqueda = 'NOMBRECOMERCIAL' THEN
-        SELECT idcliente INTO _idcliente FROM clientes WHERE idempresa = 
-            (SELECT idempresa FROM empresas WHERE nomcomercial LIKE CONCAT('%', _criterio, '%') LIMIT 1);
-    END IF;
-
-    -- Si el cliente no existe, lanzar un error
-    IF _idcliente IS NULL THEN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cliente no encontrado';
-    END IF;
-
-    -- 3. Insertar al propietario usando el ID del cliente y del vehículo recién creado
-    INSERT INTO propietarios (idcliente, idvehiculo, fechainicio)
-    VALUES (_idcliente, _idvehiculo, NOW());
-
-    -- Confirmar la transacción
-    COMMIT;
+INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida,cantidad,img) 
+					VALUES (_idsubcategoria,_idmarca,_descripcion,_precio,_presentacion,_undmedida,_cantidad,_img);
 END$$
 
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS spGetClienteByDni;
-DELIMITER $$
-CREATE PROCEDURE spGetClienteByDni(
-IN _dni CHAR(20)
-)
-BEGIN
-SELECT c.idcliente
-FROM clientes c
-INNER JOIN personas p ON c.idpersona = p.idpersona
-WHERE p.numdoc LIKE CONCAT('%', _dni, '%') LIMIT 1;
-END $$
-DELIMITER $$
-
+-- call spBuscarEmpresa ('nombrecomercial', 'SAC');
+-- select * from clientes;
+-- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
 -- call spGetClienteByDni('40');
-
-DROP PROCEDURE IF EXISTS spGetOrCreateClientePersona;
-DELIMITER $$
-CREATE PROCEDURE spGetOrCreateClientePersona(
-IN _nombres VARCHAR(50),
-IN _apellidos VARCHAR(50),
-IN _tipodoc VARCHAR(30),
-IN _numdoc CHAR(20),
-IN _direccion VARCHAR(70),
-IN _correo VARCHAR(100),
-IN _telprincipal VARCHAR(20),
-IN _telalternativo VARCHAR(20),
-IN _idcontactabilidad INT
-)
-BEGIN 
- DECLARE _idcliente INT;
- 
- SELECT c.idcliente
- INTO _idcliente
- FROM clientes c 
- INNER JOIN personas p ON c.idpersona = p.idpersona
- WHERE p.numdoc = _numdoc
- LIMIT 1;
- IF _idcliente IS NULL THEN
- INSERT INTO personas(nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal, telalternativo) VALUES
- (_nombres,_apellidos,_tipodoc,_numdoc,_direccion,_correo,_telprincipal,_telalternativo);
- SET _idcliente = LAST_INSERT_ID();
- 
- INSERT INTO clientes (idpersona,idcontactabilidad)
- VALUES (_idcliente,_idcontactabilidad);
- 
- SET _idcliente = LAST_INSERT_ID();
- END IF;
- 
- SELECT _idcliente AS idcliente;
- 
- END $$
- DELIMITER $$
- 
- DROP PROCEDURE IF EXISTS spGetOrCreatePropietario;
- DELIMITER $$
- CREATE PROCEDURE spGetOrCreatePropietario(
- IN _idcliente INT,
- IN _idvehiculo INT
- )
- 
- BEGIN 
- DECLARE _idpropietario INT;
- SELECT idpropietario
- INTO _idpropietario
- FROM propietarios
- WHERE idcliente = _idcliente
- AND idvehiculo = _idvehiculo
- AND fechafinal IS NULL
- LIMIT 1;
- 
- IF _idpropietario IS NULL THEN
- INSERT INTO propietarios (idcliente,idvehiculo, fechainicio)
- VALUES (_idcliente,_idvehiculo,NOW());
- SET _idpropietario = LAST_INSERT_ID();
- END IF;
- 
- SELECT _idpropietario AS idpropietario;
- END $$
- DELIMITER $$
- /*
- drop procedure if exists spRegisterVehiculo;
- delimiter $$
- create procedure spRegisterVehiculo(
- in _idmodelo int,
- in _placa char(7),
- in _anio char(4),
- in _numserie varchar(20) ,
- in _color varchar(50),
- in _tipocombustible varchar(30)
- )
- begin
- insert into vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
- values (_idmodelo,_placa,_anio,_numserie,_color,_tipocombustible);
- 
- select last_insert_id() as idvehiculo;
- end $$
- delimiter ;
- */
- DROP PROCEDURE IF EXISTS spRegistrarVehiculoCompleto;
- DELIMITER $$
- CREATE PROCEDURE spRegistrarVehiculoCompleto(
- IN _idmodelo INT,
- IN _placa CHAR(7),
- IN _anio CHAR(4),
- IN _numserie VARCHAR(20),
-IN _color VARCHAR(50),
-IN _tipocombustible VARCHAR(30),
-IN _nombres VARCHAR(50),
-IN _apellidos VARCHAR(50),
-IN _tipodoc VARCHAR(30),
-IN _numdoc CHAR(20),
-IN _direccion VARCHAR(70),
-IN _correo VARCHAR(100),
-IN _telprincipal VARCHAR(20),
-IN _telalternativo VARCHAR(20),
-IN _idcontactabilidad INT
- )
- BEGIN
- 
- DECLARE _idcliente INT;
- DECLARE _idvehiculo INT;
- DECLARE _idpropietario INT;
- 
- START TRANSACTION;
- 
- CALL spGetOrCreateClientePersona(
- _nombres,_apellidos,_tipodoc,_numdoc,_direccion,_correo,_telprincipal,_telalternativo,_idcontactabilidad
- );
- SELECT @idcliente := idcliente FROM DUAL;
- 
- SET _idcliente = @idcliente;
- 
- CALL spRegisterVehiculo(
- _idmodelo,_placa,_anio,_numserie,_color,_tipocombustible);
- 
- SELECT @idvehiculo := idvehiculo FROM DUAL;
- SET _idvehiculo = @idvehiculo;
- 
- CALL spGetOrCreatePropietario(_idcliente,_idvehiculo);
- SELECT @idpropietario := idpropietario FROM DUAL;
- SET _idpropietario = @idpropietario;
- 
- COMMIT;
- 
- SELECT
- _idcliente AS idcliente,
- _idvehiculo AS idvehiculo,
- _idpropietario AS idpropietario;
- END $$ 
- DELIMITER $$
  
 
 

@@ -8,7 +8,12 @@ if (isset($_SERVER['REQUEST_METHOD'])){
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
+            if($_GET['task'] == 'getAllMarcaVehiculo'){
             echo json_encode($marca->getAllMarcaVehiculo());
+            }
+            if($_GET['task'] == 'getAllMarcaProducto'){
+            echo json_encode($marca->getAllMarcaProducto());
+            }
             break;
         
         case 'POST':

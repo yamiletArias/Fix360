@@ -21,15 +21,10 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
   integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
 
-  <!-- endinject -->
-  <!-- Plugin css for this page -->
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/font-awesome/css/font-awesome.min.css" />
-  <!-- End plugin css for this page -->
-  <!-- inject:css -->
-  <!-- endinject -->
-  <!-- Layout styles -->
+
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/css/vertical-light-layout/style.css" />
-  <!-- End layout styles -->
+  
   <link rel="shortcut icon" href="<?= SERVERURL ?>views/assets/images/favicon.png" />
 
 
