@@ -135,6 +135,7 @@ SELECT * FROM empresas WHERE idempresa IN (1, 2);
 SELECT * FROM personas WHERE idpersona IN (1, 2);
 SELECT * FROM contactabilidad WHERE idcontactabilidad IN (1, 2);
 SELECT * FROM detalleventa;
+SELECT * FROM ventas;
 SELECT * FROM clientes WHERE idcliente = 2;
 
 SELECT * FROM empresas;

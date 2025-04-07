@@ -1,154 +1,155 @@
--- Procedimiento para registrar la venta y el detalle
-DELIMITER $$
+-- registro ventas
 
-CREATE PROCEDURE registrar_venta_detalle (
-    IN p_idcliente INT,
-    IN p_tipocom VARCHAR(10),
-    IN p_fechahora DATETIME,
-    IN p_numserie VARCHAR(10),
-    IN p_numcom VARCHAR(10),
-    IN p_moneda VARCHAR(20),
-    IN p_detalleventa JSON
+DELIMITER $$
+CREATE PROCEDURE spuRegisterVentas (
+  IN _tipocom VARCHAR(50),
+  IN _fechahora VARCHAR(50),
+  IN _numserie VARCHAR(30),
+  IN _numcom CHAR(20),
+  IN _moneda CHAR(11),
+  IN _idcliente INT,
+  IN _idproducto INT,
+  IN _cantidad INT,
+  IN _numserie_detalle JSON,  -- JSON con múltiples números de serie
+  IN _precioventa DECIMAL(7,2),
+  IN _descuento DECIMAL(5,2)
 )
 BEGIN
-    DECLARE v_idventa INT;
-    DECLARE i INT DEFAULT 0;
-    DECLARE v_idproducto INT;
-    DECLARE v_cantidad INT;
-    DECLARE v_numserie VARCHAR(100);
-    DECLARE v_precioventa DECIMAL(7,2);
-    DECLARE v_descuento DECIMAL(5,2);
-    DECLARE detalle_length INT;
-    DECLARE v_error_message VARCHAR(255);
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al registrar la venta.';
-    END;
+  DECLARE _idventa INT;
+  DECLARE _numserie_item VARCHAR(30);
+  DECLARE _i INT DEFAULT 0;
+  DECLARE _json_length INT;
 
-    -- Verificar si el cliente existe
-    IF NOT EXISTS (SELECT 1 FROM clientes WHERE idcliente = p_idcliente) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El cliente no existe.';
-    END IF;
+  -- Insertar en la tabla ventas
+  INSERT INTO ventas (
+    idcliente,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda
+  )
+  VALUES (
+    _idcliente,
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda
+  );
 
-    SET detalle_length = JSON_LENGTH(p_detalle);
+  -- Obtener el ID de la venta insertada
+  SET _idventa = LAST_INSERT_ID();
 
-    START TRANSACTION;
+  -- Obtener la longitud del JSON (número de elementos)
+  SET _json_length = JSON_LENGTH(_numserie_detalle);
 
-    -- Insertar la venta
-    INSERT INTO ventas (
-        idcliente, 
-        tipocom, 
-        fechahora, 
-        numserie, 
-        numcom, 
-        moneda
+  -- Iterar sobre cada número de serie en el JSON
+  WHILE _i < _json_length DO
+    SET _numserie_item = JSON_UNQUOTE(JSON_EXTRACT(_numserie_detalle, CONCAT('$[', _i, ']')));
+
+    -- Insertar cada detalle en detalleventa
+    INSERT INTO detalleventa (
+      idproducto,
+      idventa,
+      cantidad,
+      numserie,
+      precioventa,
+      descuento
     )
     VALUES (
-        p_idcliente, 
-        p_tipocom, 
-        p_fechahora, 
-        p_numserie, 
-        p_numcom, 
-        p_moneda
+      _idproducto,
+      _idventa,
+      _cantidad,
+      _numserie_item,  -- Número de serie extraído del JSON
+      _precioventa,
+      _descuento
     );
 
-    SET v_idventa = LAST_INSERT_ID();
-
-    WHILE i < detalle_length DO
-        SET v_idproducto = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].idproducto')));
-        SET v_cantidad = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].cantidad')));
-        SET v_numserie = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].numserie')));
-        SET v_precioventa = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].precioventa')));
-        SET v_descuento = JSON_UNQUOTE(JSON_EXTRACT(p_detalle, CONCAT('$[', i, '].descuento')));
-
-        IF NOT EXISTS (SELECT 1 FROM productos WHERE idproducto = v_idproducto) THEN
-            SET v_error_message = CONCAT('Producto con ID ', v_idproducto, ' no existe.');
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = v_error_message;
-        END IF;
-
-        INSERT INTO detalleventa (
-            idproducto, 
-            idventa, 
-            cantidad, 
-            numserie, 
-            precioventa, 
-            descuento)
-        VALUES (
-            v_idproducto, 
-            v_idventa, 
-            v_cantidad, 
-            v_numserie, 
-            v_precioventa, 
-            v_descuento
-        );
-        SET i = i + 1;
-    END WHILE;
-    COMMIT;
-END$$
-DELIMITER ;
-
-
--- registro de ventas prueba
-DELIMITER $$
-CREATE PROCEDURE registrarVentaCompleta(
-    IN p_tipocom VARCHAR(10),
-    IN p_numserie VARCHAR(10),
-    IN p_numcom VARCHAR(20),
-    IN p_idcliente INT,
-    IN p_fechahora DATE,
-    IN p_moneda VARCHAR(10),
-    IN p_productos JSON 
-)
-BEGIN
-    DECLARE idventa INT;
-    DECLARE i INT DEFAULT 0;
-    DECLARE idproducto INT;
-    DECLARE precio DECIMAL(10,2);
-    DECLARE cantidad INT;
-    DECLARE descuento DECIMAL(10,2);
-    DECLARE importe DECIMAL(10,2);
-    INSERT INTO ventas (tipocom, numserie, numcom, idcliente, fechahora, moneda)
-    VALUES (p_tipocom, p_numserie, p_numcom, p_idcliente, p_fechahora, p_moneda);
-    SET idventa = LAST_INSERT_ID();
-    WHILE i < JSON_LENGTH(p_productos) DO
-        SET idproducto = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].idproducto')));
-        SET precio = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].precio')));
-        SET cantidad = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].cantidad')));
-        SET descuento = JSON_UNQUOTE(JSON_EXTRACT(p_productos, CONCAT('$[', i, '].descuento')));
-        SET importe = (precio * cantidad) - descuento;
-        INSERT INTO detalleventa (idventa, idproducto, precioventa, cantidad, descuento, importe)
-        VALUES (idventa, idproducto, precio, cantidad, descuento, importe);
-        SET i = i + 1;
-    END WHILE;
-    INSERT INTO vs_registro_venta (clientes, subcategoria_producto, tipocom, numserie, numcom, fechahora, moneda, precioventa, cantidad, descuento)
-    SELECT 
-        CASE
-            WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
-            WHEN C.idpersona IS NOT NULL THEN P.nombres
-        END AS clientes,
-        CONCAT(S.subcategoria, ' - ', P2.descripcion) AS subcategoria_producto,
-        V.tipocom,
-        V.numserie,
-        V.numcom,
-        V.fechahora,
-        V.moneda,
-        DV.precioventa,
-        DV.cantidad,
-        DV.descuento
-    FROM ventas V
-    INNER JOIN detalleventa DV ON V.idventa = DV.idventa
-    INNER JOIN clientes C ON V.idcliente = C.idcliente
-    LEFT JOIN empresas E ON C.idempresa = E.idempresa
-    LEFT JOIN personas P ON C.idpersona = P.idpersona
-    INNER JOIN productos P2 ON DV.idproducto = P2.idproducto
-    INNER JOIN subcategorias S ON P2.idsubcategoria = S.idsubcategoria
-    WHERE V.idventa = idventa;
+    -- Incrementar el índice
+    SET _i = _i + 1;
+  END WHILE;
 END $$
 DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spuRegisterVentas (
+  IN _tipocom VARCHAR(50),
+  IN _fechahora VARCHAR(50),
+  IN _numserie VARCHAR(30),
+  IN _numcom CHAR(20),
+  IN _moneda CHAR(11),
+  IN _idcliente INT,
+  IN _idproducto INT,
+  IN _cantidad INT,
+  IN _numserie_detalle JSON,
+  IN _precioventa DECIMAL(7,2),
+  IN _descuento DECIMAL(5,2)
+)
+BEGIN
+  DECLARE _idventa INT;
+  
+  -- Insertar en la tabla ventas
+  INSERT INTO ventas (
+    idcliente,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda
+  )
+  VALUES (
+    _idcliente,
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda
+  );
+
+  -- Obtener el ID de la venta insertada
+  SET _idventa = LAST_INSERT_ID();
+
+  -- Insertar en la tabla detalleventa
+  INSERT INTO detalleventa (
+    idproducto,
+    idventa,
+    cantidad,
+    numserie,
+    precioventa,
+    descuento
+  )
+  VALUES (
+    _idproducto,
+    _idventa,
+    _cantidad,
+    _numserie_detalle,
+    _precioventa,
+    _descuento
+  );
+  
+END $$
+
+DELIMITER ;
+SELECT * FROM ventas ORDER BY idventa DESC LIMIT 3;
+SELECT * FROM detalleventa ORDER BY iddetventa DESC LIMIT 3;
+
+
 -- fin registro
 
--- buscarcliente
+-- tipomoneda
+DELIMITER $$
+
+CREATE PROCEDURE spuGetMonedasVentas()
+BEGIN
+  SELECT DISTINCT moneda FROM ventas;
+END $$
+
+DELIMITER ;
+
+
+-- fintipomoneda
 -- Procedimiento para buscar clientes
 DELIMITER $$
 CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
