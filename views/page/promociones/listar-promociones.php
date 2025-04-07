@@ -7,9 +7,15 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 
 ?>
+
+<style>
+   .container-main{
+    width: 82%;
+  }
+</style>
 <div class="container-main">
   <div class="header-group">
-    <div>
+    <div class="text-end">
       <button
         type="button"
         onclick="window.location.href='./registrar-promociones.php'"

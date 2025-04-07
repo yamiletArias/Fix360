@@ -47,7 +47,7 @@ INSERT INTO marcas (nombre, tipo) VALUES
 ('RKD', 'OTROS'),
 ('JBG', 'OTROS');
 
-INSERT INTO categorias (nombre) VALUES
+INSERT INTO categorias (categoria) VALUES
 ('ABRAZADERAS'),
 ('ACEITE'),
 ('ARANDELA'),
@@ -83,7 +83,7 @@ INSERT INTO categorias (nombre) VALUES
 ('TRICETA'),
 ('VALVULA PCV VALVE');
 
-INSERT INTO subcategorias (idcategoria, nombre) VALUES
+INSERT INTO subcategorias (idcategoria, subcategoria) VALUES
 (1,'ABRAZADERAS'),
 (2,'ACEITE DE MOTOR'),
 (3,'ARANDELA'),
@@ -148,6 +148,60 @@ INSERT INTO marcas (nombre, tipo) VALUES
 ('Chery','vehiculo'),
 ('Daihatsu','vehiculo');
 
+INSERT INTO productos (idmarca, idsubcategoria, descripcion, precio, presentacion, undmedida, cantidad, img) VALUES
+(16, 2, 'Aceite multigrado SHELL 20W50', 48.50, 'botella', 'Litros', 4.00, 'img/aceite_shell.jpg'),
+(17, 2, 'Aceite sintético CHEVRON 10W30', 55.00, 'botella', 'Litros', 4.00, 'img/aceite_chevron.jpg'),
+(18, 2, 'Aceite mineral CASTROL GTX 20W50', 42.90, 'botella', 'Litros', 4.00, 'img/aceite_castrol.jpg'),
+(19, 2, 'Aceite MOTUL 300V Competition', 79.90, 'botella', 'Litros', 2.00, 'img/aceite_motul.jpg'),
+(20, 2, 'Aceite WILLIAMS Premium 15W40', 35.00, 'botella', 'Litros', 4.00, 'img/aceite_williams.jpg'),
+(21, 2, 'Aceite REPSOL Elite 5W40', 65.00, 'botella', 'Litros', 4.00, 'img/aceite_repsol.jpg'),
+(22, 2, 'Aceite BARDHAL B1 Plus', 33.00, 'botella', 'Litros', 4.00, 'img/aceite_bardhal.jpg'),
+(26, 25, 'Refrigerante VISTONY Premix -37C', 22.50, 'botella', 'Litros', 1.00, 'img/refrigerante_vistony.jpg'),
+(42, 25, 'Refrigerante PRESTONE Antifreeze', 25.90, 'botella', 'Litros', 1.00, 'img/refrigerante_prestone.jpg'),
+(24, 5, 'Bujía NGK Iridium IX', 18.90, 'caja', 'Unidades', 4.00, 'img/bujia_ngk.jpg'),
+(25, 5, 'Bujía BOSCH Platinum', 19.90, 'caja', 'Unidades', 4.00, 'img/bujia_bosch.jpg'),
+(31, 14, 'Juego de zapatas MR POSTERIORES', 75.00, 'juego', 'Juegos', 1.00, 'img/zapatas_mr.jpg'),
+(32, 14, 'Juego de pastillas MR DELANTEROS', 82.00, 'juego', 'Juegos', 1.00, 'img/pastillas_mr.jpg'),
+(28, 16, 'Líquido de freno NIBK DOT 4', 14.00, 'botella', 'Litros', 0.50, 'img/freno_nibk.jpg'),
+(41, 16, 'Líquido de freno PRESTONE DOT 3', 11.50, 'botella', 'Litros', 0.50, 'img/freno_prestone.jpg'),
+(35, 17, 'Llanta GOOD YEARS Eagle 185/60 R15', 215.00, 'unidad', 'Unidades', 1.00, 'img/llanta_goodyears.jpg'),
+(23, 10, 'Filtro de aceite AIR FILTER AF-01', 13.90, 'unidad', 'Unidades', 1.00, 'img/filtro_aire_af01.jpg'),
+(20, 10, 'Filtro de gasolina OIL FILTER GF-3', 16.90, 'unidad', 'Unidades', 1.00, 'img/filtro_gasolina_gf3.jpg'),
+(17, 9, 'Faja de distribución CHEVRON FD-100', 32.00, 'unidad', 'Unidades', 1.00, 'img/faja_chevron.jpg'),
+(40, 12, 'Grasa MEGA GREY para rodamientos', 9.50, 'pote', 'Gramos', 250.00, 'img/grasa_mega.jpg'),
+(43, 28, 'Retén JBG trasero motor 45mm', 12.90, 'unidad', 'Unidades', 1.00, 'img/reten_jbg.jpg'),
+(39, 14, 'Juego de pisos ALMEYDA universal', 50.00, 'juego', 'Juegos', 1.00, 'img/pisos_almeyda.jpg'),
+(33, 22, 'Poncho de palier AUTOLAND reforzado', 18.00, 'unidad', 'Unidades', 1.00, 'img/poncho_autoland.jpg'),
+(44, 8, 'Empaque de culata RKD EC-09', 22.00, 'unidad', 'Unidades', 1.00, 'img/empaque_rkd.jpg'),
+(30, 26, 'Regulador de zapatas DE FRENO SDE MANO', 34.00, 'unidad', 'Unidades', 1.00, 'img/regulador_freno.jpg'),
+(27, 25, 'Refrigerante VISTONY Antifreeze -25C', 21.00, 'botella', 'Litros', 1.00, 'img/refrigerante_antifreeze.jpg'),
+(34, 22, 'Poncho de palier TOTO flexible', 16.50, 'unidad', 'Unidades', 1.00, 'img/poncho_toto.jpg'),
+(45, 13, 'Jebe para puerta JBG JP-200', 5.90, 'unidad', 'Unidades', 1.00, 'img/jebe_jbg.jpg'),
+(15, 20, 'Orring 3PK anillo sellador', 3.20, 'unidad', 'Unidades', 1.00, 'img/orring_3pk.jpg'),
+(38, 14, 'Juego de pisos KIA de lujo', 70.00, 'juego', 'Juegos', 1.00, 'img/pisos_kia.jpg'),
+(13, 19, 'Manguera de agua CHERY MA-100', 9.90, 'unidad', 'Unidades', 1.00, 'img/manguera_chery.jpg'),
+(10, 18, 'Luna de espejo AUDI lado izquierdo', 39.90, 'unidad', 'Unidades', 1.00, 'img/luna_audi.jpg'),
+(44, 4, 'Bobina de encendido RKD BK-11', 75.00, 'unidad', 'Unidades', 1.00, 'img/bobina_rkd.jpg'),
+(29, 16, 'Líquido de freno DE FRENO S/M 0.5L', 10.00, 'botella', 'Litros', 0.50, 'img/freno_sm.jpg'),
+(36, 17, 'Llanta GOOD YEARS EfficientGrip 195/65 R15', 220.00, 'unidad', 'Unidades', 1.00, 'img/llanta_gy2.jpg'),
+(22, 10, 'Filtro de cabina KUSA K-99', 15.90, 'unidad', 'Unidades', 1.00, 'img/filtro_kusa.jpg'),
+(18, 10, 'Filtro de aire BLS AirMax', 14.50, 'unidad', 'Unidades', 1.00, 'img/filtro_bls.jpg'),
+(37, 10, 'Filtro de petróleo MOBIS MP-202', 18.80, 'unidad', 'Unidades', 1.00, 'img/filtro_mobis.jpg'),
+(30, 14, 'Juego de pastillas MR DELANTEROS para Tucson', 86.00, 'juego', 'Juegos', 1.00, 'img/pastillas_mr2.jpg'),
+(12, 6, 'Cintillo BRILIANCE ajustable 15cm', 1.50, 'unidad', 'Unidades', 1.00, 'img/cintillo_brilliance.jpg'),
+(39, 15, 'Kit de accesorios ALMEYDA motor completo', 120.00, 'juego', 'Juegos', 1.00, 'img/kit_almeyda.jpg'),
+(35, 17, 'Llanta GOOD YEARS Wrangler SUV', 340.00, 'unidad', 'Unidades', 1.00, 'img/llanta_gy3.jpg'),
+(5, 23, 'Radiador CHEVROLET Aveo 1.6L', 185.00, 'unidad', 'Unidades', 1.00, 'img/radiador_aveo.jpg'),
+(21, 10, 'Filtro de gasolina WANDER WF-56', 16.00, 'unidad', 'Unidades', 1.00, 'img/filtro_wander.jpg'),
+(3, 33, 'Triceta FORD Fiesta 22 estrías', 115.00, 'unidad', 'Unidades', 1.00, 'img/triceta_ford.jpg'),
+(11, 34, 'Válvula PCV Valve BAIC modelo universal', 18.00, 'unidad', 'Unidades', 1.00, 'img/valvula_baic.jpg'),
+(7, 31, 'Suplex BMW delantero izquierdo', 145.00, 'unidad', 'Unidades', 1.00, 'img/suplex_bmw.jpg'),
+(4, 32, 'Templador HYUNDAI I10 motor 1.1L', 59.90, 'unidad', 'Unidades', 1.00, 'img/templador_i10.jpg'),
+(9, 30, 'Soporte de caja BYD F3 izquierdo', 39.00, 'unidad', 'Unidades', 1.00, 'img/soporte_byd.jpg'),
+(6, 7, 'Disco de freno NISSAN Sentra B13', 89.90, 'unidad', 'Unidades', 1.00, 'img/disco_nissan.jpg');
+
+
+
 INSERT INTO tipovehiculos (tipov) VALUES 
 ('Sedan'),
 ('Hatchback'),
@@ -191,7 +245,7 @@ VALUES
 (6,'s1lt6r','2025','8465c32a132za','amarillo','GNV'),
 (7,'aw4bq4','2018','as9c3x21a3z','verde','GLP');
 
--- select * from propietarios;
+-- select * from productos;
 
 INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, numruc, direccion, correo, telprincipal, telalternativo) VALUES
 ('Carlos', 'Ramírez', 'DNI', '75849320', '20123456789', 'Av. Los Pinos 123', 'carlos.ramirez@mail.com', '987654321', NULL),
@@ -236,4 +290,5 @@ VALUES
 (5,5),
 (6,6),
 (7,7);
+
 

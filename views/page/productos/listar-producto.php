@@ -10,8 +10,8 @@ require_once "../../partials/header.php";
 
       <div class="container-main">
         <div class="header-group">
-          <div>
-            <button type="button" onclick="window.location.href='./registrar-productos.html'" class="btn btn-success">
+          <div class="text-end">
+            <button type="button" onclick="window.location.href='./registrar-productos.php'" class="btn btn-success">
               Registrar
             </button>
           </div>
@@ -51,7 +51,7 @@ require_once "../../partials/header.php";
                   <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
                     <i class="fa-solid fa-trash"></i>
                   </button>
-                  <button title="Editar" onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">
+                  <button title="Editar" onclick="window.location.href='editar-productos.php'" class="btn btn-warning btn-sm">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
                 </td>

@@ -122,7 +122,7 @@ require_once "../../partials/_footer.php";
                 <button class='btn btn-sm btn-info' onclick="verDetalle('${element.modelo}', '${element.anio}', '${element.numserie}', '${element.tipocombustible}')">
                   <i class='fa-solid fa-clipboard-list'></i>
                 </button>
-                <a href='editar-vehiculo.php?id=${element.idvehiculo}' class='btn btn-sm btn-outline-primary'>
+                <a href='editar-vehiculos.php?id=${element.idvehiculo}' class='btn btn-sm btn-outline-primary'>
                   <i class="fa-solid fa-list"></i>
                 </a>
               </td>
