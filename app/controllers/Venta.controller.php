@@ -11,6 +11,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
+            $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? "");
             if (isset($_GET['type']) && $_GET['type'] == 'moneda') {
                 echo json_encode($venta->getMonedasVentas());
             } else if (isset($_GET['q']) && !empty($_GET['q'])) {
@@ -31,44 +32,35 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             $input = file_get_contents('php://input');
             $dataJSON = json_decode($input, true);
 
-            // Limpiar las cadenas entrantes para evitar inyecciones o caracteres no deseados
+            // Limpiar y asignar datos del encabezado
             $tipocom = Helper::limpiarCadena($dataJSON['tipocom'] ?? "");
             $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
+            // Si la fecha no incluye hora, agregar " 00:00:00"
+            if (strpos($fechahora, ' ') === false) {
+                $fechahora .= " 00:00:00";
+            }
             $numserie = Helper::limpiarCadena($dataJSON['numserie'] ?? "");
             $numcom = Helper::limpiarCadena($dataJSON['numcom'] ?? "");
             $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
             $idcliente = $dataJSON['idcliente'] ?? 0;
-            $idproducto = $dataJSON['idproducto'] ?? 0;
-            $cantidad = $dataJSON['cantidad'] ?? 0;
-            $numserie_detalle = json_encode($dataJSON['numserie_detalle'] ?? []);
-            $precioventa = $dataJSON['precioventa'] ?? 0.00;
-            $descuento = $dataJSON['descuento'] ?? 0.00;
+            $productos = $dataJSON['productos'] ?? [];
 
-            // Verificar que los datos requeridos están presentes
-            if (empty($tipocom) || empty($fechahora) || empty($numserie) || empty($numcom) || empty($moneda) || $idcliente == 0 || $idproducto == 0 || $cantidad == 0) {
-                echo json_encode(["status" => "error", "message" => "Faltan datos obligatorios."]);
+            if (empty($productos)) {
+                echo json_encode(["status" => "error", "message" => "No se enviaron productos."]);
                 exit;
             }
 
-            // Preparar los parámetros para registrar la venta
-            $params = [
+            $venta = new Venta();
+            $n = $venta->registerVentas([
                 "tipocom" => $tipocom,
                 "fechahora" => $fechahora,
                 "numserie" => $numserie,
                 "numcom" => $numcom,
                 "moneda" => $moneda,
                 "idcliente" => $idcliente,
-                "idproducto" => $idproducto,
-                "cantidad" => $cantidad,
-                "numserie_detalle" => $numserie_detalle, // Guardarlo como JSON
-                "precioventa" => $precioventa,
-                "descuento" => $descuento
-            ];
+                "productos" => $productos
+            ]);
 
-            // Llamar al método para registrar la venta
-            $n = $venta->registerVentas($params);
-
-            // Responder con el resultado de la operación
             if ($n > 0) {
                 echo json_encode(["status" => "success", "message" => "Venta registrada exitosamente."]);
             } else {
@@ -76,7 +68,9 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             }
             break;
 
-
+        default:
+            echo json_encode(["status" => "error", "message" => "Método no permitido."]);
+            break;
     }
 }
 ?>

@@ -68,8 +68,8 @@ class Venta extends Conexion
             die("Error en model: " . $e->getMessage());
         }
     }
-
-    public function registerVentas($params = []): int
+    //registrar venta
+    public function registerVentas1($params = []): int
     {
         $numRows = 0;
         try {
@@ -89,7 +89,7 @@ class Venta extends Conexion
                 $params["descuento"]
             ));
 
-            $numRows = $stmt->rowCount();
+            $numRows = $stmt->rowCount(); // Número de filas afectadas
 
         } catch (PDOException $e) {
             error_log("Error DB: " . $e->getMessage());
@@ -98,47 +98,35 @@ class Venta extends Conexion
         return $numRows;
     }
 
-    public function registrarVenta1(
-        string $tipocom,
-        string $fechahora,
-        string $numserie,
-        string $numcom,
-        string $moneda,
-        int $idcliente,
-        int $idproducto,
-        int $cantidad,
-        string $numserie_detalle,
-        float $precioventa,
-        float $descuento
-    ): bool {
+    public function registerVentas($params = []): int
+    {
         try {
-            // Prepare SQL to call the stored procedure
-            $sql = "CALL spuRegisterVentas(
-                        :tipocom, :fechahora, :numserie, :numcom, 
-                        :moneda, :idcliente, :idproducto, :cantidad, 
-                        :numserie_detalle, :precioventa, :descuento
-                    )";
+            // Se asume que 'productos' es un array y se toma el primer elemento.
+            $producto = $params["productos"][0] ?? null;
+            if (!$producto) {
+                return 0;
+            }
 
-            // Prepare statement
-            $stmt = $this->pdo->prepare($sql);
+            $query = "CALL spuRegisterVentas(?,?,?,?,?,?,?,?,?,?,?)";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                $params["tipocom"],
+                $params["fechahora"],
+                $params["numserie"],
+                $params["numcom"],
+                $params["moneda"],
+                $params["idcliente"],
+                $producto["idproducto"],
+                $producto["cantidad"],
+                $params["numserie"], // Si deseas que el numserie del detalle sea distinto, cámbialo
+                $producto["precioventa"],
+                $producto["descuento"]
+            ]);
 
-            // Bind parameters to the SQL statement
-            $stmt->bindParam(':tipocom', $tipocom, PDO::PARAM_STR);
-            $stmt->bindParam(':fechahora', $fechahora, PDO::PARAM_STR);
-            $stmt->bindParam(':numserie', $numserie, PDO::PARAM_STR);
-            $stmt->bindParam(':numcom', $numcom, PDO::PARAM_STR);
-            $stmt->bindParam(':moneda', $moneda, PDO::PARAM_STR);
-            $stmt->bindParam(':idcliente', $idcliente, PDO::PARAM_INT);
-            $stmt->bindParam(':idproducto', $idproducto, PDO::PARAM_INT);
-            $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
-            $stmt->bindParam(':numserie_detalle', $numserie_detalle, PDO::PARAM_STR); // JSON data
-            $stmt->bindParam(':precioventa', $precioventa, PDO::PARAM_STR);
-            $stmt->bindParam(':descuento', $descuento, PDO::PARAM_STR);
-
-            // Execute the statement
-            return $stmt->execute();
+            return $stmt->rowCount(); // Retorna el número de filas afectadas
         } catch (PDOException $e) {
-            throw new Exception("Error al registrar la venta: " . $e->getMessage());
+            error_log("Error DB: " . $e->getMessage());
+            return 0;
         }
     }
 

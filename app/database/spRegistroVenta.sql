@@ -1,6 +1,5 @@
--- registro ventas
-
 DELIMITER $$
+
 CREATE PROCEDURE spuRegisterVentas (
   IN _tipocom VARCHAR(50),
   IN _fechahora VARCHAR(50),
@@ -8,18 +7,17 @@ CREATE PROCEDURE spuRegisterVentas (
   IN _numcom CHAR(20),
   IN _moneda CHAR(11),
   IN _idcliente INT,
-  IN _idproducto INT,
-  IN _cantidad INT,
-  IN _numserie_detalle JSON,  -- JSON con múltiples números de serie
-  IN _precioventa DECIMAL(7,2),
-  IN _descuento DECIMAL(5,2)
+  IN _productos JSON -- Usamos un parámetro JSON para recibir todos los productos
 )
 BEGIN
   DECLARE _idventa INT;
-  DECLARE _numserie_item VARCHAR(30);
-  DECLARE _i INT DEFAULT 0;
-  DECLARE _json_length INT;
-
+  DECLARE i INT DEFAULT 0;
+  DECLARE _idproducto INT;
+  DECLARE _cantidad INT;
+  DECLARE _numserie_detalle VARCHAR(50);
+  DECLARE _precioventa DECIMAL(7,2);
+  DECLARE _descuento DECIMAL(5,2);
+  
   -- Insertar en la tabla ventas
   INSERT INTO ventas (
     idcliente,
@@ -41,14 +39,15 @@ BEGIN
   -- Obtener el ID de la venta insertada
   SET _idventa = LAST_INSERT_ID();
 
-  -- Obtener la longitud del JSON (número de elementos)
-  SET _json_length = JSON_LENGTH(_numserie_detalle);
+  -- Iterar sobre los productos (utilizamos el parámetro JSON)
+  WHILE i < JSON_LENGTH(_productos) DO
+    SET _idproducto = JSON_UNQUOTE(JSON_EXTRACT(_productos, CONCAT('$[', i, '].idproducto')));
+    SET _cantidad = JSON_UNQUOTE(JSON_EXTRACT(_productos, CONCAT('$[', i, '].cantidad')));
+    SET _numserie_detalle = JSON_UNQUOTE(JSON_EXTRACT(_productos, CONCAT('$[', i, '].numserie_detalle')));
+    SET _precioventa = JSON_UNQUOTE(JSON_EXTRACT(_productos, CONCAT('$[', i, '].precioventa')));
+    SET _descuento = JSON_UNQUOTE(JSON_EXTRACT(_productos, CONCAT('$[', i, '].descuento')));
 
-  -- Iterar sobre cada número de serie en el JSON
-  WHILE _i < _json_length DO
-    SET _numserie_item = JSON_UNQUOTE(JSON_EXTRACT(_numserie_detalle, CONCAT('$[', _i, ']')));
-
-    -- Insertar cada detalle en detalleventa
+    -- Insertar en detalleventa
     INSERT INTO detalleventa (
       idproducto,
       idventa,
@@ -61,19 +60,33 @@ BEGIN
       _idproducto,
       _idventa,
       _cantidad,
-      _numserie_item,  -- Número de serie extraído del JSON
+      _numserie_detalle,
       _precioventa,
       _descuento
     );
-
-    -- Incrementar el índice
-    SET _i = _i + 1;
+    
+    -- Incrementar el contador
+    SET i = i + 1;
   END WHILE;
+
 END $$
+
 DELIMITER ;
 
-DELIMITER $$
+CALL spuRegisterVentas(
+  'boleta',                     -- tipo de comprobante
+  '2025-04-07 10:30:00',        -- fecha y hora
+  'B048',                        -- número de serie
+  'B-0401500',                  -- número de comprobante
+  'Soles',                      -- moneda
+  1,                            -- ID del cliente
+  '[{"idproducto": 3, "cantidad": 2, "numserie_detalle": "B048", "precioventa": 120.50, "descuento": 10.00}]'  -- JSON de productos
+);
 
+SELECT * FROM detalleventa WHERE numserie = 'B045';
+
+-- prueba
+DELIMITER $$
 CREATE PROCEDURE spuRegisterVentas (
   IN _tipocom VARCHAR(50),
   IN _fechahora VARCHAR(50),
@@ -83,7 +96,7 @@ CREATE PROCEDURE spuRegisterVentas (
   IN _idcliente INT,
   IN _idproducto INT,
   IN _cantidad INT,
-  IN _numserie_detalle JSON,
+  IN _numserie_detalle VARCHAR(50),
   IN _precioventa DECIMAL(7,2),
   IN _descuento DECIMAL(5,2)
 )
@@ -113,25 +126,50 @@ BEGIN
 
   -- Insertar en la tabla detalleventa
   INSERT INTO detalleventa (
-    idproducto,
-    idventa,
-    cantidad,
-    numserie,
-    precioventa,
-    descuento
-  )
-  VALUES (
-    _idproducto,
-    _idventa,
-    _cantidad,
-    _numserie_detalle,
-    _precioventa,
-    _descuento
-  );
+  idproducto,
+  idventa,
+  cantidad,
+  numserie,
+  precioventa,
+  descuento
+)
+VALUES (
+  _idproducto,
+  _idventa,
+  _cantidad,
+  _numserie_detalle,  
+  _precioventa,
+  _descuento
+);
   
 END $$
 
 DELIMITER ;
+CALL spuRegisterVentas(
+  'boleta',
+  '2025-04-07 10:30:00',
+  'B010',
+  'B-0401500',
+  'Soles',
+  1,
+  3,
+  2,
+  '["B010"]', -- Aquí se pasa un valor JSON válido (arreglo JSON).
+  120.50,
+  10.00
+);
+SELECT * FROM detalleventa;
+SELECT * FROM ventas;
+
+ALTER TABLE detalleventa
+MODIFY COLUMN idorden INT NULL,
+MODIFY COLUMN idpromocion INT NULL;
+SHOW CREATE TABLE detalleventa;
+SELECT LAST_INSERT_ID();
+SELECT * FROM detalleventa WHERE numserie = 'B024';
+
+SELECT * FROM detalleventa WHERE numserie = 'ABC12333';
+
 SELECT * FROM ventas ORDER BY idventa DESC LIMIT 3;
 SELECT * FROM detalleventa ORDER BY iddetventa DESC LIMIT 3;
 
