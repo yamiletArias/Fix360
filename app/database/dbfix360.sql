@@ -387,11 +387,11 @@ CONSTRAINT chk_movimientos_cantidad CHECK (saldorestante > 0)
  DROP TABLE IF EXISTS ventas;
 CREATE TABLE ventas (
 
-idventa 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
-idcliente 		INT 				NOT NULL,
-idcolaborador 	INT 				NOT NULL,
-tipocom 			ENUM('boleta', 'factura') 		NOT NULL,
-fechahora 		DATETIME 		DEFAULT 			CURRENT_TIMESTAMP,
+idventa 			INT 		PRIMARY KEY 	AUTO_INCREMENT,
+idcliente 		INT 			NOT NULL,
+idcolaborador 	INT 			NOT NULL,
+tipocom 		ENUM('boleta', 'factura') 		NOT NULL,
+fechahora 		DATETIME 		DEFAULT 		CURRENT_TIMESTAMP,
 numserie 		VARCHAR(10) 	NOT NULL,
 numcom 			VARCHAR(10) 	NOT NULL,
 moneda 			VARCHAR(20)		NOT NULL,
