@@ -8,12 +8,12 @@ require_once "../../partials/header.php";
 
 ?>
 <div class="container-main">
-  <div class="mb-3" style="margin-left: 20px;">
+  <div class="mb-3">
     <label class="form-label"><strong>Tipo de Cliente:</strong></label>
     <div class="row">
       <div class="form-group col-md-10">
 
-        <div class="form-check form-check-inline">
+        <div class="form-check form-check-inline" style="margin-left: 20px;">
           <input class="form-check-input text-start" type="radio" name="tipoCliente" id="persona" checked onchange="mostrarTabla('persona')">
           <label class="form-check-label text-start" for="persona">Persona</label>
         </div>
@@ -79,6 +79,87 @@ require_once "../../partials/header.php";
 </div>
 <!--FIN VENTAS-->
 
+<div class="modal fade" id="miModalPersona" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="miModalLabel">Detalle del cliente</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 10px;">
+        <div class="row">
+        <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group ">
+              <input type="text" disabled class="form-control" id="RUCPersonaInput">
+              <label for="RUCPersonaInput">RUC:</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group ">
+              <input type="text" disabled class="form-control" id="CorreoPersonaInput">
+              <label for="CorreoPersonaInput">Correo:</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group ">
+              <input type="text" disabled class="form-control" id="TelAlternativoPersonaInput">
+              <label for="TelAlternativoPersonaInput">Telefono alternativo:</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group">
+              <input type="text" disabled class="form-control" id="DireccionPersonaInput">
+              <label for="DireccionPersonaInput">Direccion:</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="miModalEmpresa" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="miModalLabel">Detalle del cliente</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 10px;">
+        <div class="row">
+          <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group ">
+              <input type="text" disabled class="form-control" id="RazonSocialEmpresaInput">
+              <label for="RazonSocialEmpresaInput">Razon Social:</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group ">
+              <input type="text" disabled class="form-control" id="CorreoEmpresaInput">
+              <label for="CorreoEmpresaInput">Correo:</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group">
+              <input type="text" disabled class="form-control" id="RUCEmpresaInput">
+              <label for="RUCEmpresaInput">RUC:</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- plugins:js -->
 <?php
 require_once "../../partials/_footer.php";
@@ -129,7 +210,7 @@ require_once "../../partials/_footer.php";
                     <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idcliente}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetallePersona(${row.idcliente})">
+                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetallePersona('${row.numruc}', '${row.direccion}', '${row.correo}', '${row.telalternativo}')">
                       <i class='fa-solid fa-clipboard-list'></i>
                     </button>
                     
@@ -152,22 +233,27 @@ require_once "../../partials/_footer.php";
     }); // Cierra DataTable inicialización
   } // Cierra cargarTablaPersona()
 
-  function verDetallePersona(modelo, anio, serie, combustible) {
-    document.querySelector("#modeloInput").value = modelo || 'No proporcionado';
-    document.querySelector("#anioInput").value = anio || 'No proporcionado';
-    document.querySelector("#serieInput").value = serie || 'No proporcionado';
-    document.querySelector("#combustibleInput").value = combustible || 'No proporcionado';
+  // Función auxiliar para verificar valores nulos o vacíos
+function noProporcionado(valor) {
+  return (!valor || String(valor).toLowerCase() === "null") ? "No proporcionado" : valor;
+}
+
+
+  function verDetallePersona(numruc, direccion, correo, telalternativo) {
+    document.querySelector("#RUCPersonaInput").value = numruc || 'No proporcionado';
+    document.querySelector("#DireccionPersonaInput").value = direccion || 'No proporcionado';
+    document.querySelector("#CorreoPersonaInput").value = correo || 'No proporcionado';
+    document.querySelector("#TelAlternativoPersonaInput").value = telalternativo || 'No proporcionado';
 
     // Mostrar el modal de Bootstrap
     let modal = new bootstrap.Modal(document.getElementById("miModalPersona"));
     modal.show();
   }
 
-  function verDetalleEmpresa(modelo, anio, serie, combustible) {
-    document.querySelector("#modeloInput").value = modelo || 'No proporcionado';
-    document.querySelector("#anioInput").value = anio || 'No proporcionado';
-    document.querySelector("#serieInput").value = serie || 'No proporcionado';
-    document.querySelector("#combustibleInput").value = combustible || 'No proporcionado';
+  function verDetalleEmpresa(razonsocial, correo, ruc) {
+    document.querySelector("#RazonSocialEmpresaInput").value = razonsocial || 'No proporcionado';
+    document.querySelector("#CorreoEmpresaInput").value = correo || 'No proporcionado';
+    document.querySelector("#RUCEmpresaInput").value = ruc || 'No proporcionado';
 
     // Mostrar el modal de Bootstrap
     let modal = new bootstrap.Modal(document.getElementById("miModalEmpresa"));
@@ -206,7 +292,7 @@ require_once "../../partials/_footer.php";
             <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idcliente}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetalleEmpresa(${row.idcliente})">
+                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetalleEmpresa('${row.razonsocial}','${row.correo}','${row.ruc}')">
                       <i class='fa-solid fa-clipboard-list'></i>
                     </button>`;
           }
@@ -254,86 +340,6 @@ require_once "../../partials/_footer.php";
   } // Cierra verDetalle()
 </script>
 
-
-<div class="modal fade" id="miModalPersona" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title" id="miModalLabel">Detalle del cliente</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" style="padding: 10px;">
-        <div class="row">
-          <div class="form-group" style="margin: 10px;">
-            <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="floatingInput">
-              <label for="floatingInput">Correo:</label>
-            </div>
-          </div>
-          <div class="form-group" style="margin: 10px;">
-            <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="floatingInput">
-              <label for="floatingInput">Telefono alternativo:</label>
-            </div>
-          </div>
-          <div class="form-group" style="margin: 10px;">
-            <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="floatingInput">
-              <label for="floatingInput">Direccion:</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-          Cerrar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade" id="miModalEmpresa" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title" id="miModalLabel">Detalle del cliente</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" style="padding: 10px;">
-        <div class="row">
-          <div class="form-group" style="margin: 10px;">
-            <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="floatingInput">
-              <label for="floatingInput">Correo:</label>
-            </div>
-          </div>
-          <div class="form-group" style="margin: 10px;">
-            <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="floatingInput">
-              <label for="floatingInput">Telefono alternativo:</label>
-            </div>
-          </div>
-          <div class="form-group" style="margin: 10px;">
-            <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="floatingInput">
-              <label for="floatingInput">Direccion:</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-          Cerrar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- endinject -->
-<!-- Custom js for this page -->
-<!-- End custom js for this page -->
 </body>
 
 </html>

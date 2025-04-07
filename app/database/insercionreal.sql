@@ -181,8 +181,8 @@ VALUES
   ('Recomendacion');
   
   
-insert into vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
-values
+INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
+VALUES
 (1,'98654','2020','asda5s46d54as6d5','rojo','allinol'),
 (2,'321qwe','2021','a65das4d65a4','azul','GNV'),
 (3,'fgh987','2022','987vas98das7','blanco','GLP'),
@@ -191,17 +191,49 @@ values
 (6,'s1lt6r','2025','8465c32a132za','amarillo','GNV'),
 (7,'aw4bq4','2018','as9c3x21a3z','verde','GLP');
 
-insert into propietarios (idcliente, idvehiculo)
-values
-(1,1),
-(2,2),
-(1,3),
-(2,4),
-(1,5),
-(2,6),
-(1,7);
 -- select * from propietarios;
 
+INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, numruc, direccion, correo, telprincipal, telalternativo) VALUES
+('Carlos', 'Ramírez', 'DNI', '75849320', '20123456789', 'Av. Los Pinos 123', 'carlos.ramirez@mail.com', '987654321', NULL),
+('Lucía', 'Fernández', 'DNI', '84920315', NULL, 'Jr. Lima 456', NULL, '912345678', '900123456'),
+('Juan', 'Gómez', 'Pasaporte', 'PA1234567', '20654321876', NULL, 'juan.gomez@mail.com', NULL, '989898989'),
+('María', 'Quispe', 'Carnet Extranjería', 'CE998877', NULL, NULL, NULL, '955667788', NULL),
+('Pedro', 'Vargas', 'DNI', '78541236', NULL, 'Av. Bolívar 678', 'pedro.vargas@mail.com', '901112233', '922334455'),
+('Ana', 'Torres', 'DNI', '80321459', '20987654321', NULL, 'ana.torres@mail.com', NULL, NULL),
+('Jorge', 'Lopez', 'DNI', '71239845', NULL, NULL, NULL, NULL, NULL),
+('Carmen', 'Rojas', 'DNI', '75488933', '20765432109', 'Calle 13 #56', 'carmen.rojas@mail.com', '998877665', '988776655'),
+('Luis', 'Huamán', 'DNI', '70123456', NULL, 'Av. Grau 999', NULL, '934567890', NULL),
+('Elena', 'Salas', 'Pasaporte', 'PA7654321', '20876543210', NULL, NULL, NULL, NULL);
 
+INSERT INTO empresas (nomcomercial,razonsocial,telefono,correo,ruc) VALUES
+('Tech SAC','SAC','945612387','tech@gmail,com','20154632145'),
+('Empresa IRL','IRL','945665432','irl@irl.com','20321654978'),
+('Empresa SA','SA','998765446','sa@sa.com','20321321460'),
+('Nombre SAC','SAC','965465413','nombre@sac.com','20301321201'),
+('AyR SA','SA','956633983','ayr@ayr.com','20111111113'),
+('Exit IRL','IRL','998765420','exit@no.com','20333333331');
 
+INSERT INTO clientes (idpersona,idcontactabilidad) VALUES
+(1,1),
+(2,2),
+(3,3),
+(4,4),
+(5,1);
+
+INSERT INTO clientes (idempresa,idcontactabilidad) VALUES
+(1,1),
+(2,2),
+(3,3),
+(4,4),
+(5,1);
+
+INSERT INTO propietarios (idcliente, idvehiculo)
+VALUES
+(1,1),
+(2,2),
+(3,3),
+(4,4),
+(5,5),
+(6,6),
+(7,7);
 

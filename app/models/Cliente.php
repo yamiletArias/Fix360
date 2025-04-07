@@ -63,7 +63,7 @@ class Cliente extends Conexion {
     $result = [];
 
     try {
-      $sql = "SELECT idcliente,idpersona, nombres, apellidos,telprincipal,tipodoc,numdoc,numruc FROM vwClientesPersona ORDER BY nombres";
+      $sql = "SELECT * FROM vwClientesPersona ORDER BY nombres";
 
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute();
@@ -79,7 +79,7 @@ class Cliente extends Conexion {
     $result = [];
 
     try {
-      $sql = "SELECT idcliente,idempresa, nomcomercial, razonsocial, ruc, telefono FROM vwClientesEmpresa ORDER BY nomcomercial";
+      $sql = "SELECT * FROM vwClientesEmpresa ORDER BY nomcomercial";
 
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute();

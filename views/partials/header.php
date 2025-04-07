@@ -227,7 +227,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href=".<?= SERVERURL ?>views/page/productos/listar-producto.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/productos/listar-producto.php">
               <span class="menu-title">Productos</span>
               <i class="fa-solid fa-store menu-icon"></i>
             </a>
@@ -251,7 +251,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href=".<?= SERVERURL ?>views/page/promociones/listar-promociones.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/promociones/listar-promociones.php">
               <span class="menu-title">Promociones</span>
               <i class="fa-solid fa-percent menu-icon"></i>
             </a>
