@@ -64,6 +64,22 @@ SELECT
 FROM productos P
 INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria;
 
+-- detalle venta
+CREATE VIEW v_detalle_venta AS
+    SELECT d.iddetventa,
+           d.idproducto,
+           d.cantidad,
+           d.numserie,
+           d.precioventa,
+           d.descuento,
+           CONCAT(s.subcategoria, ' ', p.descripcion) AS producto
+    FROM detalleventa d
+    LEFT JOIN productos p ON d.idproducto = p.idproducto
+    LEFT JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria;
+
+SELECT * FROM v_detalle_venta WHERE idventa = 5;
+-- fin detalle venta
+
 -- registro de venta con idproducto
 CREATE VIEW vs_registro_venta AS
 SELECT 

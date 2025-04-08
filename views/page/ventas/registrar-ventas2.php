@@ -80,16 +80,15 @@ require_once "../../partials/header.php";
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input type="radio" name="tipo" value="factura" onclick="mostrarFormulario('factura')">
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos('factura')">
               Factura
             </label>
             <label>
-              <input type="radio" name="tipo" value="boleta" onclick="mostrarFormulario('boleta')" checked>
+              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos('boleta')" checked>
               Boleta
             </label>
           </div>
-
-          <!-- N° serie y N° comprobante con espacio entre ellos -->
+          <!-- N° serie y N° comprobante -->
           <div class="col-md-7 d-flex justify-content-end">
             <label for="">N° serie: </label>
             <input type="text" class="form-control form-control-sm w-25 ms-2" name="numserie" id="numserie" required
@@ -98,7 +97,7 @@ require_once "../../partials/header.php";
             <input type="text" name="numcomprobante" id="numcom" class="form-control form-control-sm w-25 ms-2" required
               disabled />
           </div>
-        </div> <!-- ./row -->
+        </div>
         <!-- Cliente, Fecha y Moneda -->
         <div class="row g-2 mt-3">
           <div class="col-md-4">
@@ -106,7 +105,7 @@ require_once "../../partials/header.php";
               <div class="form-floating">
                 <input id="cliente" name="cliente" type="text" class="autocomplete-input form-control"
                   placeholder="Buscar Cliente">
-                <label for="cliente">Bucar cliente:</label>
+                <label for="cliente">Buscar cliente:</label>
               </div>
             </div>
           </div>
@@ -119,15 +118,16 @@ require_once "../../partials/header.php";
           <div class="col-md-4">
             <div class="form-floating">
               <select class="form-select" id="moneda" name="moneda" style="color: black;" required>
-                <option value="">Seleccione una opción</option>
+                <option value="soles" selected>Soles</option>
+                <!-- Aquí se insertan dinámicamente el resto de monedas -->
               </select>
               <label for="moneda">Moneda:</label>
             </div>
           </div>
-        </div> <!-- ./row -->
+        </div>
         <!-- Producto, Precio, Cantidad, Descuento -->
         <div class="row g-2 mt-3">
-          <div class="col-md-4">
+          <div class="col-md-5">
             <div class="autocomplete">
               <div class="form-floating">
                 <input name="producto" id="producto" type="text" class="autocomplete-input form-control" required>
@@ -144,24 +144,21 @@ require_once "../../partials/header.php";
           <div class="col-md-2">
             <div class="form-floating">
               <input type="number" class="form-control" name="cantidad" id="cantidad" required />
-              <label for="cantidad">Precio</label>
+              <label for="cantidad">Cantidad</label>
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="form-floating">
-              <input type="number" class="form-control" name="descuento" id="descuento" />
-              <label for="descuento">Descuento</label>
+          <div class="col-md-3">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="number" class="form-control" name="descuento" id="descuento" required>
+                <label for="descuento">Descuento</label>
+              </div>
+              <button type="button" class="btn btn-success" id="agregarProducto" type="submit">Agregar</button>
             </div>
           </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="button" class="btn btn-success w-100" id="agregarProducto">
-              AGREGAR
-            </button>
-          </div>
-
-        </div> <!-- ./row -->
-      </div> <!-- ./card-body -->
-    </div> <!-- ./card -->
+        </div>
+      </div>
+    </div>
   </form>
 
   <div class="card mt-2">
@@ -175,11 +172,11 @@ require_once "../../partials/header.php";
             <th>Cantidad</th>
             <th>Dsct</th>
             <th>Importe</th>
-            <th>Acciónes</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Datos asíncronos -->
+          <!-- Se agregarán los detalles -->
         </tbody>
       </table>
     </div>
@@ -187,8 +184,8 @@ require_once "../../partials/header.php";
 
   <!-- Botón para finalizar la venta -->
   <div class="btn-container text-end mt-3">
-    <button id="finalizarBtn" type="button" class="btn btn-success">
-      FINALIZAR
+    <button id="btnFinalizarVenta" type="button" class="btn btn-success">
+      Guardar
     </button>
   </div>
 </div>
@@ -198,56 +195,51 @@ require_once "../../partials/header.php";
 </body>
 
 </html>
+
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    // Variables y elementos
     const inputElement = document.getElementById("cliente");
     const inputProductElement = document.getElementById("producto");
-    let currentFocus = -1;
     let clienteId = null;
-    let selectedProduct = {}; // Definir aquí para evitar errores más tarde
+    let selectedProduct = {};
     const numSerieInput = document.getElementById("numserie");
     const numComInput = document.getElementById("numcom");
     const tipoInputs = document.querySelectorAll('input[name="tipo"]');
     const agregarProductoBtn = document.querySelector("#agregarProducto");
     const tabla = document.querySelector("#tabla-detalle tbody");
     const detalleVenta = [];
-    const finalizarBtn = document.getElementById('finalizarBtn');
-    const formularioDetalle = document.getElementById('formulario-detalle');
-    const tablaDetalle = document.querySelector("#tabla-detalle tbody");
+    const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
     const fechaInput = document.getElementById("fecha");
     const monedaSelect = document.getElementById('moneda');
 
-    // Función para cargar las monedas desde el servidor
+    // Función para cargar las monedas
     function cargarMonedas() {
       fetch('http://localhost/Fix360/app/controllers/Venta.controller.php?type=moneda')
         .then(response => response.json())
         .then(data => {
-          if (data.length > 0) {
-            // Limpiar las opciones existentes
-            monedaSelect.innerHTML = '<option value="">Seleccione una opción</option>';
-
-            // Llenar las opciones del select con las monedas
-            data.forEach(moneda => {
-              const option = document.createElement('option');
-              option.value = moneda.moneda; // Asignar el valor de la moneda
-              option.textContent = moneda.moneda; // Mostrar la moneda en el desplegable
-              monedaSelect.appendChild(option);
-            });
-          }
+          const selectMoneda = document.getElementById("moneda");
+          data.forEach(item => {
+            // si el valor es SOLES ya existe saltarse
+            if (item.moneda !== "Soles") {
+              const option = document.createElement("option");
+              option.value = item.moneda;
+              option.textContent = item.moneda;
+              selectMoneda.appendChild(option);
+            }
+          });
         })
         .catch(error => {
           console.error('Error al cargar las monedas:', error);
         });
     }
-    // Llamar a la función para cargar las monedas
     cargarMonedas();
 
-    // Función para mostrar las opciones de autocompletado para clientes
+    //funcion de autocompletado para clientes
     function mostrarOpcionesCliente(input) {
       cerrarListas();
-
       if (!input.value) return;
-
       const searchTerm = input.value;
       fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=cliente`)
         .then(response => response.json())
@@ -256,52 +248,36 @@ require_once "../../partials/header.php";
           itemsDiv.setAttribute("id", "autocomplete-list");
           itemsDiv.setAttribute("class", "autocomplete-items");
           input.parentNode.appendChild(itemsDiv);
-
           if (data.length === 0) {
             const noResultsDiv = document.createElement("div");
             noResultsDiv.textContent = 'No se encontraron clientes';
             itemsDiv.appendChild(noResultsDiv);
             return;
           }
-
           data.forEach(function (cliente) {
             const optionDiv = document.createElement("div");
             optionDiv.textContent = cliente.cliente;
-
             optionDiv.addEventListener("click", function () {
-              input.value = cliente.cliente;  // Cliente name
-              clienteId = cliente.idcliente; // Set the clienteId
-              console.log("Cliente seleccionado: ", cliente.cliente, cliente.idcliente); // Log selected client
-              cerrarListas();  // Close autocomplete list
+              input.value = cliente.cliente;
+              clienteId = cliente.idcliente;
+              cerrarListas();
             });
-
             itemsDiv.appendChild(optionDiv);
           });
         })
         .catch(err => console.error('Error al obtener los clientes: ', err));
     }
-    // Attach the event listener to the input for client search
     inputElement.addEventListener("input", function () {
       mostrarOpcionesCliente(this);
     });
-
-    // Finalizar Button Click Event
-    finalizarBtn.addEventListener("click", function () {
-      if (!clienteId) {
-        alert("Debe seleccionar un cliente.");
-        return; // Exit if no client is selected
-      }
-
-      // Further logic for finalizing the sale
-      console.log("Venta finalizada con cliente:", clienteId);
+    inputElement.addEventListener("click", function () {
+      mostrarOpcionesCliente(this);
     });
 
-    // Función para mostrar las opciones de autocompletado para productos
+    //funcion de autocompletado para productos
     function mostrarOpcionesProducto(input) {
       cerrarListas();
-
       if (!input.value) return;
-
       const searchTerm = input.value;
       fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`)
         .then(response => response.json())
@@ -310,41 +286,41 @@ require_once "../../partials/header.php";
           itemsDiv.setAttribute("id", "autocomplete-list-producto");
           itemsDiv.setAttribute("class", "autocomplete-items");
           input.parentNode.appendChild(itemsDiv);
-
           if (data.length === 0) {
             const noResultsDiv = document.createElement("div");
             noResultsDiv.textContent = 'No se encontraron productos';
             itemsDiv.appendChild(noResultsDiv);
             return;
           }
-
           data.forEach(function (producto) {
             const optionDiv = document.createElement("div");
             optionDiv.textContent = producto.subcategoria_producto;
-
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
               document.getElementById('precio').value = producto.precioventa;
               $("#cantidad").val(1);
               $("#descuento").val(0);
-
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
                 precio: producto.precioventa
               };
-
-              console.log("Producto seleccionado: ", selectedProduct); // Imprimir producto en consola
               cerrarListas();
             });
-
             itemsDiv.appendChild(optionDiv);
           });
         })
         .catch(err => console.error('Error al obtener los productos: ', err));
     }
-
-    // Función para cerrar todas las listas de autocompletado
+    inputProductElement.addEventListener("input", function () {
+      mostrarOpcionesProducto(this);
+    });
+    inputProductElement.addEventListener("click", function () {
+      mostrarOpcionesProducto(this);
+    });
+    document.addEventListener("click", function (e) {
+      cerrarListas(e.target);
+    });
     function cerrarListas(elemento) {
       const items = document.getElementsByClassName("autocomplete-items");
       for (let i = 0; i < items.length; i++) {
@@ -354,194 +330,165 @@ require_once "../../partials/header.php";
       }
     }
 
-    // Manejar eventos de input para mostrar opciones para clientes
-    inputElement.addEventListener("input", function () {
-      mostrarOpcionesCliente(this);
-    });
-
-    // Evento de clic para seleccionar cliente
-    inputElement.addEventListener("click", function () {
-      mostrarOpcionesCliente(this);
-    });
-
-    // Manejar eventos de input para mostrar opciones para productos
-    inputProductElement.addEventListener("input", function () {
-      mostrarOpcionesProducto(this);
-    });
-
-    // Mostrar opciones al hacer clic en el input para productos
-    inputProductElement.addEventListener("click", function () {
-      mostrarOpcionesProducto(this);
-    });
-
-    // Cerrar lista cuando se hace clic fuera
-    document.addEventListener("click", function (e) {
-      cerrarListas(e.target);
-    });
-
-    // Función para verificar si el producto ya está en el detalle de venta
+    //duplicado de productos
     function estaDuplicado(idproducto = 0) {
       let estado = false;
       let i = 0;
-
-      if (detalleVenta.length > 0) {
-        while (i < detalleVenta.length && !estado) {
-          if (detalleVenta[i].idproducto == idproducto) {
-            estado = true; // El producto ya está en el detalle
-          }
-          i++;
+      while (i < detalleVenta.length && !estado) {
+        if (detalleVenta[i].idproducto == idproducto) {
+          estado = true;
         }
+        i++;
       }
-
       return estado;
     }
 
-    // Manejar el formulario y agregar productos al detalle de venta
+    // Agregar producto al detalle de venta
     agregarProductoBtn.addEventListener("click", function () {
       const productoNombre = inputProductElement.value;
       const productoPrecio = parseFloat(document.getElementById('precio').value);
       const productoCantidad = parseFloat(document.getElementById('cantidad').value);
       const productoDescuento = parseFloat(document.getElementById('descuento').value);
-
       if (!productoNombre || isNaN(productoPrecio) || isNaN(productoCantidad)) {
         alert("Por favor, complete todos los campos correctamente.");
         return;
       }
-
-      // Verificar si el producto ya ha sido agregado
       if (estaDuplicado(selectedProduct.idproducto)) {
         alert("Este producto ya ha sido agregado.");
-
-        // Limpiar los campos de entrada si el producto es duplicado
-        inputProductElement.value = ""; // Limpiar el nombre del producto
-        document.getElementById('precio').value = ""; // Limpiar el precio
-        document.getElementById('cantidad').value = 1; // Restablecer la cantidad a 1
-        document.getElementById('descuento').value = 0; // Restablecer el descuento a 0
-
+        inputProductElement.value = "";
+        document.getElementById('precio').value = "";
+        document.getElementById('cantidad').value = 1;
+        document.getElementById('descuento').value = 0;
         return;
       }
-
-      // Calcular el importe
       const importe = (productoPrecio * productoCantidad) - productoDescuento;
-
-      // Crear una nueva fila en la tabla
       const nuevaFila = document.createElement("tr");
-
-      const celdaNumero = document.createElement("td");
-      celdaNumero.textContent = tabla.rows.length + 1;
-      nuevaFila.appendChild(celdaNumero);
-
-      const celdaProducto = document.createElement("td");
-      celdaProducto.textContent = productoNombre;
-      nuevaFila.appendChild(celdaProducto);
-
-      const celdaPrecio = document.createElement("td");
-      celdaPrecio.textContent = productoPrecio.toFixed(2);
-      nuevaFila.appendChild(celdaPrecio);
-
-      const celdaCantidad = document.createElement("td");
-      celdaCantidad.textContent = productoCantidad;
-      nuevaFila.appendChild(celdaCantidad);
-
-      const celdaDescuento = document.createElement("td");
-      celdaDescuento.textContent = productoDescuento.toFixed(2);
-      nuevaFila.appendChild(celdaDescuento);
-
-      const celdaImporte = document.createElement("td");
-      celdaImporte.textContent = importe.toFixed(2);
-      nuevaFila.appendChild(celdaImporte);
-
-      const celdaAcciones = document.createElement("td");
-      const btnEliminar = document.createElement("button");
-      btnEliminar.textContent = "X";
-      btnEliminar.classList.add("btn", "btn-danger");
-      btnEliminar.addEventListener("click", function () {
+      nuevaFila.innerHTML = `
+        <td>${tabla.rows.length + 1}</td>
+        <td>${productoNombre}</td>
+        <td>${productoPrecio.toFixed(2)}</td>
+        <td>${productoCantidad}</td>
+        <td>${productoDescuento.toFixed(2)}</td>
+        <td>${importe.toFixed(2)}</td>
+        <td><button class="btn btn-danger sm">X</button></td>
+      `;
+      nuevaFila.querySelector("button").addEventListener("click", function () {
         nuevaFila.remove();
         actualizarNumeros();
       });
-      celdaAcciones.appendChild(btnEliminar);
-      nuevaFila.appendChild(celdaAcciones);
-
       tabla.appendChild(nuevaFila);
-
-      // Agregar el producto al detalle de venta
+      // Agregar al array de detalles
       const detalle = {
         idproducto: selectedProduct.idproducto,
         producto: productoNombre,
-        precio: productoPrecio,
+        precioventa: productoPrecio,
         cantidad: productoCantidad,
         descuento: productoDescuento,
         importe: importe.toFixed(2)
       };
-
-      // Añadir el detalle de venta al array
       detalleVenta.push(detalle);
-
-      // Limpiar los campos de entrada después de agregar
       inputProductElement.value = "";
       document.getElementById('precio').value = "";
       document.getElementById('cantidad').value = 1;
       document.getElementById('descuento').value = 0;
     });
-
-    // Actualizar los números de fila en la tabla
     function actualizarNumeros() {
       const filas = tabla.getElementsByTagName("tr");
       for (let i = 0; i < filas.length; i++) {
-        filas[i].children[0].textContent = i + 1; // Actualizar el número de la fila
+        filas[i].children[0].textContent = i + 1;
       }
     }
 
-    // Función para generar el número de serie
+    // Funciones para generar números de serie y comprobante
     function generateNumber(type) {
-      const randomNumber = Math.floor(Math.random() * 100); // Generar un número aleatorio entre 0 y 99
-      return `${type}${String(randomNumber).padStart(3, "0")}`; // Formato B001, F023, etc.
+      const randomNumber = Math.floor(Math.random() * 100);
+      return `${type}${String(randomNumber).padStart(3, "0")}`;
     }
-
-    // Función para generar el número de comprobante
     function generateComprobanteNumber(type) {
-      const randomNumber = Math.floor(Math.random() * 10000000); // Generar un número aleatorio entre 0 y 9999999
-      return `${type}-${String(randomNumber).padStart(7, "0")}`; // Formato B-1234567 o F-2345678
+      const randomNumber = Math.floor(Math.random() * 10000000);
+      return `${type}-${String(randomNumber).padStart(7, "0")}`;
     }
-
     function inicializarCampos() {
       const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked').value;
-
       if (tipoSeleccionado === "boleta") {
-        numSerieInput.value = generateNumber("B"); // Genera número de serie con "B"
-        numComInput.value = generateComprobanteNumber("B"); // Genera número de comprobante con "B"
+        numSerieInput.value = generateNumber("B");
+        numComInput.value = generateComprobanteNumber("B");
       } else {
-        numSerieInput.value = generateNumber("F"); // Genera número de serie con "F"
-        numComInput.value = generateComprobanteNumber("F"); // Genera número de comprobante con "F"
+        numSerieInput.value = generateNumber("F");
+        numComInput.value = generateComprobanteNumber("F");
       }
     }
     inicializarCampos();
-
     tipoInputs.forEach((input) => {
-      input.addEventListener("change", function () {
-        inicializarCampos();
-      });
+      input.addEventListener("change", inicializarCampos);
     });
-
+    // Establecer fecha actual
     const setFechaDefault = () => {
       const today = new Date();
-      const day = String(today.getDate()).padStart(2, '0'); // Asegura que el día tenga 2 dígitos
-      const month = String(today.getMonth() + 1).padStart(2, '0'); // Asegura que el mes tenga 2 dígitos
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
       const year = today.getFullYear();
       fechaInput.value = `${year}-${month}-${day}`;
     };
-
     setFechaDefault();
-    finalizarBtn.addEventListener("click", function () {
+
+    // Script del botón "Guardar"
+    btnFinalizarVenta.addEventListener("click", function (e) {
+      e.preventDefault();
+      btnFinalizarVenta.disabled = true;
+      btnFinalizarVenta.textContent = "Guardando...";
+
+      // Habilitar los inputs para que se envíen los valores
+      numSerieInput.disabled = false;
+      numComInput.disabled = false;
+
+      // Validar la selección de cliente y productos
       if (!clienteId) {
-        alert("Debe seleccionar un cliente.");
+        alert("Por favor, selecciona un cliente.");
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
         return;
       }
-      alert("Venta finalizada");
+      if (detalleVenta.length === 0) {
+        alert("Por favor, agrega al menos un producto.");
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
+        return;
+      }
+
+      // Armar el objeto de datos a enviar
+      const data = {
+        tipocom: document.querySelector('input[name="tipo"]:checked').value,
+        fechahora: fechaInput.value.trim(),
+        numserie: numSerieInput.value.trim(),
+        numcom: numComInput.value.trim(),
+        moneda: monedaSelect.value,
+        idcliente: clienteId,
+        productos: detalleVenta
+      };
+
+      // Enviar datos al servidor usando fetch
+      fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+        .then(response => response.text()) // <-- temporalmente en vez de .json()
+        .then(text => {
+          console.log("Respuesta del servidor:", text);
+          try {
+            const json = JSON.parse(text);
+            // Aquí sigues tu lógica normal si quieres
+          } catch (e) {
+            console.error("No se pudo parsear JSON:", e);
+          }
+        })
+        .finally(() => {
+          btnFinalizarVenta.disabled = false;
+          btnFinalizarVenta.textContent = "Guardar";
+        });
     });
   });
-
-
 </script>
 
 <?php

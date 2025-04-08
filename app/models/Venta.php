@@ -68,8 +68,9 @@ class Venta extends Conexion
             die("Error en model: " . $e->getMessage());
         }
     }
-
-    public function registerVentas($params = []): int
+    
+    //registrar venta
+    public function registerVentas1($params = []): int
     {
         $numRows = 0;
         try {
@@ -89,7 +90,7 @@ class Venta extends Conexion
                 $params["descuento"]
             ));
 
-            $numRows = $stmt->rowCount();
+            $numRows = $stmt->rowCount(); // Número de filas afectadas
 
         } catch (PDOException $e) {
             error_log("Error DB: " . $e->getMessage());
@@ -98,49 +99,70 @@ class Venta extends Conexion
         return $numRows;
     }
 
-    public function registrarVenta1(
-        string $tipocom,
-        string $fechahora,
-        string $numserie,
-        string $numcom,
-        string $moneda,
-        int $idcliente,
-        int $idproducto,
-        int $cantidad,
-        string $numserie_detalle,
-        float $precioventa,
-        float $descuento
-    ): bool {
+    public function registerVentas($params = []): int
+    {
         try {
-            // Prepare SQL to call the stored procedure
-            $sql = "CALL spuRegisterVentas(
-                        :tipocom, :fechahora, :numserie, :numcom, 
-                        :moneda, :idcliente, :idproducto, :cantidad, 
-                        :numserie_detalle, :precioventa, :descuento
-                    )";
+            $pdo = $this->pdo;
+            $pdo->beginTransaction();
 
-            // Prepare statement
-            $stmt = $this->pdo->prepare($sql);
+            error_log("Parametros para spuRegisterVenta: " . print_r($params, true));
 
-            // Bind parameters to the SQL statement
-            $stmt->bindParam(':tipocom', $tipocom, PDO::PARAM_STR);
-            $stmt->bindParam(':fechahora', $fechahora, PDO::PARAM_STR);
-            $stmt->bindParam(':numserie', $numserie, PDO::PARAM_STR);
-            $stmt->bindParam(':numcom', $numcom, PDO::PARAM_STR);
-            $stmt->bindParam(':moneda', $moneda, PDO::PARAM_STR);
-            $stmt->bindParam(':idcliente', $idcliente, PDO::PARAM_INT);
-            $stmt->bindParam(':idproducto', $idproducto, PDO::PARAM_INT);
-            $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
-            $stmt->bindParam(':numserie_detalle', $numserie_detalle, PDO::PARAM_STR); // JSON data
-            $stmt->bindParam(':precioventa', $precioventa, PDO::PARAM_STR);
-            $stmt->bindParam(':descuento', $descuento, PDO::PARAM_STR);
+            // Llamada al Stored Procedure spuRegisterVenta
+            $stmtVenta = $pdo->prepare("CALL spuRegisterVenta(?,?,?,?,?,?)");
+            $stmtVenta->execute([
+                $params["tipocom"],
+                $params["fechahora"],
+                $params["numserie"],
+                $params["numcom"],
+                $params["moneda"],
+                $params["idcliente"]
+            ]);
 
-            // Execute the statement
-            return $stmt->execute();
+            $result = []; // Asegura que esté definido
+
+            do {
+                $tmp = $stmtVenta->fetch(PDO::FETCH_ASSOC);
+                error_log("Resultado fetch: " . print_r($tmp, true)); // NUEVO LOG
+                if ($tmp && isset($tmp['idventa'])) {
+                    $result = $tmp;
+                    break;
+                }
+            } while ($stmtVenta->nextRowset());
+
+            $stmtVenta->closeCursor();
+
+            $idventa = $result['idventa'] ?? 0;
+
+            if (!$idventa) {
+                error_log("SP ejecutado pero no devolvió ID de venta.");
+                throw new Exception("No se pudo obtener el id de la venta.");
+            }
+
+            // Llamada al SP spuInsertDetalleVenta para cada producto
+            $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
+            foreach ($params["productos"] as $producto) {
+                error_log("Insertando producto ID: " . $producto["idproducto"]);
+                $stmtDetalle->execute([
+                    $idventa,
+                    $producto["idproducto"],
+                    $producto["cantidad"],
+                    $params["numserie"],
+                    $producto["precioventa"],
+                    $producto["descuento"]
+                ]);
+            }
+
+            $pdo->commit();
+            error_log("Venta registrada con id: " . $idventa);
+            return $idventa;
         } catch (PDOException $e) {
-            throw new Exception("Error al registrar la venta: " . $e->getMessage());
+            $pdo->rollBack();
+            error_log("Error DB: " . $e->getMessage());
+            return 0;
+        } catch (Exception $ex) {
+            error_log("Error: " . $ex->getMessage());
+            return 0;
         }
     }
-
 }
 ?>
