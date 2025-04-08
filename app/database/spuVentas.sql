@@ -48,15 +48,18 @@ BEGIN
     numserie,
     precioventa,
     descuento
-  )
-  VALUES (
-    _idproducto,
-    _idventa,
-    _cantidad,
-    JSON_ARRAY(_numserie_detalle),
-    _precioventa,
-    _descuento
-  );
+	)
+	VALUES (
+	_idproducto,
+	_idventa,
+	_cantidad,
+	CASE 
+	  WHEN _numserie_detalle IS NULL THEN JSON_ARRAY() 
+	  ELSE JSON_ARRAY(_numserie_detalle) 
+	END,
+	_precioventa,
+	_descuento
+	);
 END $$
 DELIMITER ;
 -- Fin de registrar detalle ventas con idventa

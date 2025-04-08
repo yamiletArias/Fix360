@@ -118,7 +118,8 @@ require_once "../../partials/header.php";
           <div class="col-md-4">
             <div class="form-floating">
               <select class="form-select" id="moneda" name="moneda" style="color: black;" required>
-                <option value="">Seleccione una opción</option>
+                <option value="soles" selected>Soles</option>
+                <!-- Aquí se insertan dinámicamente el resto de monedas -->
               </select>
               <label for="moneda">Moneda:</label>
             </div>
@@ -126,7 +127,7 @@ require_once "../../partials/header.php";
         </div>
         <!-- Producto, Precio, Cantidad, Descuento -->
         <div class="row g-2 mt-3">
-          <div class="col-md-4">
+          <div class="col-md-5">
             <div class="autocomplete">
               <div class="form-floating">
                 <input name="producto" id="producto" type="text" class="autocomplete-input form-control" required>
@@ -146,16 +147,14 @@ require_once "../../partials/header.php";
               <label for="cantidad">Cantidad</label>
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="form-floating">
-              <input type="number" class="form-control" name="descuento" id="descuento" />
-              <label for="descuento">Descuento</label>
+          <div class="col-md-3">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="number" class="form-control" name="descuento" id="descuento" required>
+                <label for="descuento">Descuento</label>
+              </div>
+              <button type="button" class="btn btn-success" id="agregarProducto" type="submit">Agregar</button>
             </div>
-          </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="button" class="btn btn-success w-100" id="agregarProducto">
-              AGREGAR
-            </button>
           </div>
         </div>
       </div>
@@ -220,15 +219,16 @@ require_once "../../partials/header.php";
       fetch('http://localhost/Fix360/app/controllers/Venta.controller.php?type=moneda')
         .then(response => response.json())
         .then(data => {
-          if (data.length > 0) {
-            monedaSelect.innerHTML = '<option value="">Seleccione una opción</option>';
-            data.forEach(moneda => {
-              const option = document.createElement('option');
-              option.value = moneda.moneda;
-              option.textContent = moneda.moneda;
-              monedaSelect.appendChild(option);
-            });
-          }
+          const selectMoneda = document.getElementById("moneda");
+          data.forEach(item => {
+            // si el valor es SOLES ya existe saltarse
+            if (item.moneda !== "Soles") {
+              const option = document.createElement("option");
+              option.value = item.moneda;
+              option.textContent = item.moneda;
+              selectMoneda.appendChild(option);
+            }
+          });
         })
         .catch(error => {
           console.error('Error al cargar las monedas:', error);
@@ -236,7 +236,7 @@ require_once "../../partials/header.php";
     }
     cargarMonedas();
 
-    // Funciones de autocompletado para clientes y productos (se mantienen iguales)
+    //funcion de autocompletado para clientes
     function mostrarOpcionesCliente(input) {
       cerrarListas();
       if (!input.value) return;
@@ -274,6 +274,7 @@ require_once "../../partials/header.php";
       mostrarOpcionesCliente(this);
     });
 
+    //funcion de autocompletado para productos
     function mostrarOpcionesProducto(input) {
       cerrarListas();
       if (!input.value) return;
@@ -329,7 +330,7 @@ require_once "../../partials/header.php";
       }
     }
 
-    // Verificar si el producto ya está en el detalle
+    //duplicado de productos
     function estaDuplicado(idproducto = 0) {
       let estado = false;
       let i = 0;
@@ -369,7 +370,7 @@ require_once "../../partials/header.php";
         <td>${productoCantidad}</td>
         <td>${productoDescuento.toFixed(2)}</td>
         <td>${importe.toFixed(2)}</td>
-        <td><button class="btn btn-danger">X</button></td>
+        <td><button class="btn btn-danger sm">X</button></td>
       `;
       nuevaFila.querySelector("button").addEventListener("click", function () {
         nuevaFila.remove();

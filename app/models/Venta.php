@@ -68,6 +68,7 @@ class Venta extends Conexion
             die("Error en model: " . $e->getMessage());
         }
     }
+    
     //registrar venta
     public function registerVentas1($params = []): int
     {
@@ -145,7 +146,7 @@ class Venta extends Conexion
                     $idventa,
                     $producto["idproducto"],
                     $producto["cantidad"],
-                    $producto["numserie_detalle"] ?? null,  // <- Aquí el cambio
+                    $params["numserie"],
                     $producto["precioventa"],
                     $producto["descuento"]
                 ]);

@@ -5,7 +5,11 @@ VALUES
 ('María', 'Gómez', 'DNI', '87654321', 'Calle Sol 456', 'maria.gomez@email.com', '912345678', '977665544');
 INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal, telalternativo)
 VALUES 
-('Deyanira', 'Arias', 'DNI', '919629135', 'Av. San Martin', 'deya.08.yami@email.com', '919629135', null);
+('Deyanira', 'Arias', 'DNI', '91962913', 'Av. San Martin', 'josue.07.jadi@email.com', '999803156', null);
+INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal, telalternativo)
+VALUES 
+('Josue', 'Prieto', 'DNI', '52398748', 'Av. San Martin', 'deya.08.yami@email.com', '919629135', null);
+
 -- INSERT para la tabla 'empresas'
 INSERT INTO empresas (nomcomercial, razonsocial, telefono, correo, ruc)
 VALUES 
@@ -43,6 +47,7 @@ INSERT INTO promociones (promocion, fechainicio, fechafin, cantidadmax)
 VALUES 
 ('Descuento 10%', '2025-01-01 00:00:00', '2025-01-31 23:59:59', 100),
 ('Repuestos Gratis', '2025-02-01 00:00:00', '2025-02-28 23:59:59', 50);
+
 -- INSERT para la tabla 'condiciones'
 INSERT INTO condiciones (idpromocion, descripcion)
 VALUES 
@@ -57,17 +62,36 @@ VALUES
 
 -- INSERT para la tabla 'categorias'
 INSERT INTO categorias (categoria)
-VALUES ('Motor'), ('Transmisión');
+VALUES 
+('Motor'),
+('Transmisión'),
+('Accesorios'),
+('Herramientas'),
+('Piezas de motor'),
+('Suspensión');
 
 -- INSERT para la tabla 'subcategorias'
 INSERT INTO subcategorias (idcategoria, subcategoria)
-VALUES (1, 'Motores de 4 cilindros'), (2, 'Transmisiones automáticas');
+VALUES 
+(1, 'Motores de 4 cilindros'), 
+(2, 'Transmisiones automáticas'),
+(1, 'Accesorios para interiores'),
+(1, 'Accesorios para exteriores'),
+(2, 'Herramientas eléctricas'),
+(2, 'Herramientas manuales'),
+(3, 'Piezas de motor para sedanes'),
+(3, 'Piezas de motor para camionetas'),
+(4, 'Componentes de suspensión trasera'),
+(4, 'Componentes de suspensión delantera');
 
 -- INSERT para la tabla 'clientes'
 INSERT INTO clientes (idempresa, idpersona, idcontactabilidad)
 VALUES (1, NULL, 1), (2, NULL, 2), (NULL, 1, 1), (NULL, 2, 2);
 INSERT INTO clientes (idempresa, idpersona, idcontactabilidad)
 VALUES (null, 3, 1);
+INSERT INTO clientes (idempresa, idpersona, idcontactabilidad)
+VALUES (null, 4, 1);
+
 -- INSERT para la tabla 'contratos'
 INSERT INTO contratos (idrol, idpersona, fechainicio, fechafin)
 VALUES 
@@ -92,7 +116,6 @@ VALUES
 (1, 'ABC123', '2020', 'XYZ123456789', 'Blanco', 'Gasolina'),
 (2, 'DEF456', '2021', 'XYZ987654321', 'Azul', 'Diésel');
 
-
 -- Luego, insertar los propietarios
 INSERT INTO propietarios (idcliente, idvehiculo, fechainicio, fechafinal)
 VALUES 
@@ -116,23 +139,36 @@ INSERT INTO ventas (idcliente, idcolaborador, tipocom, fechahora, numserie, numc
 VALUES 
 (1, 1, 'boleta', NOW(), 'B001', '0001', 'Soles'),
 (2, 2, 'factura', NOW(), 'F001', '0002', 'Dolares');
+
 -- INSERT para 'productos'
 INSERT INTO productos (idmarca, idsubcategoria, descripcion, precio, presentacion, undmedida, cantidad)
 VALUES
-(1, 1, 'Descripción del Producto A', 100.00, 'Caja', 'Unidad', 50),
-(2, 2, 'Descripción del Producto B', 200.00, 'Paquete', 'Unidad', 30),
-(1, 1, 'Descripción del Producto C', 150.00, 'Caja', 'Unidad', 20);
+(1, 1, 'Filtro de aire para motor de 4 cilindros', 50.00, 'Caja', 'Unidad', 100),
+(1, 1, 'Bujías para motor Toyota Corolla', 120.00, 'Paquete', 'Unidad', 80),
+(2, 2, 'Amortiguador trasero para camioneta Ford Ranger', 200.00, 'Unidad', 'Pieza', 60),
+(2, 1, 'Pastillas de freno para vehículos de carga', 90.00, 'Paquete', 'Unidad', 40),
+(1, 1, 'Aceite para motor 5W-30', 40.00, 'Caja', 'Litro', 150),
+(2, 2, 'Transmisión automática para Ford Ranger', 1500.00, 'Unidad', 'Pieza', 10),
+(1, 2, 'Freno de disco delantero para Toyota Corolla', 250.00, 'Unidad', 'Pieza', 25),
+(1, 1, 'Filtro de aceite para motor de sedán', 30.00, 'Paquete', 'Unidad', 120),
+(2, 1, 'Correa de distribución para Ford Ranger', 150.00, 'Caja', 'Unidad', 30),
+(1, 2, 'Eje delantero para Toyota Corolla', 500.00, 'Unidad', 'Pieza', 15);
+
 -- INSERT para 'detalleventa'
 INSERT INTO detalleventa (idproducto, idventa, idorden, idpromocion, cantidad, numserie, precioventa, descuento)
 VALUES
-(1, 1, 1, 1, 2, '{"seriales": ["A123", "A124"]}', 150.00, 10.00),
-(2, 1, 2, 2, 1, '{"seriales": ["B234"]}', 200.00, 5.00),
-(3, 2, 2, 2, 3, '{"seriales": ["C345", "C346", "C347"]}', 120.00, 0.00),
+(1, 1, 1, 1, 2, '{"seriales": ["A123", "A124"]}', 60.00, 10.00),  -- Filtro de aire para motor de 4 cilindros
+(2, 1, 2, 2, 1, '{"seriales": ["B234"]}', 140.00, 5.00),          -- Bujías para motor Toyota Corolla
+(3, 2, 2, 2, 1, '{"seriales": ["C345"]}', 250.00, 0.00),          -- Amortiguador trasero para camioneta Ford Ranger
+(4, 1, 1, 2, 1, '{"seriales": ["D456"]}', 110.00, 0.00),          -- Pastillas de freno para vehículos de carga
+(5, 1, 1, 1, 1, '{"seriales": ["E567"]}', 50.00, 0.00),           -- Aceite para motor 5W-30
+(6, 2, 2, 2, 1, '{"seriales": ["F678"]}', 1700.00, 0.00),         -- Transmisión automática para Ford Ranger
+(7, 1, 1, 2, 1, '{"seriales": ["G789"]}', 300.00, 5.00),          -- Freno de disco delantero para Toyota Corolla
+(8, 2, 2, 1, 1, '{"seriales": ["H890"]}', 40.00, 10.00),           -- Filtro de aceite para motor de sedán
+(9, 1, 1, 2, 1, '{"seriales": ["I901"]}', 170.00, 0.00),          -- Correa de distribución para Ford Ranger
+(10, 2, 2, 1, 1, '{"seriales": ["J012"]}', 600.00, 0.00);   
 
-(1, 1, 1, 1, 2, 'B-0111970', 150.00, 10.00),
-(2, 1, 2, 2, 1, 'B-0169120', 200.00, 5.00),
-(3, 2, 2, 2, 3, 'B-0060100', 120.00, 0.00);
-
+ 
 -- Consultas de ejemplo
 SELECT * FROM empresas WHERE idempresa IN (1, 2);
 SELECT * FROM personas WHERE idpersona IN (1, 2);

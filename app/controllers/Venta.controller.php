@@ -75,7 +75,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             if ($idVentaInsertada > 0) {
                 echo json_encode([
                     "status" => "success",
-                    "message" => "Venta registrada con éxito.",
+                    "message" => "Venta registrada con exito.",
                     "idventa" => $idVentaInsertada
                 ]);
             } else {
