@@ -1,43 +1,50 @@
 <?php
 
-require_once "../models/Producto.php";
-header('Content-Type: application/json');
+if(isset($_SERVER['REQUEST_METHOD'])){
+    header('Content-type: application/json; charset=utf-8');
 
-$producto = new Producto();
+    require_once "../models/Producto.php";
+    require_once "../helpers/helper.php";
 
-switch ($_SERVER["REQUEST_METHOD"]) {
-    case "POST":
-        if (!isset($_POST["operation"])) {
-            echo json_encode(["status" => false, "message" => "Operación no especificada"]);
-            exit;
-        }
+    $producto = new Producto();
 
-        switch ($_POST["operation"]) {
-            case "register":
-                echo json_encode($producto->add($_POST));
-                break;
+    switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            if($_GET['task'] == 'getAll'){echo json_encode($producto->getAll());}
+            break;
+        
+        case 'POST':
+            $input = file_get_contents('php://input');
 
-            case "update":
-                echo json_encode($producto->update($_POST));
-                break;
+            $dataJSON = json_decode($input, true);
 
-            case "delete":
-                echo json_encode($producto->delete($_POST["idproducto"]));
-                break;
+            if($dataJSON === null){
+                echo json_encode(["error" => "JSON invalido"]);
+                error_log("JSON recibido: " . $input);
+                exit;
+            }
 
-            default:
-                echo json_encode(["status" => false, "message" => "Operación no válida"]);
-        }
-        break;
+            $registro = [
+                "idsubcategoria"       => Helper::limpiarCadena($dataJSON["idsubcategoria"] ?? ""),
+                "idmarca"       => Helper::limpiarCadena($dataJSON["idmarca"] ?? ""),
+                "descripcion"       => Helper::limpiarCadena($dataJSON["descripcion"] ?? ""),
+                "precio"       => Helper::limpiarCadena($dataJSON["precio"] ?? ""),
+                "presentacion"       => Helper::limpiarCadena($dataJSON["presentacion"] ?? ""),
+                "undmedida"       => Helper::limpiarCadena($dataJSON["undmedida"] ?? ""),
+                "cantidad"       => Helper::limpiarCadena($dataJSON["cantidad"] ?? ""),
+                "img"       => Helper::limpiarCadena($dataJSON["img"] ?? "")
+            ];
 
-    case "GET":
-        if (isset($_GET["idproducto"])) {
-            echo json_encode($producto->find($_GET["idproducto"]));
-        } else {
-            echo json_encode($producto->getAll());
-        }
-        break;
-    
-    default:
-        echo json_encode(["status" => false, "message" => "Método no permitido"]);
+            $n = $producto->add($registro);
+            if ($n === 0) {
+                echo json_encode(["error" => "No se pudo registrar el vehículo"]);
+                error_log("JSON Recibido: " . $input);
+            } else {
+                echo json_encode(["success" => "Vehículo registrado", "rows" => $n]);
+            }
+            break;
+        default:
+            # code...
+            break;
+    }
 }

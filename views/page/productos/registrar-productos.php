@@ -29,7 +29,7 @@ require_once "../../partials/header.php";
         <div class="col-md-3 mb-3">
           <div class="form-floating">
             <select class="form-select" id="marca" name="marca" style="color: black;" required>
-              <option>Marca</option>
+              <option>Seleccione una opcion</option>
             </select>
             <label for="marca">Marca:</label>
           </div>
@@ -38,59 +38,61 @@ require_once "../../partials/header.php";
         <div class="col-md-3 mb-3">
           <div class="form-floating">
             <select class="form-select" id="categoria" name="categoria" style="color: black;" required>
-              <option>Categoria</option>
+              <option>Seleccione una opcion</option>
             </select>
-            <label for="marca">Categoria:</label>
+            <label for="categoria">Categoria:</label>
           </div>
         </div>
 
         <!-- Subcategoria -->
         <div class="col-md-3">
           <div class="form-floating">
-            <input type="text" class="form-select" id="subcategoria" style="color: black;" required />
+            <select class="form-select" name="subcategoria" id="subcategoria" style="color: black;" required>
+              <option value="">Selecciona una opcion</option>
+            </select>
             <label for="subcategoria">Subcategoría:</label>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="form-floating mb-3">
-            <textarea class="form-control" id="descripcion" rows="4" placeholder="descripcion"></textarea>
+            <textarea class="form-control" id="descripcion" rows="4" name="descripcion" placeholder="descripcion"></textarea>
             <label for="descripcion">Descripción</label>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="form-floating ">
-            <input type="text" class="form-control" id="presentacion" placeholder="presentacion" />
+            <input type="text" class="form-control" id="presentacion" name="presentacion" placeholder="presentacion" />
             <label for="presentacion">Presentación</label>
           </div>
         </div>
 
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="cantidad" placeholder="cantidad" />
+            <input type="text" class="form-control" id="cantidad" name="cantidad" placeholder="cantidad" />
             <label for="cantidad">Cantidad</label>
           </div>
         </div>
 
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="medida" placeholder="medida" />
-            <label for="medida">Medida</label>
+            <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="medida" />
+            <label for="undmedida">Und. de Medida</label>
           </div>
         </div>
 
         
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="precio" placeholder="presio" />
+            <input type="text" class="form-control" id="precio" name="precio" placeholder="presio" />
             <label for="precio">Precio</label>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="form-floating mb-3">
-            <input type="file" class="btn btn-outline-dark border input-img" accept="image/png, image/jpeg" id="img" placeholder="img">
+            <input type="file" class="btn btn-outline-dark border input-img" id="img" accept="image/png, image/jpeg" placeholder="img">
           </div>
         </div>
 
@@ -102,7 +104,7 @@ require_once "../../partials/header.php";
       <button class="btn btn-secondary" onclick="window.location.href='listar-Producto.php'">
         Cancelar
       </button>
-      <button class="btn btn-success" onclick="window.location.href='listar-Producto.php'">
+      <button type="submit" class="btn btn-success" id="btnRegistrarProducto">
         Aceptar
       </button>
     </div>
@@ -119,6 +121,100 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 
 ?>
+<script>
+document.getElementById("btnRegistrarProducto").addEventListener("click", function (e){
+e.preventDefault();
+
+const data ={
+idmarca: document.getElementById("marca").value,
+idsubcategoria: document.getElementById("subcategoria").value,
+descripcion: document.getElementById("descripcion").value,
+precio: document.getElementById("precio").value,
+presentacion: document.getElementById("presentacion").value,
+undmedida: document.getElementById("undmedida").value,
+cantidad: document.getElementById("cantidad").value,
+img: document.getElementById("img").value
+};
+if(!data.idmarca || !data.idsubcategoria || !data.descripcion || !data.precio || !data.presentacion || !data.undmedida || !data.cantidad || !data.img){
+  alert("Por favor, comlete todos los campos obligatorios");
+  return;
+}
+
+fetch("http://localhost/fix360/app/controllers/producto.controller.php",{
+method: "POST",
+headers: {"Content-Type": "application/json"},
+body: JSON.stringify(data)
+})
+.then(response => response.json())
+.then(resp => {
+  if(resp.rows > 0){
+    alert("Registro Exitoso");
+  } else{
+    console.log("Error en el registro");
+    err => {
+      console.error("Error en la solicitud:", err);
+    }
+  }
+})
+.catch(err =>{
+  console.log("Error en la solicitud", err);
+});
+});
+</script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    const marcaSelect = document.getElementById("marca");
+    const categoriaSelect = document.getElementById("categoria");
+    const subcategoriaSelect = document.getElementById("subcategoria");
+
+    fetch("http://localhost/fix360/app/controllers/marca.controller.php?task=getAllMarcaProducto")
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(item =>{
+        const option = document.createElement("option");
+        option.value = item.idmarca;
+        option.textContent = item.nombre;
+        marcaSelect.appendChild(option);
+      });
+    })
+    .catch(error => console.error("Error al cargar las marcas:", error));
+
+    fetch("http://localhost/fix360/app/controllers/categoria.controller.php?task=getAll")
+    .then(response => response.json())
+    .then(data => {
+      data.forEach( item => {
+        const option = document.createElement("option");
+        option.value = item.idcategoria;
+        option.textContent = item.categoria;
+        categoriaSelect.appendChild(option);
+      });
+    })
+    .catch(error => console.error("Error al cargar categorias:", error));
+
+    function cargarSubcategorias(){
+      const categoria = categoriaSelect.value;
+
+      subcategoriaSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
+
+      if(categoria){
+        fetch(`http://localhost/fix360/app/controllers/subcategoria.controller.php?idcategoria=${encodeURIComponent(categoria)}`)
+        .then(response => response.json())
+        .then(data =>{
+          data.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.idsubcategoria;
+            option.textContent = item.subcategoria;
+            subcategoriaSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error("Error al cargar subcategorias:", error));
+      }
+    }
+    categoriaSelect.addEventListener("change", cargarSubcategorias);
+  });
+</script>
 
 </body>
 

@@ -52,8 +52,8 @@ class Producto extends Conexion {
             $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?)";
             $cmd = $this->pdo->prepare($query);
             $cmd->execute([
-                $params["idmarca"],
                 $params["idsubcategoria"],
+                $params["idmarca"],
                 $params["descripcion"],
                 $params["precio"],
                 $params["presentacion"],

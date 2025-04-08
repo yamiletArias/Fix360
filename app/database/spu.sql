@@ -290,7 +290,7 @@ END$$
 DELIMITER $$
 
 -- call spBuscarEmpresa ('nombrecomercial', 'SAC');
--- select * from clientes;
+-- select * from categorias;
 -- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
 -- call spGetClienteByDni('40');
  
