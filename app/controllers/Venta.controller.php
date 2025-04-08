@@ -29,15 +29,24 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             }
             break;
         case 'POST':
+            // Captura el JSON de entrada
             $input = file_get_contents('php://input');
-            $dataJSON = json_decode($input, true);
+            error_log("Entrada POST: " . $input);
 
-            // Limpiar y asignar datos del encabezado
+            $dataJSON = json_decode($input, true);
+            if (!$dataJSON) {
+                error_log("Error: JSON inválido.");
+                echo json_encode(["status" => "error", "message" => "JSON inválido."]);
+                exit;
+            }
+
+            // Limpieza y validación de datos
             $tipocom = Helper::limpiarCadena($dataJSON['tipocom'] ?? "");
             $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
-            // Si la fecha no incluye hora, agregar " 00:00:00"
-            if (strpos($fechahora, ' ') === false) {
-                $fechahora .= " 00:00:00";
+            if (empty($fechahora)) {
+                $fechahora = date("Y-m-d H:i:s");
+            } elseif (strpos($fechahora, ' ') === false) {
+                $fechahora .= " " . date("H:i:s");
             }
             $numserie = Helper::limpiarCadena($dataJSON['numserie'] ?? "");
             $numcom = Helper::limpiarCadena($dataJSON['numcom'] ?? "");
@@ -50,8 +59,10 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 exit;
             }
 
+            error_log("Datos recibidos: " . print_r($dataJSON, true));
+
             $venta = new Venta();
-            $n = $venta->registerVentas([
+            $idVentaInsertada = $venta->registerVentas([
                 "tipocom" => $tipocom,
                 "fechahora" => $fechahora,
                 "numserie" => $numserie,
@@ -61,16 +72,17 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "productos" => $productos
             ]);
 
-            if ($n > 0) {
-                echo json_encode(["status" => "success", "message" => "Venta registrada exitosamente."]);
+            if ($idVentaInsertada > 0) {
+                echo json_encode([
+                    "status" => "success",
+                    "message" => "Venta registrada con éxito.",
+                    "idventa" => $idVentaInsertada
+                ]);
             } else {
                 echo json_encode(["status" => "error", "message" => "No se pudo registrar la venta."]);
             }
             break;
 
-        default:
-            echo json_encode(["status" => "error", "message" => "Método no permitido."]);
-            break;
     }
 }
 ?>

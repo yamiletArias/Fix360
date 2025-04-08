@@ -1,37 +1,17 @@
+<?php
+
+const NAMEVIEW = "Registro de Ventas 2";
+
+require_once "../../../app/helpers/helper.php";
+require_once "../../../app/config/app.php";
+require_once "../../partials/header.php";
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SESION VENTAS</title>
-  <!--Font awesome -->
-  <!-- FonAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- plugins:css -->
-  <link rel="stylesheet" href="../../assets/vendors/simple-line-icons/css/simple-line-icons.css" />
-  <link rel="stylesheet" href="../../assets/vendors/flag-icon-css/css/flag-icons.min.css" />
-  <link rel="stylesheet" href="../../assets/vendors/css/vendor.bundle.base.css" />
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="../../assets/js/swalcustom.js"></script>
-
-  <!-- endinject -->
-  <!-- Plugin css for this page -->
-  <link rel="stylesheet" href="../../assets/vendors/font-awesome/css/font-awesome.min.css" />
-  <!-- End plugin css for this page -->
-  <!-- inject:css -->
-  <!-- endinject -->
-  <!-- Layout styles -->
-  <link rel="stylesheet" href="../../assets/css/vertical-light-layout/style.css" />
-  <!-- End layout styles -->
-  <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
-
-  <link rel="stylesheet" href="./dia.css" />
-
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
     .container-ventas {
@@ -99,7 +79,7 @@
     table,
     th,
     td {
-      border: 1px solid #ccc;
+      /* border: 1px solid #ccc; */
       text-align: center;
       padding: 10px;
     }
@@ -143,7 +123,7 @@
       /* Agrega borde solo en las celdas de total */
       border-bottom: 2px solid black;
       font-weight: bold;
-      background: white;
+
       /* Fondo blanco para destacar */
     }
 
@@ -199,252 +179,50 @@
 
 <body>
   <!-- VENTAS -->
-  <div class="container-scroller">
-    <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
-      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo" href="../../index.html">
-          <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo"
-            class="logo-dark" />
-          <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
-            class="logo-light" />
-        </a>
-        <a class="navbar-brand brand-logo-mini" href="../../index.html"><img
-            src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
-        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-          <span class="icon-menu"></span>
-        </button>
-      </div>
-      <div class="navbar-menu-wrapper d-flex align-items-center">
-        <h2 class="mb-0 font-weight-medium d-none d-lg-flex">Ventas</h2>
-        <ul class="navbar-nav navbar-nav-right">
-          <li class="nav-item dropdown">
-            <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              <i class="icon-speech"></i>
-              <span class="count">2</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
-              aria-labelledby="messageDropdown">
-              <a class="dropdown-item py-3">
-                <p class="mb-0 font-weight-medium float-start me-2">
-                  Tienes 2 Recordatorios
-                </p>
-              </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item preview-item">
-                <div class="preview-item-content flex-grow py-2">
-                  <p class="preview-subject ellipsis font-weight-medium text-dark">
-                    Jose Hernandez
-                  </p>
-                  <p class="font-weight-light small-text">Cambio de Frenos</p>
-                </div>
-              </a>
-              <a class="dropdown-item preview-item">
-                <div class="preview-item-content flex-grow py-2">
-                  <p class="preview-subject ellipsis font-weight-medium text-dark">
-                    Hernan Atuncar
-                  </p>
-                  <p class="font-weight-light small-text">Cambio de aceite</p>
-                </div>
-              </a>
-            </div>
-          </li>
-          <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
-            <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              <img class="img-xs rounded-circle ms-2"
-                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-              <span class="font-weight-normal"> Elena </span></a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
-              <div class="dropdown-header text-center">
-                <img class="img-md rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-                <p class="mb-1 mt-3">Elena</p>
-                <p class="font-weight-light text-muted mb-0">
-                  fix360@gmail.com
-                </p>
-              </div>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
-                Profile
-                <span class="badge badge-pill badge-danger">1</span></a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i>
-                Messages</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i>
-                Activity</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
-                FAQ</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
-            </div>
-          </li>
-        </ul>
-        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-          data-toggle="offcanvas">
-          <span class="icon-menu"></span>
-        </button>
-      </div>
-    </nav>
-    <div class="container-fluid page-body-wrapper">
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-          <li class="nav-item navbar-brand-mini-wrapper">
-            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.html"><img
-                style="width: 50px" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
-                alt="logo" /></a>
-          </li>
-          <li class="nav-item nav-profile">
-            <a href="#" class="nav-link">
-              <div class="profile-image">
-                <img class="img-xs rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
-                <div class="dot-indicator bg-success"></div>
-              </div>
-              <div class="text-wrapper">
-                <p class="profile-name">Elena</p>
-                <p class="designation">Administrador</p>
-              </div>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Inicio</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../movdiario/listar-movdiario.html">
-              <span class="menu-title">Movimiento Diario </span>
-              <i class="fa-solid fa-chart-line menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Inventario</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../ventas/listar-ventas.html">
-              <span class="menu-title">Ventas</span>
-              <i class="fa-solid fa-tags menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <!--<a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-                    <span class="menu-title">Icons</span>
-                    <i class="icon-globe menu-icon"></i>
-                </a>-->
-            <!--<div class="collapse" id="icons">
-                <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      href="../../pages/icons/font-awesome.html"
-                      >Font Awesome</a
-                    >
-                  </li>
-                </ul>
-              </div>-->
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../compras/listar-compras.html">
-              <span class="menu-title">Compras</span>
-              <i class="fa-solid fa-cart-plus menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../productos/listar-producto.html">
-              <span class="menu-title">Productos</span>
-              <i class="fa-solid fa-store menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../kardex/listar-kardex.html">
-              <span class="menu-title">Kardex</span>
-              <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../cotizaciones/listar-cotizacion.html">
-              <span class="menu-title">Cotizaciones</span>
-              <i class="fa-solid fa-list-ol menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../ordenservicios/listar-ordenes.html">
-              <span class="menu-title">Ordenes de Servicio</span>
-              <i class="fa-solid fa-car-tunnel menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../promociones/listar-promociones.html">
-              <span class="menu-title">Promociones</span>
-              <i class="fa-solid fa-percent menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Administracion</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../clientes/listar-cliente.html">
-              <span class="menu-title">Clientes</span>
-              <i class="fa-solid fa-building-user menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../vehiculos/listar-vehiculos.html">
-              <span class="menu-title">Vehiculos</span>
-              <i class="fa-solid fa-car-side menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Contactabilidad</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../contactabilidad/listar-graficos.html">
-              <span class="menu-title">Graficos</span>
-              <i class="fa-solid fa-chart-pie menu-icon"></i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      <div class="container-ventas">
-        <div class="header-group">
-          <div class="form-group">
-            <div class="btn-group" role="group" aria-label="Basic example">
-              <button id="btnDia" type="button" class="btn btn-primary">
-                Día
-              </button>
-              <button id="btnSemana" type="button" class="btn btn-primary">
-                Semana
-              </button>
-              <button id="btnMes" type="button" class="btn btn-primary">
-                Mes
-              </button>
-            </div>
-            <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
-          </div>
-          <div>
-            <button type="button" onclick="window.location.href='registrar-ventas.html'" class="btn btn-success">
-              Registrar
-            </button>
-          </div>
+  <div class="container-ventas">
+    <div class="header-group">
+      <div class="form-group">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button id="btnDia" type="button" class="btn btn-primary">
+            Día
+          </button>
+          <button id="btnSemana" type="button" class="btn btn-primary">
+            Semana
+          </button>
+          <button id="btnMes" type="button" class="btn btn-primary">
+            Mes
+          </button>
         </div>
-
-        <div id="tableDia" class="table-container">
-          <!-- Tabla Día -->
-          <table id="miTabla" class="table table-striped display">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Cliente</th>
-                <th>T. Comprobante</th>
-                <th>N° Comprobante</th>
-                <th>Fecha Hora</th>
-                <!-- <th>Importe</th> -->
-                <th>Opciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- contenido dinamico -->
-            </tbody>
-          </table>
-        </div>
+        <button type="button" class="btn-outline-danger fa-solid fa-file-pdf"></button>
+      </div>
+      <div>
+        <button type="button" onclick="window.location.href='registrar-ventas.html'" class="btn btn-success">
+          Registrar
+        </button>
       </div>
     </div>
+
+    <div id="tableDia" class="table-container">
+      <!-- Tabla Día -->
+      <table id="miTabla" class="table table-striped display">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>T. Comprobante</th>
+            <th>N° Comprobante</th>
+            <th>Fecha Hora</th>
+            <!-- <th>Importe</th> -->
+            <th>Opciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- contenido dinamico -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
   </div>
 
   <!-- Modal -->
@@ -505,41 +283,26 @@
   </div>
 
   <!--FIN VENTAS-->
+</body>
 
-  <!-- plugins:js -->
-  <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="../../assets/js/off-canvas.js"></script>
-  <script src="../../assets/js/hoverable-collapse.js"></script>
-  <script src="../../assets/js/misc.js"></script>
-  <script src="../../assets/js/settings.js"></script>
-  <script src="../../assets/js/todolist.js"></script>
-  <!-- jQuery (necesario para DataTables) -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</html>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
 
-  <!-- DataTables JS -->
-  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    function obtenerVentas() {
+      fetch(`/Fix360/app/controllers/Venta.controller.php`, {
+        method: 'GET'
+      })
+        .then(response => response.json())
+        .then(data => {
+          const tabla = document.querySelector("#miTabla tbody");
+          tabla.innerHTML = '';
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-      function obtenerVentas() {
-        fetch(`/Fix360/app/controllers/Venta.controller.php`, {
-          method: 'GET'
-        })
-          .then(response => response.json())
-          .then(data => {
-            const tabla = document.querySelector("#miTabla tbody");
-            tabla.innerHTML = '';
-
-            if (data.length === 0) {
-              tabla.innerHTML = `<tr><td colspan="6">No hay ventas registradas.</td></tr>`;
-            } else {
-              data.forEach(element => {
-                tabla.innerHTML += `
+          if (data.length === 0) {
+            tabla.innerHTML = `<tr><td colspan="6">No hay ventas registradas.</td></tr>`;
+          } else {
+            data.forEach(element => {
+              tabla.innerHTML += `
               <tr data-id="${element.id}">
                 <td>${element.id}</td>
                 <td>${element.cliente}</td>
@@ -559,68 +322,66 @@
                 </td>
               </tr>
             `;
-              });
-            }
-
-            if (!$.fn.dataTable.isDataTable('#miTabla')) {
-              $('#miTabla').DataTable();
-            }
-          })
-          .catch(error => {
-            console.error("Error al obtener los datos:", error);
-          });
-      }
-
-      // Delegar el evento de clic a la tabla para los botones "Eliminar"
-      document.querySelector("#miTabla tbody").addEventListener("click", async function (event) {
-        if (event.target && event.target.matches("button.btnEliminar")) {
-          const id = event.target.getAttribute("data-id"); // Obtener el ID del registro a eliminar
-
-          // Usar la función ask para confirmar la eliminación
-          if (await ask("¿Estás seguro de eliminar este registro?", "Venta")) {
-            showToast("Registro eliminado correctamente", "SUCCESS");
-            console.log(`Eliminando registro con ID: ${id}`);
-          } else {
-            showToast("Operación cancelada", "WARNING");
+            });
           }
+
+          if (!$.fn.dataTable.isDataTable('#miTabla')) {
+            $('#miTabla').DataTable();
+          }
+        })
+        .catch(error => {
+          console.error("Error al obtener los datos:", error);
+        });
+    }
+
+    // Delegar el evento de clic a la tabla para los botones "Eliminar"
+    document.querySelector("#miTabla tbody").addEventListener("click", async function (event) {
+      if (event.target && event.target.matches("button.btnEliminar")) {
+        const id = event.target.getAttribute("data-id"); // Obtener el ID del registro a eliminar
+
+        // Usar la función ask para confirmar la eliminación
+        if (await ask("¿Estás seguro de eliminar este registro?", "Venta")) {
+          showToast("Registro eliminado correctamente", "SUCCESS");
+          console.log(`Eliminando registro con ID: ${id}`);
+        } else {
+          showToast("Operación cancelada", "WARNING");
         }
-      });
-
-      // Inicializar las tablas con DataTables y manejar las vistas de diferentes tablas
-      $(document).ready(function () {
-        var tableDia = $("#miTabla").DataTable();
-        var tableSemana = $("#miTablaSemana").DataTable();
-        var tableMes = $("#miTablaMes").DataTable();
-
-        // Función para alternar entre las tablas
-        $("#btnDia").on("click", function () {
-          $("#tableDia").show();
-          $("#tableSemana").hide();
-          $("#tableMes").hide();
-        });
-
-        $("#btnSemana").on("click", function () {
-          $("#tableSemana").show();
-          $("#tableDia").hide();
-          $("#tableMes").hide();
-        });
-
-        $("#btnMes").on("click", function () {
-          $("#tableMes").show();
-          $("#tableDia").hide();
-          $("#tableSemana").hide();
-        });
-      });
-
-      // Llamar la función para obtener las ventas cuando la página se cargue
-      obtenerVentas();
+      }
     });
-  </script>
 
+    // Inicializar las tablas con DataTables y manejar las vistas de diferentes tablas
+    $(document).ready(function () {
+      var tableDia = $("#miTabla").DataTable();
+      var tableSemana = $("#miTablaSemana").DataTable();
+      var tableMes = $("#miTablaMes").DataTable();
 
-  <!-- endinject -->
-  <!-- Custom js for this page -->
-  <!-- End custom js for this page -->
-</body>
+      // Función para alternar entre las tablas
+      $("#btnDia").on("click", function () {
+        $("#tableDia").show();
+        $("#tableSemana").hide();
+        $("#tableMes").hide();
+      });
 
-</html>
+      $("#btnSemana").on("click", function () {
+        $("#tableSemana").show();
+        $("#tableDia").hide();
+        $("#tableMes").hide();
+      });
+
+      $("#btnMes").on("click", function () {
+        $("#tableMes").show();
+        $("#tableDia").hide();
+        $("#tableSemana").hide();
+      });
+    });
+
+    // Llamar la función para obtener las ventas cuando la página se cargue
+    obtenerVentas();
+  });
+</script>
+
+<?php
+
+require_once "../../partials/_footer.php";
+
+?>

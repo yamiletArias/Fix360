@@ -101,34 +101,67 @@ class Venta extends Conexion
     public function registerVentas($params = []): int
     {
         try {
-            // Se asume que 'productos' es un array y se toma el primer elemento.
-            $producto = $params["productos"][0] ?? null;
-            if (!$producto) {
-                return 0;
-            }
+            $pdo = $this->pdo;
+            $pdo->beginTransaction();
 
-            $query = "CALL spuRegisterVentas(?,?,?,?,?,?,?,?,?,?,?)";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->execute([
+            error_log("Parametros para spuRegisterVenta: " . print_r($params, true));
+
+            // Llamada al Stored Procedure spuRegisterVenta
+            $stmtVenta = $pdo->prepare("CALL spuRegisterVenta(?,?,?,?,?,?)");
+            $stmtVenta->execute([
                 $params["tipocom"],
                 $params["fechahora"],
                 $params["numserie"],
                 $params["numcom"],
                 $params["moneda"],
-                $params["idcliente"],
-                $producto["idproducto"],
-                $producto["cantidad"],
-                $params["numserie"], // Si deseas que el numserie del detalle sea distinto, cámbialo
-                $producto["precioventa"],
-                $producto["descuento"]
+                $params["idcliente"]
             ]);
 
-            return $stmt->rowCount(); // Retorna el número de filas afectadas
+            $result = []; // Asegura que esté definido
+
+            do {
+                $tmp = $stmtVenta->fetch(PDO::FETCH_ASSOC);
+                error_log("Resultado fetch: " . print_r($tmp, true)); // NUEVO LOG
+                if ($tmp && isset($tmp['idventa'])) {
+                    $result = $tmp;
+                    break;
+                }
+            } while ($stmtVenta->nextRowset());
+
+            $stmtVenta->closeCursor();
+
+            $idventa = $result['idventa'] ?? 0;
+
+            if (!$idventa) {
+                error_log("SP ejecutado pero no devolvió ID de venta.");
+                throw new Exception("No se pudo obtener el id de la venta.");
+            }
+
+            // Llamada al SP spuInsertDetalleVenta para cada producto
+            $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
+            foreach ($params["productos"] as $producto) {
+                error_log("Insertando producto ID: " . $producto["idproducto"]);
+                $stmtDetalle->execute([
+                    $idventa,
+                    $producto["idproducto"],
+                    $producto["cantidad"],
+                    $producto["numserie_detalle"] ?? null,  // <- Aquí el cambio
+                    $producto["precioventa"],
+                    $producto["descuento"]
+                ]);
+            }
+
+            $pdo->commit();
+            error_log("Venta registrada con id: " . $idventa);
+            return $idventa;
         } catch (PDOException $e) {
+            $pdo->rollBack();
             error_log("Error DB: " . $e->getMessage());
+            return 0;
+        } catch (Exception $ex) {
+            error_log("Error: " . $ex->getMessage());
             return 0;
         }
     }
-
 }
 ?>

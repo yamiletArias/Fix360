@@ -3,7 +3,9 @@ INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, te
 VALUES 
 ('Juan', 'Pérez', 'DNI', '12345678', 'Av. Las Flores 123', 'juan.perez@email.com', '987654321', '998877665'),
 ('María', 'Gómez', 'DNI', '87654321', 'Calle Sol 456', 'maria.gomez@email.com', '912345678', '977665544');
-
+INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal, telalternativo)
+VALUES 
+('Deyanira', 'Arias', 'DNI', '919629135', 'Av. San Martin', 'deya.08.yami@email.com', '919629135', null);
 -- INSERT para la tabla 'empresas'
 INSERT INTO empresas (nomcomercial, razonsocial, telefono, correo, ruc)
 VALUES 
@@ -64,7 +66,8 @@ VALUES (1, 'Motores de 4 cilindros'), (2, 'Transmisiones automáticas');
 -- INSERT para la tabla 'clientes'
 INSERT INTO clientes (idempresa, idpersona, idcontactabilidad)
 VALUES (1, NULL, 1), (2, NULL, 2), (NULL, 1, 1), (NULL, 2, 2);
-
+INSERT INTO clientes (idempresa, idpersona, idcontactabilidad)
+VALUES (null, 3, 1);
 -- INSERT para la tabla 'contratos'
 INSERT INTO contratos (idrol, idpersona, fechainicio, fechafin)
 VALUES 

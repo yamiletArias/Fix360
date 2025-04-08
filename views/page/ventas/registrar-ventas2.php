@@ -196,6 +196,8 @@ require_once "../../partials/header.php";
 </body>
 
 </html>
+
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
@@ -432,45 +434,57 @@ require_once "../../partials/header.php";
     // Script del botón "Guardar"
     btnFinalizarVenta.addEventListener("click", function (e) {
       e.preventDefault();
-      // Habilitar los campos de numserie y numcom si están deshabilitados
+      btnFinalizarVenta.disabled = true;
+      btnFinalizarVenta.textContent = "Guardando...";
+
+      // Habilitar los inputs para que se envíen los valores
       numSerieInput.disabled = false;
       numComInput.disabled = false;
+
+      // Validar la selección de cliente y productos
       if (!clienteId) {
         alert("Por favor, selecciona un cliente.");
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
         return;
       }
       if (detalleVenta.length === 0) {
         alert("Por favor, agrega al menos un producto.");
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
         return;
       }
-      // Preparar los datos para enviar, mapeando a los nombres que espera el controlador
+
+      // Armar el objeto de datos a enviar
       const data = {
         tipocom: document.querySelector('input[name="tipo"]:checked').value,
-        fechahora: document.getElementById("fecha").value.trim(), // se le agregará " 00:00:00" en el backend si falta
-        numserie: document.getElementById("numserie").value.trim(),
-        numcom: document.getElementById("numcom").value.trim(),
-        moneda: document.getElementById("moneda").value,
+        fechahora: fechaInput.value.trim(),
+        numserie: numSerieInput.value.trim(),
+        numcom: numComInput.value.trim(),
+        moneda: monedaSelect.value,
         idcliente: clienteId,
-        productos: detalleVenta  // Se espera que este array tenga un solo elemento
+        productos: detalleVenta
       };
-      console.log(data);
+
+      // Enviar datos al servidor usando fetch
       fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       })
-        .then(response => response.json())
-        .then(resp => {
-          if (resp.status === 'error') {
-            console.error("Error: ", resp.message);
-            alert(`Error: ${resp.message}`);
-          } else {
-            alert("Venta registrada con éxito.");
+        .then(response => response.text()) // <-- temporalmente en vez de .json()
+        .then(text => {
+          console.log("Respuesta del servidor:", text);
+          try {
+            const json = JSON.parse(text);
+            // Aquí sigues tu lógica normal si quieres
+          } catch (e) {
+            console.error("No se pudo parsear JSON:", e);
           }
         })
-        .catch(err => {
-          console.error("Error en la solicitud:", err);
-          alert("Error al registrar la venta.");
+        .finally(() => {
+          btnFinalizarVenta.disabled = false;
+          btnFinalizarVenta.textContent = "Guardar";
         });
     });
   });
