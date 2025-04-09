@@ -46,8 +46,8 @@ class Producto extends Conexion {
      * @param array $params
      * @return array
      */
-    public function add($params = []) {
-        $resultado = ["status" => false, "message" => ""];
+    public function add($params = []):int {
+        $numRows = 0;
         try {
             $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?)";
             $cmd = $this->pdo->prepare($query);
@@ -61,12 +61,12 @@ class Producto extends Conexion {
                 $params["cantidad"],
                 $params["img"]
             ]);
-            $resultado["status"] = true;
-            $resultado["message"] = "Producto registrado correctamente";
+            $numRows = $cmd->rowCount();
         } catch (Exception $e) {
-            $resultado["message"] = $e->getMessage();
+            error_log("Error DB: " . $e->getMessage());
+            return $numRows;
         }
-        return $resultado;
+        return $numRows;
     }
 
     /**
