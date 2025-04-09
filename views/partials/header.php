@@ -161,7 +161,7 @@
             class="logo-light" />
         </a>
         <a class="navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php"><img
-            src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
+            src="../../../images/minilogo.jpg" alt="logo" /></a>
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
           <span class="icon-menu"></span>
         </button>
