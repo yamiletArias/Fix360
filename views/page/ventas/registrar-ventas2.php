@@ -75,7 +75,14 @@ require_once "../../partials/header.php";
 <div class="container">
   <form action="" method="POST" autocomplete="off" id="formulario-detalle">
     <div class="card mt-5">
-      <div class="card-header">Registro</div>
+      <div class="card-header">
+        <div class="row">
+          <div class="col"><strong>Registrar</strong></div>
+          <div class="col text-end"><a href="listar-ventas2.php" class="btn btn-sm btn-success"
+              style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Mostrar Lista</a>
+          </div>
+        </div>
+      </div>
       <div class="card-body">
         <div class="row g-2">
           <div class="col-md-5">
@@ -137,7 +144,7 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control" name="precio" id="precio" required />
+              <input type="number" class="form-control" name="precio" id="precio" required readonly />
               <label for="precio">Precio</label>
             </div>
           </div>

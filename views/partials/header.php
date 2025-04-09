@@ -23,22 +23,24 @@
   <script src="../../assets/js/swalcustom.js"></script>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
-  integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
 
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/font-awesome/css/font-awesome.min.css" />
 
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/css/vertical-light-layout/style.css" />
-  
+
   <!--link rel="shortcut icon" href="<?= SERVERURL ?>views/assets/images/favicon.png" /-->
   <link rel="shortcut icon" href="<?= SERVERURL ?>images/minilogo.jpg" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-     .container-main {
+    .container-main {
       background: transparent;
       padding: 0px;
       border-radius: 5px;
@@ -46,10 +48,11 @@
       width: 80%;
       margin:50px;
     }
+
     #selectMetodo {
-    background-color: white !important;
-    cursor: pointer;
-  }
+      background-color: white !important;
+      cursor: pointer;
+    }
 
     .form-group {
       display: flex;
@@ -73,8 +76,6 @@
       gap: 10px;
     }
 
-    
-
     input,
     select,
     button {
@@ -89,10 +90,11 @@
       text-align: center;
     }
 
-    
+
     .border {
       border-radius: 4px;
-    } 
+    }
+
     .autocomplete {
       position: relative;
       display: inline-block;
@@ -155,8 +157,7 @@
     <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
       <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
         <a class="navbar-brand brand-logo" href="../movdiario/listar-movdiario.php">
-          <img src="../../../images/logofix360.png" alt="logo" style="width: 200px;"
-            class="logo-dark" />
+          <img src="../../../images/logofix360.png" alt="logo" style="width: 200px;" class="logo-dark" />
           <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
             class="logo-light" />
         </a>
@@ -208,11 +209,13 @@
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
             <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <img class="img-xs rounded-circle ms-2" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+              <img class="img-xs rounded-circle ms-2"
+                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
               <span class="font-weight-normal"> Elena </span></a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
-                <img class="img-md rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+                <img class="img-md rounded-circle"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
                 <p class="mb-1 mt-3">Elena</p>
                 <p class="font-weight-light text-muted mb-0">
                   fix360@gmail.com
@@ -242,12 +245,14 @@
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
             <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php"><img
-                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo" /></a>
+                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                alt="logo" /></a>
           </li>
           <li class="nav-item nav-profile">
             <a href="#" class="nav-link">
               <div class="profile-image">
-                <img class="img-xs rounded-circle" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
+                <img class="img-xs rounded-circle"
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
                 <div class="dot-indicator bg-success"></div>
               </div>
               <div class="text-wrapper">
