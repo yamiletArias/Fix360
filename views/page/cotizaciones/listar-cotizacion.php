@@ -8,9 +8,11 @@ require_once "../../partials/header.php";
 ?>
       <div class="container-main">
         <div>
-          <button type="button" onclick="window.location.href='registrar-cotizacion.html'" style="margin-left: 1300px;" class="btn btn-success">
-            Registrar
-          </button>
+          <div class="text-end">
+            <button type="button" onclick="window.location.href='registrar-cotizacion.php'" class="btn btn-success text-end">
+              Registrar
+            </button>
+          </div>
           <div class="table-container">
             <table id="miTabla" class="table table-striped display">
               <thead>
@@ -39,11 +41,11 @@ require_once "../../partials/header.php";
                       data-bs-target="#miModal">
                       <i class="fa-solid fa-list"></i>
                       </button>
-                    <button title="Editar" onclick="window.location.href='editar-cotizacion.html'"
+                    <button title="Editar" onclick="window.location.href='editar-cotizacion.php'"
                       class="btn btn-warning btn-sm">
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
-                    <button title="Generar PDF" onclick="window.location.href='../../../app/reports/content/reporteprueba.php'"  class="btn btn-outline-dark btn-sm">
+                    <button title="Generar PDF" onclick="window.location.href='../../../app/reports/reporteprueba.php'"  class="btn btn-outline-dark btn-sm">
                       <i class="fa-solid fa-file-pdf"></i>
                     </button>
                     <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
@@ -64,7 +66,7 @@ require_once "../../partials/header.php";
                       data-bs-target="#miModal">
                       <i class="fa-solid fa-list"></i>
                       </button>
-                    <button title="Editar" onclick="window.location.href='editar-cotizacion.html'"
+                    <button title="Editar" onclick="window.location.href='editar-cotizacion.php'"
                       class="btn btn-warning btn-sm">
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
@@ -88,7 +90,7 @@ require_once "../../partials/header.php";
                       data-bs-target="#miModal">
                       <i class="fa-solid fa-list"></i>
                       </button>
-                    <button title="Editar" onclick="window.location.href='editar-cotizacion.html'"
+                    <button title="Editar" onclick="window.location.href='editar-cotizacion.php'"
                       class="btn btn-warning btn-sm">
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>

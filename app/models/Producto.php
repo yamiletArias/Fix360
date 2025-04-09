@@ -14,15 +14,17 @@ class Producto extends Conexion {
      * Lista todos los productos
      * @return array
      */
-    public function getAll() {
+    public function getAll():array {
+        $result = [];
         try {
-            $query = "CALL spListProductos()";
+            $query = "SELECT * FROM vwproductos ORDER BY subcategoria";
             $cmd = $this->pdo->prepare($query);
             $cmd->execute();
-            return $cmd->fetchAll(PDO::FETCH_ASSOC);
+            $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            die($e->getMessage());
+            throw new Exception($e->getMessage());
         }
+        return $result;
     }
 
     /**

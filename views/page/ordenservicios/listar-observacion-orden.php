@@ -13,7 +13,7 @@ require_once "../../partials/header.php";
     <textarea style="margin-right: 500px; padding-right: 100px;" disabled rows="10" cols="50" name=""
       id="">Observaciones del auto</textarea>
     <button style="margin-top: 130px; margin-left: 350px;"
-      onclick="window.location.href='registrar-observacion-ordenes.html'"
+      onclick="window.location.href='registrar-observacion-ordenes.php'"
       class=" btn btn-success">Registrar</button>
   </div>
   <div style="display: flex; gap: 20px; flex-wrap: wrap;">
@@ -36,7 +36,7 @@ require_once "../../partials/header.php";
       </div>
       <div class="card-footer">
         <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.html'">
+        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         <button id="btnEliminar" class="btn btn-danger btn-sm">
@@ -64,7 +64,7 @@ require_once "../../partials/header.php";
       </div>
       <div class="card-footer">
         <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.html'">
+        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         <button id="btnEliminar" class="btn btn-danger btn-sm">
@@ -91,7 +91,7 @@ require_once "../../partials/header.php";
       </div>
       <div class="card-footer">
         <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.html'">
+        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         <button id="btnEliminar" class="btn btn-danger btn-sm">
@@ -118,7 +118,7 @@ require_once "../../partials/header.php";
       </div>
       <div class="card-footer">
         <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.html'">
+        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         <button id="btnEliminar" class="btn btn-danger btn-sm">
@@ -130,7 +130,7 @@ require_once "../../partials/header.php";
   </div>
 
   <div>
-    <button onclick="window.location.href='listar-ordenes.html'" style="margin-top: 20px; "
+    <button onclick="window.location.href='listar-ordenes.php'" style="margin-top: 20px; "
       class=" btn btn-secondary">Volver</button>
   </div>
 </div>

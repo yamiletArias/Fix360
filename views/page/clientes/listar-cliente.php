@@ -115,7 +115,7 @@ require_once "../../partials/header.php";
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
       </div>
@@ -153,7 +153,7 @@ require_once "../../partials/header.php";
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
       </div>
@@ -207,7 +207,7 @@ require_once "../../partials/_footer.php";
           render: (data, type, row) => {
             // Botón de detalle, puedes personalizarlo si lo deseas  
             return `
-                    <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idcliente}">
+                    <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idpersona}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetallePersona('${row.numruc}', '${row.direccion}', '${row.correo}', '${row.telalternativo}')">
@@ -237,7 +237,6 @@ require_once "../../partials/_footer.php";
 function noProporcionado(valor) {
   return (!valor || String(valor).toLowerCase() === "null") ? "No proporcionado" : valor;
 }
-
 
   function verDetallePersona(numruc, direccion, correo, telalternativo) {
     document.querySelector("#RUCPersonaInput").value = numruc || 'No proporcionado';
@@ -289,7 +288,7 @@ function noProporcionado(valor) {
           data: null,
           render: (data, type, row) => {
             return `
-            <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idcliente}">
+            <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idempresa}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetalleEmpresa('${row.razonsocial}','${row.correo}','${row.ruc}')">

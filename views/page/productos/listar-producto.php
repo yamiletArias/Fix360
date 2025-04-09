@@ -15,9 +15,8 @@ require_once "../../partials/header.php";
       </button>
     </div>
   </div>
-
-  <div class="table-container">
-    <table id="miTabla" class="table table-striped display">
+  <div class="table-container" id="tablaProductosContainer">
+    <table id="tablaProductos" class="table table-striped display">
       <thead>
         <tr>
           <th>#</th>
@@ -33,71 +32,7 @@ require_once "../../partials/header.php";
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1</td>
-          <td class="text-left">Shell Helix</td>
-          <td class="text-left">Aceite para auto</td>
-          <td class="text-left">HX7 10W-40</td>
-          <td>50.00</td>
-          <td>Galonera</td>
-          <td>L</td>
-          <td class="text-center">4</td>
-          <td>
-            <img src="https://densalubricantes.com/wp-content/uploads/2023/10/ShellHelixHX710w-405L.jpg"
-              width="80" alt="" />
-          </td>
-          <td>
-            <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-            <button title="Editar" onclick="window.location.href='editar-productos.php'" class="btn btn-warning btn-sm">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-          </td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td class="text-left">Mahindra</td>
-          <td class="text-left">Disco de embriague</td>
-          <td class="text-left">Funcar</td>
-          <td>520.00</td>
-          <td>Unidad</td>
-          <td>UND</td>
-          <td class="text-center">1</td>
-          <td>
-            <img src="https://funcar.pe/cdn/shop/files/DISCODEEMBRAGUE.jpg?v=1696824072" width="100" alt="" />
-          </td>
-          <td>
-            <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-            <button title="Editar" onclick="window.location.href='editar-productos.html'" class="btn btn-warning btn-sm">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-          </td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td class="text-left">Tucson</td>
-          <td class="text-left">Filtro de aceite</td>
-          <td class="text-left">Elantra(2016 - 2022)</td>
-          <td>18.30</td>
-          <td>Unidad</td>
-          <td>UND</td>
-          <td class="text-center">1</td>
-          <td>
-            <img src="https://funcar.pe/cdn/shop/products/2630035505_1_1800x.jpg?v=1678053841"
-              alt="" />
-          </td>
-          <td>
-            <button class="btn btn-danger btn-sm btnEliminar" data-id="data-123">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-            <button title="Editar" onclick="window.location.href='editar-productos.php'" class="btn btn-warning btn-sm">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-          </td>
-        </tr>
+        
       </tbody>
     </table>
   </div>
@@ -112,19 +47,103 @@ require_once "../../partials/_footer.php";
 ?>
 
 <script>
-  // Agregar evento de eliminación a todos los botones con la clase "btnEliminar"
-  $(document).on("click", ".btnEliminar", async function() {
-    const id = $(this).data("id"); // ID del registro a eliminar (opcional)
+  function cargarTablaProductos(){ // Inicio de cargarTablaProductos()
+    if($.fn.DataTable.isDataTable("#tablaProductos")){
+      $("#tablaProductos").DataTable().destroy();
+    } // Cierra if
 
-    if (await ask("¿Estás seguro de eliminar este registro?", "Producto")) {
-      showToast("Registro eliminado correctamente", "SUCCESS");
-      // Aquí podrías agregar la lógica para eliminar el registro
-      console.log(`Eliminando registro con ID: ${id}`);
-    } else {
-      showToast("Operación cancelada", "WARNING");
-    }
+    $("#tablaProductos").DataTable({ // Inicio de configuración DataTable para productos
+      ajax: {
+        url: "http://localhost/fix360/app/controllers/producto.controller.php?task=getAll", // URL que retorna JSON con los productos
+        dataSrc: ""
+      }, // Cierra ajax
+      columns: [
+        { // Columna 1: Número de fila
+          data: null,
+          render: (data, type, row, meta) => meta.row + 1
+        }, // Cierra columna 1
+        { // Columna 2: Marca
+          data: "marca",
+          defaultContent: "Sin marca"
+        }, // Cierra columna 2
+        { // Columna 3: Subcategoria
+          data: "subcategoria",
+          defaultContent: "Sin subcategoría"
+        }, // Cierra columna 3
+        { // Columna 4: Descripción
+          data: "descripcion",
+          defaultContent: "Sin descripción"
+        }, // Cierra columna 4
+        { // Columna 5: Precio
+          data: "precio",
+          defaultContent: "0.00"
+        }, // Cierra columna 5
+        { // Columna 6: Presentación
+          data: "presentacion",
+          defaultContent: "Sin presentación"
+        }, // Cierra columna 6
+         // Cierra columna 7
+        { // Columna 8: Cantidad
+          data: "cantidad",
+          defaultContent: "0"
+        },
+        { // Columna 7: Unidad de Medida (medida)
+          data: "medida",
+          defaultContent: "Sin medida"
+        }, // Cierra columna 8
+        { // Columna 9: Imagen
+          data: "img",
+          render: function(data, type, row) { // Inicio de render de imagen
+            if(data && data.trim() !== "") {
+              return `<img src="<?= SERVERURL ?>${data}" alt="s/n img" style="width:50px; border-radius:0%;">`;
+            } else {
+              return "Sin imagen";
+            }
+          } // Cierra render de imagen
+        }, // Cierra columna 9
+        { // Columna 10: Opciones (botones para editar y eliminar)
+          data: null,
+          render: function(data, type, row) { // Inicio de render de opciones
+            return `
+              <a href="editar-productos.php?id=${row.idproducto}" class="btn btn-sm btn-warning" title="Editar">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </a>
+              <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${row.idproducto})" title="Eliminar">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            `;
+          } // Cierra render de opciones
+        } // Cierra columna 10
+      ], // Cierra columns
+      language: { // Inicio de configuración de idioma
+        "lengthMenu": "Mostrar _MENU_ registros por página",
+        "zeroRecords": "No se encontraron resultados",
+        "info": "Mostrando página _PAGE_ de _PAGES_",
+        "infoEmpty": "No hay registros disponibles",
+        "infoFiltered": "(filtrado de _MAX_ registros totales)",
+        "search": "Buscar:",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "emptyTable": "No hay datos disponibles en la tabla"
+      } // Cierra language
+    }); // Cierra DataTable inicialización
+  } // Cierra cargarTablaProductos()
+
+  // Llamar a la función cuando el DOM esté listo
+  document.addEventListener("DOMContentLoaded", function(){
+    cargarTablaProductos();
   });
+  
+  // Ejemplo de función para eliminar producto (debes implementar la lógica en el controlador)
+  function eliminarProducto(idproducto) { // Inicio de eliminarProducto()
+    if(confirm("¿Estás seguro de eliminar el producto?")) {
+      // Lógica de eliminación vía fetch o redirección según tu implementación
+      console.log("Eliminar producto con ID:", idproducto);
+      // Aquí podrías hacer una solicitud AJAX al controlador para eliminar el producto
+    }
+  } // Cierra eliminarProducto()
 </script>
+
 
 </body>
 

@@ -68,7 +68,7 @@ require_once "../../partials/header.php";
   <!-- Botón Finalizar alineado a la derecha -->
   <div class="btn-container">
     <button
-      onclick="window.location.href='listar-cotizacion.html'"
+      onclick="window.location.href='listar-cotizacion.php'"
       class="btn btn-success">
       FINALIZAR
     </button>
