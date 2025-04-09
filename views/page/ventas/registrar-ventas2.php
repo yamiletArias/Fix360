@@ -112,7 +112,7 @@ require_once "../../partials/header.php";
           <div class="col-md-4">
             <div class="form-floating">
               <input type="date" class="form-control" name="fecha" id="fecha" required />
-              <label for="fecha">Fecha:</label>
+              <label for="fecha">Fecha de venta:</label>
             </div>
           </div>
           <div class="col-md-4">
@@ -213,28 +213,6 @@ require_once "../../partials/header.php";
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
     const fechaInput = document.getElementById("fecha");
     const monedaSelect = document.getElementById('moneda');
-
-    // Función para cargar las monedas
-    function cargarMonedas() {
-      fetch('http://localhost/Fix360/app/controllers/Venta.controller.php?type=moneda')
-        .then(response => response.json())
-        .then(data => {
-          const selectMoneda = document.getElementById("moneda");
-          data.forEach(item => {
-            // si el valor es SOLES ya existe saltarse
-            if (item.moneda !== "Soles") {
-              const option = document.createElement("option");
-              option.value = item.moneda;
-              option.textContent = item.moneda;
-              selectMoneda.appendChild(option);
-            }
-          });
-        })
-        .catch(error => {
-          console.error('Error al cargar las monedas:', error);
-        });
-    }
-    cargarMonedas();
 
     //funcion de autocompletado para clientes
     function mostrarOpcionesCliente(input) {

@@ -69,35 +69,6 @@ class Venta extends Conexion
         }
     }
     
-    //registrar venta
-    public function registerVentas1($params = []): int
-    {
-        $numRows = 0;
-        try {
-            $query = "CALL spuRegisterVentas(?,?,?,?,?,?,?,?,?,?,?)";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->execute(array(
-                $params["tipocom"],
-                $params["fechahora"],
-                $params["numserie"],
-                $params["numcom"],
-                $params["moneda"],
-                $params["idcliente"],
-                $params["idproducto"],
-                $params["cantidad"],
-                $params["numserie_detalle"],
-                $params["precioventa"],
-                $params["descuento"]
-            ));
-
-            $numRows = $stmt->rowCount(); // Número de filas afectadas
-
-        } catch (PDOException $e) {
-            error_log("Error DB: " . $e->getMessage());
-            return $numRows;
-        }
-        return $numRows;
-    }
 
     public function registerVentas($params = []): int
     {
@@ -118,7 +89,7 @@ class Venta extends Conexion
                 $params["idcliente"]
             ]);
 
-            $result = []; // Asegura que esté definido
+            $result = [];
 
             do {
                 $tmp = $stmtVenta->fetch(PDO::FETCH_ASSOC);

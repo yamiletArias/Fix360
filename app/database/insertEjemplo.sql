@@ -84,6 +84,30 @@ VALUES
 (4, 'Componentes de suspensión trasera'),
 (4, 'Componentes de suspensión delantera');
 
+
+-- COMPRA
+INSERT INTO proveedores (idempresa)
+VALUES 
+(1),
+(2);  
+INSERT INTO compras (idproveedor, idcolaborador, fechacompra, tipocom, numserie, numcom, moneda)
+VALUES 
+(1, 1, '2025-03-10', 'boleta', 'B001', '0001', 'Soles'),
+(2, 2, '2025-03-11', 'factura', 'F001', '0002', 'Dólares');
+
+-- INSERT para la tabla 'detallecompra' con 'preciocompra' para todos los productos
+INSERT INTO detallecompra (idcompra, idproducto, cantidad, preciocompra, descuento)
+VALUES 
+(1, 1, 5, 50.00, 5.00),  -- Filtro de aire para motor de 4 cilindros
+(1, 2, 3, 120.00, 10.00), -- Bujías para motor Toyota Corolla
+(2, 3, 2, 200.00, 0.00),  -- Amortiguador trasero para Ford Ranger
+(2, 5, 4, 40.00, 2.00),   -- Aceite para motor 5W-30
+(1, 6, 3, 150.00, 15.00), -- Pastillas de freno para vehículos de carga
+(1, 7, 5, 300.00, 25.00), -- Transmisión automática para Ford Ranger
+(2, 8, 4, 250.00, 20.00), -- Freno de disco delantero para Toyota Corolla
+(2, 9, 2, 150.00, 10.00), -- Filtro de aceite para motor de sedán
+(1, 10, 6, 350.00, 30.00);
+
 -- INSERT para la tabla 'clientes'
 INSERT INTO clientes (idempresa, idpersona, idcontactabilidad)
 VALUES (1, NULL, 1), (2, NULL, 2), (NULL, 1, 1), (NULL, 2, 2);
@@ -157,7 +181,7 @@ VALUES
 -- INSERT para 'detalleventa'
 INSERT INTO detalleventa (idproducto, idventa, idorden, idpromocion, cantidad, numserie, precioventa, descuento)
 VALUES
-(1, 1, 1, 1, 2, '{"seriales": ["A123", "A124"]}', 60.00, 10.00),  -- Filtro de aire para motor de 4 cilindros
+(1, 1, 1, 1, 2, '{"seriales": ["A123"]}', 60.00, 10.00),  -- Filtro de aire para motor de 4 cilindros
 (2, 1, 2, 2, 1, '{"seriales": ["B234"]}', 140.00, 5.00),          -- Bujías para motor Toyota Corolla
 (3, 2, 2, 2, 1, '{"seriales": ["C345"]}', 250.00, 0.00),          -- Amortiguador trasero para camioneta Ford Ranger
 (4, 1, 1, 2, 1, '{"seriales": ["D456"]}', 110.00, 0.00),          -- Pastillas de freno para vehículos de carga
@@ -175,6 +199,8 @@ SELECT * FROM personas WHERE idpersona IN (1, 2);
 SELECT * FROM contactabilidad WHERE idcontactabilidad IN (1, 2);
 SELECT * FROM detalleventa;
 SELECT * FROM ventas;
+SELECT * FROM detallecompra;
+SELECT * FROM compras;
 SELECT * FROM clientes WHERE idcliente = 2;
 
 SELECT * FROM empresas;

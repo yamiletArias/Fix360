@@ -2,82 +2,42 @@
 
 require_once "../models/Conexion.php";
 
-class Compra extends Conexion {
+class Compra extends Conexion
+{
   protected $pdo;
-  public function __CONSTRUCT(){
+
+  public function __CONSTRUCT()
+  {
     $this->pdo = parent::getConexion();
   }
 
-  public function getAll() {
+  public function getProveedoresCompra(): array
+  {
     try {
-      $query = "CALL spListCompras()";
-      $cmd = $this->pdo->prepare($query);
-    } catch (Exception $e) {
-      die($e->getMessage());
+      $query = "CALL spuGetProveedores()";
+      $statement = $this->pdo->prepare($query);
+      $statement->execute();
+      return $statement->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      // Detallar mejor el error, especialmente útil en producción
+      die("Error en model: " . $e->getMessage());
     }
   }
 
-  public function add($params = []) {
-    $resultado = [
-      "status" => false,
-      "message" => ""
-    ];
-
+  public function buscarProductoCompra(string $termino): array
+  {
+    $result = [];
     try {
-      $query = "CALL spRegisterCompra (?,?,?,?,?,?,?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([
-        $params["idproveedor"],
-        $params["idcolaborador"],
-        $params["fechacompra"],
-        $params["tipocom"],
-        $params["numserie"],
-        $params["numcom"],
-        $params["moneda"]
-      ]);
-      $resultado["status"] = true;
-      $resultado["message"] = "Registro de compra hecha correctamente";
-    } catch (Exception $e) {
-      $resultado["message"] = $e->getMessage();
-    } finally {
-      return $resultado;
+      $sql = "CALL buscar_producto_compras(:termino)";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
+      $stmt->execute();
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception("Error al buscar productos en compra: " . $e->getMessage());
     }
+    return $result;
   }
 
-  public function find($params = []) {
-    try {
-      $query = "CALL spGetCompraById(?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$params["idcompra"]]);
-    } catch (Exception $e) {
-      die($e->getMessage());
-    }
-  }
 
-  public function update($params = []){
-    $resultado = [
-      "status" => false,
-      "message" => ""
-    ];
-    try {
-      $query = "CALL spUpdateCompra(?,?,?,?,?,?,?,?)";
-      $cmd = $this->pdo->prepare($query);
-      $cmd->execute([
-        $params["idcompra"],
-        $params["idproveedor"],
-        $params["idcolaborador"],
-        $params["fechacompra"],
-        $params["tipocom"],
-        $params["numserie"],
-        $params["numcom"],
-        $params["moneda"]
-      ]);
-      $resultado["status"] = true;
-      $resultado["message"] = "Registro actualizado correctamente";
-    } catch (Exception $e) {
-      $resultado["message"] = $e->getMessage();
-    } finally {
-      return $resultado;
-    }
-  }
 }
