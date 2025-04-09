@@ -1,12 +1,20 @@
 /* Registrar un nuevo cliente*/
 -- insert into contactabilidad (contactabilidad) values ('redes sociales');
  -- select * from empresas;
+ -- select * from productos;
  -- select * from personas;
  -- select * from propietarios;
  -- select * from clientes;
  -- select * from vehiculos;
 -- drop procedure spRegisterPersona;
  -- call spRegisterCliente('empresa',null, null,null,null,null,'correoempresa@gmail.com',null,null,'nueva salud','empresa SAC','912498430','12345678948',1);
+ 
+DELIMITER $$
+CREATE PROCEDURE spUpdateClientePersona(
+)
+
+DELIMITER $$ 
+ 
  DELIMITER $$
 
 CREATE PROCEDURE spRegisterClientePersona (
@@ -58,7 +66,6 @@ END $$
 DELIMITER $$
 
 DELIMITER $$
-
 CREATE PROCEDURE spRegisterClienteEmpresa (
   IN _ruc CHAR(11),
   IN _nomcomercial VARCHAR (80),
@@ -96,7 +103,7 @@ END $$
 DELIMITER $$
 
 
- DELIMITER $$
+DELIMITER $$
  CREATE PROCEDURE spRegisterVehiculo(
 IN _idmodelo INT,
 IN _placa CHAR(7),
@@ -293,6 +300,7 @@ DELIMITER $$
 -- select * from categorias;
 -- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
 -- call spGetClienteByDni('40');
+-- select * from propietarios;
  
 
 

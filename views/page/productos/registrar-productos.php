@@ -19,16 +19,14 @@ require_once "../../partials/header.php";
   }
 </style>
 <div class="container-main">
-  <form action="">
-
-  
+  <form action="<?= SERVERURL ?>app/controllers/producto.controller.php" id="formProducto" method="POST" enctype="multipart/form-data">  
   <div class="card border" style="margin-top:50px;">
     <div class="card-body">
       <div class="row">
         <!-- Marca -->
         <div class="col-md-3 mb-3">
           <div class="form-floating">
-            <select class="form-select" id="marca" name="marca" style="color: black;" required>
+            <select class="form-select" id="marca" name="idmarca" style="color: black;" required>
               <option>Seleccione una opcion</option>
             </select>
             <label for="marca">Marca:</label>
@@ -92,7 +90,7 @@ require_once "../../partials/header.php";
 
         <div class="col-md-3">
           <div class="form-floating mb-3">
-            <input type="file" class="btn btn-outline-dark border input-img" id="img" accept="image/png, image/jpeg" placeholder="img">
+            <input type="file" class="btn btn-outline-dark border input-img" name="img" id="img" accept="image/png, image/jpeg" placeholder="img">
           </div>
         </div>
 
@@ -125,6 +123,14 @@ require_once "../../partials/_footer.php";
 document.getElementById("btnRegistrarProducto").addEventListener("click", function (e){
 e.preventDefault();
 
+const form = document.getElementById("formProducto");
+const formData = new FormData(form);
+
+for(let pair of formData.entries()){
+  console.log(pair[0]+ ': ' + pair[1]);
+}
+
+/*
 const data ={
 idmarca: document.getElementById("marca").value,
 idsubcategoria: document.getElementById("subcategoria").value,
@@ -135,20 +141,24 @@ undmedida: document.getElementById("undmedida").value,
 cantidad: document.getElementById("cantidad").value,
 img: document.getElementById("img").value
 };
-if(!data.idmarca || !data.idsubcategoria || !data.descripcion || !data.precio || !data.presentacion || !data.undmedida || !data.cantidad || !data.img){
+if(!data.idmarca || !data.idsubcategoria || !data.descripcion || !data.precio || !data.presentacion || !data.undmedida || !data.cantidad){
   alert("Por favor, comlete todos los campos obligatorios");
   return;
 }
-
+*/
 fetch("http://localhost/fix360/app/controllers/producto.controller.php",{
 method: "POST",
-headers: {"Content-Type": "application/json"},
-body: JSON.stringify(data)
+//headers: {"Content-Type": "application/json"},
+//body: JSON.stringify(data)
+body: formData
 })
 .then(response => response.json())
 .then(resp => {
   if(resp.rows > 0){
-    alert("Registro Exitoso");
+    showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
+        setTimeout(() => {
+          window.location.href = 'listar-producto.php';
+        }, 1500);
   } else{
     console.log("Error en el registro");
     err => {
