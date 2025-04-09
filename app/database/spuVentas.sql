@@ -1,3 +1,9 @@
+-- alterar por ahora
+ALTER TABLE detalleventa
+MODIFY COLUMN idorden INT NULL,
+MODIFY COLUMN idpromocion INT NULL;
+ALTER TABLE ventas MODIFY idcolaborador INT NULL;
+
 -- registrar ventas
 DELIMITER $$
 CREATE PROCEDURE spuRegisterVenta (
@@ -64,27 +70,6 @@ END $$
 DELIMITER ;
 -- Fin de registrar detalle ventas con idventa
 
--- Detalle ventas
-DELIMITER $$
-CREATE PROCEDURE spuGetDetalleVenta (
-    IN _idventa INT
-)
-BEGIN
-    SELECT d.iddetventa,
-           d.idproducto,
-           d.cantidad,
-           d.numserie,
-           d.precioventa,
-           d.descuento,
-           CONCAT(s.subcategoria, ' ', p.descripcion) AS producto
-    FROM detalleventa d
-    LEFT JOIN productos p ON d.idproducto = p.idproducto
-    LEFT JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
-    WHERE d.idventa = _idventa;
-END $$
-DELIMITER ;
--- Detalle ventas
-
 -- Moneda
 DELIMITER $$
 CREATE PROCEDURE spuGetMonedasVentas()
@@ -136,7 +121,45 @@ END $$
 DELIMITER ;
 -- Fin Buscar producto
 
-CALL spuGetDetalleVenta(46);
+-- Detalle ventas
+DELIMITER $$
+
+CREATE PROCEDURE spuGetDetalleVenta (
+    IN _idventa INT
+)
+BEGIN
+    SELECT 
+        d.iddetventa,
+        d.idproducto,
+        d.cantidad,
+        d.numserie,
+        d.precioventa,
+        d.descuento,
+        CONCAT(s.subcategoria, ' ', p.descripcion) AS producto,
+        
+        -- Datos del cliente
+        c.idcliente,
+        CASE
+            WHEN c.idpersona IS NOT NULL THEN 'Persona'
+            WHEN c.idempresa IS NOT NULL THEN 'Empresa'
+            ELSE 'Desconocido'
+        END AS tipo_cliente,
+        COALESCE(pe.nombres, em.nomcomercial) AS nombre_cliente
+
+    FROM detalleventa d
+    INNER JOIN ventas v ON d.idventa = v.idventa
+    INNER JOIN clientes c ON v.idcliente = c.idcliente
+    LEFT JOIN personas pe ON c.idpersona = pe.idpersona
+    LEFT JOIN empresas em ON c.idempresa = em.idempresa
+    LEFT JOIN productos p ON d.idproducto = p.idproducto
+    LEFT JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
+    WHERE d.idventa = _idventa;
+END $$
+
+DELIMITER ;
+-- Detalle ventas
+
+CALL spuGetDetalleVenta(2);
 
 CALL spuRegisterVenta('boleta', '2025-04-07 10:30:00', 'B076', 'B-0928971', 'Soles', 5);
 CALL spuInsertDetalleVenta(18, 3, 1, 'B076', 120.50, 0);

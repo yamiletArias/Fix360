@@ -133,25 +133,25 @@ require_once "../../partials/header.php";
                     } else {
                         data.forEach(element => {
                             tabla.innerHTML += `
-                <tr data-id="${element.id}">
-                  <td>${element.id}</td>
-                  <td>${element.cliente}</td>
-                  <td>${element.tipocom}</td>
-                  <td>${element.numcom}</td>
-                  <td>${element.fechahora}</td>
-                  <td>
-                    <button title="Editar" onclick="window.location.href='editar-ventas.html'" class="btn btn-warning btn-sm">
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button title="Eliminar" class="btn btn-danger btn-sm btnEliminar" data-id="${element.id}">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                  </td>
-                </tr>
-              `;
+                            <tr data-id="${element.id}">
+                            <td>${element.id}</td>
+                            <td>${element.cliente}</td>
+                            <td>${element.tipocom}</td>
+                            <td>${element.numcom}</td>
+                            <td>${element.fechahora}</td>
+                            <td>
+                                <button title="Editar" onclick="window.location.href='editar-ventas.html'" class="btn btn-warning btn-sm">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button title="Eliminar" class="btn btn-danger btn-sm btnEliminar" data-id="${element.id}">
+                                <i class="fa-solid fa-trash"></i>
+                                </button>
+                                <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">
+                                <i class="fa-solid fa-circle-info"></i>
+                                </button>
+                            </td>
+                            </tr>
+                        `;
                         });
                     }
 

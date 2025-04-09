@@ -38,7 +38,7 @@
       padding: 0px;
       border-radius: 5px;
       box-shadow: none;
-      width: 75%;
+      width: 100%;
       margin:50px;
     }
     #selectMetodo {
@@ -88,6 +88,59 @@
     .border {
       border-radius: 4px;
     } 
+    .autocomplete {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* .autocomplete-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    } */
+
+    .autocomplete-items {
+      position: absolute;
+      border: 1px solid #d4d4d4;
+      border-top: none;
+      z-index: 99;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border-radius: 0 0 4px 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .autocomplete-items div {
+      padding: 10px;
+      cursor: pointer;
+      background-color: #fff;
+    }
+
+    .autocomplete-items div:hover {
+      background-color: #4e99e9;
+      color: #ffffff;
+    }
+
+    .autocomplete-active {
+      background-color: #4e99e9 !important;
+      color: #ffffff;
+    }
+
+    .autocomplete-items .default-option {
+      background-color: #4e99e9;
+      color: #ffffff;
+    }
+
+    #numserie,
+    #numcom {
+      margin-right: 10px;
+    }
   </style>
 </head>
 

@@ -37,6 +37,9 @@
     <!-- endinject -->
     <!-- Custom js for this page -->
     <script src="<?= SERVERURL?>views/assets/js/dashboard.js"></script>
+    
+    <!-- js de carga moneda -->
+     <script src="<?= SERVERURL?>views/assets/js/tipomoneda.js"></script>
 
     
   <!-- endinject -->

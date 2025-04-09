@@ -165,6 +165,24 @@ LEFT JOIN empresas E ON C.idempresa = E.idempresa
 LEFT JOIN personas P ON C.idpersona = P.idpersona
 INNER JOIN productos P2 ON DV.idproducto = P2.idproducto;
 
+-- prueba de compra
+CREATE VIEW vs_registro_compra AS
+SELECT 
+    E.nomcomercial AS proveedor,        -- Nombre comercial de la empresa proveedora
+    P2.descripcion AS producto,         -- Descripción del producto
+    C.tipocom,                          -- Tipo de compra (boleta, factura)
+    C.numserie,                         -- Número de serie del documento
+    C.numcom,                           -- Número del documento
+    C.fechacompra,                      -- Fecha de la compra
+    C.moneda,                           -- Moneda de la compra
+    DC.preciocompra,                    -- Precio de compra del producto
+    DC.cantidad,                        -- Cantidad de productos comprados
+    DC.descuento                        -- Descuento aplicado en el producto
+FROM compras C
+INNER JOIN detallecompra DC ON C.idcompra = DC.idcompra
+INNER JOIN proveedores P ON C.idproveedor = P.idproveedor
+INNER JOIN empresas E ON P.idempresa = E.idempresa
+INNER JOIN productos P2 ON DC.idproducto = P2.idproducto;
 
 
 SELECT * FROM vs_clientes;
