@@ -9,12 +9,6 @@
 -- drop procedure spRegisterPersona;
  -- call spRegisterCliente('empresa',null, null,null,null,null,'correoempresa@gmail.com',null,null,'nueva salud','empresa SAC','912498430','12345678948',1);
  
-DELIMITER $$
-CREATE PROCEDURE spUpdateClientePersona(
-)
-
-DELIMITER $$ 
- 
  DELIMITER $$
 
 CREATE PROCEDURE spRegisterClientePersona (
@@ -296,11 +290,37 @@ END$$
 
 DELIMITER $$
 
+CREATE PROCEDURE spGetPersonaById(
+IN _idpersona INT
+)
+BEGIN
+SELECT * FROM personas WHERE idpersona = _idpersona;
+END $$
+
+DELIMITER $$
+
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetEmpresaById(
+IN _idempresa INT
+)
+BEGIN
+SELECT * FROM empresas WHERE idempresa = _idempresa;
+END $$
+DELIMITER $$
+
+CREATE PROCEDURE spUpdatePersona(
+)
+-- call spGetEmpresaById(6)
 -- call spBuscarEmpresa ('nombrecomercial', 'SAC');
 -- select * from categorias;
 -- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
 -- call spGetClienteByDni('40');
 -- select * from propietarios;
+-- select * from clientes;
+-- select * from personas;
+ 
  
 
 

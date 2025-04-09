@@ -121,4 +121,20 @@ class Empresa extends Conexion {
       return $resultado;
     }
   }
+
+  public function GetById($idempresa):array {
+    $result = [];
+
+    try {
+      $sql = "CALL spGetEmpresaById(?)";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute(array($idempresa));
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception($e->getMessage());
+    }
+
+    return $result;
+
+  }
 }

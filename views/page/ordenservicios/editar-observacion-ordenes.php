@@ -30,8 +30,8 @@ require_once "../../partials/header.php";
     <input style="padding:20px;" type="file" id="archivo" name="archivo">
   </div>
   <div style="margin-top: 40px;">
-    <button class="btn btn-danger" onclick="window.location.href='listar-observacion-orden.html'">Cancelar</button>
-    <button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.html'">Aceptar</button>
+    <button class="btn btn-danger" onclick="window.location.href='listar-observacion-orden.php'">Cancelar</button>
+    <button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.php'">Aceptar</button>
   </div>
 </div>
 

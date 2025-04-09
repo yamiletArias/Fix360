@@ -88,8 +88,8 @@ require_once "../../partials/header.php";
     </div>
     <div class="card-footer">
       <div style="margin-left: 1150px;">
-        <button class="btn btn-danger" onclick="window.location.href='listar-ordenes.html'">Cancelar</button>
-        <button class="btn btn-success" onclick="window.location.href='listar-ordenes.html'">Aceptar</button>
+        <button class="btn btn-danger" onclick="window.location.href='listar-ordenes.php'">Cancelar</button>
+        <button class="btn btn-success" onclick="window.location.href='listar-ordenes.php'">Aceptar</button>
       </div>
     </div>
   </div>

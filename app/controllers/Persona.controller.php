@@ -1,6 +1,7 @@
 <?php
 
-require_once "../models/PersonaModel.php";
+require_once "../models/Persona.php";
+require_once "../helpers/helper.php";
 header('Content-Type: application/json');
 
 $persona = new Persona();
@@ -15,35 +16,35 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         switch ($_POST["operation"]) {
             case "register":
                 $result = $persona->add([
-                    "nombres" => Conexion::limpiarCadena($_POST["nombres"]),
-                    "apellidos" => Conexion::limpiarCadena($_POST["apellidos"]),
-                    "tipodoc" => Conexion::limpiarCadena($_POST["tipodoc"]),
-                    "numdoc" => Conexion::limpiarCadena($_POST["numdoc"]),
-                    "direccion" => Conexion::limpiarCadena($_POST["direccion"]),
-                    "correo" => Conexion::limpiarCadena($_POST["correo"]),
-                    "telprincipal" => Conexion::limpiarCadena($_POST["telprincipal"]),
-                    "telalternativo" => Conexion::limpiarCadena($_POST["telalternativo"])
+                    "nombres"           => Helper::limpiarCadena($_POST["nombres"]),
+                    "apellidos"         => Helper::limpiarCadena($_POST["apellidos"]),
+                    "tipodoc"           => Helper::limpiarCadena($_POST["tipodoc"]),
+                    "numdoc"            => Helper::limpiarCadena($_POST["numdoc"]),
+                    "direccion"         => Helper::limpiarCadena($_POST["direccion"]),
+                    "correo"            => Helper::limpiarCadena($_POST["correo"]),
+                    "telprincipal"      => Helper::limpiarCadena($_POST["telprincipal"]),
+                    "telalternativo"    => Helper::limpiarCadena($_POST["telalternativo"])
                 ]);
                 echo json_encode($result);
                 break;
 
             case "update":
                 $result = $persona->update([
-                    "idpersona" => Conexion::limpiarCadena($_POST["idpersona"]),
-                    "nombres" => Conexion::limpiarCadena($_POST["nombres"]),
-                    "apellidos" => Conexion::limpiarCadena($_POST["apellidos"]),
-                    "tipodoc" => Conexion::limpiarCadena($_POST["tipodoc"]),
-                    "numdoc" => Conexion::limpiarCadena($_POST["numdoc"]),
-                    "direccion" => Conexion::limpiarCadena($_POST["direccion"]),
-                    "correo" => Conexion::limpiarCadena($_POST["correo"]),
-                    "telprincipal" => Conexion::limpiarCadena($_POST["telprincipal"]),
-                    "telalternativo" => Conexion::limpiarCadena($_POST["telalternativo"])
+                    "idpersona"         => Helper::limpiarCadena($_POST["idpersona"]),
+                    "nombres"           => Helper::limpiarCadena($_POST["nombres"]),
+                    "apellidos"         => Helper::limpiarCadena($_POST["apellidos"]),
+                    "tipodoc"           => Helper::limpiarCadena($_POST["tipodoc"]),
+                    "numdoc"            => Helper::limpiarCadena($_POST["numdoc"]),
+                    "direccion"         => Helper::limpiarCadena($_POST["direccion"]),
+                    "correo"            => Helper::limpiarCadena($_POST["correo"]),
+                    "telprincipal"      => Helper::limpiarCadena($_POST["telprincipal"]),
+                    "telalternativo"    => Helper::limpiarCadena($_POST["telalternativo"])
                 ]);
                 echo json_encode($result);
                 break;
 
             case "delete":
-                $idpersona = Conexion::limpiarCadena($_POST["idpersona"]);
+                $idpersona = Helper::limpiarCadena($_POST["idpersona"]);
                 echo json_encode($persona->delete($idpersona));
                 break;
 
@@ -53,14 +54,12 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;
 
     case "GET":
-        if (isset($_GET["numdoc"])) {
-            $numdoc = Conexion::limpiarCadena($_GET["numdoc"]);
-            echo json_encode($persona->find($numdoc));
-        } else {
-            echo json_encode($persona->getAll());
-        }
-        break;
-    
-    default:
-        echo json_encode(["status" => false, "message" => "Método no permitido"]);
+       if($_GET['task'] == 'getAll'){
+        echo json_encode($persona->getAll());
+       }
+       if($_GET['task'] == 'getById'){
+        echo json_encode($persona->GetById($idpersona));
+       }
+       break;
+
 }

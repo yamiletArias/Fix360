@@ -58,10 +58,10 @@ require_once "../../partials/header.php";
           <td>10/02/2025</td>
           <td>09/01/2025</td>
           <td>
-            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.html'">
+            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.php'">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.html'">
+            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.php'">
               <i class="fa-solid fa-clipboard-list"></i>
             </Button>
           </td>
@@ -80,10 +80,10 @@ require_once "../../partials/header.php";
             </button>
           </td>
           <td>
-            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.html'">
+            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.php'">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.html'">
+            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.php'">
               <i class="fa-solid fa-clipboard-list"></i>
             </Button>
           </td>
@@ -99,10 +99,10 @@ require_once "../../partials/header.php";
           <td>08/10/2024</td>
           <td>10/11/2024</td>
           <td>
-            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.html'">
+            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.php'">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.html'">
+            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.php'">
               <i class="fa-solid fa-clipboard-list"></i>
             </Button>
           </td>

@@ -108,4 +108,20 @@ class Persona extends Conexion {
       return $resultado;
     }
   }
+
+  public function GetById($idpersona):array {
+    $result = [];
+
+    try {
+      $sql = "CALL spGetPersonaById(?)";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute(array($idpersona));
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception($e->getMessage());
+    }
+
+    return $result;
+
+  }
 }

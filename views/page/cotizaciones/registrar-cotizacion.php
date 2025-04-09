@@ -129,13 +129,14 @@ require_once "../../partials/header.php";
     </div>
 
 
-    <!-- Botón Finalizar -->
-    <div class="btn-container text-end mt-4">
-      <button onclick="window.location.href='listar-cotizacion.php'" class="btn btn-success">
-        Finalizar
-      </button>
-    </div>
-  </form>
+  <!-- Botón Finalizar alineado a la derecha -->
+  <div class="btn-container">
+    <button
+      onclick="window.location.href='listar-cotizacion.php'"
+      class="btn btn-success">
+      FINALIZAR
+    </button>
+  </div>
 </div>
 
 
