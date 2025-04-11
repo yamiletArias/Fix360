@@ -314,7 +314,9 @@ BEGIN
   );
 END $$
 DELIMITER ;
--- fin de registrar detalle compra
+-- fin de registrar detalle cotizacion
+
+
 -- FIN DEL PROCEDIMIENTO DE COTIZACIONES
 
 
