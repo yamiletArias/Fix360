@@ -73,15 +73,13 @@ require_once "../../partials/header.php";
 
 </head>
 <div class="container">
-  <form action="<?= SERVERURL ?>app/controllers/producto.controller.php" method="POST" autocomplete="off"
-    id="formulario-detalle" enctype="multipart/form-data">
+  <form action="" method="POST" autocomplete="off" id="formulario-detalle">
     <div class="card mt-5">
       <div class="card-header">
         <div class="row">
           <div class="col"><strong>Registrar</strong></div>
           <div class="col text-end"><a href="listar-ventas2.php" class="btn btn-sm btn-success"
-              style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Mostrar
-              Lista</a>
+              style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Mostrar Lista</a>
           </div>
         </div>
       </div>
@@ -200,62 +198,11 @@ require_once "../../partials/header.php";
 </div>
 </div>
 <!-- Formulario Persona -->
+
 </body>
+
 </html>
 
-<script>
-  document.getElementById("btnFinalizarVenta").addEventListener("click", function (e) {
-    e.preventDefault();
-
-    const form = document.getElementById("formulario-detalle");
-    const formData = new FormData(form);
-
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
-    }
-
-    fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-      .then(response => response.json())
-      .then(resp => {
-        console.log("Respuesta del servidor:", resp);
-
-        if (resp.status === "success") {
-          Swal.fire({
-            title: '¡Venta registrada!',
-            text: 'Se ha guardado la venta exitosamente.',
-            icon: 'success',
-            confirmButtonText: 'OK'
-          }).then(() => {
-            window.location.href = "listar-ventas2.php";
-          });
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: resp.message || 'No se pudo registrar la venta.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
-        }
-      })
-      .catch(err => {
-        console.error("Error en la solicitud:", err);
-        Swal.fire({
-          title: 'Error del servidor',
-          text: 'No se pudo registrar la venta. Intenta más tarde.',
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
-      })
-      .finally(() => {
-        btnFinalizarVenta.disabled = false;
-        btnFinalizarVenta.textContent = "Guardar";
-      });
-  });
-</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -511,7 +458,7 @@ require_once "../../partials/header.php";
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       })
-        .then(response => response.text())
+        .then(response => response.text()) // <-- temporalmente en vez de .json()
         .then(text => {
           console.log("Respuesta del servidor:", text);
           try {
