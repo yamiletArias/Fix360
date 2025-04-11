@@ -271,6 +271,7 @@ END $$
 
 DELIMITER $$
 
+
 DELIMITER $$
 
 CREATE PROCEDURE spRegisterProducto(
@@ -289,7 +290,6 @@ INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacio
 END$$
 
 DELIMITER $$
-
 CREATE PROCEDURE spGetPersonaById(
 IN _idpersona INT
 )

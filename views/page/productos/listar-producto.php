@@ -25,8 +25,8 @@ require_once "../../partials/header.php";
           <th>Descripcion</th>
           <th>Precio</th>
           <th>Presentacion</th>
-          <th>Und. Medida</th>
           <th>Cantidad</th>
+          <th>Und. Medida</th>
           <th>Imagen</th>
           <th>Opciones</th>
         </tr>

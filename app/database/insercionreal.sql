@@ -37,8 +37,6 @@ INSERT INTO marcas (nombre, tipo) VALUES
 ('TOTO', 'OTROS'),
 ('DE FRENO SDE MANO', 'FRENOS'),
 ('GOOD YEARS', 'LLANTAS'),
-('HYUNDAI I10', 'VEHÍCULOS'),
-('KIA', 'VEHÍCULOS'),
 ('ADEX', 'OTROS'),
 ('ALMEYDA', 'OTROS'),
 ('PRESTONE', 'LÍQUIDOS'),
