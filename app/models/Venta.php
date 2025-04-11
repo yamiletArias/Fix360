@@ -68,8 +68,8 @@ class Venta extends Conexion
             die("Error en model: " . $e->getMessage());
         }
     }
-    
 
+    //Registrar ventas con detalle de venta
     public function registerVentas($params = []): int
     {
         try {
@@ -78,7 +78,6 @@ class Venta extends Conexion
 
             error_log("Parametros para spuRegisterVenta: " . print_r($params, true));
 
-            // Llamada al Stored Procedure spuRegisterVenta
             $stmtVenta = $pdo->prepare("CALL spuRegisterVenta(?,?,?,?,?,?)");
             $stmtVenta->execute([
                 $params["tipocom"],
@@ -109,7 +108,6 @@ class Venta extends Conexion
                 throw new Exception("No se pudo obtener el id de la venta.");
             }
 
-            // Llamada al SP spuInsertDetalleVenta para cada producto
             $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
             foreach ($params["productos"] as $producto) {
                 error_log("Insertando producto ID: " . $producto["idproducto"]);

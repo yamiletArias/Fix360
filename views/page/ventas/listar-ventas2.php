@@ -4,7 +4,7 @@ require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
-<div class="container mt-5">
+<div class="container-main mt-5">
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div class="btn-group" role="group" aria-label="Basic example">
@@ -119,23 +119,24 @@ require_once "../../partials/header.php";
         const tabla = document.querySelector("#miTabla tbody");
         let enlace = null; // Objeto público - dinámico
 
+
         // Función para obtener los datos de ventas
         function obtenerVentas() {
             fetch('/Fix360/app/controllers/Venta.controller.php', {
                 method: 'GET'
             })
-            .then(response => response.json())
-            .then(data => {
-                // Limpiar tabla antes de agregar nuevos datos
-                tabla.innerHTML = '';
+                .then(response => response.json())
+                .then(data => {
+                    // Limpiar tabla antes de agregar nuevos datos
+                    tabla.innerHTML = '';
 
-                // Si no hay datos
-                if (data.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="6">No hay ventas registradas.</td></tr>`;
-                } else {
-                    // Recorrer los datos y agregarlos a la tabla
-                    data.forEach(element => {
-                        tabla.innerHTML += `
+                    // Si no hay datos
+                    if (data.length === 0) {
+                        tabla.innerHTML = `<tr><td colspan="6">No hay ventas registradas.</td></tr>`;
+                    } else {
+                        // Recorrer los datos y agregarlos a la tabla
+                        data.forEach(element => {
+                            tabla.innerHTML += `
                             <tr data-id="${element.id}">
                                 <td>${element.id}</td>
                                 <td>${element.cliente}</td>
@@ -155,12 +156,12 @@ require_once "../../partials/header.php";
                                 </td>
                             </tr>
                         `;
-                    });
-                }
-            })
-            .catch(error => {
-                console.error("Error al obtener las ventas:", error);
-            });
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al obtener las ventas:", error);
+                });
         }
 
         // Función para eliminar una venta
@@ -182,7 +183,7 @@ require_once "../../partials/header.php";
         // Delegación de eventos para los botones de eliminar
         tabla.addEventListener("click", (event) => {
             enlace = event.target.closest("a"); // Buscar la etiqueta "a" más cercana
-            
+
             if (enlace && enlace.classList.contains("delete")) {
                 event.preventDefault(); // Evitar que el hipervínculo funcione
                 const idVenta = enlace.getAttribute("data-idventa");
@@ -193,8 +194,8 @@ require_once "../../partials/header.php";
             }
         });
 
-        // Llamada inicial para obtener las ventas
-        obtenerVentas();
+    // Llamada inicial para obtener las ventas
+    obtenerVentas();
     });
 </script>
 <!-- <script>

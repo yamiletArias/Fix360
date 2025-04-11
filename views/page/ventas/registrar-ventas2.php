@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Registro de Ventas 2";
+const NAMEVIEW = "Registro de Ventas";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -8,123 +8,65 @@ require_once "../../partials/header.php";
 
 ?>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
-
-  <style>
-    .autocomplete {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      max-width: 600px;
-    }
-
-    /* .autocomplete-input {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    } */
-
-    .autocomplete-items {
-      position: absolute;
-      border: 1px solid #d4d4d4;
-      border-top: none;
-      z-index: 99;
-      top: 100%;
-      left: 0;
-      right: 0;
-      border-radius: 0 0 4px 4px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .autocomplete-items div {
-      padding: 10px;
-      cursor: pointer;
-      background-color: #fff;
-    }
-
-    .autocomplete-items div:hover {
-      background-color: #4e99e9;
-      color: #ffffff;
-    }
-
-    .autocomplete-active {
-      background-color: #4e99e9 !important;
-      color: #ffffff;
-    }
-
-    .autocomplete-items .default-option {
-      background-color: #4e99e9;
-      color: #ffffff;
-    }
-
-    #numserie,
-    #numcom {
-      margin-right: 10px;
-      /* Agregar un margen derecho al campo de N° serie */
-    }
-  </style>
-
-</head>
-<div class="container">
-  <form action="" method="POST" autocomplete="off" id="formulario-detalle">
-    <div class="card mt-5">
-      <div class="card-header">
-        <div class="row">
-          <div class="col"><strong>Registrar</strong></div>
-          <div class="col text-end"><a href="listar-ventas2.php" class="btn btn-sm btn-success"
-              style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Mostrar Lista</a>
-          </div>
-        </div>
+<div class="container-main mt-5">
+  <div class="card border">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <!-- Título a la izquierda -->
+      <div>
+        <h3 class="mb-0">Registro</h3>
       </div>
-      <div class="card-body">
+      <!-- Botón a la derecha -->
+      <div>
+        <a href="listar-ventas2.php" class="btn btn-sm btn-success">
+          Mostrar Lista
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos('factura')">
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
               Factura
             </label>
             <label>
-              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos('boleta')" checked>
+              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
               Boleta
             </label>
           </div>
           <!-- N° serie y N° comprobante -->
-          <div class="col-md-7 d-flex justify-content-end">
-            <label for="">N° serie: </label>
-            <input type="text" class="form-control form-control-sm w-25 ms-2" name="numserie" id="numserie" required
+          <div class="col-md-7 d-flex align-items-center justify-content-end">
+            <label for="numserie" class="mb-0">N° serie:</label>
+            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie" id="numserie" required
               disabled />
-            <label for="">N° comprobante:</label>
-            <input type="text" name="numcomprobante" id="numcom" class="form-control form-control-sm w-25 ms-2" required
+            <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
+            <input type="text" name="numcomprobante" id="numcom" class="form-control text-center input form-control-sm w-25 ms-2" required
               disabled />
           </div>
         </div>
-        <!-- Cliente, Fecha y Moneda -->
+        <!-- Sección Cliente, Fecha y Moneda -->
         <div class="row g-2 mt-3">
-          <div class="col-md-4">
+          <div class="col-md-5">
             <div class="autocomplete">
               <div class="form-floating">
-                <input id="cliente" name="cliente" type="text" class="autocomplete-input form-control"
-                  placeholder="Buscar Cliente">
-                <label for="cliente">Buscar cliente:</label>
+                <!-- Campo de búsqueda de Cliente -->
+                <input name="cliente" id="cliente" type="text" class="autocomplete-input form-control input"
+                  placeholder="Buscar Cliente" required>
+                <label for="cliente">Buscar Cliente:</label>
               </div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="date" class="form-control" name="fecha" id="fecha" required />
+              <input type="date" class="form-control input" name="fecha" id="fecha" required />
               <label for="fecha">Fecha de venta:</label>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="form-floating">
-              <select class="form-select" id="moneda" name="moneda" style="color: black;" required>
+              <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
                 <option value="soles" selected>Soles</option>
                 <!-- Aquí se insertan dinámicamente el resto de monedas -->
               </select>
@@ -132,42 +74,46 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-        <!-- Producto, Precio, Cantidad, Descuento -->
+
+        <!-- Sección Producto, Precio, Cantidad y Descuento -->
         <div class="row g-2 mt-3">
           <div class="col-md-5">
             <div class="autocomplete">
               <div class="form-floating">
-                <input name="producto" id="producto" type="text" class="autocomplete-input form-control" required>
+                <!-- Campo de búsqueda de Producto -->
+                <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
+                  placeholder="Buscar Producto" required>
                 <label for="producto">Buscar Producto:</label>
               </div>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control" name="precio" id="precio" required readonly />
+              <input type="number" class="form-control input" name="precio" id="precio" required />
               <label for="precio">Precio</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control" name="cantidad" id="cantidad" required />
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
               <label for="cantidad">Cantidad</label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="input-group">
               <div class="form-floating">
-                <input type="number" class="form-control" name="descuento" id="descuento" required>
+                <input type="number" class="form-control input" name="descuento" id="descuento" required />
                 <label for="descuento">Descuento</label>
               </div>
-              <button type="button" class="btn btn-success" id="agregarProducto" type="submit">Agregar</button>
+              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
             </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
-  </form>
+  </div>
 
+  <!-- Sección de Detalles de la Venta -->
   <div class="card mt-2">
     <div class="card-body">
       <table class="table table-striped table-sm" id="tabla-detalle">
@@ -183,7 +129,7 @@ require_once "../../partials/header.php";
           </tr>
         </thead>
         <tbody>
-          <!-- Se agregarán los detalles -->
+          <!-- Aquí se agregarán los detalles de los productos -->
         </tbody>
       </table>
     </div>
@@ -198,30 +144,27 @@ require_once "../../partials/header.php";
 </div>
 </div>
 <!-- Formulario Persona -->
-
 </body>
-
 </html>
-
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
-    const inputElement = document.getElementById("cliente");
+    const inputCliente = document.getElementById("cliente");
     const inputProductElement = document.getElementById("producto");
     let clienteId = null;
     let selectedProduct = {};
     const numSerieInput = document.getElementById("numserie");
     const numComInput = document.getElementById("numcom");
     const tipoInputs = document.querySelectorAll('input[name="tipo"]');
-    const agregarProductoBtn = document.querySelector("#agregarProducto");
+    const agregarProductoBtn = document.getElementById("agregarProducto");
     const tabla = document.querySelector("#tabla-detalle tbody");
     const detalleVenta = [];
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
     const fechaInput = document.getElementById("fecha");
     const monedaSelect = document.getElementById('moneda');
 
-    //funcion de autocompletado para clientes
+    // Función de autocompletado para clientes
     function mostrarOpcionesCliente(input) {
       cerrarListas();
       if (!input.value) return;
@@ -252,14 +195,14 @@ require_once "../../partials/header.php";
         })
         .catch(err => console.error('Error al obtener los clientes: ', err));
     }
-    inputElement.addEventListener("input", function () {
+    inputCliente.addEventListener("input", function () {
       mostrarOpcionesCliente(this);
     });
-    inputElement.addEventListener("click", function () {
+    inputCliente.addEventListener("click", function () {
       mostrarOpcionesCliente(this);
     });
 
-    //funcion de autocompletado para productos
+    // Función de autocompletado para productos
     function mostrarOpcionesProducto(input) {
       cerrarListas();
       if (!input.value) return;
@@ -283,8 +226,8 @@ require_once "../../partials/header.php";
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
               document.getElementById('precio').value = producto.precio;
-              $("#cantidad").val(1);
-              $("#descuento").val(0);
+              document.getElementById('cantidad').value = 1;
+              document.getElementById('descuento').value = 0;
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
@@ -308,14 +251,12 @@ require_once "../../partials/header.php";
     });
     function cerrarListas(elemento) {
       const items = document.getElementsByClassName("autocomplete-items");
-      for (let i = 0; i < items.length; i++) {
-        if (elemento !== items[i] && elemento !== inputElement) {
-          items[i].parentNode.removeChild(items[i]);
-        }
+      while (items.length > 0) {
+        items[0].parentNode.removeChild(items[0]);
       }
     }
 
-    //duplicado de productos
+    // Verifica si el producto ya está en el detalle para evitar duplicados
     function estaDuplicado(idproducto = 0) {
       let estado = false;
       let i = 0;
@@ -349,14 +290,14 @@ require_once "../../partials/header.php";
       const importe = (productoPrecio * productoCantidad) - productoDescuento;
       const nuevaFila = document.createElement("tr");
       nuevaFila.innerHTML = `
-        <td>${tabla.rows.length + 1}</td>
-        <td>${productoNombre}</td>
-        <td>${productoPrecio.toFixed(2)}</td>
-        <td>${productoCantidad}</td>
-        <td>${productoDescuento.toFixed(2)}</td>
-        <td>${importe.toFixed(2)}</td>
-        <td><button class="btn btn-danger sm">X</button></td>
-      `;
+      <td>${tabla.rows.length + 1}</td>
+      <td>${productoNombre}</td>
+      <td>${productoPrecio.toFixed(2)}</td>
+      <td>${productoCantidad}</td>
+      <td>${productoDescuento.toFixed(2)}</td>
+      <td>${importe.toFixed(2)}</td>
+      <td><button class="btn btn-danger btn-sm">X</button></td>
+    `;
       nuevaFila.querySelector("button").addEventListener("click", function () {
         nuevaFila.remove();
         actualizarNumeros();
@@ -372,6 +313,7 @@ require_once "../../partials/header.php";
         importe: importe.toFixed(2)
       };
       detalleVenta.push(detalle);
+      // Limpiar campos de producto
       inputProductElement.value = "";
       document.getElementById('precio').value = "";
       document.getElementById('cantidad').value = 1;
@@ -407,7 +349,8 @@ require_once "../../partials/header.php";
     tipoInputs.forEach((input) => {
       input.addEventListener("change", inicializarCampos);
     });
-    // Establecer fecha actual
+
+    // Establecer fecha actual por defecto
     const setFechaDefault = () => {
       const today = new Date();
       const day = String(today.getDate()).padStart(2, '0');
@@ -458,14 +401,34 @@ require_once "../../partials/header.php";
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       })
-        .then(response => response.text()) // <-- temporalmente en vez de .json()
+        .then(response => response.text())
         .then(text => {
           console.log("Respuesta del servidor:", text);
           try {
             const json = JSON.parse(text);
-            // Aquí sigues tu lógica normal si quieres
+            if (json && json.status === "success") {
+              Swal.fire({
+                icon: 'success',
+                title: '¡Venta registrada con éxito!',
+                showConfirmButton: false,
+                timer: 1800
+              }).then(() => {
+                window.location.href = 'listar-ventas2.php';
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error al registrar la venta',
+                text: 'Inténtalo nuevamente.',
+              });
+            }
           } catch (e) {
             console.error("No se pudo parsear JSON:", e);
+            Swal.fire({
+              icon: 'error',
+              title: 'Respuesta inesperada',
+              text: 'El servidor no devolvió una respuesta válida.',
+            });
           }
         })
         .finally(() => {
@@ -476,6 +439,8 @@ require_once "../../partials/header.php";
   });
 </script>
 
+<!-- js de carga moneda -->
+<script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
 <?php
 
 require_once "../../partials/_footer.php";
