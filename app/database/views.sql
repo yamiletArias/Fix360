@@ -1,9 +1,9 @@
 DROP VIEW IF EXISTS vwCategoriasSubcategorias;
-
+select * from personas;
 CREATE VIEW vwCategoriasSubcategorias AS
 SELECT
-  c.nombre AS categoria,
-  s.nombre AS subcategoria
+  c.categoria AS categoria,
+  s.subcategoria AS subcategoria
 FROM
   subcategorias s
   INNER JOIN categorias c
@@ -11,7 +11,7 @@ FROM
 
 -- SELECT * FROM vwCategoriasSubcategorias; */
  -- VISTA PARA LA INFORMACION DE VENTAS */
- CREATE OR REPLACE VIEW vw_ventas_detalle AS
+CREATE OR REPLACE VIEW vw_ventas_detalle AS
 SELECT
   v.idventa,
   v.fechahora,

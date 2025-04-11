@@ -111,18 +111,20 @@ BEGIN
     SELECT 
         P.idproducto,
         CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-        DV.precioventa
+        P.precio
     FROM productos P
     INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
     LEFT JOIN detalleventa DV ON P.idproducto = DV.idproducto
     WHERE 
-        (S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%'))
+        S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') 
+        OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
     LIMIT 10;
 END $$
 DELIMITER ;
 -- Fin Buscar producto
+CALL buscar_producto('moto');
 
--- Detalle ventas
+-- ver Detalle ventas
 DELIMITER $$
 
 CREATE PROCEDURE spuGetDetalleVenta (

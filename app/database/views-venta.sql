@@ -1,4 +1,4 @@
-
+-- vista de las ventas
 CREATE VIEW vs_ventas AS
 SELECT 
     V.idventa AS id,
