@@ -209,7 +209,7 @@ body: formData
       subcategoriaSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
 
       if(categoria){
-        fetch(`http://localhost/fix360/app/controllers/subcategoria.controller.php?idcategoria=${encodeURIComponent(categoria)}`)
+        fetch(`http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getSubcategoriaByCategoria&idcategoria=${encodeURIComponent(categoria)}`)
         .then(response => response.json())
         .then(data =>{
           data.forEach(item => {

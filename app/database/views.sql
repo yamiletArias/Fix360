@@ -254,6 +254,37 @@ FROM productos p
 
 
 
+<<<<<<< HEAD
 -- select * from vwproductos;
+=======
+insert into agendas(idpropietario, fchproxvisita, comentario, estado)
+values (2,curdate(),"Cambio de aceite", 1);
+
+select * from agendas;
+
+create or replace view vwSubcategoriaServicio as
+select
+s.*
+from subcategorias s
+inner join categorias c
+on s.idcategoria = c.idcategoria
+where categoria = 'servicio';
+
+create or replace view vwMecanicos as
+select
+c.idcolaborador,
+p.nombres 
+from colaboradores c
+left join contratos co
+on c.idcontrato = co.idcontrato
+left join roles r
+on co.idrol = r.idrol
+left join personas p
+on co.idpersona = p.idpersona
+where r.rol = 'mecanico';
+
+-- select * from vwSubcategoriaServicio;
+>>>>>>> 6d0d6d1d0a60b7272ae2565093316b0b2a43b617
 -- select * from productos;
 -- select * from vehiculos;
+-- select * from clientes;

@@ -310,9 +310,38 @@ SELECT * FROM empresas WHERE idempresa = _idempresa;
 END $$
 DELIMITER $$
 
+<<<<<<< HEAD
 CREATE PROCEDURE spUpdatePersona(
 )
 -- call spGetEmpresaById(6)
+=======
+-- call spGetServicioBySubcategoria(50)
+drop procedure if exists spGetVehiculosByCliente
+DELIMITER $$
+create procedure spGetVehiculoByCliente(
+in _idcliente int
+)
+begin
+select 
+v.idvehiculo,
+v.placa
+from vehiculos v
+left join propietarios p 
+on v.idvehiculo = p.idvehiculo
+left join clientes c
+on c.idcliente = p.idcliente
+where p.idcliente = _idcliente;
+end $$
+
+-- call spGetVehiculoByCliente(7)
+-- select * from propietarios;
+-- select * from empresas;
+-- select * from clientes;
+-- select * from vehiculos;
+-- CREATE PROCEDURE spUpdatePersona()
+
+-- call spGetEmpresaById(6)               
+>>>>>>> 6d0d6d1d0a60b7272ae2565093316b0b2a43b617
 -- call spBuscarEmpresa ('nombrecomercial', 'SAC');
 -- select * from categorias;
 -- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
@@ -320,12 +349,4 @@ CREATE PROCEDURE spUpdatePersona(
 -- select * from propietarios;
 -- select * from clientes;
 -- select * from personas;
- 
- 
-
-
-
-
-
-
  
