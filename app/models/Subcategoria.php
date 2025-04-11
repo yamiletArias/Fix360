@@ -32,6 +32,19 @@ class Subcategoria extends Conexion {
         return $result;
     }
 
+    public function getServicioSubcategoria ():array {
+        $result = [];
+        try {
+        $query = "SELECT * FROM vwSubcategoriaServicio ORDER BY subcategoria";
+        $cmd = $this->pdo->prepare($query);
+        $cmd->execute();
+        $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+        return $result;
+    }
+
     /**
      * Agrega una nueva subcategoría.
      * @param array $params Datos de la subcategoría.

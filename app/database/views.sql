@@ -205,7 +205,7 @@ left join personas p
 on co.idpersona = p.idpersona
 where r.rol = 'mecanico';
 
-
 -- select * from vwSubcategoriaServicio;
 -- select * from productos;
 -- select * from vehiculos;
+-- select * from clientes;

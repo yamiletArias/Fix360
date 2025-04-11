@@ -87,8 +87,8 @@ require_once "../../partials/header.php";
         </div>
         <div class="col-md-4">
           <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control input" id="floatingInput"/>
-            <label for="floatingInput">Propietario:</label>
+            <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario"/>
+            <label for="floatingInput">Propietario</label>
 
             <input type="hidden" id="hiddenIdCliente" />
             <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"

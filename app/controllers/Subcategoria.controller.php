@@ -7,17 +7,16 @@ if(isset($_SERVER['REQUEST_METHOD'])){
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            if(isset($_GET['idcategoria'])){ 
-                $params = [
-                    "idcategoria" => $_GET['idcategoria']
-                ];
+            if($_GET['task'] == 'getSubcategoriaByCategoria')
+            {
                 echo json_encode($subcategoria->getSubcategoriaByCategoria($params));
-            }else {
-                echo json_encode([
-                  "status"  => false,
-                  "message" => "Faltan parámetros necesarios: idcategoria"
-                ]);
-              }
+            }
+            break;
+            if($_GET['task'] == 'getServicioSubcategoria')
+            {
+                echo json_encode($subcategoria->getServicioSubcategoria());
+            }
+
             break;
         
         default:

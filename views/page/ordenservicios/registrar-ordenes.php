@@ -1,6 +1,6 @@
 <?php
 
-CONST NAMEVIEW = "Registro de ordenes de servicio";
+const NAMEVIEW = "Registro de ordenes de servicio";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -8,84 +8,70 @@ require_once "../../partials/header.php";
 
 ?>
 
-<style>
-    select{
-        width: 100%;
-    }
-</style>
 <div class="container-main">
-    <div class="card">
-        <div class="card-header">
-            <label><strong>
-                    <h3>Nuevo Registro</h3>
-                </strong></label>
-        </div>
+    <div class="card border">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group ">
-                        <select class="form-select-lg">
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
+                            required>
                             <option selected>Eliga un tipo de servicio</option>
-                            <option value="direccion">Direccion y suspencion</option>
-                            <option value="mecanica">Mecanica general</option>
-                            <option value="lubricacion">lubricacion</option>
-                            <option value="otros">otros servicios</option>
+
                         </select>
+                        <label for="subcategoria">Tipo de Servicio:</label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <select class="form-select-lg ">
-                            <option selected>Eliga un tipo de servicio</option>
-                            <option value="direccion">Direccion y suspencion</option>
-                            <option value="mecanica">Mecanica general</option>
-                            <option value="lubricacion">lubricacion</option>
-                            <option value="otros">otros servicios</option>
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <select class="form-select" id="servicio" name="servicio" style="color:black;">
+                            <option selected>Eliga un servicio</option>
                         </select>
+                        <label for="servicio">Servicio:</label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <select class="form-select-lg">
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
                             <option selected>Eliga un mecanico</option>
-                            <option value="mecanico1">mecanico 1</option>
-                            <option value="mecanico2">mecanico 2</option>
-                            <option value="mecanico3">mecanico 3</option>
                         </select>
+                        <label for="mecanico">Mecanico:</label>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-floating input-group mb-3">
-                        <input type="text" disabled class="form-control" id="floatingInput">
-                        <label for="floatingInput">Propietario:</label>
-                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">...</button>
+                        <input type="text" disabled class="form-control" id="floatingInput" placeholder="Propietario">
+                        <label for="floatingInput">Propietario</label>
+                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#miModal">...</button>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-floating input-group mb-3">
-                        <input type="text" disabled class="form-control" id="floatingInput">
-                        <label for="floatingInput">Cliente:</label>
-                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">...</button>
+                        <input type="text" disabled class="form-control" id="floatingInput" placeholder="Cliente">
+                        <label for="floatingInput">Cliente</label>
+                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#miModal">...</button>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <select class="form-select-lg">
+                        <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
                             <option selected>Eliga un vehiculo</option>
-                            <option value="mecanico1">X1C-752</option>
                         </select>
+                        <label for="vehiculo">Vehiculo:</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input type="number" step="0.1" class="form-control" id="kilometraje">
-                        <label for="kilometraje">Kilometraje:</label>
+                        <input type="number" step="0.1" class="form-control input" id="kilometraje" placeholder="201">
+                        <label for="kilometraje">Kilometraje</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input type="date" class="form-control" id="fechaIngreso">
+                        <input type="date" class="form-control input" id="fechaIngreso">
                         <label for="fechaIngreso">Fecha de ingreso:</label>
                     </div>
                 </div>
@@ -105,8 +91,8 @@ require_once "../../partials/header.php";
 
 <?php
 
-  require_once "../../partials/_footer.php";
-  
+require_once "../../partials/_footer.php";
+
 ?>
 
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
@@ -129,13 +115,13 @@ require_once "../../partials/header.php";
                                 </div>
                                 <div class="">
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
-                                            onclick="actualizarOpciones()" checked />
+                                        <input class="form-check-input" type="radio" name="tipoBusqueda"
+                                            id="rbtnpersona" onclick="actualizarOpciones()" checked />
                                         <label class="form-check-label" for="rbtnpersona">Persona</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
-                                            onclick="actualizarOpciones()" />
+                                        <input class="form-check-input" type="radio" name="tipoBusqueda"
+                                            id="rbtnempresa" onclick="actualizarOpciones()" />
                                         <label class="form-check-label" for="rbtnempresa">Empresa</label>
                                     </div>
                                 </div>
@@ -226,6 +212,10 @@ require_once "../../partials/header.php";
 
     // Ejecutar la función al cargar la página para establecer las opciones iniciales
     actualizarOpciones();
+</script>
+
+<script>
+
 </script>
 </body>
 
