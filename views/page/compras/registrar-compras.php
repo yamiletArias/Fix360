@@ -9,27 +9,25 @@ require_once "../../partials/header.php";
 ?>
 <html lang="en">
 
-<head>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
-
-</head>
-
 <body>
-  <div class="container">
-    <form action="" method="POST" autocomplete="off" id="formulario-detalle-compra">
-      <div class="card mt-5">
-        <div class="card-header">
-          <div class="row">
-            <div class="col"><strong>Registrar</strong></div>
-            <div class="col text-end"><a href="listar-compras.php" class="btn btn-sm btn-success"
-                style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Mostrar Lista</a>
-            </div>
-          </div>
+
+  <div class="container-main mt-5">
+    <div class="card border">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <!-- Título a la izquierda -->
+        <div>
+          <h3 class="mb-0">Registro</h3>
         </div>
-        <div class="card-body">
-          <!-- Tipo de comprobante -->
+        <!-- Botón a la derecha -->
+        <div>
+          <a href="listar-compras.php" class="btn btn-sm btn-success">
+            Mostrar Lista
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <form action="" method="POST" autocomplete="off" id="formulario-detalle">
           <div class="row g-2">
             <div class="col-md-5">
               <label>
@@ -42,18 +40,18 @@ require_once "../../partials/header.php";
               </label>
             </div>
             <!-- N° serie y N° comprobante -->
-            <div class="col-md-7 d-flex justify-content-end">
-              <label for="">N° serie:</label>
-              <input type="text" class="form-control form-control-sm w-25 ms-2" name="numserie" id="numserie" required
-                disabled />
-              <label for="">N° comprobante:</label>
-              <input type="text" name="numcomprobante" id="numcom" class="form-control form-control-sm w-25 ms-2"
-                required disabled />
+            <div class="col-md-7 d-flex align-items-center justify-content-end">
+              <label for="numserie" class="mb-0">N° serie:</label>
+              <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
+                id="numserie" required disabled />
+              <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
+              <input type="text" name="numcomprobante" id="numcom"
+                class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
             </div>
           </div>
-          <!-- Proveedor, fecha y moneda -->
-          <div class="row g-3 mt-2">
-            <div class="col-md-4">
+          <!-- Sección Cliente, Fecha y Moneda -->
+          <div class="row g-2 mt-3">
+            <div class="col-md-5">
               <div class="form-floating">
                 <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
                   <option selected>Selecciona proveedor</option>
@@ -64,13 +62,13 @@ require_once "../../partials/header.php";
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="date" class="form-control" id="fecha" name="fecha" required>
-                <label for="fecha">Fecha de compra</label>
+                <input type="date" class="form-control input" name="fecha" id="fecha" required />
+                <label for="fecha">Fecha de venta:</label>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <div class="form-floating">
-                <select class="form-select" id="moneda" name="moneda" style="color: black;" required>
+                <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
                   <option value="soles" selected>Soles</option>
                   <!-- Aquí se insertan dinámicamente el resto de monedas -->
                 </select>
@@ -78,41 +76,42 @@ require_once "../../partials/header.php";
               </div>
             </div>
           </div>
-          <!-- Producto, Precio, Cantidad, Descuento -->
+
+          <!-- Sección Producto, Precio, Cantidad y Descuento -->
           <div class="row g-2 mt-3">
             <div class="col-md-5">
-              <div class="autocomplete">
-                <div class="form-floating">
-                  <input name="producto" id="producto" type="text" class="autocomplete-input form-control" required>
-                  <label for="producto">Buscar Producto:</label>
-                </div>
+              <div class="form-floating">
+                <!-- Campo de búsqueda de Producto -->
+                <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
+                  placeholder="Buscar Producto" required>
+                <label for="producto">Buscar Producto:</label>
               </div>
             </div>
             <div class="col-md-2">
               <div class="form-floating">
-                <input type="number" class="form-control" name="precio" id="precio" required readonly>
+                <input type="number" class="form-control input" name="precio" id="precio" required />
                 <label for="precio">Precio</label>
               </div>
             </div>
             <div class="col-md-2">
               <div class="form-floating">
-                <input type="number" class="form-control" name="cantidad" id="cantidad" required>
+                <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
                 <label for="cantidad">Cantidad</label>
               </div>
             </div>
             <div class="col-md-3">
               <div class="input-group">
                 <div class="form-floating">
-                  <input type="number" class="form-control" name="descuento" id="descuento" required>
+                  <input type="number" class="form-control input" name="descuento" id="descuento" required />
                   <label for="descuento">Descuento</label>
                 </div>
-                <button type="button" class="btn btn-success" id="agregarProducto" type="submit">Agregar</button>
+                <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
               </div>
             </div>
           </div>
-        </div>
+        </form>
       </div>
-    </form>
+    </div>
 
     <!-- Tabla de detalle de compra -->
     <div class="card mt-2">
@@ -143,6 +142,7 @@ require_once "../../partials/header.php";
       </button>
     </div>
   </div>
+
   </div>
   </div>
 
@@ -391,9 +391,29 @@ require_once "../../partials/header.php";
           console.log("Respuesta del servidor:", text);
           try {
             const json = JSON.parse(text);
-            // Aquí puedes procesar la respuesta según tus necesidades
+            if (json && json.status === "success") {
+              Swal.fire({
+                icon: 'success',
+                title: '¡Compra registrada con éxito!',
+                showConfirmButton: false,
+                timer: 1800
+              }).then(() => {
+                window.location.href = 'listar-compras.php';
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error al registrar la venta',
+                text: 'Inténtalo nuevamente.',
+              });
+            }
           } catch (e) {
             console.error("No se pudo parsear JSON:", e);
+            Swal.fire({
+              icon: 'error',
+              title: 'Respuesta inesperada',
+              text: 'El servidor no devolvió una respuesta válida.',
+            });
           }
         })
         .finally(() => {
@@ -403,6 +423,8 @@ require_once "../../partials/header.php";
     });
   });
 </script>
+<!-- js de carga moneda -->
+<script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
 <?php
 require_once "../../partials/_footer.php";
 ?>
