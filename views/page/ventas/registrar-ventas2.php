@@ -282,13 +282,13 @@ require_once "../../partials/header.php";
             optionDiv.textContent = producto.subcategoria_producto;
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
-              document.getElementById('precio').value = producto.precioventa;
+              document.getElementById('precio').value = producto.precio;
               $("#cantidad").val(1);
               $("#descuento").val(0);
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
-                precio: producto.precioventa
+                precio: producto.precio
               };
               cerrarListas();
             });
@@ -366,7 +366,7 @@ require_once "../../partials/header.php";
       const detalle = {
         idproducto: selectedProduct.idproducto,
         producto: productoNombre,
-        precioventa: productoPrecio,
+        precio: productoPrecio,
         cantidad: productoCantidad,
         descuento: productoDescuento,
         importe: importe.toFixed(2)

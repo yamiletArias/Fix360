@@ -1,5 +1,5 @@
 DROP VIEW IF EXISTS vwCategoriasSubcategorias;
-
+select * from personas;
 CREATE VIEW vwCategoriasSubcategorias AS
 SELECT
   c.categoria AS categoria,
@@ -11,7 +11,30 @@ FROM
 
 -- SELECT * FROM vwCategoriasSubcategorias; */
  -- VISTA PARA LA INFORMACION DE VENTAS */
-
+CREATE OR REPLACE VIEW vw_ventas_detalle AS
+SELECT
+  v.idventa,
+  v.fechahora,
+  v.tipocom,
+  v.numserie,
+  v.numcom,
+  c.razonsocial AS cliente,
+  col.razonsocial AS vendedor,
+  dv.idproducto,
+  p.nombre AS producto,
+  dv.cantidad,
+  dv.precioventa,
+  dv.descuento
+FROM
+  ventas v
+  JOIN clientes c
+    ON v.idcliente = c.idcliente
+  JOIN colaboradores col
+    ON v.idcolaborador = col.idcolaborador
+  JOIN detalleventa dv
+    ON v.idventa = dv.idventa
+  JOIN productos p
+    ON dv.idproducto = p.idproducto;
 
 -- VISTA DE COMPRAS CON DETALLES DE LOS PRODUCTOS */
 

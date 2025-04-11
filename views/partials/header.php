@@ -240,7 +240,7 @@
         </button>
       </div>
     </nav>
-    <div class="container-fluid page-body-wrapper">
+    <div class="container-fluid2 page-body-wrapper">
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
@@ -274,13 +274,13 @@
             <span class="nav-link ">Inventario</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas2.php">
               <span class="menu-title">Ventas</span>
               <i class="fa-solid fa-tags menu-icon"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/compras/listar-compras.html">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/compras/listar-compras.php">
               <span class="menu-title">Compras</span>
               <i class="fa-solid fa-cart-plus menu-icon"></i>
             </a>

@@ -118,7 +118,7 @@ class Venta extends Conexion
                     $producto["idproducto"],
                     $producto["cantidad"],
                     $params["numserie"],
-                    $producto["precioventa"],
+                    $producto["precio"],
                     $producto["descuento"]
                 ]);
             }
