@@ -54,28 +54,28 @@ require_once "../../partials/header.php";
 
         <div class="col-md-3">
           <div class="form-floating mb-3">
-            <textarea class="form-control" id="descripcion" rows="4" name="descripcion" placeholder="descripcion"></textarea>
+            <textarea class="form-control input" id="descripcion" rows="4" name="descripcion" placeholder="descripcion"></textarea>
             <label for="descripcion">Descripción</label>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="form-floating ">
-            <input type="text" class="form-control" id="presentacion" name="presentacion" placeholder="presentacion" />
+            <input type="text" class="form-control input" id="presentacion" name="presentacion" placeholder="presentacion" />
             <label for="presentacion">Presentación</label>
           </div>
         </div>
 
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="cantidad" name="cantidad" placeholder="cantidad" />
+            <input type="text" class="form-control input" id="cantidad" name="cantidad" placeholder="cantidad" />
             <label for="cantidad">Cantidad</label>
           </div>
         </div>
 
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="medida" />
+            <input type="text" class="form-control input" id="undmedida" name="undmedida" placeholder="medida" />
             <label for="undmedida">Und. de Medida</label>
           </div>
         </div>
@@ -83,7 +83,7 @@ require_once "../../partials/header.php";
         
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="precio" name="precio" placeholder="presio" />
+            <input type="text" class="form-control input" id="precio" name="precio" placeholder="presio" />
             <label for="precio">Precio</label>
           </div>
         </div>

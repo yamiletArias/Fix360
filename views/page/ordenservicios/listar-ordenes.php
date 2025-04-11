@@ -1,6 +1,6 @@
 <?php
 
-CONST NAMEVIEW = "Ordenes de Servicio";
+const NAMEVIEW = "Ordenes de Servicio";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -11,23 +11,30 @@ require_once "../../partials/header.php";
 
 
 <div class="container-main">
+  <div class="row">
   <div class="header-group">
-    <div class="form-group">
-      <div class="btn-group" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-primary">Dia</button>
-        <button type="button" class="btn btn-primary">Semana</button>
-        <button type="button" class="btn btn-primary">Mes</button>
-        <button type="button" class="btn btn-outline-danger btn-sm">
-          <i class="fa-solid fa-file-pdf"></i>
-        </button>
+    <div class="form-group d-flex justify-content-between align-items-center">
 
+        <div class="col-md-4 btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-primary">Dia</button>
+          <button type="button" class="btn btn-primary">Semana</button>
+          <button type="button" class="btn btn-primary">Mes</button>
+          <button type="button" class="btn btn-outline-danger btn-sm">
+            <i class="fa-solid fa-file-pdf"></i>
+          </button>
+        </div>
+        <div class="col-md-4">
+
+        </div>
+        
+        <div class="col-md-3 text-end">
+          <button type="button" onclick="window.location.href='registrar-ordenes.php'"
+          class="text-end btn btn-success">Registrar</button>
+        </div>
       </div>
-
     </div>
 
-    <div>
-      <button type="button" onclick="window.location.href='registrar-ordenes.php'" class="btn btn-success ">Registrar</button>
-    </div>
+
 
   </div>
   <div class="table-container">
@@ -124,12 +131,12 @@ require_once "../../partials/header.php";
 
 <?php
 
-  require_once "../../partials/_footer.php";
-  
- ?>
+require_once "../../partials/_footer.php";
+
+?>
 
 <script>
-  document.querySelector("#btnEliminar").addEventListener("click", async function() {
+  document.querySelector("#btnEliminar").addEventListener("click", async function () {
     const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
 
     if (await ask("¿Estás seguro de eliminar este registro?", "Ventas")) {
@@ -143,7 +150,7 @@ require_once "../../partials/header.php";
 </script>
 
 <script>
-  document.querySelector("#btnConfirmarSalida").addEventListener("click", async function() {
+  document.querySelector("#btnConfirmarSalida").addEventListener("click", async function () {
     const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
 
     if (await ask("¿Estás seguro de asignarle Fecha de Salida?", "Orden de servicio")) {

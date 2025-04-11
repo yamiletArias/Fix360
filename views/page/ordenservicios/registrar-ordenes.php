@@ -94,7 +94,7 @@ require_once "../../partials/header.php";
         </div>
         <div class="card-footer">
             <div class="text-end">
-                <button class="btn btn-danger" onclick="window.location.href='listar-ordenes.php'">Cancelar</button>
+                <button class="btn btn-secondary" onclick="window.location.href='listar-ordenes.php'">Cancelar</button>
                 <button class="btn btn-success" onclick="window.location.href='listar-ordenes.php'">Aceptar</button>
             </div>
         </div>

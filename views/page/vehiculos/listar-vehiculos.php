@@ -53,25 +53,25 @@ require_once "../../partials/header.php";
         <div class="row">
           <div class="form-group" style="margin: 10px">
             <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="modeloInput" />
+              <input type="text" disabled class="form-control input" id="modeloInput" />
               <label for="modeloInput">Modelo:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px">
             <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="anioInput" />
+              <input type="text" disabled class="form-control input" id="anioInput" />
               <label for="anioInput">Año:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px">
             <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="serieInput" />
+              <input type="text" disabled class="form-control input" id="serieInput" />
               <label for="serieInput">N° Serie:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px">
             <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="combustibleInput" />
+              <input type="text" disabled class="form-control input" id="combustibleInput" />
               <label for="combustibleInput">Tipo de combustible:</label>
             </div>
           </div>
@@ -162,7 +162,7 @@ require_once "../../partials/_footer.php";
   document.addEventListener("DOMContentLoaded", function() {
     obtenerDatos(); // Llamar la función para obtener datos
   });
-</!--script-->
+</script-->
 
 <script>
   function cargarTablaVehiculos() { // Inicio de cargarTablaVehiculos()

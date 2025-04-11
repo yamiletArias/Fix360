@@ -53,6 +53,9 @@
       background-color: white !important;
       cursor: pointer;
     }
+    label{
+      padding: 0px;
+    }
 
     .form-group {
       display: flex;
@@ -62,6 +65,12 @@
       align-items: flex-end;
 
     }
+    
+
+  .input{
+    font-size: 18px;
+  }
+
 
     .form-field {
       display: flex;
@@ -79,10 +88,12 @@
     input,
     select,
     button {
-      padding: 10px;
-      font-size: 14px;
+      padding: 0px;
       border-radius: 0px;
+      font-size: 100%;
     }
+
+    
 
     .small-button {
       width: 40px;
@@ -101,14 +112,6 @@
       width: 100%;
       max-width: 600px;
     }
-
-    /* .autocomplete-input {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    } */
 
     .autocomplete-items {
       position: absolute;

@@ -7,6 +7,7 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 
 ?>
+
 <div class="container-main">
   <div class="card border">
     <div class="card-header">
@@ -25,7 +26,7 @@ require_once "../../partials/header.php";
       <form action="" id="formPersona" style="display: block;">
         <div>
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-2">
               <div class="form-floating">
                 <select class="form-select" required name="tipodoc" id="tipodoc" style="color: black;">
                   <option value="DNI">DNI</option>
@@ -35,56 +36,64 @@ require_once "../../partials/header.php";
                 <label for="tipodoc">Tipo de Documento:</label>
               </div>
             </div>
-            <div class="col-md-4 mb-3">
+
+            <div class="col-md-2 mb-3">
               <div class="form-floating">
-                <input type="text" class="form-control" name="numdoc" id="numdoc" minlength="8" maxlength="20" placeholder="parece que sin placeholder no tiene ese efecto" required>
+                <input type="text" class="form-control input"  name="numdoc" id="numdoc" minlength="8" maxlength="20" placeholder="numdoc" autofocus required>
                 <label for="numdoc">N° de Documento</label>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="form-floating">
-                <input type="text" name="numruc" class="form-control" id="numruc" minlength="11" maxlength="11" placeholder="N° RUC">
-                <label for="numruc">N° RUC</label>
-              </div>
-            </div>
+
             <div class="col-md-4 mb-3">
               <div class="form-floating">
-                <input type="text" id="nombres" class="form-control" name="nombres" minlength="2" maxlength="100" required placeholder="nombrealazar">
-                <label for="nombres">Nombres</label>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-floating">
-                <input type="text" name="apellidos" class="form-control" id="apellidos" minlength="2" maxlength="100" placeholder="apellidos" required>
+                <input type="text" name="apellidos" class="form-control input" id="apellidos" minlength="2" maxlength="100" placeholder="apellidos" required>
                 <label for="apellidos">Apellidos</label>
               </div>
             </div>
-            <div class="col-md-4">
+
+            <div class="col-md-4 mb-3">
               <div class="form-floating">
-                <input type="text" id="telprincipal" class="form-control" minlength="9" maxlength="9" name="telprincipal" placeholder="celular">
-                <label for="telprincipal">Tel. principal</label>
+                <input type="text" id="nombres" class="form-control input" name="nombres" minlength="2" maxlength="100" required placeholder="nombrealazar">
+                <label for="nombres">Nombres</label>
               </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="col-md-8 mb-3">
               <div class="form-floating">
-                <input type="text" class="form-control" name="direccion" id="direccion" minlength="5" maxlength="100" placeholder="mi casa">
+                <input type="text" class="form-control" name="direccion input" id="direccion" minlength="5" maxlength="100" placeholder="mi casa">
                 <label for="direccion">Direccion</label>
               </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="col-md-2 mb-3">
               <div class="form-floating">
-                <input type="email" name="correo" class="form-control" id="correo" minlength="10" maxlength="100" placeholder="thepunisher2000@gmail.com">
-                <label for="correo">Correo</label>
+                <input type="text" id="telprincipal" class="form-control input" minlength="9" maxlength="9" name="telprincipal" placeholder="celular">
+                <label for="telprincipal">Tel. principal</label>
               </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="col-md-2 mb-3">
               <div class="form-floating">
-                <input type="text" id="telalternativo" name="telalternativo" class="form-control" minlength="9" maxlength="9" placeholder="956633983">
+                <input type="text" id="telalternativo" name="telalternativo" class="form-control input" minlength="9" maxlength="9" placeholder="956633983">
                 <label for="telalternativo">Tel. alternativo</label>
               </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-8 mb-3">
+              <div class="form-floating">
+                <input type="email" name="correo" class="form-control input" id="correo" minlength="10" maxlength="100" placeholder="thepunisher2000@gmail.com">
+                <label for="correo">Correo</label>
+              </div>
+            </div>
+
+            <div class="col-md-2 mb-3">
+              <div class="form-floating">
+                <input type="text" name="numruc" class="form-control input" id="numruc" minlength="11" maxlength="11" placeholder="N° RUC">
+                <label for="numruc">N° RUC</label>
+              </div>
+            </div>
+            
+            <div class="col-md-2 mb-3">
               <div class="form-floating">
                 <!-- Usamos id "cpersona" en el select para el formulario de persona -->
                 <select class="form-select" id="cpersona" name="cpersona" style="color: black;" required>
@@ -103,31 +112,31 @@ require_once "../../partials/header.php";
           <div class="row">
             <div class="col-md-4 mb-3">
               <div class="form-floating">
-                <input type="text" name="ruc" class="form-control" placeholder="rucdelaempresa" minlength="11" maxlength="11" required>
+                <input type="text" name="ruc" class="form-control input" placeholder="rucdelaempresa" minlength="11" maxlength="11" required>
                 <label for="ruc">RUC</label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="text" name="nomcomercial" class="form-control" placeholder="nomcomercial" minlength="5" maxlength="100" required>
+                <input type="text" name="nomcomercial" class="form-control input" placeholder="nomcomercial" minlength="5" maxlength="100" required>
                 <label for="nomcomercial">Nombre Comercial</label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="text" name="razonsocial" class="form-control" placeholder="razonsocia0l" minlength="5" maxlength="100" required>
+                <input type="text" name="razonsocial" class="form-control input" placeholder="razonsocia0l" minlength="5" maxlength="100" required>
                 <label for="razonsocial">Razón Social</label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="text" name="telempresa" class="form-control" placeholder="telempresa" minlength="9" maxlength="9">
+                <input type="text" name="telempresa" class="form-control input" placeholder="telempresa" minlength="9" maxlength="9">
                 <label for="telempresa">Teléfono</label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="email" name="correoemp" class="form-control" placeholder="coreoemp" minlength="10" maxlength="100">
+                <input type="email" name="correoemp" class="form-control input" placeholder="coreoemp" minlength="10" maxlength="100">
                 <label for="correoEmp">Correo</label>
               </div>
             </div>
@@ -145,8 +154,8 @@ require_once "../../partials/header.php";
       </form>
     </div>
     <div class="card-footer text-end">
-      <button type="button" class="btn btn-secondary">Cancelar</button>
-      <button type="button" id="btnRegistrar" class="btn btn-success">Aceptar</button>
+      <button type="button" class="btn btn-secondary" onclick="window.location.href='listar-cliente.php'" >Cancelar</button>
+      <button type="submit" id="btnRegistrar" class="btn btn-success">Aceptar</button>
     </div>
   </div>
 </div>

@@ -90,25 +90,25 @@ require_once "../../partials/header.php";
         <div class="row">
         <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="RUCPersonaInput">
+              <input type="text" disabled class="form-control input" id="RUCPersonaInput">
               <label for="RUCPersonaInput">RUC:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="CorreoPersonaInput">
+              <input type="text" disabled class="form-control input" id="CorreoPersonaInput">
               <label for="CorreoPersonaInput">Correo:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="TelAlternativoPersonaInput">
+              <input type="text" disabled class="form-control input" id="TelAlternativoPersonaInput">
               <label for="TelAlternativoPersonaInput">Telefono alternativo:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="DireccionPersonaInput">
+              <input type="text" disabled class="form-control input" id="DireccionPersonaInput">
               <label for="DireccionPersonaInput">Direccion:</label>
             </div>
           </div>
@@ -134,19 +134,19 @@ require_once "../../partials/header.php";
         <div class="row">
           <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="RazonSocialEmpresaInput">
+              <input type="text" disabled class="form-control input" id="RazonSocialEmpresaInput">
               <label for="RazonSocialEmpresaInput">Razon Social:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group ">
-              <input type="text" disabled class="form-control" id="CorreoEmpresaInput">
+              <input type="text" disabled class="form-control input" id="CorreoEmpresaInput">
               <label for="CorreoEmpresaInput">Correo:</label>
             </div>
           </div>
           <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group">
-              <input type="text" disabled class="form-control" id="RUCEmpresaInput">
+              <input type="text" disabled class="form-control input" id="RUCEmpresaInput">
               <label for="RUCEmpresaInput">RUC:</label>
             </div>
           </div>

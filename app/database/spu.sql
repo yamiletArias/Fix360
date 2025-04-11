@@ -308,8 +308,35 @@ IN _idempresa INT
 BEGIN
 SELECT * FROM empresas WHERE idempresa = _idempresa;
 END $$
-DELIMITER $$
 
+drop procedure if exists spGetServicioBySubcategoria;
+DELIMITER $$
+create procedure spGetServicioBySubcategoria(
+in _idsubcategoria int
+)
+begin
+select s.* from servicios s where idsubcategoria = _idsubcategoria;
+end $$
+
+-- call spGetServicioBySubcategoria(50)
+drop procedure if exists spGetVehiculosByPropietario
+DELIMITER $$
+create procedure spGetVehiculoByPropietario(
+in _idpropietario int
+)
+begin
+select 
+v.idvehiculo,
+v.placa
+from vehiculos v
+left join propietarios p 
+on v.idvehiculo = p.idvehiculo
+where p.idpropietario = _idpropietario;
+end $$
+
+-- call spGetVehiculoByPropietario(3)
+select * from propietarios;
+select * from vehiculos;
 CREATE PROCEDURE spUpdatePersona(
 )
 -- call spGetEmpresaById(6)

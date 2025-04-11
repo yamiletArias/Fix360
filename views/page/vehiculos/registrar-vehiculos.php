@@ -24,7 +24,7 @@ require_once "../../partials/header.php";
 
         <div class="col-md-4 ">
           <div class="form-floating">
-            <select class="form-select" id="marcav" name="marcav" style="color: black;" required>
+            <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
               <option value="">Seleccione una opcion</option>
 
             </select>
@@ -43,28 +43,28 @@ require_once "../../partials/header.php";
 
         <div class="col-md-4">
           <div class="form-floating">
-            <input type="text" class="form-control" id="fplaca" placeholder="placadeejemplo" minlength="6" required
+            <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" required
               maxlength="6" />
             <label for="fplaca">Placa</label>
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-floating">
-            <input type="text" class="form-control" id="fanio" placeholder="anio" minlength="4" maxlength="4"
+            <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" maxlength="4"
               required />
             <label for="fanio">Año</label>
           </div>
         </div>
         <div class="col-md-4 mb-3">
           <div class="form-floating">
-            <input type="text" class="form-control" id="fnumserie" placeholder="numerodeserie" />
+            <input type="text" class="form-control input" id="fnumserie" placeholder="numerodeserie" />
             <label for="fnumserie">N° de serie</label>
           </div>
         </div>
 
         <div class="col-md-4 mb-3">
           <div class="form-floating">
-            <input type="text" class="form-control" id="fcolor" placeholder="#e0aef6" />
+            <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" />
             <label for="fcolor">Color</label>
           </div>
         </div>
@@ -87,7 +87,7 @@ require_once "../../partials/header.php";
         </div>
         <div class="col-md-4">
           <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control" id="floatingInput"/>
+            <input type="text" disabled class="form-control input" id="floatingInput"/>
             <label for="floatingInput">Propietario:</label>
 
             <input type="hidden" id="hiddenIdCliente" />
