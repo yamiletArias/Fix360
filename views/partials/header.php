@@ -243,7 +243,7 @@
         </button>
       </div>
     </nav>
-    <div class="container-fluid2 page-body-wrapper">
+    <div class="container-fluid page-body-wrapper">
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
           <li class="nav-item navbar-brand-mini-wrapper">
