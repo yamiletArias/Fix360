@@ -143,6 +143,6 @@ require_once "../../partials/header.php";
   </div>
 </div>
 </div>
-<!-- Formulario Persona -->
+<!-- Formulario editar Ventas -->
 </body>
 </html>
