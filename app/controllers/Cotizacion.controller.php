@@ -26,6 +26,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
         echo json_encode($cotizacion->getAll());
       }
       break;
+
     case 'POST':
       //captura el json de entrada
       $input = file_get_contents('php://input');
@@ -33,18 +34,23 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
       $dataJSON = json_decode($input, true);
       if (!$dataJSON) {
-        echo json_encode(["status" => "error", "message" => "JSON invalido."]);
+        error_log("Error: JSON inválido.");
+        echo json_encode(["status" => "error", "message" => "JSON inválido."]);
         exit;
       }
+
+      //limpiar y validacion de datos
       $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
-      $vigenciadias = Helper::limpiarCadena($dataJSON['vigencia'] ?? "");
+      $vigenciadias = Helper::limpiarCadena($dataJSON['vigenciadias'] ?? "");
+
       if (empty($fechahora && $vigenciadias)) {
         $fechahora = date("Y-m-d H:i:s");
-        $vigenciadias = date("Y-m-d");
-      } elseif (strpos($fechahora, ' ') === false) {
+        $vigenciadias = date("Y-m-d H:i:s");
+      }elseif (strpos($fechahora, ' ') === false) {
         $fechahora .= " " . date("H:i:s");
       }
 
+      $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
       $idcliente = $dataJSON['idcliente'] ?? 0;
       $productos = $dataJSON['productos'] ?? [];
 
@@ -58,14 +64,15 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
       $idCotInsertada = $cotizacion->registerCotizacion([
         "fechahora" => $fechahora,
         "vigenciadias" => $vigenciadias,
+        "moneda" => $moneda,
         "idcliente" => $idcliente,
         "productos" => $productos
       ]);
       if ($idCotInsertada > 0) {
         echo json_encode([
-            "status" => "success",
-            "message" => "Venta registrada con exito.",
-            "idventa" => $idCotInsertada
+          "status" => "success",
+          "message" => "Venta registrada con exito.",
+          "idcotizacion" => $idCotInsertada
         ]);
       } else {
         echo json_encode(["status" => "error", "message" => "No se pudo registrar la venta."]);

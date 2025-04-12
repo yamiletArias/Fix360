@@ -11,10 +11,19 @@ class Cotizacion extends Conexion
     $this->pdo = parent::getConexion();
   }
 
-  public function getAll()
-  {
-
-  }
+  public function getAll(): array
+    {
+        $result = [];
+        try {
+            $sql = "SELECT * FROM vs_cotizaciones ORDER BY idcotizacion DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error al obtener las Cotizaciones: " . $e->getMessage());
+        }
+        return $result;
+    }
 
   //buscar cliente
   public function buscarCliente(string $termino): array
@@ -69,34 +78,36 @@ class Cotizacion extends Conexion
 
       error_log("Parametros para spuRegisterCotizacion: " . print_r($params, true));
 
-      $stmt = $pdo->prepare("CALL spuRegisterCotizaciones(?,?,?)");
+      $stmt = $pdo->prepare("CALL spuRegisterCotizaciones(?,?,?,?)");
       $stmt->execute([
         $params["fechahora"],
         $params["vigenciadias"],
-        $params["idcliente"],
+        $params["moneda"],
+        $params["idcliente"]
       ]);
+
 
       $result = [];
 
-      do{
+      do {
         $tmp = $stmt->fetch(PDO::FETCH_ASSOC);
-        error_log("Resultado fetch". print_r($tmp, true));
-        if($tmp && isset($tmp['idcliente'])){
+        error_log("Resultado fetch" . print_r($tmp, true));
+        if ($tmp && isset($tmp['idcotizacion'])) {
           $result = $tmp;
           break;
         }
-      }while($stmt->nextRowset());
+      } while ($stmt->nextRowset());
 
       $stmt->closeCursor();
-      $idcotizacion = $result['$idcotizacion'] ?? 0;
+      $idcotizacion = $result['idcotizacion'] ?? 0;
 
-      if(!$idcotizacion){
+      if (!$idcotizacion) {
         error_log("SP ejecutado paro devuelve el ID DE COTIZACION");
         throw new Exception("Nose pudo obtener el id de la cotizacion");
       }
 
       $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleCotizacion(?,?,?,?,?)");
-      foreach($params["productos"] as $producto){
+      foreach ($params["productos"] as $producto) {
         error_log("Insertando productos ID: " . $producto["idproducto"]);
         $stmtDetalle->execute([
           $idcotizacion,
@@ -110,12 +121,12 @@ class Cotizacion extends Conexion
       $pdo->commit();
       error_log("Venta registrada con id: " . $idcotizacion);
       return $idcotizacion;
-    }catch(Exception $e){
+    } catch (Exception $e) {
       $pdo->rollBack();
-      error_log("Error DB: ". $e->getMessage());
+      error_log("Error DB: " . $e->getMessage());
       return 0;
-    }catch(PDOException $e){
-      error_log("Error". $e->getMessage());
+    } catch (PDOException $e) {
+      error_log("Error" . $e->getMessage());
       return 0;
     }
   }

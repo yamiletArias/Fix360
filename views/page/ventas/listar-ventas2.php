@@ -33,18 +33,18 @@ require_once "../../partials/header.php";
 
     <div class="row">
         <div id="tableDia" class="col-12">
-            <table class="table table-striped display" id="miTabla">
+            <table class="table table-striped display" id="tablaventasdia">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Cliente</th>
-                        <th>T. Comprobante</th>
-                        <th>N° Comprobante</th>
+                        <th class="text-center">T. Comprobante</th>
+                        <th class="text-center">N° Comprobante</th>
                         <th>Fecha Hora</th>
-                        <th>Opciones</th>
+                        <th class="text-center">Opciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-center">
                     <!-- Aquí se agregan los datos dinámicos -->
                 </tbody>
             </table>
@@ -113,7 +113,80 @@ require_once "../../partials/header.php";
 </body>
 
 </html>
+
 <script>
+    function cargarTablaCompras() {
+        if ($.fn.DataTable.isDataTable("#tablaventasdia")) {
+            $("#tablaventasdia").DataTable().destroy();
+        } // Cierra if
+
+        $("#tablaventasdia").DataTable({ // Inicio de configuración DataTable para vehículos
+            ajax: {
+                url: "<?= SERVERURL ?>app/controllers/Venta.controller.php",
+                dataSrc: ""
+            }, // Cierra ajax
+            columns: [
+                { // Columna 1: Número de fila
+                    data: null,
+                    render: (data, type, row, meta) => meta.row + 1
+                }, // Cierra columna 1
+                { // Columna 2: cliente
+                    data: "cliente",
+                    defaultContent: "No disponible",
+                    class: 'text-start'
+                }, // Cierra columna 2
+                { // Columna 3: tipo de comprobante
+                    data: "tipocom",
+                    defaultContent: "No disponible",
+                    class: 'text-center' // Centrado de la columna numcom
+                }, // Cierra columna 3
+                { // Columna 4: numero de comprobante
+                    data: "numcom",
+                    defaultContent: "No disponible",
+                    class: 'text-center' // Centrado de la columna numcom
+                }, // Cierra columna 4
+                { // Columna 5: fecha y hora de la venta
+                    data: "fechahora",
+                    defaultContent: "No disponible"
+                }, // Cierra columna 6
+                { // Columna 7: Opciones (botones: editar, ver detalle, y otro para ver más)
+                    data: null,
+                    render: function (data, type, row) { // Inicio de render de opciones
+                        return `
+                        <a href="editar-ventas.php" class="btn btn-sm btn-warning" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#miModal">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                        `;
+                    } // Cierra render de opciones
+                } // Cierra columna 7
+            ], // Cierra columns
+            language: { // Inicio de configuración de idioma
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "emptyTable": "No hay datos disponibles en la tabla"
+            } // Cierra language
+        }); // Cierra DataTable inicialización
+    } // Cierra cargarTablaVehiculos()
+
+    document.addEventListener("DOMContentLoaded", function () {
+        cargarTablaCompras();
+    });
+</script>
+
+<!-- <script>
     document.addEventListener("DOMContentLoaded", () => {
         // Tabla donde se mostrarán las ventas
         const tabla = document.querySelector("#miTabla tbody");
@@ -194,91 +267,7 @@ require_once "../../partials/header.php";
             }
         });
 
-    // Llamada inicial para obtener las ventas
-    obtenerVentas();
-    });
-</script>
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        // Función para obtener los datos de ventas
-        function obtenerVentas() {
-            fetch(`/Fix360/app/controllers/Venta.controller.php`, {
-                method: 'GET'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    const tabla = document.querySelector("#miTabla tbody");
-                    tabla.innerHTML = '';
-
-                    if (data.length === 0) {
-                        tabla.innerHTML = `<tr><td colspan="6">No hay ventas registradas.</td></tr>`;
-                    } else {
-                        data.forEach(element => {
-                            tabla.innerHTML += `
-                            <tr data-id="${element.id}">
-                            <td>${element.id}</td>
-                            <td>${element.cliente}</td>
-                            <td>${element.tipocom}</td>
-                            <td>${element.numcom}</td>
-                            <td>${element.fechahora}</td>
-                            <td>
-                                <button title="Editar" onclick="window.location.href='editar-ventas.html'" class="btn btn-warning btn-sm">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
-                                <button title="Eliminar" class="btn btn-danger btn-sm btnEliminar" data-id="${element.id}">
-                                <i class="fa-solid fa-trash"></i>
-                                </button>
-                                <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal">
-                                <i class="fa-solid fa-circle-info"></i>
-                                </button>
-                            </td>
-                            </tr>
-                        `;
-                        });
-                    }
-
-                    // Inicializar DataTable después de cargar los datos dinámicamente
-                    if (!$.fn.dataTable.isDataTable('#miTabla')) {
-                        $('#miTabla').DataTable({
-                            "paging": true,  // Activar paginación
-                            "searching": true,  // Activar búsqueda
-                            "lengthChange": false,  // Desactivar cambio de número de filas por página
-                            "info": true,  // Activar información sobre la página
-                            "language": {
-                                "paginate": {
-                                    "first": "«",
-                                    "previous": "‹",
-                                    "next": "›",
-                                    "last": "»"
-                                },
-                                "info": "Mostrando página _PAGE_ de _PAGES_",
-                                "infoEmpty": "No hay registros disponibles",
-                                "search": "Buscar:"
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al obtener los datos:", error);
-                });
-        }
-
-        // Delegar el evento de clic a la tabla para los botones "Eliminar"
-        document.querySelector("#miTabla tbody").addEventListener("click", async function (event) {
-            if (event.target && event.target.matches("button.btnEliminar")) {
-                const id = event.target.getAttribute("data-id"); // Obtener el ID del registro a eliminar
-
-                // Usar la función ask para confirmar la eliminación
-                if (await ask("¿Estás seguro de eliminar este registro?", "Venta")) {
-                    showToast("Registro eliminado correctamente", "SUCCESS");
-                    console.log(`Eliminando registro con ID: ${id}`);
-                } else {
-                    showToast("Operación cancelada", "WARNING");
-                }
-            }
-        });
-
+        // Llamada inicial para obtener las ventas
         obtenerVentas();
     });
 </script> -->

@@ -13,6 +13,38 @@ SELECT
 	INNER JOIN clientes C ON V.idcliente = C.idcliente
 	LEFT JOIN empresas E ON C.idempresa = E.idempresa
 	LEFT JOIN personas P ON C.idpersona = P.idpersona;
+    
+-- vista de las compras
+CREATE VIEW vs_compras AS
+SELECT 
+    C.idcompra AS id,
+    C.tipocom,
+    C.numcom,
+    E.nomcomercial AS proveedores,
+    C.fechacompra,
+    DC.preciocompra
+FROM compras C
+JOIN proveedores P ON C.idproveedor = P.idproveedor
+JOIN empresas E ON P.idempresa = E.idempresa
+LEFT JOIN detallecompra DC ON C.idcompra = DC.idcompra;
+
+-- vista cotizacion
+CREATE OR REPLACE VIEW vs_cotizaciones AS
+SELECT 
+  c.idcotizacion,
+  CASE
+    WHEN cli.idempresa IS NOT NULL THEN e.nomcomercial
+    WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+  END AS cliente,
+  dc.precio,
+  c.vigenciadias AS vigencia
+FROM cotizaciones c
+LEFT JOIN clientes cli ON c.idcliente = cli.idcliente
+LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+LEFT JOIN personas p ON cli.idpersona = p.idpersona
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion;
+	
+
 
 -- registro de venta
 CREATE VIEW vs_registro_venta AS

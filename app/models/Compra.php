@@ -11,6 +11,21 @@ class Compra extends Conexion
     $this->pdo = parent::getConexion();
   }
 
+  public function getAll(): array
+  {
+      $result = [];
+      try {
+          $sql = "SELECT * FROM vs_compras ORDER BY id DESC";
+          $stmt = $this->pdo->prepare($sql);
+          $stmt->execute();
+          $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      } catch (PDOException $e) {
+          throw new Exception("Error al obtener las compras: " . $e->getMessage());
+      }
+      return $result;
+  }
+
+  //obtener los proveedores
   public function getProveedoresCompra(): array
   {
     try {

@@ -192,7 +192,23 @@ VALUES
 (9, 1, 1, 2, 1, '{"seriales": ["I901"]}', 170.00, 0.00),          -- Correa de distribución para Ford Ranger
 (10, 2, 2, 1, 1, '{"seriales": ["J012"]}', 600.00, 0.00);   
 
- 
+INSERT INTO cotizaciones (idcolaborador, idcliente, vigenciadias, moneda)
+VALUES 
+(1, 1, 15, 'Soles'),
+(1, 2, 15, 'Dólares');
+
+INSERT INTO detallecotizacion (idcotizacion, idproducto, cantidad, precio, descuento)
+VALUES 
+-- Cotización 1
+(1, 1, 2, 55.00, 5.00),    -- Filtro de aire
+(1, 5, 1, 45.00, 0.00),    -- Aceite 5W-30
+(1, 4, 1, 95.00, 5.00),    -- Pastillas de freno
+-- Cotización 2
+(2, 3, 1, 210.00, 0.00),   -- Amortiguador
+(2, 6, 1, 1600.00, 3.00),  -- Transmisión
+(2, 8, 2, 35.00, 2.00);    -- Filtro de aceite
+
+
 -- Consultas de ejemplo
 SELECT * FROM empresas WHERE idempresa IN (1, 2);
 SELECT * FROM personas WHERE idpersona IN (1, 2);

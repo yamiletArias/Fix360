@@ -10,28 +10,28 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            // Limpiar y obtener tipo
             $tipo = Helper::limpiarCadena($_GET['type'] ?? "");
 
-            // Caso para proveedores
-            if ($tipo == 'proveedor') {
+            // Si el tipo es 'proveedor', obtener los proveedores
+            if ($tipo === 'proveedor') {
                 echo json_encode($compra->getProveedoresCompra());
             }
-            // Caso para buscar productos
-            else if (isset($_GET['q']) && !empty($_GET['q'])) {
-                $termino = $_GET['q'];
-                if ($tipo == 'producto') {
-                    // Buscar productos
+
+            elseif (isset($_GET['q']) && !empty($_GET['q'])) {
+                $termino = Helper::limpiarCadena($_GET['q']);
+                if ($tipo === 'producto') {
                     echo json_encode($compra->buscarProductoCompra($termino));
                 } else {
                     echo json_encode(["error" => "Tipo no válido para búsqueda"]);
                 }
             }
-            // Si no se proporciona 'type' o 'q', obtener todo
+
             else {
-                echo json_encode(["error" => "Falta el parámetro de búsqueda o 'type'"]);
+                echo json_encode($compra->getAll());
             }
+
             break;
+
         case 'POST':
             $input = file_get_contents('php://input');
             error_log("Entrada POST (compras): " . $input);

@@ -28,11 +28,11 @@ require_once "../../partials/header.php";
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" >
               Factura
             </label>
             <label>
-              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
+              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()" checked>
               Boleta
             </label>
           </div>

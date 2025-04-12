@@ -7,7 +7,6 @@ require_once "../../partials/header.php";
 
 ?>
 
-
 <div class="container-main">
   <div>
     <div class="text-end">
@@ -16,155 +15,24 @@ require_once "../../partials/header.php";
       </button>
     </div>
     <div class="table-container mt-5">
-      <table id="miTabla" class="table table-striped display">
+      <table id="tablacotizacion" class="table table-striped display">
         <thead>
           <tr>
             <th class="text-center">#</th>
             <th>Cliente</th>
             <th>Precio</th>
-            <!-- <td>Moneda</td> -->
-            <!-- <th>Descuento</th> -->
-            <th class="text-center">vigencia</th>
-            <th>Opciones</th>
+            <th>vigencia</th>
+            <th class="text-center">Opciones</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td class="text-center">1</td>
-            <td class="text-left">Jesus Valerio</td>
-            <td>520.00</td>
-            <!-- <td>Soles</td> -->
-            <!-- <td>0%</td> -->
-            <td>20/03/2025</td>
-            <td>
-              <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                data-bs-target="#miModal">
-                <i class="fa-solid fa-list"></i>
-              </button>
-              <button title="Editar" onclick="window.location.href='editar-cotizacion.php'"
-                class="btn btn-warning btn-sm">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              <button title="Generar PDF" onclick="window.location.href='../../../app/reports/reporteprueba.php'"
-                class="btn btn-outline-dark btn-sm">
-                <i class="fa-solid fa-file-pdf"></i>
-              </button>
-              <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td class="text-center">2</td>
-            <td class="text-left">William Tasayco</td>
-            <td>300.00</td>
-            <!-- <td>Dolares</td> -->
-            <!-- <td>0%</td> -->
-            <td>VENCIO</td>
-            <td>
-              <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                data-bs-target="#miModal">
-                <i class="fa-solid fa-list"></i>
-              </button>
-              <button title="Editar" onclick="window.location.href='editar-cotizacion.php'"
-                class="btn btn-warning btn-sm">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              <button title="Generar PDF"
-                onclick="window.location.href='../../../app/reports/content/reporteprueba.php'"
-                class="btn btn-outline-dark btn-sm">
-                <i class="fa-solid fa-file-pdf"></i>
-              </button>
-              <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td class="text-center">3</td>
-            <td class="text-left">Estefano Sanchez</td>
-            <td>150.00</td>
-            <!-- <td>Soles</td> -->
-            <!-- <td>20%</td> -->
-            <td>VENCIO</td>
-            <td>
-              <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                data-bs-target="#miModal">
-                <i class="fa-solid fa-list"></i>
-              </button>
-              <button title="Editar" onclick="window.location.href='editar-cotizacion.php'"
-                class="btn btn-warning btn-sm">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              <button title="Generar PDF"
-                onclick="window.location.href='../../../app/reports/content/reporteprueba.php'"
-                class="btn btn-outline-dark btn-sm">
-                <i class="fa-solid fa-file-pdf"></i>
-              </button>
-              <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
-          </tr>
+        <tbody class="text-center">
+          
         </tbody>
       </table>
     </div>
   </div>
 </div>
 </div>
-
-<?php
-
-require_once "../../partials/_footer.php";
-
-?>
-
-<script>
-  document
-    .querySelector("#btnEliminar")
-    .addEventListener("click", async function () {
-      const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
-
-      if (
-        await ask("¿Estás seguro de eliminar este registro?", "Compras")
-      ) {
-        showToast("Registro eliminado correctamente", "SUCCESS");
-        // Aquí podrías agregar la lógica para eliminar el registro
-        console.log(`Eliminando registro con ID: 1`);
-      } else {
-        showToast("Operación cancelada", "WARNING");
-      }
-    });
-
-  $(document).ready(function () {
-    // Inicializar las tablas con DataTables
-    var tableDia = $("#miTabla").DataTable();
-    var tableSemana = $("#miTablaSemana").DataTable();
-    var tableSemana = $("#miTablaMes").DataTable();
-
-    // Función para alternar entre las tablas
-    $("#btnDia").on("click", function () {
-      // Mostrar la tabla Día y ocultar las otras
-      $("#tableDia").show();
-      $("#tableSemana").hide();
-      $("#tableMes").hide();
-    });
-
-    $("#btnSemana").on("click", function () {
-      // Mostrar la tabla Semana y ocultar las otras
-      $("#tableSemana").show();
-      $("#tableDia").hide();
-      $("#tableMes").hide();
-    });
-
-    $("#btnMes").on("click", function () {
-      // Mostrar la tabla Mes y ocultar las otras
-      $("#tableMes").show();
-      $("#tableDia").hide();
-      $("#tableSemana").hide();
-    });
-  });
-</script>
 
 <!-- Modal -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
@@ -222,11 +90,79 @@ require_once "../../partials/_footer.php";
       </div>
     </div>
   </div>
+</div>
 
+<?php
+require_once "../../partials/_footer.php";
+?>
 
-  <!-- endinject -->
-  <!-- Custom js for this page -->
-  <!-- End custom js for this page -->
-  </body>
+<script>
+    function cargarTablaCotizacion() {
+        if ($.fn.DataTable.isDataTable("#tablacotizacion")) {
+            $("#tablacotizacion").DataTable().destroy();
+        } // Cierra if
 
-  </html>
+        $("#tablacotizacion").DataTable({ // Inicio de configuración DataTable para vehículos
+            ajax: {
+                url: "<?= SERVERURL ?>app/controllers/Cotizacion.controller.php",
+                dataSrc: ""
+            }, // Cierra ajax
+            columns: [
+                { // Columna 1: Número de fila
+                    data: null,
+                    render: (data, type, row, meta) => meta.row + 1
+                }, // Cierra columna 1
+                { // Columna 2: cliente
+                    data: "cliente",
+                    defaultContent: "No disponible",
+                    class: 'text-start'
+                }, // Cierra columna 2
+                { // Columna 3: tipo de comprobante
+                    data: "precio",
+                    defaultContent: "No disponible",
+                }, // Cierra columna 3
+                { // Columna 4: numero de comprobante
+                    data: "vigencia",
+                    defaultContent: "No disponible",
+
+                }, // Cierra columna 6
+                { // Columna 7: Opciones (botones: editar, ver detalle, y otro para ver más)
+                    data: null,
+                    render: function (data, type, row) { // Inicio de render de opciones
+                        return `
+                        <a href="editar-ventas.php" class="btn btn-sm btn-warning" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#miModal">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                        `;
+                    } // Cierra render de opciones
+                } // Cierra columna 7
+            ], // Cierra columns
+            language: { // Inicio de configuración de idioma
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "emptyTable": "No hay datos disponibles en la tabla"
+            } // Cierra language
+        }); // Cierra DataTable inicialización
+    } // Cierra cargarTablaVehiculos()
+
+    document.addEventListener("DOMContentLoaded", function () {
+      cargarTablaCotizacion();
+    });
+</script>
+
+</body>
+
+</html>

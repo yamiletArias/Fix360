@@ -126,7 +126,6 @@ CALL buscar_producto('moto');
 
 -- ver Detalle ventas
 DELIMITER $$
-
 CREATE PROCEDURE spuGetDetalleVenta (
     IN _idventa INT
 )
@@ -158,7 +157,6 @@ BEGIN
     LEFT JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
     WHERE d.idventa = _idventa;
 END $$
-
 DELIMITER ;
 -- Detalle ventas
 -- FIN DEL PROCEDIMIENTO DE VENTAS
@@ -270,18 +268,21 @@ DELIMITER $$
 CREATE PROCEDURE spuRegisterCotizaciones (
   IN _fechahora TIMESTAMP,
   IN _vigenciadias INT,
+  IN _moneda VARCHAR(20),
   IN _idcliente INT
 )
 BEGIN
   INSERT INTO cotizaciones (
     idcliente,
     fechahora,
-    vigenciadias
+    vigenciadias,
+    moneda
   )
   VALUES (
     _idcliente,
     _fechahora,
-    _vigenciadias
+    _vigenciadias,
+    _moneda
   );
   SELECT LAST_INSERT_ID() AS idcotizacion;
 END $$
@@ -318,6 +319,7 @@ DELIMITER ;
 
 
 -- FIN DEL PROCEDIMIENTO DE COTIZACIONES
+CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);
 
 
 -- PROBAR 
@@ -330,3 +332,6 @@ SELECT * FROM ventas;
 CALL buscar_producto_compras('ace');
 SELECT * FROM detallecompra;
 SELECT * FROM compras;
+
+SELECT * FROM detallecotizacion;
+SELECT * FROM cotizaciones;

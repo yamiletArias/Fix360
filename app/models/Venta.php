@@ -14,7 +14,7 @@ class Venta extends Conexion
     {
         $result = [];
         try {
-            $sql = "SELECT * FROM vs_ventas ORDER BY id";
+            $sql = "SELECT * FROM vs_ventas ORDER BY id DESC";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

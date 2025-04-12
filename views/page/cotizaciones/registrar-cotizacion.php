@@ -33,8 +33,8 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-6">
             <div class="form-floating">
-              <input type="date" class="form-control input" name="vigencia" id="vigencia" required />
-              <label for="vigencia">Vigencia</label>
+              <input type="date" class="form-control input" name="vigenciadias" id="vigenciadias" required />
+              <label for="vigenciadias">Vigencia</label>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@ require_once "../../partials/header.php";
     const tabla = document.querySelector("#tabla-detalle tbody");
     const detalleCotizacion = [];
     const fechaInput = document.getElementById("fecha");
-    const vigenciaInput = document.getElementById("vigencia");
+    const vigenciaDiasInput = document.getElementById("vigenciadias");
     const monedaSelect = document.getElementById('moneda');
     const btnFinalizarVenta = document.getElementById('btnFinalizarCotizacion');
 
@@ -247,9 +247,30 @@ require_once "../../partials/header.php";
       const formattedDate = `${year}-${month}-${day}`;
 
       fechaInput.value = formattedDate;
-      vigenciaInput.value = formattedDate;
+      vigenciaDiasInput.value = formattedDate;
     };
     setFechaDefault();
+
+    // Variable para almacenar días de vigencia calculados
+    let diasVigencia = 0;
+
+    // Evento para calcular días de vigencia al cambiar la fecha
+    vigenciaDiasInput.addEventListener("change", function () {
+      const fechaCotizacion = new Date(fechaInput.value);
+      const fechaVigencia = new Date(vigenciaDiasInput.value);
+
+      // Calcula diferencia en milisegundos y convierte a días
+      const diffTime = fechaVigencia - fechaCotizacion;
+      diasVigencia = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diasVigencia < 0) {
+        alert("La vigencia no puede ser menor a la fecha de cotización.");
+        vigenciaDiasInput.value = fechaInput.value; // Restablece la fecha
+        diasVigencia = 0;
+      } else {
+        console.log(`Días de vigencia: ${diasVigencia}`);
+      }
+    });
 
     // Verifica si el producto ya está en el detalle para evitar duplicados
     function estaDuplicado(idproducto = 0) {
@@ -308,7 +329,6 @@ require_once "../../partials/header.php";
         importe: importe.toFixed(2)
       };
       detalleCotizacion.push(detalle);
-      // Limpiar campos de producto
       inputProductElement.value = "";
       document.getElementById('precio').value = "";
       document.getElementById('cantidad').value = 1;
@@ -321,7 +341,7 @@ require_once "../../partials/header.php";
       btnFinalizarCotizacion.disabled = true;
       btnFinalizarCotizacion.textContent = "Guardando...";
 
-      // Validar la selección de cliente y productos
+      // Validaciones
       if (!clienteId) {
         alert("Por favor, selecciona un cliente.");
         btnFinalizarCotizacion.disabled = false;
@@ -335,16 +355,16 @@ require_once "../../partials/header.php";
         return;
       }
 
-      // Armar el objeto de datos a enviar
+      // Armar objeto de datos a enviar
       const data = {
         fechahora: fechaInput.value.trim(),
-        vigenciadias: vigenciaInput.value.trim(),
+        vigenciadias: diasVigencia,
         moneda: monedaSelect.value,
         idcliente: clienteId,
         productos: detalleCotizacion
       };
 
-      // Enviar datos al servidor usando fetch
+      // Envío de datos al servidor
       fetch("http://localhost/Fix360/app/controllers/Cotizacion.controller.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -352,6 +372,7 @@ require_once "../../partials/header.php";
       })
         .then(response => response.text())
         .then(text => {
+          // Procesamiento de la respuesta
           console.log("Respuesta del servidor:", text);
           try {
             const json = JSON.parse(text);

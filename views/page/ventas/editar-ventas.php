@@ -1,219 +1,148 @@
 <?php
+
+const NAMEVIEW = "Editar de Ventas";
+
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SESSION VENTAS</title>
-  <style>
-    .container-ventas {
-      background: transparent;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: none;
-      width: 1500px; /* Aumenta el tamaño */
-      min-height: 700px; /* Aumenta la altura */
-      margin-left: 80px; /* Lo mueve más a la derecha */
-      margin-top: 50px;
-    }
-
-    .form-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      margin-top: 25px;
-      gap: 15px;
-    }
-
-    .form-group label {
-      margin-right: 10px;
-    }
-
-    /* Mantener el borde visible en todo momento incluso al enfocar el campo */
-    input:focus,
-    select:focus {
-      outline: none;
-      /* Elimina el contorno predeterminado del navegador */
-      border: 1px solid #ccc;
-      /* Mantiene el borde visible */
-      box-shadow: none;
-      /* Elimina cualquier sombra que aparezca al enfocar */
-    }
-
-    input,
-    select,
-    button {
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    input[type="text"],
-    select {
-      flex: 1;
-    }
-
-    input[type="date"] {
-      width: 160px;
-    }
-
-    .small-input {
-      width: 130px;
-    }
-
-    .medium-input {
-      width: 200px;
-    }
-
-    .table-container {
-      margin-top: 30px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    table,
-    th,
-    td {
-      border: 1px solid #ccc;
-      text-align: center;
-      padding: 10px;
-    }
-
-    .btn-container {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 40px;
-    }
-
-    .btn-finalizar {
-      background: green;
-      color: white;
-      padding: 12px;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .header-group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .right-group {
-      display: flex;
-      gap: 10px;
-    }
-  </style>
-</head>
-
-<body>
-      <div class="container-ventas">
-        <div class="header-group">
-          <div class="form-group">
-            <input type="radio" name="tipo" id="factura" checked />
-            <label for="factura">Factura</label>
-            <input type="radio" name="tipo" id="boleta" />
-            <label for="boleta">Boleta</label>
-          </div>
-          <div class="right-group">
-            <input type="text" class="small-input" placeholder="N° serie" />
-            <input type="text" class="small-input" placeholder="N° comprobante" />
-          </div>
-        </div>
-
-        <!-- Proveedor, fecha y moneda -->
-        <div class="form-group">
-          <select class="medium-input">
-            <option>Proveedor</option>
-          </select>
-          <input type="date" />
-          <select class="small-input">
-            <option>Soles</option>
-            <option>Dolares</option>
-          </select>
-        </div>
-
-        <!-- Productos -->
-        <div class="form-group">
-          <input type="text" class="medium-input" placeholder="PRODUCTO" />
-          <input type="text" class="small-input" placeholder="PRECIO" />
-          <input type="text" class="small-input" placeholder="CANTIDAD" />
-          <input type="text" class="small-input" placeholder="DESCUENTO" />
-          <button>AGREGAR</button>
-        </div>
-        <div class="table-container">
-          <table id="miTabla" class="table table-striped display">
-            <thead>
-              <tr>
-                <th>N°</th>
-                <th>PRODUCTO</th>
-                <th>PRECIO</th>
-                <th>CANTIDAD</th>
-                <th>DSCT</th>
-                <th>TOTAL</th>
-                <th>
-                  <button class="delete-btn">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Aquí irán los datos dinámicos -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Botón Finalizar alineado a la derecha -->
-        <div class="btn-container">
-          <button type="button" onclick="window.location.href='listar-ventas.html'" class="btn btn-success">
-            Finalizar
-          </button>
-        </div>
+<div class="container-main mt-5">
+  <div class="card border">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <!-- Título a la izquierda -->
+      <div>
+        <h3 class="mb-0">Actualizar</h3>
+      </div>
+      <!-- Botón a la derecha -->
+      <div>
+        <a href="listar-ventas2.php" class="btn btn-sm btn-success">
+          Mostrar Lista
+        </a>
       </div>
     </div>
+
+    <div class="card-body">
+      <form action="" method="POST" autocomplete="off" id="formulario-detalle">
+        <div class="row g-2">
+          <div class="col-md-5">
+            <label>
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" >
+              Factura
+            </label>
+            <label>
+              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()" checked>
+              Boleta
+            </label>
+          </div>
+          <!-- N° serie y N° comprobante -->
+          <div class="col-md-7 d-flex align-items-center justify-content-end">
+            <label for="numserie" class="mb-0">N° serie:</label>
+            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie" id="numserie" required
+              disabled />
+            <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
+            <input type="text" name="numcomprobante" id="numcom" class="form-control text-center input form-control-sm w-25 ms-2" required
+              disabled />
+          </div>
+        </div>
+        <!-- Sección Cliente, Fecha y Moneda -->
+        <div class="row g-2 mt-3">
+          <div class="col-md-5">
+            <div class="autocomplete">
+              <div class="form-floating">
+                <!-- Campo de búsqueda de Cliente -->
+                <input name="cliente" id="cliente" type="text" class="autocomplete-input form-control input"
+                  placeholder="Buscar Cliente" required>
+                <label for="cliente">Buscar Cliente:</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="date" class="form-control input" name="fecha" id="fecha" required />
+              <label for="fecha">Fecha de venta:</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-floating">
+              <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
+                <option value="soles" selected>Soles</option>
+                <!-- Aquí se insertan dinámicamente el resto de monedas -->
+              </select>
+              <label for="moneda">Moneda:</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección Producto, Precio, Cantidad y Descuento -->
+        <div class="row g-2 mt-3">
+          <div class="col-md-5">
+            <div class="autocomplete">
+              <div class="form-floating">
+                <!-- Campo de búsqueda de Producto -->
+                <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
+                  placeholder="Buscar Producto" required>
+                <label for="producto">Buscar Producto:</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="precio" id="precio" required />
+              <label for="precio">Precio</label>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
+              <label for="cantidad">Cantidad</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="number" class="form-control input" name="descuento" id="descuento" required />
+                <label for="descuento">Descuento</label>
+              </div>
+              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
-  <!--FIN VENTAS-->
 
-  <!-- plugins:js -->
-  <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="../../assets/js/off-canvas.js"></script>
-  <script src="../../assets/js/hoverable-collapse.js"></script>
-  <script src="../../assets/js/misc.js"></script>
-  <script src="../../assets/js/settings.js"></script>
-  <script src="../../assets/js/todolist.js"></script>
-  <!-- endinject -->
-  <!-- Custom js for this page -->
-  <!-- End custom js for this page -->
+  <!-- Sección de Detalles de la Venta -->
+  <div class="card mt-2">
+    <div class="card-body">
+      <table class="table table-striped table-sm" id="tabla-detalle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Dsct</th>
+            <th>Importe</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se agregarán los detalles de los productos -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-  <!-- jQuery (necesario para DataTables) -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <!-- DataTables JS -->
-  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
-
-  <script>
-    $(document).ready(function () {
-      $("#miTabla").DataTable();
-    });
-  </script>
-
+  <!-- Botón para finalizar la venta -->
+  <div class="btn-container text-end mt-3">
+    <button id="btnFinalizarVenta" type="button" class="btn btn-success">
+      Guardar
+    </button>
+  </div>
+</div>
+</div>
+<!-- Formulario Persona -->
 </body>
-
 </html>
