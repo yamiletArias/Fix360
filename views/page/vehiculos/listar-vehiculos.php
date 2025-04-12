@@ -37,6 +37,10 @@ require_once "../../partials/header.php";
     </div>
     </div>
     </div>
+    
+
+
+
 
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -81,6 +85,7 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+
 
 <?php
 
