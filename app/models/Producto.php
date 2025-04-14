@@ -48,6 +48,30 @@ class Producto extends Conexion {
      * @param array $params
      * @return array
      */
+/*     public function add($params = []): array {
+        $result = ["rows" => 0, "idproducto" => null];
+        try {
+            $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?)";
+            $cmd = $this->pdo->prepare($query);
+            $cmd->execute([
+                $params["idsubcategoria"],
+                $params["idmarca"],
+                $params["descripcion"],
+                $params["precio"],
+                $params["presentacion"],
+                $params["undmedida"],
+                $params["cantidad"],
+                $params["img"]
+            ]);
+    
+            $data = $cmd->fetch(PDO::FETCH_ASSOC);
+            $result["idproducto"] = $data["idproducto"] ?? null;
+            $result["rows"] = $cmd->rowCount(); // Esto puede que no devuelva lo esperado con SELECT
+        } catch (Exception $e) {
+            error_log("Error DB: " . $e->getMessage());
+        }
+        return $result;
+    } */
     public function add($params = []):int {
         $numRows = 0;
         try {

@@ -38,7 +38,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
             $dataJSON = json_decode($input, true);
 
-            if (!$dataJSON) {
+        if (!$dataJSON) {
                 error_log("Error: JSON invalido en compras.");
                 echo json_encode(["status" => "error", "message" => "JSON invalido."]);
                 exit;

@@ -285,7 +285,7 @@
             <span class="nav-link ">Inventario</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas2.php">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
               <span class="menu-title">Ventas</span>
               <i class="fa-solid fa-tags menu-icon"></i>
             </a>

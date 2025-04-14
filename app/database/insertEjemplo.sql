@@ -230,6 +230,6 @@ SELECT * FROM productos WHERE idproducto IN (1, 2, 3);
 
 -- Mostrar la estructura de la tabla 'clientes' y 'productos'
 SHOW CREATE TABLE clientes;
-DESCRIBE productos;
+SELECT * FROM productos;
 SELECT * FROM personas WHERE numdoc = '12345678';
 
