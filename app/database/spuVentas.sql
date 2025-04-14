@@ -321,7 +321,6 @@ DELIMITER ;
 -- PROCEDIMIENTO DE PRODUCTOS
 -- register productos
 DELIMITER $$
-
 CREATE PROCEDURE spRegisterProducto(
   IN _idsubcategoria INT,
   IN _idmarca INT,
@@ -338,13 +337,11 @@ BEGIN
   
   SELECT LAST_INSERT_ID() AS idproducto;
 END$$
-
 DELIMITER ;
 -- fin register productos
 -- FIN PROCEDIMIENTO DE PRODUCTOS
 
 CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);
-
 
 -- PROBAR 
 CALL spuGetDetalleVenta(2);
