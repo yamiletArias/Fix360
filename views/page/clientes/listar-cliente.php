@@ -15,11 +15,11 @@ require_once "../../partials/header.php";
 
         <div class="form-check form-check-inline" style="margin-left: 20px;">
           <input class="form-check-input text-start" type="radio" name="tipoCliente" id="persona" checked onchange="mostrarTabla('persona')">
-          <label class="form-check-label text-start" for="persona">Persona</label>
+          <label class="form-check-label text-start" for="persona" style="margin: 0px;">Persona</label>
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input text-start" type="radio" name="tipoCliente" id="empresa" onchange="mostrarTabla('empresa')">
-          <label class="form-check-label text-start" for="empresa">Empresa</label>
+          <label class="form-check-label text-start" for="empresa" style="margin: 0px;">Empresa</label>
         </div>
       </div>
       <div class="text-end col-md-2">
