@@ -54,9 +54,8 @@
       padding: 0 15px;
       border-radius: 5px;
       box-shadow: none;
-      max-width: 1140px;
-      margin: 50px auto;
-      width: 100%;
+      margin: 50px ;
+      width: 80%;
     }
     #selectMetodo {
       background-color: white !important;

@@ -38,7 +38,6 @@ INSERT INTO marcas (nombre, tipo) VALUES
 ('DE FRENO SDE MANO', 'FRENOS'),
 ('GOOD YEARS', 'LLANTAS'),
 ('HYUNDAI I10', 'VEHÍCULOS'),
-('KIA', 'VEHÍCULOS'),
 ('ADEX', 'OTROS'),
 ('ALMEYDA', 'OTROS'),
 ('PRESTONE', 'LÍQUIDOS'),
@@ -291,4 +290,76 @@ VALUES
 (6,6),
 (7,7);
 
+INSERT INTO categorias (categoria)
+ VALUES ('servicio');
+ 
+ INSERT INTO subcategorias (idcategoria,subcategoria)
+ VALUES (35,'Direccion y suspencion'),
+  (35,'Mecanica general'),
+  (35,'Lubricacion'),
+ (35,'Otros servicios');
+ -- 50 : otros servicios
+ -- ,49: Lubricacion
+ -- ,48: Mecanica general
+ -- ,47: Direccion y suspencion
+ -- Subcategoría 50: Otros servicios
+ 
+ 
+ INSERT INTO servicios (idsubcategoria, servicio) VALUES
+ (50, 'Inspección general del vehículo'),
+ (50, 'Revisión pre-ITV'),
+ (50, 'Lavado y detallado de auto'),
+ (50, 'Instalación de accesorios'),
+ (50, 'Diagnóstico computarizado');
+ 
+ -- Subcategoría 49: Lubricación
+ INSERT INTO servicios (idsubcategoria, servicio) VALUES
+ (49, 'Cambio de aceite de motor'),
+ (49, 'Cambio de filtro de aceite'),
+ (49, 'Engrase de suspensión y dirección'),
+ (49, 'Cambio de aceite de caja automática'),
+ (49, 'Cambio de aceite de diferencial');
+ 
+ -- Subcategoría 48: Mecánica general
+ INSERT INTO servicios (idsubcategoria, servicio) VALUES
+ (48, 'Reparación de motor'),
+ (48, 'Cambio de correa de distribución'),
+ (48, 'Cambio de bujías'),
+ (48, 'Ajuste de válvulas'),
+ (48, 'Reparación de sistema de escape');
+ 
+ -- Subcategoría 47: Dirección y suspensión
+ INSERT INTO servicios (idsubcategoria, servicio) VALUES
+ (47, 'Alineación y balanceo'),
+ (47, 'Cambio de amortiguadores'),
+ (47, 'Revisión de rótulas y terminales'),
+ (47, 'Cambio de brazos de suspensión'),
+ (47, 'Revisión y reparación de dirección hidráulica');
+ 
+ 
+ -- Insertar personas
+ INSERT INTO Personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal, telalternativo) VALUES
+ ('Carlos', 'Mendoza', 'DNI', '12345678', 'Av. Siempre Viva 123', 'carlos.m@example.com', '987654321', '912345678'),
+ ('Lucía', 'Ramírez', 'DNI', '87654321', 'Calle Falsa 456', 'lucia.r@example.com', '976543210', '998877665'),
+ ('Jorge', 'Pérez', 'DNI', '11223344', 'Jr. Los Olivos 789', 'jorge.p@example.com', '965432198', '987123456');
+ 
+-- select * from personas order by idpersona desc;
+ 
+ INSERT INTO roles (rol) VALUES ('mecanico');
+ 
+ -- Insertar contratos con rol de mecánico (idrol = 2, por ejemplo)
+ INSERT INTO Contratos ( idpersona, idrol, fechainicio, fechafin) VALUES
+ (11, 1, '2023-01-01', '2924-02-01'),
+ (12, 1, '2023-06-15', '2924-02-01'),
+ (13, 1, '2024-02-01', '2924-02-01');
+ 
+ -- select * from personas;
+ -- select * from contratos;
+ -- Insertar colaboradores
+ INSERT INTO Colaboradores (idcontrato, namuser, passuser) VALUES
+ (10, 'cmendoza', 'pass123'),
+ (11, 'lramirez', 'pass123'),
+ (12, 'jperez', 'pass123');
+ 
+-- select * from colaboradores;
 

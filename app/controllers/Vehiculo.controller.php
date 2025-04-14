@@ -11,6 +11,10 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
             if($_GET['task'] == 'getAll') {echo json_encode($vehiculo->getAll());}
+
+            if($_GET['task'] == 'getVehiculoByCliente'){
+                echo json_encode($vehiculo->getVehiculoByCliente($_GET['idcliente']));
+            }
             break;
 
             case 'POST':

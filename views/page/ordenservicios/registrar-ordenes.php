@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Registro de ordenes de servicio";
+const NAMEVIEW = "Registro de órdenes de servicio";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -33,17 +33,20 @@ require_once "../../partials/header.php";
                 <div class="col-md-4 mb-3">
                     <div class="form-floating">
                         <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
-                            <option selected>Eliga un mecanico</option>
+                            <option selected>Eliga un mecánico</option>
                         </select>
-                        <label for="mecanico">Mecanico:</label>
+                        <label for="mecanico">Mecánico:</label>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-floating input-group mb-3">
-                        <input type="text" disabled class="form-control" id="floatingInput" placeholder="Propietario">
+                        <input type="text" disabled class="form-control input" id="floatingInput" placeholder="Propietario" />
                         <label for="floatingInput">Propietario</label>
-                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#miModal">...</button>
+                        <input type="hidden" id="hiddenIdCliente" />
+                        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#miModal">
+                            ...
+                        </button>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -58,9 +61,9 @@ require_once "../../partials/header.php";
                 <div class="col-md-4">
                     <div class="form-floating">
                         <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
-                            <option selected>Eliga un vehiculo</option>
+                            <option selected>Eliga un vehículo</option>
                         </select>
-                        <label for="vehiculo">Vehiculo:</label>
+                        <label for="vehiculo">Vehículo:</label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -96,95 +99,85 @@ require_once "../../partials/_footer.php";
 ?>
 
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
         <div class="modal-content">
+
+            <!-- Encabezado -->
             <div class="modal-header">
-                <h2 class="modal-title" id="miModalLabel">
-                    Seleccionar Propietario
-                </h2>
+                <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 10px;">
-                <div class="row">
-                    <!-- Radio Buttons -->
-                    <div class="col-md-4">
-                        <div class="form-group" style="padding: 0px;margin: 0px;">
-                            <div class="form-group">
-                                <div style="margin-right: 50px;margin-bottom: 50px;margin-left: 10px;">
-                                    <label><strong>Tipo de cliente:</strong></label>
-                                </div>
-                                <div class="">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="tipoBusqueda"
-                                            id="rbtnpersona" onclick="actualizarOpciones()" checked />
-                                        <label class="form-check-label" for="rbtnpersona">Persona</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="tipoBusqueda"
-                                            id="rbtnempresa" onclick="actualizarOpciones()" />
-                                        <label class="form-check-label" for="rbtnempresa">Empresa</label>
-                                    </div>
-                                </div>
+
+            <!-- Cuerpo -->
+            <div class="modal-body">
+
+                <!-- Fila para Tipo de Propietario -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <label><strong>Tipo de propietario:</strong></label>
+                        <!-- Contenedor de radio buttons -->
+                        <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
+                            <div class="form-check form-check-inline" style="margin-right:40px;">
+                                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
+                                    onclick="actualizarOpciones(); buscarPropietario();" checked>
+                                <label class="form-check-label" for="rbtnpersona" style="margin-left:5px;">Persona</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
+                                    onclick="actualizarOpciones(); buscarPropietario();">
+                                <label class="form-check-label" for="rbtnempresa" style="margin-left:5px;">Empresa</label>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <!-- Select de Métodos de Búsqueda -->
-                        <div class="form-group">
-                            <label><strong> Metodo de busqueda:</strong></label>
-                            <select id="selectMetodo" class="form-select" aria-label="Default select example"></select>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label><strong>Valor buscado:</strong></label>
-                            <input type="text" class="form-control" placeholder="Valor buscado" aria-label="Username"
-                                aria-describedby="basic-addon1" />
-                        </div>
-                    </div>
+                </div>
 
-                    <p>Resultado:</p>
-                    <div class="table-container">
-                        <table id="tabla-resultado" class="table table-striped display">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nombre</th>
-                                    <th>DNI</th>
-                                    <th>Confirmar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Jose Hernandez</td>
-                                    <td>24658791</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Josue Pilpe</td>
-                                    <td>78524631</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <!-- Fila para Método de Búsqueda -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <select id="selectMetodo" class="form-select" style="color: black;">
+                                <!-- Se actualizarán las opciones según el tipo (persona/empresa) -->
+                            </select>
+                            <label for="selectMetodo">Método de búsqueda:</label>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Fila para Valor Buscado -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="vbuscado" style="background-color: white;"
+                                placeholder="Valor buscado" />
+                            <label for="vbuscado">Valor buscado</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Resultados -->
+                <p class="mt-3"><strong>Resultado:</strong></p>
+                <div class="table-responsive">
+                    <table id="tabla-resultado" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Documento</th>
+                                <th>Confirmar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            <!-- Pie del Modal -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cerrar
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
+
         </div>
     </div>
 </div>
@@ -192,30 +185,162 @@ require_once "../../partials/_footer.php";
 <script>
     function actualizarOpciones() {
         const select = document.getElementById("selectMetodo");
-        const personaSeleccionada =
-            document.getElementById("rbtnpersona").checked;
-
+        const personaSeleccionada = document.getElementById("rbtnpersona").checked;
         // Limpiar opciones actuales
         select.innerHTML = "";
-
-        // Opciones para Persona
         if (personaSeleccionada) {
             select.innerHTML += `<option value="dni">DNI</option>`;
             select.innerHTML += `<option value="nombre">Nombre</option>`;
-        }
-        // Opciones para Empresa
-        else {
+        } else {
             select.innerHTML += `<option value="ruc">RUC</option>`;
             select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
         }
     }
+
+    // Función para buscar propietarios en el modal y llenar la tabla de resultados
+    function buscarPropietario() {
+        const tipo = document.getElementById("rbtnpersona").checked ? "persona" : "empresa";
+        const metodo = document.getElementById("selectMetodo").value;
+        const valor = document.getElementById("vbuscado").value.trim();
+
+        // Si no se ingresa valor, limpia la tabla
+        if (valor === "") {
+            document.querySelector("#tabla-resultado tbody").innerHTML = "";
+            return;
+        }
+
+        // Construir la URL de la consulta (ajusta la ruta según tu estructura)
+        const url = `http://localhost/fix360/app/controllers/Propietario.controller.php?tipo=${encodeURIComponent(tipo)}&metodo=${encodeURIComponent(metodo)}&valor=${encodeURIComponent(valor)}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector("#tabla-resultado tbody");
+                tbody.innerHTML = "";
+                // Crear filas para cada resultado
+                data.forEach((item, index) => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.nombre}</td>
+          <td>${item.documento}</td>
+          <td>
+            <button type="button" class="btn btn-success btn-sm btn-confirmar" data-id="${item.idcliente}" data-bs-dismiss="modal">
+  <i class="fa-solid fa-circle-check"></i>
+</button>
+          </td>
+        `;
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(error => console.error("Error en búsqueda:", error));
+    }
+
+    // Cuando se hace clic en el botón "Confirmar" del modal
+    document.querySelector("#tabla-resultado").addEventListener("click", function(e) {
+        if (e.target.closest(".btn-confirmar")) {
+            const btn = e.target.closest(".btn-confirmar");
+            const idcliente = btn.getAttribute("data-id");
+
+            // Obtener el nombre desde la fila (segunda columna)
+            const fila = btn.closest("tr");
+            const nombre = fila.cells[1].textContent;
+
+            // Guardar el id y el nombre en los inputs correspondientes
+            document.getElementById("hiddenIdCliente").value = idcliente;
+            document.getElementById("floatingInput").value = nombre;
+
+            // Cerrar el modal después de un pequeño delay
+            setTimeout(() => {
+                const modalEl = document.getElementById("miModal");
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }, 100);
+        }
+    });
+
+    // Escuchar el input de búsqueda para disparar la consulta (puedes agregar debounce para evitar llamadas excesivas)
+    document.getElementById("vbuscado").addEventListener("keyup", buscarPropietario);
+
+    // Actualizar opciones del select y disparar búsqueda al cambiar los radio buttons
+    document.getElementById("rbtnpersona").addEventListener("click", function() {
+        actualizarOpciones();
+        buscarPropietario();
+    });
+    document.getElementById("rbtnempresa").addEventListener("click", function() {
+        actualizarOpciones();
+        buscarPropietario();
+    });
+
+    // Inicializar las opciones del select al cargar el modal
+    document.addEventListener("DOMContentLoaded", actualizarOpciones);
+    const fechaInput = document.getElementById('fechaIngreso');
+    const setFechaDefault = () => {
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+      fechaInput.value = `${year}-${month}-${day}`;
+    };
+    setFechaDefault();
 
     // Ejecutar la función al cargar la página para establecer las opciones iniciales
     actualizarOpciones();
 </script>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tiposervicioSelect = document.getElementById("subcategoria");
+        const servicioSelect = document.getElementById("servicio");
+        const mecanicoSelect = document.getElementById("mecanico");
+        const vehiculoSelect = document.getElementById("vehiculo");
 
+            fetch("http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getServicioSubcategoria")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.idsubcategoria;
+                    option.textContent = item.subcategoria;
+                    tiposervicioSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error al cargar los tipo de servicio:", error));
+
+        fetch("http://localhost/fix360/app/controllers/mecanico.controller.php?task=getAllMecanico")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.idcolaborador;
+                    option.textContent = item.nombres;
+                    mecanicoSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error al cargar mecanico:", error));
+
+        function cargarServicio() {
+            const tiposervicio = tiposervicioSelect.value;
+
+            servicioSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
+
+            if (tiposervicio) {
+                fetch(`http://localhost/fix360/app/controllers/servicio.controller.php?task=getServicioBySubcategoria&idsubcategoria=${encodeURIComponent(tiposervicio)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            const option = document.createElement("option");
+                            option.value = item.idservicio;
+                            option.textContent = item.servicio;
+                            servicioSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error("Error al cargar los servicios:", error));
+            }
+        }
+        tiposervicioSelect.addEventListener("change", cargarServicio);
+
+    });
 </script>
 </body>
 

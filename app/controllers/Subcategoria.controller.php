@@ -9,9 +9,8 @@ if(isset($_SERVER['REQUEST_METHOD'])){
         case 'GET':
             if($_GET['task'] == 'getSubcategoriaByCategoria')
             {
-                echo json_encode($subcategoria->getSubcategoriaByCategoria($params));
+                echo json_encode($subcategoria->getSubcategoriaByCategoria($_GET['idcategoria']));
             }
-            break;
             if($_GET['task'] == 'getServicioSubcategoria')
             {
                 echo json_encode($subcategoria->getServicioSubcategoria());

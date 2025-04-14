@@ -1,15 +1,18 @@
 <?php
 require_once "../models/Conexion.php";
 
-class Vehiculo extends Conexion {
+class Vehiculo extends Conexion
+{
 
   private $pdo;
 
-  public function __CONSTRUCT() {
+  public function __CONSTRUCT()
+  {
     $this->pdo = parent::getConexion();
   }
 
-  public function getAll():array{
+  public function getAll(): array
+  {
     $result = [];
     try {
       $sql = "SELECT * FROM vwVehiculos order by idvehiculo DESC";
@@ -21,7 +24,7 @@ class Vehiculo extends Conexion {
     }
     return $result;
   }
-  
+
   /**
    * Registra el vehículo y asigna al propietario (persona o empresa) utilizando el procedimiento almacenado.
    *
@@ -38,31 +41,43 @@ class Vehiculo extends Conexion {
    *
    * @return int Número de filas afectadas o 0 en caso de error.
    */
-  public function registerVehiculo($params = []): int {
+  public function registerVehiculo($params = []): int
+  {
     $numRows = 0;
     try {
-        $query = "CALL spRegisterVehiculo( ?, ?, ?, ?, ?, ?, ?)"; // Agregar un "?" más para idcliente
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute([
-            $params["idmodelo"],
-            $params["placa"],
-            $params["anio"],
-            $params["numserie"],
-            $params["color"],
-            $params["tipocombustible"],
-            $params["idcliente"] // Agregar este campo
-        ]);
+      $query = "CALL spRegisterVehiculo( ?, ?, ?, ?, ?, ?, ?)"; // Agregar un "?" más para idcliente
+      $stmt = $this->pdo->prepare($query);
+      $stmt->execute([
+        $params["idmodelo"],
+        $params["placa"],
+        $params["anio"],
+        $params["numserie"],
+        $params["color"],
+        $params["tipocombustible"],
+        $params["idcliente"] // Agregar este campo
+      ]);
 
-        $numRows = $stmt->rowCount();
-
+      $numRows = $stmt->rowCount();
     } catch (PDOException $e) {
-        error_log("Error DB: " . $e->getMessage());
-        return $numRows;
+      error_log("Error DB: " . $e->getMessage());
+      return $numRows;
     }
     return $numRows;
+  }
+
+  public function getVehiculoByCliente($idcliente): array{
+    $result = [];
+    try {
+      $query = "CALL spGetVehiculoByCliente(?)";
+      $cmd = $this->pdo->prepare($query);
+      $cmd->execute(
+        array($idcliente)
+      );
+      $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+      die($e->getMessage());
+    }
+
+    return $result;
+  }
 }
-
-
-
-}
-?>

@@ -94,10 +94,7 @@ razonsocial,
     (_idempresa, _idcontactabilidad);
 END $$
 
-DELIMITER $$
 
-
-DELIMITER $$
  CREATE PROCEDURE spRegisterVehiculo(
 IN _idmodelo INT,
 IN _placa CHAR(7),
@@ -310,28 +307,40 @@ SELECT * FROM empresas WHERE idempresa = _idempresa;
 END $$
 DELIMITER $$
 
-<<<<<<< HEAD
+
 CREATE PROCEDURE spUpdatePersona(
 )
 -- call spGetEmpresaById(6)
-=======
--- call spGetServicioBySubcategoria(50)
-drop procedure if exists spGetVehiculosByCliente
+
 DELIMITER $$
-create procedure spGetVehiculoByCliente(
-in _idcliente int
+ CREATE PROCEDURE spGetServicioBySubcategoria(
+ IN _idsubcategoria INT
+ )
+ BEGIN
+ SELECT s.idservicio, s.idsubcategoria, s.servicio FROM servicios s WHERE idsubcategoria = _idsubcategoria;
+ END $$
+
+-- drop procedure spGetServicioBySubcategoria;
+-- call spGetServicioBySubcategoria(50)
+-- select * from servicios;
+DROP PROCEDURE IF EXISTS spGetVehiculosByCliente
+DELIMITER $$
+CREATE PROCEDURE spGetVehiculoByCliente(
+IN _idcliente INT
 )
-begin
-select 
+BEGIN
+SELECT 
 v.idvehiculo,
 v.placa
-from vehiculos v
-left join propietarios p 
-on v.idvehiculo = p.idvehiculo
-left join clientes c
-on c.idcliente = p.idcliente
-where p.idcliente = _idcliente;
-end $$
+FROM vehiculos v
+LEFT JOIN propietarios p 
+ON v.idvehiculo = p.idvehiculo
+LEFT JOIN clientes c
+ON c.idcliente = p.idcliente
+WHERE p.idcliente = _idcliente;
+END $$
+
+
 
 -- call spGetVehiculoByCliente(7)
 -- select * from propietarios;
@@ -341,7 +350,6 @@ end $$
 -- CREATE PROCEDURE spUpdatePersona()
 
 -- call spGetEmpresaById(6)               
->>>>>>> 6d0d6d1d0a60b7272ae2565093316b0b2a43b617
 -- call spBuscarEmpresa ('nombrecomercial', 'SAC');
 -- select * from categorias;
 -- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
@@ -349,4 +357,3 @@ end $$
 -- select * from propietarios;
 -- select * from clientes;
 -- select * from personas;
- 
