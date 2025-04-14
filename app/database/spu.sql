@@ -268,8 +268,8 @@ END $$
 
 DELIMITER $$
 
+-- para la interfaz de productos (modal otro)
 DELIMITER $$
-
 CREATE PROCEDURE spRegisterProducto(
 IN _idsubcategoria INT,
 IN _idmarca INT,
@@ -284,7 +284,6 @@ BEGIN
 INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida,cantidad,img) 
 					VALUES (_idsubcategoria,_idmarca,_descripcion,_precio,_presentacion,_undmedida,_cantidad,_img);
 END$$
-
 DELIMITER $$
 
 CREATE PROCEDURE spGetPersonaById(

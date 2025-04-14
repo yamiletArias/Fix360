@@ -1,31 +1,22 @@
 <?php
-
 const NAMEVIEW = "Registro de Compras";
-
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
-
 ?>
-<html lang="en">
-
-<body>
 
   <div class="container-main mt-5">
     <div class="card border">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <!-- Título a la izquierda -->
         <div>
-          <h3 class="mb-0">Registro</h3>
+          <h3 class="mb-0">Complete los datos</h3>
         </div>
-        <!-- Botón a la derecha -->
         <div>
-          <a href="listar-compras.php" class="btn btn-sm btn-success">
+          <a href="listar-compras.php" class="btn btn-success">
             Mostrar Lista
           </a>
         </div>
       </div>
-
       <div class="card-body">
         <form action="" method="POST" autocomplete="off" id="formulario-detalle">
           <div class="row g-2">
@@ -80,11 +71,15 @@ require_once "../../partials/header.php";
           <!-- Sección Producto, Precio, Cantidad y Descuento -->
           <div class="row g-2 mt-3">
             <div class="col-md-5">
-              <div class="form-floating">
+              <div class="form-floating input-group mb-3">
                 <!-- Campo de búsqueda de Producto -->
-                <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
-                  placeholder="Buscar Producto" required>
-                <label for="producto">Buscar Producto:</label>
+                <input name="producto" id="producto" type="text" class="autocomplete-input form-control input" placeholder="Buscar Producto" required>
+                <label for="producto">Buscar Producto: </label>
+                <input type="hidden" id="hiddenIdCliente" />
+                <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                  data-bs-target="#miModal">
+                  <i class="fas fa-plus-square"></i>
+                </button>
               </div>
             </div>
             <div class="col-md-2">
@@ -113,42 +108,273 @@ require_once "../../partials/header.php";
       </div>
     </div>
 
-    <!-- Tabla de detalle de compra -->
-    <div class="card mt-2">
-      <div class="card-body">
-        <table class="table table-striped table-sm" id="tabla-detalle-compra">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>Precio</th>
-              <th>Cantidad</th>
-              <th>Dsct</th>
-              <th>Importe</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Se agregarán los detalles -->
-          </tbody>
-        </table>
+    <!-- seccion de detalles de la compra -->
+    <div class="container-main-2 mt-4">
+      <div class="card border">
+        <div class="card-body p-3">
+          <table class="table table-striped table-sm mb-0" id="tabla-detalle-compra">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Dsct</th>
+                <th>Importe</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- se agregan los detalles del producto -->
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer text-end">
+          <table class="tabla table-sm">
+            <colgroup>
+              <col style="width: 10%;">
+              <col style="width: 60%;">
+              <col style="width: 10%;">
+              <col style="width: 10%;">
+              <col style="width: 10%;">
+              <col style="width: 5%;">
+            </colgroup>
+            <tbody>
+              <tr>
+                <td colspan="4" class="text-end">Importe</td>
+                <td>
+                  <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="4" class="text-end">DSCT</td>
+                <td>
+                  <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="4" class="text-end">IGV</td>
+                <td>
+                  <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="4" class="text-end">NETO</td>
+                <td>
+                  <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="mt-4">
+            <a href="" type="button" class="btn input btn-success" id="btnFinalizarCompra">
+              Guardar
+            </a>
+            <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarCompra">
+              Cancelar
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-
-    <!-- Botón para finalizar la compra -->
-    <div class="btn-container text-end mt-3">
-      <button id="btnFinalizarCompra" type="button" class="btn btn-success">
-        Guardar
-      </button>
+  </div>
+  <!-- Modal de registrar producto (versión compacta con estilos) -->
+  <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md" style="margin-top: 60px;">
+      <div class="modal-content" style="background-color: #fff; color: #000;">
+        <div class="modal-header">
+          <h5 class="modal-title">Registrar producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="form-nuevo-producto">
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="form-floating">
+                  <select class="form-select" id="marca" name="idmarca" required
+                    style="background-color: white; color: black;">
+                    <option>Seleccione una opción</option>
+                  </select>
+                  <label for="marca">Marca:</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <select class="form-select" id="categoria" name="categoria" required
+                    style="background-color: white; color: black;">
+                    <option>Seleccione una opción</option>
+                  </select>
+                  <label for="categoria">Categoría:</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <select class="form-select" name="subcategoria" id="subcategoria" required
+                    style="background-color: white; color: black;">
+                    <option value="">Seleccione una opción</option>
+                  </select>
+                  <label for="subcategoria">Subcategoría:</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Descripción"
+                    style="height: 70px; background-color: white; color: black;"></textarea>
+                  <label for="descripcion">Descripción:</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="presentacion" name="presentacion"
+                    placeholder="Presentación" style="background-color: white; color: black;" />
+                  <label for="presentacion">Presentación:</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad"
+                    style="background-color: white; color: black;" />
+                  <label for="cantidad">Cantidad:</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="Unidad de Medida"
+                    style="background-color: white; color: black;" />
+                  <label for="undmedida">Und. Medida:</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
+                    style="background-color: white; color: black;" />
+                  <label for="precio">Precio:</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label for="img" class="form-label" style="color: black;">Imagen del producto:</label>
+                <input type="file" class="form-control" name="img" id="img" accept="image/png, image/jpeg"
+                  style="background-color: white; color: black;" />
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary" id="btnRegistrarProducto">Guardar</button>
+        </div>
+      </div>
     </div>
   </div>
 
   </div>
   </div>
-
 </body>
 
 </html>
+<script>
+  document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
+    e.preventDefault();
+
+    const form = document.getElementById("form-nuevo-producto");
+    const formData = new FormData(form);
+
+    fetch("http://localhost/fix360/app/controllers/producto.controller.php", {
+      method: "POST",
+      body: formData
+    })
+      .then(response => response.json())
+      .then(resp => {
+        if (resp.rows > 0) {
+          showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
+
+          const subcategoriaText = document.getElementById("subcategoria").options[document.getElementById("subcategoria").selectedIndex].text;
+          const descripcion = document.getElementById("descripcion").value;
+          const inputBusqueda = document.getElementById("producto");
+          const nombreCompleto = `${subcategoriaText} ${descripcion}`;
+
+          if (inputBusqueda) {
+            inputBusqueda.value = nombreCompleto;
+          }
+
+          // ⚠️ Guardar el producto seleccionado correctamente
+          selectedProduct = {
+            idproducto: resp.idproducto,  // ← ¡NECESITAS QUE PHP ENVÍE ESTE DATO!
+            subcategoria_producto: nombreCompleto,
+            precio: parseFloat(document.getElementById("precioProductoModal").value) || 0 // si tienes precio desde modal
+          };
+
+          const modalEl = document.getElementById('miModal');
+          let modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (!modalInstance) {
+            modalInstance = new bootstrap.Modal(modalEl);
+          }
+          modalInstance.hide();
+
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.remove();
+          document.body.classList.remove('modal-open');
+          document.body.style.overflow = '';
+          form.reset();
+        } else {
+          showToast('Hubo un error al registrar el producto.', 'ERROR', 1500);
+        }
+      })
+      .catch(err => {
+        console.error("Error en la solicitud:", err);
+        showToast('Error de conexión al registrar.', 'ERROR', 1500);
+      });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const marcaSelect = document.getElementById("marca");
+    const categoriaSelect = document.getElementById("categoria");
+    const subcategoriaSelect = document.getElementById("subcategoria");
+
+    fetch("http://localhost/fix360/app/controllers/marca.controller.php?task=getAllMarcaProducto")
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.idmarca;
+          option.textContent = item.nombre;
+          marcaSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error("Error al cargar las marcas:", error));
+    fetch("http://localhost/fix360/app/controllers/categoria.controller.php?task=getAll")
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.idcategoria;
+          option.textContent = item.categoria;
+          categoriaSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error("Error al cargar categorias:", error));
+
+    function cargarSubcategorias() {
+      const categoria = categoriaSelect.value;
+      subcategoriaSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
+      if (categoria) {
+        fetch(`http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getSubcategoriaByCategoria&idcategoria=${encodeURIComponent(categoria)}`)
+          .then(response => response.json())
+          .then(data => {
+            data.forEach(item => {
+              const option = document.createElement("option");
+              option.value = item.idsubcategoria;
+              option.textContent = item.subcategoria;
+              subcategoriaSelect.appendChild(option);
+            });
+          })
+          .catch(error => console.error("Error al cargar subcategorias:", error));
+      }
+    }
+    categoriaSelect.addEventListener("change", cargarSubcategorias);
+  });
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -165,6 +391,26 @@ require_once "../../partials/header.php";
     const btnFinalizarCompra = document.getElementById('btnFinalizarCompra');
     let selectedProduct = {};
     const detalleCompra = [];
+
+    function calcularTotales() {
+      let totalImporte = 0;
+      let totalDescuento = 0;
+
+      document.querySelectorAll("#tabla-detalle-compra tbody tr").forEach(fila => {
+        const subtotal = parseFloat(fila.querySelector("td:nth-child(6)").textContent) || 0;
+        const descuento = parseFloat(fila.querySelector("td:nth-child(5)").textContent) || 0;
+        totalImporte += subtotal;
+        totalDescuento += descuento;
+      });
+
+      // Calcular IGV y Neto
+      const igv = totalImporte - (totalImporte / 1.18);
+      const neto = totalImporte / 1.18;
+      document.getElementById("total").value = totalImporte.toFixed(2);
+      document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
+      document.getElementById("igv").value = igv.toFixed(2);
+      document.getElementById("neto").value = neto.toFixed(2);
+    }
 
     // Función para evitar duplicados en productos
     function estaDuplicado(idproducto = 0) {
@@ -211,12 +457,13 @@ require_once "../../partials/header.php";
       nuevaFila.querySelector("button").addEventListener("click", function () {
         nuevaFila.remove();
         actualizarNumeros();
+        calcularTotales();
       });
       tabla.appendChild(nuevaFila);
       const detalle = {
         idproducto: selectedProduct.idproducto,
         producto: nomProducto,
-        preciocompra: precioProducto,
+        precio: precioProducto,
         cantidad: cantidadProducto,
         descuento: descuentoProducto,
         importe: importe.toFixed(2)
@@ -226,6 +473,7 @@ require_once "../../partials/header.php";
       document.getElementById('precio').value = "";
       document.getElementById('cantidad').value = 1;
       document.getElementById('descuento').value = 0;
+      calcularTotales();
     });
 
     function actualizarNumeros() {
@@ -258,14 +506,14 @@ require_once "../../partials/header.php";
             optionDiv.textContent = producto.subcategoria_producto;
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
-              document.getElementById('precio').value = producto.preciocompra;
+              document.getElementById('precio').value = producto.precio;
               // Se establece cantidad 1 y descuento 0
               document.getElementById('cantidad').value = 1;
               document.getElementById('descuento').value = 0;
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
-                precio: producto.preciocompra
+                precio: producto.precio
               };
               cerrarListas();
             });
@@ -422,7 +670,7 @@ require_once "../../partials/header.php";
         });
     });
   });
-</script>
+</script> 
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
 <?php

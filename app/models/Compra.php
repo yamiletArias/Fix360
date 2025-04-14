@@ -44,7 +44,7 @@ class Compra extends Conexion
   {
     $result = [];
     try {
-      $sql = "CALL buscar_producto_compras(:termino)";
+      $sql = "CALL buscar_producto(:termino)";
       $stmt = $this->pdo->prepare($sql);
       $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
       $stmt->execute();
@@ -106,7 +106,7 @@ class Compra extends Conexion
           $idcompra, // ← este es el idcompra generado que se pasa al detalle
           $producto["idproducto"],
           $producto["cantidad"],
-          $producto["preciocompra"],
+          $producto["precio"],
           $producto["descuento"]
         ]);
       }

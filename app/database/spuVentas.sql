@@ -316,11 +316,32 @@ BEGIN
 END $$
 DELIMITER ;
 -- fin de registrar detalle cotizacion
-
-
 -- FIN DEL PROCEDIMIENTO DE COTIZACIONES
-CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);
 
+-- PROCEDIMIENTO DE PRODUCTOS
+-- register productos
+DELIMITER $$
+CREATE PROCEDURE spRegisterProducto(
+  IN _idsubcategoria INT,
+  IN _idmarca INT,
+  IN _descripcion VARCHAR(50),
+  IN _precio DECIMAL(7,2),
+  IN _presentacion VARCHAR(40),
+  IN _undmedida VARCHAR(40),
+  IN _cantidad DECIMAL(10,2),
+  IN _img VARCHAR(255)
+)
+BEGIN
+  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
+  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
+  
+  SELECT LAST_INSERT_ID() AS idproducto;
+END$$
+DELIMITER ;
+-- fin register productos
+-- FIN PROCEDIMIENTO DE PRODUCTOS
+
+CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);
 
 -- PROBAR 
 CALL spuGetDetalleVenta(2);
