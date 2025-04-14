@@ -1,5 +1,3 @@
-
-
 <?php
 // Datos
 $token = 'apis-token-14104.g67iElklbuoH8v51T7cOgcVhrMLGicKv';

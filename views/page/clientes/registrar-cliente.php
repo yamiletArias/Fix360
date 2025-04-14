@@ -60,7 +60,7 @@ require_once "../../partials/header.php";
 
             <div class="col-md-8 mb-3">
               <div class="form-floating">
-                <input type="text" class="form-control" name="direccion input" id="direccion" minlength="5" maxlength="100" placeholder="mi casa">
+                <input type="text" class="form-control input" name="direccion" id="direccion" minlength="5" maxlength="100" placeholder="mi casa">
                 <label for="direccion">Direccion</label>
               </div>
             </div>
@@ -170,7 +170,35 @@ require_once "../../partials/header.php";
 
 </html>
 
-
+<script>
+  document.addEventListener("DOMContentLoaded",function(){
+    document.getElementById('numdoc').addEventListener('blur',async function(){
+      let tipodoc = document.getElementById('tipodoc').value;
+      if(tipodoc === "DNI"){
+        let dni = this.value.trim();
+        if(dni.length === 8){
+          try {
+            let response = await fetch(`http://localhost/fix360/app/controllers/consultaDni.php?dni=${encodeURIComponent(dni)}`);
+            let data = await response.json();
+            if(data && data.nombres){
+              document.getElementById('nombres').value = data.nombres;
+              document.getElementById('apellidos').value = data.apellidoPaterno + ' ' + data.apellidoMaterno;
+              document.getElementById('nombres').disabled = true;
+              document.getElementById('apellidos').disabled = true;
+            } else {
+              document.getElementById('nombres').disabled = false;
+              document.getElementById('apellidos').disabled = false;
+            }
+          } catch (error) {
+            console.error("Error al consultar la API:", error);
+            document.getElementById('nombres').disabled = false;
+            document.getElementById('apellidos').disabled = false;
+          }
+        }
+      }
+    })
+  })
+</script>
 <script>
   // Función para mostrar/ocultar formularios según el tipo de cliente
   function mostrarFormulario(tipo) {
@@ -179,9 +207,13 @@ require_once "../../partials/header.php";
     if (tipo === "persona") {
       formPersona.style.display = "block";
       formEmpresa.style.display = "none";
+
+      document.getElementById("numdoc").focus();
     } else {
       formPersona.style.display = "none";
       formEmpresa.style.display = "block";
+
+      document.querySelector('[name="ruc"]').focus();
     }
   }
 

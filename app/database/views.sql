@@ -99,6 +99,7 @@ p.nombres,
 p.apellidos,
 p.tipodoc,
 p.numdoc,
+p.numruc,
 p.direccion,
 p.correo,
 p.telprincipal,
@@ -206,6 +207,10 @@ ON co.idrol = r.idrol
 LEFT JOIN personas p
 ON co.idpersona = p.idpersona
 WHERE r.rol = 'mecanico';
+
+CREATE OR REPLACE VIEW vwComponentes AS
+SELECT * FROM componentes;
+
 
 
 -- select * from vwMecanicos ORDER BY nombres;

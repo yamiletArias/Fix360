@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Registro de órdenes de servicio";
+const NAMEVIEW = "Registro de Órdenes de servicio";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -40,8 +40,9 @@ require_once "../../partials/header.php";
                 </div>
                 <div class="col-md-6">
                     <div class="form-floating input-group mb-3">
-                        <input type="text" disabled class="form-control input" id="floatingInput" placeholder="Propietario" />
-                        <label for="floatingInput">Propietario</label>
+                        <input type="text" disabled class="form-control input" id="propietario"
+                            placeholder="Propietario" />
+                        <label for="propietario">Propietario</label>
                         <input type="hidden" id="hiddenIdCliente" />
                         <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                             data-bs-target="#miModal">
@@ -51,9 +52,9 @@ require_once "../../partials/header.php";
                 </div>
                 <div class="col-md-6">
                     <div class="form-floating input-group mb-3">
-                        <input type="text" disabled class="form-control" id="floatingInput" placeholder="Cliente">
-                        <label for="floatingInput">Cliente</label>
-                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
+                        <input type="text" disabled class="form-control" id="cliente" placeholder="Cliente">
+                        <label for="cliente">Cliente</label>
+                        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                             data-bs-target="#miModal">...</button>
                     </div>
                 </div>
@@ -120,12 +121,14 @@ require_once "../../partials/_footer.php";
                             <div class="form-check form-check-inline" style="margin-right:40px;">
                                 <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
                                     onclick="actualizarOpciones(); buscarPropietario();" checked>
-                                <label class="form-check-label" for="rbtnpersona" style="margin-left:5px;">Persona</label>
+                                <label class="form-check-label" for="rbtnpersona"
+                                    style="margin-left:5px;">Persona</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
                                     onclick="actualizarOpciones(); buscarPropietario();">
-                                <label class="form-check-label" for="rbtnempresa" style="margin-left:5px;">Empresa</label>
+                                <label class="form-check-label" for="rbtnempresa"
+                                    style="margin-left:5px;">Empresa</label>
                             </div>
                         </div>
                     </div>
@@ -182,8 +185,89 @@ require_once "../../partials/_footer.php";
     </div>
 </div>
 
+<div class="modal fade" id="ModalCliente" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+    <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
+        <div class="modal-content">
+
+            <!-- Encabezado -->
+            <div class="modal-header">
+                <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Cuerpo -->
+            <div class="modal-body">
+
+                <!-- Fila para Tipo de Propietario -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <label><strong>Tipo de propietario:</strong></label>
+                        <!-- Contenedor de radio buttons -->
+                        <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
+                            <div class="form-check form-check-inline" style="margin-right:40px;">
+                                <input  class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona" onclick="actualizarOpciones(); buscarPropietario();" checked>
+                                <label class="form-check-label" for="rbtnpersona" style="margin-left:5px;">Persona</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa" onclick="actualizarOpciones(); buscarPropietario();">
+                                <label class="form-check-label" for="rbtnempresa" style="margin-left:5px;">Empresa</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila para Método de Búsqueda -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <select id="selectMetodo" class="form-select" style="color: black;">
+                                <!-- Se actualizarán las opciones según el tipo (persona/empresa) -->
+                            </select>
+                            <label for="selectMetodo">Método de búsqueda:</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila para Valor Buscado -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="vbuscado" style="background-color: white;" placeholder="Valor buscado" />
+                            <label for="vbuscado">Valor buscado</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Resultados -->
+                <p class="mt-3"><strong>Resultado:</strong></p>
+                <div class="table-responsive">
+                    <table id="tabla-resultado" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Documento</th>
+                                <th>Confirmar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pie del Modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 <script>
     function actualizarOpciones() {
+
         const select = document.getElementById("selectMetodo");
         const personaSeleccionada = document.getElementById("rbtnpersona").checked;
         // Limpiar opciones actuales
@@ -226,8 +310,8 @@ require_once "../../partials/_footer.php";
           <td>${item.documento}</td>
           <td>
             <button type="button" class="btn btn-success btn-sm btn-confirmar" data-id="${item.idcliente}" data-bs-dismiss="modal">
-  <i class="fa-solid fa-circle-check"></i>
-</button>
+            <i class="fa-solid fa-circle-check"></i>
+            </button>
           </td>
         `;
                     tbody.appendChild(tr);
@@ -237,7 +321,7 @@ require_once "../../partials/_footer.php";
     }
 
     // Cuando se hace clic en el botón "Confirmar" del modal
-    document.querySelector("#tabla-resultado").addEventListener("click", function(e) {
+    document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
         if (e.target.closest(".btn-confirmar")) {
             const btn = e.target.closest(".btn-confirmar");
             const idcliente = btn.getAttribute("data-id");
@@ -248,7 +332,7 @@ require_once "../../partials/_footer.php";
 
             // Guardar el id y el nombre en los inputs correspondientes
             document.getElementById("hiddenIdCliente").value = idcliente;
-            document.getElementById("floatingInput").value = nombre;
+            document.getElementById("propietario").value = nombre;
 
             // Cerrar el modal después de un pequeño delay
             setTimeout(() => {
@@ -263,11 +347,11 @@ require_once "../../partials/_footer.php";
     document.getElementById("vbuscado").addEventListener("keyup", buscarPropietario);
 
     // Actualizar opciones del select y disparar búsqueda al cambiar los radio buttons
-    document.getElementById("rbtnpersona").addEventListener("click", function() {
+    document.getElementById("rbtnpersona").addEventListener("click", function () {
         actualizarOpciones();
         buscarPropietario();
     });
-    document.getElementById("rbtnempresa").addEventListener("click", function() {
+    document.getElementById("rbtnempresa").addEventListener("click", function () {
         actualizarOpciones();
         buscarPropietario();
     });
@@ -276,26 +360,53 @@ require_once "../../partials/_footer.php";
     document.addEventListener("DOMContentLoaded", actualizarOpciones);
     const fechaInput = document.getElementById('fechaIngreso');
     const setFechaDefault = () => {
-      const today = new Date();
-      const day = String(today.getDate()).padStart(2, '0');
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const year = today.getFullYear();
-      fechaInput.value = `${year}-${month}-${day}`;
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        fechaInput.value = `${year}-${month}-${day}`;
     };
     setFechaDefault();
 
     // Ejecutar la función al cargar la página para establecer las opciones iniciales
     actualizarOpciones();
 </script>
+<!--
+<script>
+  // Obtiene la fecha actual
+  const today = new Date();
+
+  // Función para formatear la fecha en formato 'YYYY-MM-DD'
+  function formatDate(date) {
+    const yyyy = date.getFullYear();
+    const mm = date.getMonth() + 1; // Los meses inician en 0
+    const dd = date.getDate();
+    return `${yyyy}-${mm < 10 ? '0' + mm : mm}-${dd < 10 ? '0' + dd : dd}`;
+  }
+
+  // Calcula la fecha actual formateada
+  const currentDate = formatDate(today);
+
+  // Calcula la fecha de 2 días atrás
+  const twoDaysAgo = new Date();
+  twoDaysAgo.setDate(today.getDate() - 2);
+  const minDate = formatDate(twoDaysAgo);
+
+  // Asigna los atributos 'min' y 'max' al input
+  const dateInput = document.getElementById('fechaIngreso');
+  dateInput.setAttribute('min', minDate);
+  dateInput.setAttribute('max', currentDate);
+</script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const tiposervicioSelect = document.getElementById("subcategoria");
-        const servicioSelect = document.getElementById("servicio");
-        const mecanicoSelect = document.getElementById("mecanico");
-        const vehiculoSelect = document.getElementById("vehiculo");
+        const tiposervicioSelect  = document.getElementById("subcategoria");
+        const servicioSelect      = document.getElementById("servicio");
+        const mecanicoSelect      = document.getElementById("mecanico");
+        const vehiculoSelect      = document.getElementById("vehiculo");
+        const propietarioInput    = document.getElementById("hiddenIdCliente");
 
-            fetch("http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getServicioSubcategoria")
+        fetch("http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getServicioSubcategoria")
             .then(response => response.json())
             .then(data => {
                 data.forEach(item => {
@@ -340,8 +451,170 @@ require_once "../../partials/_footer.php";
         }
         tiposervicioSelect.addEventListener("change", cargarServicio);
 
+        function cargarVehiculos() {
+            const propietario = propietarioInput.value;
+
+            vehiculoSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
+
+            if(propietario){
+                fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(propietario)}`)
+                .then(response => response.json())
+                .then(data =>{
+                    data.forEach(item => {
+                        const option = document.createElement("option");
+                        option.value = item.idvehiculo;
+                        option.textContent = item.placa;
+                        vehiculoSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error al cargar los vehiculos: ", error));
+            }
+        }
+        propietarioInput.addEventListener("change", cargarVehiculos);
     });
 </script>
+
+-->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Obtener los elementos del DOM
+        const tiposervicioSelect = document.getElementById("subcategoria");
+        const servicioSelect = document.getElementById("servicio");
+        const mecanicoSelect = document.getElementById("mecanico");
+        const vehiculoSelect = document.getElementById("vehiculo");
+        const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+
+        // Cargar subcategorías de servicios
+        fetch("http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getServicioSubcategoria")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.idsubcategoria;
+                    option.textContent = item.subcategoria;
+                    tiposervicioSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error al cargar los tipo de servicio:", error));
+
+        // Cargar mecánicos
+        fetch("http://localhost/fix360/app/controllers/mecanico.controller.php?task=getAllMecanico")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.idcolaborador;
+                    option.textContent = item.nombres;
+                    mecanicoSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error al cargar mecanico:", error));
+
+        // Función para cargar servicios en función de la subcategoría seleccionada
+        function cargarServicio() {
+            const tiposervicio = tiposervicioSelect.value;
+            servicioSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+
+            if (tiposervicio) {
+                fetch(`http://localhost/fix360/app/controllers/servicio.controller.php?task=getServicioBySubcategoria&idsubcategoria=${encodeURIComponent(tiposervicio)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            const option = document.createElement("option");
+                            option.value = item.idservicio;
+                            option.textContent = item.servicio;
+                            servicioSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error("Error al cargar los servicios:", error));
+            }
+        }
+        tiposervicioSelect.addEventListener("change", cargarServicio);
+
+        // Función para cargar los vehículos asociados al cliente
+        function cargarVehiculos() {
+            const idcliente = hiddenIdCliente.value;
+            vehiculoSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+
+            if (idcliente) {
+                fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(idcliente)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            const option = document.createElement("option");
+                            option.value = item.idvehiculo;
+                            option.textContent = item.placa;
+                            vehiculoSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error("Error al cargar los vehiculos:", error));
+            }
+        }
+        // Escuchar el evento 'change' en el input oculto
+        hiddenIdCliente.addEventListener("change", cargarVehiculos);
+
+        // Función para confirmar la selección del propietario en el modal.
+        // Se asume que en la tabla del modal existe un botón con la clase .btn-confirmar
+        document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
+            if (e.target.closest(".btn-confirmar")) {
+                const btn = e.target.closest(".btn-confirmar");
+                const idcliente = btn.getAttribute("data-id");
+
+                // Obtener el nombre desde la fila (segunda columna)
+                const fila = btn.closest("tr");
+                const nombre = fila.cells[1].textContent;
+
+                // Actualizar el input oculto y el input visible de propietario
+                hiddenIdCliente.value = idcliente;
+                document.getElementById("propietario").value = nombre;
+
+                // Disparar manualmente el evento 'change' para cargar los vehículos
+                hiddenIdCliente.dispatchEvent(new Event('change'));
+
+                // Cerrar el modal después de un pequeño delay
+                setTimeout(() => {
+                    const modalEl = document.getElementById("miModal");
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.hide();
+                }, 100);
+            }
+        });
+
+        // Ejemplo de otras funciones o inicializaciones (por ejemplo, para el input de fecha)
+        const today = new Date();
+
+        function formatDate(date) {
+            const yyyy = date.getFullYear();
+            const mm = date.getMonth() + 1; // Los meses inician en 0
+            const dd = date.getDate();
+            return `${yyyy}-${mm < 10 ? '0' + mm : mm}-${dd < 10 ? '0' + dd : dd}`;
+        }
+        const currentDate = formatDate(today);
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(today.getDate() - 2);
+        const minDate = formatDate(twoDaysAgo);
+        const dateInput = document.getElementById('fechaIngreso');
+        dateInput.setAttribute('min', minDate);
+        dateInput.setAttribute('max', currentDate);
+
+        // Inicialización de opciones en el modal para búsqueda (opcional)
+        function actualizarOpciones() {
+            const select = document.getElementById("selectMetodo");
+            const personaSeleccionada = document.getElementById("rbtnpersona").checked;
+            select.innerHTML = "";
+            if (personaSeleccionada) {
+                select.innerHTML += `<option value="dni">DNI</option>`;
+                select.innerHTML += `<option value="nombre">Nombre</option>`;
+            } else {
+                select.innerHTML += `<option value="ruc">RUC</option>`;
+                select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
+            }
+        }
+        document.addEventListener("DOMContentLoaded", actualizarOpciones);
+    });
+</script>
+
 </body>
 
 </html>
