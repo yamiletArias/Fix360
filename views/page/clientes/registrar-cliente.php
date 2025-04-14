@@ -13,11 +13,11 @@ require_once "../../partials/header.php";
     <div class="card-header">
       <h3>Tipo de cliente:</h3>
       <label>
-        <input type="radio" name="tipo" value="persona" onclick="mostrarFormulario('persona')" checked>
+        <input  class="form-check-input text-start" type="radio" name="tipo" value="persona" onclick="mostrarFormulario('persona')" checked>
         Persona
       </label>
-      <label>
-        <input type="radio" name="tipo" value="empresa" onclick="mostrarFormulario('empresa')">
+      <label style="padding-left: 10px;">
+        <input class="form-check-input text-start" type="radio" name="tipo" value="empresa" onclick="mostrarFormulario('empresa')">
         Empresa
       </label>
     </div>
