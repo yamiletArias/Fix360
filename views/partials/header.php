@@ -40,15 +40,24 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-    .container-main {
+    /* .container-main {
       background: transparent;
       padding: 0px;
       border-radius: 5px;
       box-shadow: none;
       width: 80%;
       margin:50px;
-    }
+    } */
 
+    .container-main {
+      background: transparent;
+      padding: 0 15px;
+      border-radius: 5px;
+      box-shadow: none;
+      max-width: 1140px;
+      margin: 50px auto;
+      width: 100%;
+    }
     #selectMetodo {
       background-color: white !important;
       cursor: pointer;

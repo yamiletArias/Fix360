@@ -1,11 +1,8 @@
 <?php
-
 const NAMEVIEW = "Registro de Ventas";
-
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
-
 ?>
 
 <div class="container-main mt-5">
@@ -17,7 +14,7 @@ require_once "../../partials/header.php";
       </div>
       <!-- Botón a la derecha -->
       <div>
-        <a href="listar-ventas2.php" class="btn btn-sm btn-success">
+        <a href="listar-ventas2.php" class="btn input btn-success btn-sm">
           Mostrar Lista
         </a>
       </div>
@@ -28,7 +25,7 @@ require_once "../../partials/header.php";
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" >
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()">
               Factura
             </label>
             <label>
@@ -39,11 +36,11 @@ require_once "../../partials/header.php";
           <!-- N° serie y N° comprobante -->
           <div class="col-md-7 d-flex align-items-center justify-content-end">
             <label for="numserie" class="mb-0">N° serie:</label>
-            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie" id="numserie" required
-              disabled />
+            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
+              id="numserie" required disabled />
             <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
-            <input type="text" name="numcomprobante" id="numcom" class="form-control text-center input form-control-sm w-25 ms-2" required
-              disabled />
+            <input type="text" name="numcomprobante" id="numcom"
+              class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
           </div>
         </div>
         <!-- Sección Cliente, Fecha y Moneda -->
@@ -114,37 +111,81 @@ require_once "../../partials/header.php";
   </div>
 
   <!-- Sección de Detalles de la Venta -->
-  <div class="card mt-2">
-    <div class="card-body">
-      <table class="table table-striped table-sm" id="tabla-detalle">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Producto</th>
-            <th>Precio</th>
-            <th>Cantidad</th>
-            <th>Dsct</th>
-            <th>Importe</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Aquí se agregarán los detalles de los productos -->
-        </tbody>
-      </table>
+  <div class="container-main-2 mt-4">
+    <div class="card border">
+
+      <div class="card-body p-3">
+        <table class="table table-striped table-sm mb-0" id="tabla-detalle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Dsct</th>
+              <th>Importe</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Aquí se agregarán los detalles de los productos -->
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer text-end">
+        <table class="tabla table-sm">
+          <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 60%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 5%;">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td colspan="4" class="text-end">Importe</td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-end" id="total" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">DSCT</td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-end" id="totalDescuento" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">IGV</td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-end" id="igv" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">NETO</td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-end" id="neto" readonly>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-4">
+          <a type="button" class="btn input btn-success btn-sm" id="btnFinalizarVenta">
+            Guardar
+          </a>
+          <a type="reset" class="btn input btn-secondary btn-sm" id="btnFinalizarVenta">
+            Cancelar
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Botón para finalizar la venta -->
-  <div class="btn-container text-end mt-3">
-    <button id="btnFinalizarVenta" type="button" class="btn btn-success">
-      Guardar
-    </button>
-  </div>
 </div>
 </div>
-<!-- Formulario Persona -->
+<!-- Formulario Venta -->
 </body>
+
 </html>
 
 <script>
@@ -163,6 +204,26 @@ require_once "../../partials/header.php";
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
     const fechaInput = document.getElementById("fecha");
     const monedaSelect = document.getElementById('moneda');
+
+    function calcularTotales() {
+      let totalImporte = 0;
+      let totalDescuento = 0;
+
+      document.querySelectorAll("#tabla-detalle tbody tr").forEach(fila => {
+        const subtotal = parseFloat(fila.querySelector("td:nth-child(6)").textContent) || 0;
+        const descuento = parseFloat(fila.querySelector("td:nth-child(5)").textContent) || 0;
+        totalImporte += subtotal;
+        totalDescuento += descuento;
+      });
+
+      // Calcular IGV y Neto
+      const igv = totalImporte - (totalImporte / 1.18);
+      const neto = totalImporte / 1.18;
+      document.getElementById("total").value = totalImporte.toFixed(2);
+      document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
+      document.getElementById("igv").value = igv.toFixed(2);
+      document.getElementById("neto").value = neto.toFixed(2);
+    }
 
     // Función de autocompletado para clientes
     function mostrarOpcionesCliente(input) {
@@ -290,19 +351,22 @@ require_once "../../partials/header.php";
       const importe = (productoPrecio * productoCantidad) - productoDescuento;
       const nuevaFila = document.createElement("tr");
       nuevaFila.innerHTML = `
-      <td>${tabla.rows.length + 1}</td>
-      <td>${productoNombre}</td>
-      <td>${productoPrecio.toFixed(2)}</td>
-      <td>${productoCantidad}</td>
-      <td>${productoDescuento.toFixed(2)}</td>
-      <td>${importe.toFixed(2)}</td>
-      <td><button class="btn btn-danger btn-sm">X</button></td>
-    `;
+        <td>${tabla.rows.length + 1}</td>
+        <td>${productoNombre}</td>
+        <td>${productoPrecio.toFixed(2)}</td>
+        <td>${productoCantidad}</td>
+        <td>${productoDescuento.toFixed(2)}</td>
+        <td>${importe.toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm">X</button></td>
+      `;
+      // Al eliminar una fila, además de actualizar números, se deben recalcular los totales
       nuevaFila.querySelector("button").addEventListener("click", function () {
         nuevaFila.remove();
         actualizarNumeros();
+        calcularTotales();
       });
       tabla.appendChild(nuevaFila);
+
       // Agregar al array de detalles
       const detalle = {
         idproducto: selectedProduct.idproducto,
@@ -313,11 +377,15 @@ require_once "../../partials/header.php";
         importe: importe.toFixed(2)
       };
       detalleVenta.push(detalle);
+
       // Limpiar campos de producto
       inputProductElement.value = "";
       document.getElementById('precio').value = "";
       document.getElementById('cantidad').value = 1;
       document.getElementById('descuento').value = 0;
+
+      // ¡Recalcular totales tras agregar!
+      calcularTotales();
     });
     function actualizarNumeros() {
       const filas = tabla.getElementsByTagName("tr");
@@ -362,80 +430,81 @@ require_once "../../partials/header.php";
 
     // Script del botón "Guardar"
     btnFinalizarVenta.addEventListener("click", function (e) {
-      e.preventDefault();
-      btnFinalizarVenta.disabled = true;
-      btnFinalizarVenta.textContent = "Guardando...";
+  e.preventDefault();
+  btnFinalizarVenta.disabled = true;
+  btnFinalizarVenta.textContent = "Guardando...";
 
-      // Habilitar los inputs para que se envíen los valores
-      numSerieInput.disabled = false;
-      numComInput.disabled = false;
+  // Habilitar los inputs para que se envíen los valores
+  numSerieInput.disabled = false;
+  numComInput.disabled = false;
 
-      // Validar la selección de cliente y productos
-      if (!clienteId) {
-        alert("Por favor, selecciona un cliente.");
-        btnFinalizarVenta.disabled = false;
-        btnFinalizarVenta.textContent = "Guardar";
-        return;
-      }
-      if (detalleVenta.length === 0) {
-        alert("Por favor, agrega al menos un producto.");
-        btnFinalizarVenta.disabled = false;
-        btnFinalizarVenta.textContent = "Guardar";
-        return;
-      }
+  // Validación de cliente comentada para hacerlo opcional
+  // if (!clienteId) {
+  //   alert("Por favor, selecciona un cliente.");
+  //   btnFinalizarVenta.disabled = false;
+  //   btnFinalizarVenta.textContent = "Guardar";
+  //   return;
+  // }
 
-      // Armar el objeto de datos a enviar
-      const data = {
-        tipocom: document.querySelector('input[name="tipo"]:checked').value,
-        fechahora: fechaInput.value.trim(),
-        numserie: numSerieInput.value.trim(),
-        numcom: numComInput.value.trim(),
-        moneda: monedaSelect.value,
-        idcliente: clienteId,
-        productos: detalleVenta
-      };
+  if (detalleVenta.length === 0) {
+    alert("Por favor, agrega al menos un producto.");
+    btnFinalizarVenta.disabled = false;
+    btnFinalizarVenta.textContent = "Guardar";
+    return;
+  }
 
-      // Enviar datos al servidor usando fetch
-      fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-        .then(response => response.text())
-        .then(text => {
-          console.log("Respuesta del servidor:", text);
-          try {
-            const json = JSON.parse(text);
-            if (json && json.status === "success") {
-              Swal.fire({
-                icon: 'success',
-                title: '¡Venta registrada con éxito!',
-                showConfirmButton: false,
-                timer: 1800
-              }).then(() => {
-                window.location.href = 'listar-ventas2.php';
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error al registrar la venta',
-                text: 'Inténtalo nuevamente.',
-              });
-            }
-          } catch (e) {
-            console.error("No se pudo parsear JSON:", e);
-            Swal.fire({
-              icon: 'error',
-              title: 'Respuesta inesperada',
-              text: 'El servidor no devolvió una respuesta válida.',
-            });
-          }
-        })
-        .finally(() => {
-          btnFinalizarVenta.disabled = false;
-          btnFinalizarVenta.textContent = "Guardar";
+  // Armar el objeto de datos a enviar
+  const data = {
+    tipocom: document.querySelector('input[name="tipo"]:checked').value,
+    fechahora: fechaInput.value.trim(),
+    numserie: numSerieInput.value.trim(),
+    numcom: numComInput.value.trim(),
+    moneda: monedaSelect.value,
+    idcliente: clienteId,  // Si no se selecciona, este valor será null o 0
+    productos: detalleVenta
+  };
+
+  // Enviar datos al servidor usando fetch...
+  fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+    .then(response => response.text())
+    .then(text => {
+      console.log("Respuesta del servidor:", text);
+      try {
+        const json = JSON.parse(text);
+        if (json && json.status === "success") {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Venta registrada con éxito!',
+            showConfirmButton: false,
+            timer: 1800
+          }).then(() => {
+            window.location.href = 'listar-ventas2.php';
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar la venta',
+            text: 'Inténtalo nuevamente.',
+          });
+        }
+      } catch (e) {
+        console.error("No se pudo parsear JSON:", e);
+        Swal.fire({
+          icon: 'error',
+          title: 'Respuesta inesperada',
+          text: 'El servidor no devolvió una respuesta válida.',
         });
+      }
+    })
+    .finally(() => {
+      btnFinalizarVenta.disabled = false;
+      btnFinalizarVenta.textContent = "Guardar";
     });
+});
   });
 </script>
 

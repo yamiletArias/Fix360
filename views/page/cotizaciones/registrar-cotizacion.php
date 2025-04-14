@@ -12,7 +12,7 @@ require_once "../../partials/header.php";
     <div class="card-header d-flex justify-content-between align-items-center">
       <!-- Título a la izquierda -->
       <div>
-        <h3 class="mb-0">Registro</h3>
+        <h3 class="mb-0">Complete los datos</h3>
       </div>
       <!-- Botón a la derecha -->
       <div>
