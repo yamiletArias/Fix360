@@ -9,109 +9,109 @@ require_once "../../partials/header.php";
 <!---hasta aqui sera el header-->
 <div class="container-main">
   <form action="" id="FormVehiculo">
-  <div class="card border" style="margin-top:50px;">
-    <div class="card-body">
-      <div class="row">
+    <div class="card border" style="margin-top:50px;">
+      <div class="card-body">
+        <div class="row">
 
-        <div class="col-md-4 mb-3">
-          <div class="form-floating">
-            <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
-              <option value="">Seleccione una opcion</option>
-            </select>
-            <label for="tipov">Tipo de vehiculo:</label>
+          <div class="col-md-4 mb-3">
+            <div class="form-floating">
+              <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
+                <option value="">Seleccione una opcion</option>
+              </select>
+              <label for="tipov">Tipo de vehiculo:</label>
+            </div>
           </div>
-        </div>
 
-        <div class="col-md-4 ">
-          <div class="form-floating">
-            <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
-              <option value="">Seleccione una opcion</option>
+          <div class="col-md-4 ">
+            <div class="form-floating">
+              <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
+                <option value="">Seleccione una opcion</option>
 
-            </select>
-            <label for="marcav">Marca del vehiculo:</label>
+              </select>
+              <label for="marcav">Marca del vehiculo:</label>
+            </div>
           </div>
-        </div>
 
-        <div class="col-md-4">
-          <div class="form-floating">
-            <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
-              <option value="">Seleccione una opcion</option>
-            </select>
-            <label for="modelo">Modelo del vehiculo:</label>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
+                <option value="">Seleccione una opcion</option>
+              </select>
+              <label for="modelo">Modelo del vehiculo:</label>
+            </div>
           </div>
-        </div>
 
-        <div class="col-md-4">
-          <div class="form-floating">
-            <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" required
-              maxlength="6" />
-            <label for="fplaca">Placa</label>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" required
+                maxlength="6" />
+              <label for="fplaca">Placa</label>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating">
-            <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" maxlength="4"
-              required />
-            <label for="fanio">Año</label>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" maxlength="4"
+                required />
+              <label for="fanio">Año</label>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4 mb-3">
-          <div class="form-floating">
-            <input type="text" class="form-control input" id="fnumserie" placeholder="numerodeserie" />
-            <label for="fnumserie">N° de serie</label>
+          <div class="col-md-4 mb-3">
+            <div class="form-floating">
+              <input type="text" class="form-control input" id="fnumserie" placeholder="numerodeserie" />
+              <label for="fnumserie">N° de serie</label>
+            </div>
           </div>
-        </div>
 
-        <div class="col-md-4 mb-3">
-          <div class="form-floating">
-            <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" />
-            <label for="fcolor">Color</label>
+          <div class="col-md-4 mb-3">
+            <div class="form-floating">
+              <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" />
+              <label for="fcolor">Color</label>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating">
-            <select class="form-select" id="ftcombustible" style="color: black;">
-              <option value="Gasolina" selected>Gasolina</option>
-              <option value="Diesel">Diesel</option>
-              <option value="GNV">GNV</option>
-              <option value="GLP">GLP</option>
-              <option value="Biodiésel">biodiésel</option>
-              <option value="Etanol">Etanol</option>
-              <option value="Allinol">Allinol</option>
-              <option value="Electricidad">Electricidad</option>
-              <option value="Hidrogeno">Hidrogeno</option>
-              <option value="Biocombustible">Biocombustible</option>
-            </select>
-            <label for="ftcombustible">Tipo de combustible:</label>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select class="form-select" id="ftcombustible" style="color: black;">
+                <option value="Gasolina" selected>Gasolina</option>
+                <option value="Diesel">Diesel</option>
+                <option value="GNV">GNV</option>
+                <option value="GLP">GLP</option>
+                <option value="Biodiésel">biodiésel</option>
+                <option value="Etanol">Etanol</option>
+                <option value="Allinol">Allinol</option>
+                <option value="Electricidad">Electricidad</option>
+                <option value="Hidrogeno">Hidrogeno</option>
+                <option value="Biocombustible">Biocombustible</option>
+              </select>
+              <label for="ftcombustible">Tipo de combustible:</label>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario"/>
-            <label for="floatingInput">Propietario</label>
+          <div class="col-md-4">
+            <div class="form-floating input-group mb-3">
+              <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario" />
+              <label for="floatingInput">Propietario</label>
 
-            <input type="hidden" id="hiddenIdCliente" />
-            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
-              data-bs-target="#miModal">
-              ...
-            </button>
+              <input type="hidden" id="hiddenIdCliente" />
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                data-bs-target="#miModal">
+                ...
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="card-footer">
-      <div class="text-end">
-        <button class="btn btn-secondary" onclick="window.location.href='listar-vehiculos.php'">
-          Cancelar
-        </button>
-        <button type="submit" class="btn btn-success" id="btnRegistrarVehiculo">
-          Aceptar
-        </button>
+      <div class="card-footer">
+        <div class="text-end">
+          <button class="btn btn-secondary" onclick="window.location.href='listar-vehiculos.php'">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-success" id="btnRegistrarVehiculo">
+            Aceptar
+          </button>
+        </div>
       </div>
-    </div>
-    </form>
-  </div>
+  </form>
+</div>
 </div>
 </div>
 </div>
@@ -206,6 +206,54 @@ require_once "../../partials/_footer.php";
 </div>
 
 <script>
+  document.addEventListener("DOMContentLoaded", function() {
+  // Cacheo de selectores
+  const fplacaInput = document.getElementById('fplaca');
+  // ... (otros selectores ya existentes)
+
+  // Consulta a la API de placas al salir del campo (blur)
+  if (fplacaInput) {
+    fplacaInput.addEventListener('blur', async function() {
+      const placa = fplacaInput.value.trim().toUpperCase(); // Convertir a mayúsculas, si es necesario
+      // Valida, por ejemplo, que la placa tenga 6 caracteres (ajusta según tu caso)
+      if (placa.length === 6) {
+        try {
+          // Llamada al endpoint intermedio que creaste (consultaPlaca.php)
+          const response = await fetch(`http://localhost/fix360/app/controllers/consultaPlaca.php?placa=${encodeURIComponent(placa)}`);
+          const data = await response.json();
+          // Supongamos que la API retorna datos como "marca", "modelo", "anio", etc.
+          if (data && data.marca) {
+            // Por ejemplo, asigna el valor a un select o input correspondiente
+            const marcavSelect = document.getElementById("marcav");
+            if (marcavSelect) {
+              marcavSelect.value = data.marca; // Asigna la marca
+            }
+            // También podrías completar otros campos como modelo o año:
+            const modeloSelect = document.getElementById("modelo");
+            if (modeloSelect && data.modelo) {
+              modeloSelect.value = data.modelo;
+            }
+            // Si la API indica que la placa ya existe, podrías mostrar un showToast:
+            if (data.duplicado) {
+              showToast('La placa ya está registrada.', 'WARNING', 3000);
+            }
+          } else {
+            // Si la API no retorna datos válidos, puedes limpiar o notificar
+            showToast('No se encontró información para esa placa.', 'INFO', 3000);
+          }
+        } catch (error) {
+          console.error("Error al consultar la API de placas:", error);
+          showToast('Error al consultar información de la placa.', 'ERROR', 3000);
+        }
+      }
+    });
+  }
+
+  // ... (resto de tu código, por ejemplo, listeners para DNI, RUC, registro del vehículo, etc.)
+});
+
+</script>
+<script>
   // Función para actualizar las opciones del select según el tipo de propietario (persona/empresa)
   function actualizarOpciones() {
     const select = document.getElementById("selectMetodo");
@@ -261,7 +309,7 @@ require_once "../../partials/_footer.php";
   }
 
   // Cuando se hace clic en el botón "Confirmar" del modal
-  document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
+  document.querySelector("#tabla-resultado").addEventListener("click", function(e) {
     if (e.target.closest(".btn-confirmar")) {
       const btn = e.target.closest(".btn-confirmar");
       const idcliente = btn.getAttribute("data-id");
@@ -287,11 +335,11 @@ require_once "../../partials/_footer.php";
   document.getElementById("vbuscado").addEventListener("keyup", buscarPropietario);
 
   // Actualizar opciones del select y disparar búsqueda al cambiar los radio buttons
-  document.getElementById("rbtnpersona").addEventListener("click", function () {
+  document.getElementById("rbtnpersona").addEventListener("click", function() {
     actualizarOpciones();
     buscarPropietario();
   });
-  document.getElementById("rbtnempresa").addEventListener("click", function () {
+  document.getElementById("rbtnempresa").addEventListener("click", function() {
     actualizarOpciones();
     buscarPropietario();
   });
@@ -301,7 +349,7 @@ require_once "../../partials/_footer.php";
 
   // --- Registro de Vehículo y Propietario ---
   // Escuchar el botón "Aceptar" del formulario de vehículo
-  document.getElementById("btnRegistrarVehiculo").addEventListener("click", function (e) {
+  document.getElementById("btnRegistrarVehiculo").addEventListener("click", function(e) {
     e.preventDefault();
 
     // Recopilar los datos del formulario de vehículo
@@ -324,21 +372,23 @@ require_once "../../partials/_footer.php";
 
     // Enviar la información al controlador (ajusta la URL según tu estructura)
     fetch("http://localhost/fix360/app/controllers/Vehiculo.controller.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
       .then(response => response.json())
       .then(resp => {
         if (resp.rows > 0) {
           alert("Registro exitoso.");
           // Aquí puedes limpiar el formulario o redirigir
         } else {
-          console.log("Error en el registro." );
+          console.log("Error en el registro.");
           err => {
-        console.error("Error en la solicitud:", err);
-      }
-          
+            console.error("Error en la solicitud:", err);
+          }
+
         }
       })
       .catch(err => {
@@ -346,11 +396,10 @@ require_once "../../partials/_footer.php";
       });
 
   });
-
 </script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function() {
     const tipovSelect = document.getElementById("tipov");
     const marcavSelect = document.getElementById("marcav");
     const modeloSelect = document.getElementById("modelo");

@@ -88,7 +88,7 @@ require_once "../../partials/header.php";
       </div>
       <div class="modal-body" style="padding: 10px;">
         <div class="row">
-        <div class="form-group" style="margin: 10px;">
+          <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group ">
               <input type="text" disabled class="form-control input" id="RUCPersonaInput">
               <label for="RUCPersonaInput">RUC:</label>
@@ -220,8 +220,7 @@ require_once "../../partials/_footer.php";
                       <i class='fa-solid fa-clipboard-list'></i>
                     </button>
                     
-                    `      
-                    ;
+                    `;
           }
         } // Cierra columna 6
       ], // Cierra columns
@@ -240,11 +239,11 @@ require_once "../../partials/_footer.php";
   } // Cierra cargarTablaPersona()
 
   // Función auxiliar para verificar valores nulos o vacíos
-function noProporcionado(valor) {
-  return (!valor || String(valor).toLowerCase() === "null") ? "No proporcionado" : valor;
-}
+  function noProporcionado(valor) {
+    return (!valor || String(valor).toLowerCase() === "null") ? "No proporcionado" : valor;
+  }
 
-  function verDetallePersona(numruc, direccion, correo, telalternativo,modificado) {
+  function verDetallePersona(numruc, direccion, correo, telalternativo, modificado) {
     document.querySelector("#RUCPersonaInput").value = numruc || 'No proporcionado';
     document.querySelector("#DireccionPersonaInput").value = direccion || 'No proporcionado';
     document.querySelector("#CorreoPersonaInput").value = correo || 'No proporcionado';

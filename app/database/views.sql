@@ -1,3 +1,4 @@
+USE dbfix360;
 DROP VIEW IF EXISTS vwCategoriasSubcategorias;
 SELECT * FROM personas;
 CREATE VIEW vwCategoriasSubcategorias AS
@@ -28,8 +29,7 @@ FROM
  -- SELECT * FROM vwModelosConTipoYMarca;
 
 
--- select * from propietarios;
-
+-- select * from personas;
 
 CREATE OR REPLACE VIEW vwClientesPersona AS
 SELECT
