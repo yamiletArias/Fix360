@@ -19,14 +19,74 @@ FROM
 -- MUESTRA EL STOCK DE LOS PRODUCTOS */
  
 
+-- VISTA DE DATOS DE CLIENTE A SI SEA PERSONA O EMPRESA
+ CREATE OR REPLACE VIEW vw_clientes AS
+SELECT
+  c.idcliente,
+  p.nombres,
+  p.apellidos,
+  e.nomcomercial AS empresa,
+  ct.contactabilidad
+FROM
+  clientes c
+  LEFT JOIN personas p
+    ON c.idpersona = p.idpersona
+  LEFT JOIN empresas e
+    ON c.idempresa = e.idempresa
+  JOIN contactabilidad ct
+    ON c.idcontactabilidad = ct.idcontactabilidad;
 
+-- VISTA DETALLADA DE LOS COLABORADORES
+ CREATE OR REPLACE VIEW vw_colaboradores AS
+SELECT
+  col.idcolaborador,
+  col.namuser,
+  col.estado,
+  r.rol,
+  p.nombres,
+  p.apellidos,
+  c.fechainicio,
+  c.fechafin
+FROM
+  colaboradores col
+  JOIN contratos c
+    ON col.idcontrato = c.idcontrato
+  JOIN roles r
+    ON c.idrol = r.idrol
+  JOIN personas p
+    ON c.idpersona = p.idpersona;
 
-
-
+-- VISTA DEL KARDEX CON DETALLE DEL PRODUCTO
+ CREATE OR REPLACE VIEW vwKardex AS
+SELECT
+  k.*,
+  p.descripcion,
+  p.precio
+FROM
+  kardex k
+  INNER JOIN productos p
+    ON k.idproducto = p.idproducto;
 
 -- create view vwClientePrincipal
  -- SELECT * FROM vwModelosConTipoYMarca;
 
+CREATE OR REPLACE VIEW vw_clientes AS
+SELECT
+  c.idcliente,
+  p.idpersona,
+  p.nombres,
+  p.apellidos,
+  p.numdoc AS documento,
+  e.idempresa,
+  e.nomcomercial,
+  e.razonsocial,
+  e.ruc
+FROM
+  clientes c
+  LEFT JOIN personas p
+    ON c.idpersona = p.idpersona
+  LEFT JOIN empresas e
+    ON c.idempresa = e.idempresa;
 
 -- select * from propietarios;
 
@@ -43,7 +103,6 @@ p.numruc,
 p.direccion,
 p.correo,
 p.telprincipal,
-p.modificado,
 p.telalternativo
 FROM
 clientes c
@@ -61,8 +120,7 @@ e.nomcomercial,
 e.razonsocial,
 e.telefono,
 e.correo,
-e.ruc,
-e.modificado
+e.ruc
 FROM
 clientes c
 LEFT JOIN empresas e

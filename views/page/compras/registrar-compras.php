@@ -5,273 +5,543 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
 
-  <div class="container-main mt-5">
-    <div class="card border">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <div>
-          <h3 class="mb-0">Complete los datos</h3>
+<div class="container-main mt-5">
+  <div class="card border">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="mb-0">Complete los datos</h3>
+      </div>
+      <div>
+        <a href="listar-compras.php" class="btn btn-success">
+          Mostrar Lista
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <form action="" method="POST" autocomplete="off" id="formulario-detalle">
+        <div class="row g-2">
+          <div class="col-md-5">
+            <label>
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
+              Factura
+            </label>
+            <label>
+              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
+              Boleta
+            </label>
+          </div>
+          <!-- N° serie y N° comprobante -->
+          <div class="col-md-7 d-flex align-items-center justify-content-end">
+            <label for="numserie" class="mb-0">N° serie:</label>
+            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
+              id="numserie" required disabled />
+            <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
+            <input type="text" name="numcomprobante" id="numcom"
+              class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
+          </div>
         </div>
-        <div>
-          <a href="listar-compras.php" class="btn btn-success">
-            Mostrar Lista
+        <!-- Sección Cliente, Fecha y Moneda -->
+        <div class="row g-2 mt-3">
+          <div class="col-md-5">
+            <div class="form-floating">
+              <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
+                <option selected>Selecciona proveedor</option>
+                <!-- Se llenará dinámicamente vía AJAX -->
+              </select>
+              <label for="proveedor">Proveedor</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="date" class="form-control input" name="fecha" id="fecha" required />
+              <label for="fecha">Fecha de venta:</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-floating">
+              <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
+                <option value="soles" selected>Soles</option>
+                <!-- Aquí se insertan dinámicamente el resto de monedas -->
+              </select>
+              <label for="moneda">Moneda:</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección Producto, Precio, Cantidad y Descuento -->
+        <div class="row g-2 mt-3">
+          <div class="col-md-5">
+            <div class="form-floating input-group mb-3">
+              <!-- Campo de búsqueda de Producto -->
+              <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
+                placeholder="Buscar Producto" required>
+              <label for="producto">Buscar Producto: </label>
+              <input type="hidden" id="hiddenIdCliente" />
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                data-bs-target="#miModal">
+                <i class="fas fa-plus-square"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="precio" id="precio" required />
+              <label for="precio">Precio</label>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
+              <label for="cantidad">Cantidad</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="number" class="form-control input" name="descuento" id="descuento" required />
+                <label for="descuento">Descuento</label>
+              </div>
+              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- seccion de detalles de la compra -->
+  <div class="container-main-2 mt-4">
+    <div class="card border">
+      <div class="card-body p-3">
+        <table class="table table-striped table-sm mb-0" id="tabla-detalle-compra">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Dsct</th>
+              <th>Importe</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- se agregan los detalles del producto -->
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer text-end">
+        <table class="tabla table-sm">
+          <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 60%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 5%;">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td colspan="4" class="text-end">Importe</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">DSCT</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">IGV</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">NETO</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-4">
+          <a href="" type="button" class="btn input btn-success" id="btnFinalizarCompra">
+            Guardar
+          </a>
+          <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarCompra">
+            Cancelar
           </a>
         </div>
       </div>
-      <div class="card-body">
-        <form action="" method="POST" autocomplete="off" id="formulario-detalle">
-          <div class="row g-2">
-            <div class="col-md-5">
-              <label>
-                <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
-                Factura
-              </label>
-              <label>
-                <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
-                Boleta
-              </label>
-            </div>
-            <!-- N° serie y N° comprobante -->
-            <div class="col-md-7 d-flex align-items-center justify-content-end">
-              <label for="numserie" class="mb-0">N° serie:</label>
-              <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
-                id="numserie" required disabled />
-              <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
-              <input type="text" name="numcomprobante" id="numcom"
-                class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
-            </div>
-          </div>
-          <!-- Sección Cliente, Fecha y Moneda -->
-          <div class="row g-2 mt-3">
-            <div class="col-md-5">
+    </div>
+  </div>
+</div>
+<!-- Modal de registrar producto (versión compacta con estilos) -->
+<div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md" style="margin-top: 60px;">
+    <div class="modal-content" style="background-color: #fff; color: #000;">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-nuevo-producto">
+          <div class="row g-3">
+            <div class="col-12">
               <div class="form-floating">
-                <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
-                  <option selected>Selecciona proveedor</option>
-                  <!-- Se llenará dinámicamente vía AJAX -->
+                <select class="form-select" id="marca" name="idmarca" required
+                  style="background-color: white; color: black;">
+                  <option>Seleccione una opción</option>
                 </select>
-                <label for="proveedor">Proveedor</label>
+                <label for="marca">Marca:</label>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-12">
               <div class="form-floating">
-                <input type="date" class="form-control input" name="fecha" id="fecha" required />
-                <label for="fecha">Fecha de venta:</label>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="form-floating">
-                <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
-                  <option value="soles" selected>Soles</option>
-                  <!-- Aquí se insertan dinámicamente el resto de monedas -->
+                <select class="form-select" id="categoria" name="categoria" required
+                  style="background-color: white; color: black;">
+                  <option>Seleccione una opción</option>
                 </select>
-                <label for="moneda">Moneda:</label>
+                <label for="categoria">Categoría:</label>
               </div>
             </div>
-          </div>
-
-          <!-- Sección Producto, Precio, Cantidad y Descuento -->
-          <div class="row g-2 mt-3">
-            <div class="col-md-5">
-              <div class="form-floating input-group mb-3">
-                <!-- Campo de búsqueda de Producto -->
-                <input name="producto" id="producto" type="text" class="autocomplete-input form-control input" placeholder="Buscar Producto" required>
-                <label for="producto">Buscar Producto: </label>
-                <input type="hidden" id="hiddenIdCliente" />
-                <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
-                  data-bs-target="#miModal">
-                  <i class="fas fa-plus-square"></i>
-                </button>
-              </div>
-            </div>
-            <div class="col-md-2">
+            <div class="col-12">
               <div class="form-floating">
-                <input type="number" class="form-control input" name="precio" id="precio" required />
-                <label for="precio">Precio</label>
+                <select class="form-select" name="subcategoria" id="subcategoria" required
+                  style="background-color: white; color: black;">
+                  <option value="">Seleccione una opción</option>
+                </select>
+                <label for="subcategoria">Subcategoría:</label>
               </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-12">
               <div class="form-floating">
-                <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
-                <label for="cantidad">Cantidad</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Descripción"
+                  style="height: 70px; background-color: white; color: black;"></textarea>
+                <label for="descripcion">Descripción:</label>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="input-group">
-                <div class="form-floating">
-                  <input type="number" class="form-control input" name="descuento" id="descuento" required />
-                  <label for="descuento">Descuento</label>
-                </div>
-                <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="presentacion" name="presentacion" placeholder="Presentación"
+                  style="background-color: white; color: black;" />
+                <label for="presentacion">Presentación:</label>
               </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad"
+                  style="background-color: white; color: black;" />
+                <label for="cantidad">Cantidad:</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="Unidad de Medida"
+                  style="background-color: white; color: black;" />
+                <label for="undmedida">Und. Medida:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
+                  style="background-color: white; color: black;" />
+                <label for="precio">Precio:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="img" class="form-label" style="color: black;">Imagen del producto:</label>
+              <input type="file" class="form-control" name="img" id="img" accept="image/png, image/jpeg"
+                style="background-color: white; color: black;" />
             </div>
           </div>
         </form>
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary" id="btnRegistrarProducto">Guardar</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- seccion de detalles de la compra -->
-    <div class="container-main-2 mt-4">
-      <div class="card border">
-        <div class="card-body p-3">
-          <table class="table table-striped table-sm mb-0" id="tabla-detalle-compra">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th>Precio</th>
-                <th>Cantidad</th>
-                <th>Dsct</th>
-                <th>Importe</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- se agregan los detalles del producto -->
-            </tbody>
-          </table>
-        </div>
-        <div class="card-footer text-end">
-          <table class="tabla table-sm">
-            <colgroup>
-              <col style="width: 10%;">
-              <col style="width: 60%;">
-              <col style="width: 10%;">
-              <col style="width: 10%;">
-              <col style="width: 10%;">
-              <col style="width: 5%;">
-            </colgroup>
-            <tbody>
-              <tr>
-                <td colspan="4" class="text-end">Importe</td>
-                <td>
-                  <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="4" class="text-end">DSCT</td>
-                <td>
-                  <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="4" class="text-end">IGV</td>
-                <td>
-                  <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="4" class="text-end">NETO</td>
-                <td>
-                  <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="mt-4">
-            <a href="" type="button" class="btn input btn-success" id="btnFinalizarCompra">
-              Guardar
-            </a>
-            <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarCompra">
-              Cancelar
-            </a>
+</div>
+</div>
+</body>
+</html>
+
+<div class="container-main mt-5">
+  <div class="card border">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="mb-0">Complete los datos</h3>
+      </div>
+      <div>
+        <a href="listar-compras.php" class="btn btn-success">
+          Mostrar Lista
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <form action="" method="POST" autocomplete="off" id="formulario-detalle">
+        <div class="row g-2">
+          <div class="col-md-5">
+            <label>
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
+              Factura
+            </label>
+            <label>
+              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
+              Boleta
+            </label>
+          </div>
+          <!-- N° serie y N° comprobante -->
+          <div class="col-md-7 d-flex align-items-center justify-content-end">
+            <label for="numserie" class="mb-0">N° serie:</label>
+            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
+              id="numserie" required disabled />
+            <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
+            <input type="text" name="numcomprobante" id="numcom"
+              class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <!-- Modal de registrar producto (versión compacta con estilos) -->
-  <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-md" style="margin-top: 60px;">
-      <div class="modal-content" style="background-color: #fff; color: #000;">
-        <div class="modal-header">
-          <h5 class="modal-title">Registrar producto</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <form id="form-nuevo-producto">
-            <div class="row g-3">
-              <div class="col-12">
-                <div class="form-floating">
-                  <select class="form-select" id="marca" name="idmarca" required
-                    style="background-color: white; color: black;">
-                    <option>Seleccione una opción</option>
-                  </select>
-                  <label for="marca">Marca:</label>
-                </div>
-              </div>
-              <div class="col-12">
-                <div class="form-floating">
-                  <select class="form-select" id="categoria" name="categoria" required
-                    style="background-color: white; color: black;">
-                    <option>Seleccione una opción</option>
-                  </select>
-                  <label for="categoria">Categoría:</label>
-                </div>
-              </div>
-              <div class="col-12">
-                <div class="form-floating">
-                  <select class="form-select" name="subcategoria" id="subcategoria" required
-                    style="background-color: white; color: black;">
-                    <option value="">Seleccione una opción</option>
-                  </select>
-                  <label for="subcategoria">Subcategoría:</label>
-                </div>
-              </div>
-              <div class="col-12">
-                <div class="form-floating">
-                  <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Descripción"
-                    style="height: 70px; background-color: white; color: black;"></textarea>
-                  <label for="descripcion">Descripción:</label>
-                </div>
-              </div>
-              <div class="col-12">
-                <div class="form-floating">
-                  <input type="text" class="form-control" id="presentacion" name="presentacion"
-                    placeholder="Presentación" style="background-color: white; color: black;" />
-                  <label for="presentacion">Presentación:</label>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="form-floating">
-                  <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad"
-                    style="background-color: white; color: black;" />
-                  <label for="cantidad">Cantidad:</label>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="form-floating">
-                  <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="Unidad de Medida"
-                    style="background-color: white; color: black;" />
-                  <label for="undmedida">Und. Medida:</label>
-                </div>
-              </div>
-              <div class="col-12">
-                <div class="form-floating">
-                  <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
-                    style="background-color: white; color: black;" />
-                  <label for="precio">Precio:</label>
-                </div>
-              </div>
-              <div class="col-12">
-                <label for="img" class="form-label" style="color: black;">Imagen del producto:</label>
-                <input type="file" class="form-control" name="img" id="img" accept="image/png, image/jpeg"
-                  style="background-color: white; color: black;" />
-              </div>
+        <!-- Sección Cliente, Fecha y Moneda -->
+        <div class="row g-2 mt-3">
+          <div class="col-md-5">
+            <div class="form-floating">
+              <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
+                <option selected>Selecciona proveedor</option>
+                <!-- Se llenará dinámicamente vía AJAX -->
+              </select>
+              <label for="proveedor">Proveedor</label>
             </div>
-          </form>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="date" class="form-control input" name="fecha" id="fecha" required />
+              <label for="fecha">Fecha de venta:</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-floating">
+              <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
+                <option value="soles" selected>Soles</option>
+                <!-- Aquí se insertan dinámicamente el resto de monedas -->
+              </select>
+              <label for="moneda">Moneda:</label>
+            </div>
+          </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="submit" class="btn btn-primary" id="btnRegistrarProducto">Guardar</button>
+
+        <!-- Sección Producto, Precio, Cantidad y Descuento -->
+        <div class="row g-2 mt-3">
+          <div class="col-md-5">
+            <div class="form-floating input-group mb-3">
+              <!-- Campo de búsqueda de Producto -->
+              <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
+                placeholder="Buscar Producto" required>
+              <label for="producto">Buscar Producto: </label>
+              <input type="hidden" id="hiddenIdCliente" />
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                data-bs-target="#miModal">
+                <i class="fas fa-plus-square"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="precio" id="precio" required />
+              <label for="precio">Precio</label>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
+              <label for="cantidad">Cantidad</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="number" class="form-control input" name="descuento" id="descuento" required />
+                <label for="descuento">Descuento</label>
+              </div>
+              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+            </div>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 
+  <!-- seccion de detalles de la compra -->
+  <div class="container-main-2 mt-4">
+    <div class="card border">
+      <div class="card-body p-3">
+        <table class="table table-striped table-sm mb-0" id="tabla-detalle-compra">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Dsct</th>
+              <th>Importe</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- se agregan los detalles del producto -->
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer text-end">
+        <table class="tabla table-sm">
+          <colgroup>
+            <col style="width: 10%;">
+            <col style="width: 60%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 5%;">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td colspan="4" class="text-end">Importe</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">DSCT</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">IGV</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">NETO</td>
+              <td>
+                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-4">
+          <a href="" type="button" class="btn input btn-success" id="btnFinalizarCompra">
+            Guardar
+          </a>
+          <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarCompra">
+            Cancelar
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
+<!-- Modal de registrar producto (versión compacta con estilos) -->
+<div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md" style="margin-top: 60px;">
+    <div class="modal-content" style="background-color: #fff; color: #000;">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-nuevo-producto">
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="form-floating">
+                <select class="form-select" id="marca" name="idmarca" required
+                  style="background-color: white; color: black;">
+                  <option>Seleccione una opción</option>
+                </select>
+                <label for="marca">Marca:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <select class="form-select" id="categoria" name="categoria" required
+                  style="background-color: white; color: black;">
+                  <option>Seleccione una opción</option>
+                </select>
+                <label for="categoria">Categoría:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <select class="form-select" name="subcategoria" id="subcategoria" required
+                  style="background-color: white; color: black;">
+                  <option value="">Seleccione una opción</option>
+                </select>
+                <label for="subcategoria">Subcategoría:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Descripción"
+                  style="height: 70px; background-color: white; color: black;"></textarea>
+                <label for="descripcion">Descripción:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="presentacion" name="presentacion" placeholder="Presentación"
+                  style="background-color: white; color: black;" />
+                <label for="presentacion">Presentación:</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad"
+                  style="background-color: white; color: black;" />
+                <label for="cantidad">Cantidad:</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="Unidad de Medida"
+                  style="background-color: white; color: black;" />
+                <label for="undmedida">Und. Medida:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
+                  style="background-color: white; color: black;" />
+                <label for="precio">Precio:</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="img" class="form-label" style="color: black;">Imagen del producto:</label>
+              <input type="file" class="form-control" name="img" id="img" accept="image/png, image/jpeg"
+                style="background-color: white; color: black;" />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary" id="btnRegistrarProducto">Guardar</button>
+      </div>
+    </div>
   </div>
+</div>
+
+</div>
+</div>
 </body>
 
 </html>
+
 <script>
   document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
     e.preventDefault();
@@ -288,22 +558,24 @@ require_once "../../partials/header.php";
         if (resp.rows > 0) {
           showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
 
-          const subcategoriaText = document.getElementById("subcategoria").options[document.getElementById("subcategoria").selectedIndex].text;
+          // Obtener subcategoría y descripción para formar el nombre del producto
+          const subcategoriaText = document.getElementById("subcategoria")
+            .options[document.getElementById("subcategoria").selectedIndex].text;
           const descripcion = document.getElementById("descripcion").value;
           const inputBusqueda = document.getElementById("producto");
-          const nombreCompleto = `${subcategoriaText} ${descripcion}`;
-
           if (inputBusqueda) {
-            inputBusqueda.value = nombreCompleto;
+            inputBusqueda.value = `${subcategoriaText} ${descripcion}`;
           }
 
-          // ⚠️ Guardar el producto seleccionado correctamente
+          // **** Actualización clave: asignar el id retornado al objeto global selectedProduct ****
+          // Se asume que la respuesta JSON ahora incluye la propiedad "idproducto" obtenida en PHP.
           selectedProduct = {
-            idproducto: resp.idproducto,  // ← ¡NECESITAS QUE PHP ENVÍE ESTE DATO!
-            subcategoria_producto: nombreCompleto,
-            precio: parseFloat(document.getElementById("precioProductoModal").value) || 0 // si tienes precio desde modal
+            idproducto: resp.idproducto,  // Asigna el id obtenido por lastInsertId o parámetro OUT
+            subcategoria_producto: `${subcategoriaText} ${descripcion}`,
+            precio: document.getElementById("precio").value
           };
 
+          // Cerrar el modal correctamente.
           const modalEl = document.getElementById('miModal');
           let modalInstance = bootstrap.Modal.getInstance(modalEl);
           if (!modalInstance) {
@@ -311,10 +583,15 @@ require_once "../../partials/header.php";
           }
           modalInstance.hide();
 
+          // Eliminar backdrop manualmente.
           const backdrop = document.querySelector('.modal-backdrop');
           if (backdrop) backdrop.remove();
+
+          // Quitar la clase modal-open y restaurar el scroll.
           document.body.classList.remove('modal-open');
           document.body.style.overflow = '';
+
+          // Limpiar el formulario del modal
           form.reset();
         } else {
           showToast('Hubo un error al registrar el producto.', 'ERROR', 1500);
@@ -391,6 +668,7 @@ require_once "../../partials/header.php";
     const btnFinalizarCompra = document.getElementById('btnFinalizarCompra');
     let selectedProduct = {};
     const detalleCompra = [];
+    
 
     function calcularTotales() {
       let totalImporte = 0;
@@ -425,43 +703,48 @@ require_once "../../partials/header.php";
       return duplicado;
     }
 
-    // Función para agregar producto al detalle de compra
+    // Manejador del botón "Agregar" para añadir producto al detalle de compra
     agregarProductoBtn.addEventListener("click", function () {
       const nomProducto = inputProductElement.value;
       const precioProducto = parseFloat(document.getElementById('precio').value);
       const cantidadProducto = parseFloat(document.getElementById('cantidad').value);
       const descuentoProducto = parseFloat(document.getElementById('descuento').value);
+
       if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
         alert("Por favor, complete todos los campos correctamente.");
         return;
       }
-      if (estaDuplicado(selectedProduct.idproducto)) {
-        alert("Este producto ya ha sido agregado.");
-        inputProductElement.value = "";
-        document.getElementById('precio').value = "";
-        document.getElementById('cantidad').value = 1;
-        document.getElementById('descuento').value = 0;
-        return;
-      }
+
+      // Opción 1: Quitar la validación de duplicados para permitir agregarlo siempre
+      // if (estaDuplicado(selectedProduct.idproducto)) {
+      //   alert("Este producto ya ha sido agregado.");
+      //   inputProductElement.value = "";
+      //   document.getElementById('precio').value = "";
+      //   document.getElementById('cantidad').value = 1;
+      //   document.getElementById('descuento').value = 0;
+      //   return;
+      // }
+
       const importe = (precioProducto * cantidadProducto) - descuentoProducto;
       const nuevaFila = document.createElement("tr");
       nuevaFila.innerHTML = `
-          <td>${tabla.rows.length + 1}</td>
-          <td>${nomProducto}</td>
-          <td>${precioProducto.toFixed(2)}</td>
-          <td>${cantidadProducto}</td>
-          <td>${descuentoProducto.toFixed(2)}</td>
-          <td>${importe.toFixed(2)}</td>
-          <td><button class="btn btn-danger btn-sm">X</button></td>
-        `;
+      <td>${tabla.rows.length + 1}</td>
+      <td>${nomProducto}</td>
+      <td>${precioProducto.toFixed(2)}</td>
+      <td>${cantidadProducto}</td>
+      <td>${descuentoProducto.toFixed(2)}</td>
+      <td>${importe.toFixed(2)}</td>
+      <td><button class="btn btn-danger btn-sm">X</button></td>
+  `;
       nuevaFila.querySelector("button").addEventListener("click", function () {
         nuevaFila.remove();
         actualizarNumeros();
         calcularTotales();
       });
       tabla.appendChild(nuevaFila);
+
       const detalle = {
-        idproducto: selectedProduct.idproducto,
+        idproducto: selectedProduct.idproducto,  // El id actualizado, o lo que manejes
         producto: nomProducto,
         precio: precioProducto,
         cantidad: cantidadProducto,
@@ -469,10 +752,12 @@ require_once "../../partials/header.php";
         importe: importe.toFixed(2)
       };
       detalleCompra.push(detalle);
+
       inputProductElement.value = "";
       document.getElementById('precio').value = "";
       document.getElementById('cantidad').value = 1;
       document.getElementById('descuento').value = 0;
+
       calcularTotales();
     });
 
@@ -522,7 +807,6 @@ require_once "../../partials/header.php";
         })
         .catch(err => console.error('Error al obtener los productos: ', err));
     }
-
     inputProductElement.addEventListener("input", function () {
       mostrarOpcionesProducto(this);
     });
@@ -540,7 +824,6 @@ require_once "../../partials/header.php";
         }
       }
     }
-
     // Funciones para generar número de serie y de comprobante
     function generateNumber(type) {
       const randomNumber = Math.floor(Math.random() * 100);
@@ -564,7 +847,6 @@ require_once "../../partials/header.php";
     tipoInputs.forEach((input) => {
       input.addEventListener("change", inicializarCampos);
     });
-
     // Establecer fecha actual
     const setFechaDefault = () => {
       const today = new Date();
@@ -574,7 +856,6 @@ require_once "../../partials/header.php";
       fechaInput.value = `${year}-${month}-${day}`;
     };
     setFechaDefault();
-
     // Carga de proveedores vía AJAX
     fetch('http://localhost/Fix360/app/controllers/Compra.controller.php?type=proveedor')
       .then(response => response.json())
@@ -598,7 +879,6 @@ require_once "../../partials/header.php";
       e.preventDefault();
       btnFinalizarCompra.disabled = true;
       btnFinalizarCompra.textContent = "Guardando...";
-
       // Habilitar los inputs de num. serie y comprobante para enviar sus valores
       numSerieInput.disabled = false;
       numComInput.disabled = false;
@@ -616,7 +896,6 @@ require_once "../../partials/header.php";
         btnFinalizarCompra.textContent = "Guardar";
         return;
       }
-
       // Armar el objeto de datos a enviar
       const dataCompra = {
         tipocom: document.querySelector('input[name="tipo"]:checked').value,
@@ -670,7 +949,7 @@ require_once "../../partials/header.php";
         });
     });
   });
-</script> 
+</script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
 <?php
