@@ -112,6 +112,12 @@ require_once "../../partials/header.php";
               <label for="DireccionPersonaInput">Direccion:</label>
             </div>
           </div>
+          <div class="form-group" style="margin: 10px;">
+            <div class="form-floating input-group">
+              <input type="text" disabled class="form-control input" id="ModificacionPersonaInput">
+              <label for="ModificacionPersonaInput">Ultima modificacion:</label>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -146,8 +152,8 @@ require_once "../../partials/header.php";
           </div>
           <div class="form-group" style="margin: 10px;">
             <div class="form-floating input-group">
-              <input type="text" disabled class="form-control input" id="RUCEmpresaInput">
-              <label for="RUCEmpresaInput">RUC:</label>
+              <input type="text" disabled class="form-control input" id="ModificacionEmpresaInput">
+              <label for="ModificacionEmpresaInput">Ultima modificacion:</label>
             </div>
           </div>
         </div>
@@ -210,7 +216,7 @@ require_once "../../partials/_footer.php";
                     <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idpersona}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetallePersona('${row.numruc}', '${row.direccion}', '${row.correo}', '${row.telalternativo}')">
+                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetallePersona('${row.numruc}', '${row.direccion}', '${row.correo}', '${row.telalternativo}','${row.modificado}')">
                       <i class='fa-solid fa-clipboard-list'></i>
                     </button>
                     
@@ -238,21 +244,22 @@ function noProporcionado(valor) {
   return (!valor || String(valor).toLowerCase() === "null") ? "No proporcionado" : valor;
 }
 
-  function verDetallePersona(numruc, direccion, correo, telalternativo) {
+  function verDetallePersona(numruc, direccion, correo, telalternativo,modificado) {
     document.querySelector("#RUCPersonaInput").value = numruc || 'No proporcionado';
     document.querySelector("#DireccionPersonaInput").value = direccion || 'No proporcionado';
     document.querySelector("#CorreoPersonaInput").value = correo || 'No proporcionado';
     document.querySelector("#TelAlternativoPersonaInput").value = telalternativo || 'No proporcionado';
+    document.querySelector("#ModificacionPersonaInput").value = modificado || 'No se han modificado los datos';
 
     // Mostrar el modal de Bootstrap
     let modal = new bootstrap.Modal(document.getElementById("miModalPersona"));
     modal.show();
   }
 
-  function verDetalleEmpresa(razonsocial, correo, ruc) {
+  function verDetalleEmpresa(razonsocial, correo, modificado) {
     document.querySelector("#RazonSocialEmpresaInput").value = razonsocial || 'No proporcionado';
     document.querySelector("#CorreoEmpresaInput").value = correo || 'No proporcionado';
-    document.querySelector("#RUCEmpresaInput").value = ruc || 'No proporcionado';
+    document.querySelector("#ModificacionEmpresaInput").value = modificado || 'No se han modificado los datos';
 
     // Mostrar el modal de Bootstrap
     let modal = new bootstrap.Modal(document.getElementById("miModalEmpresa"));
@@ -291,7 +298,7 @@ function noProporcionado(valor) {
             <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idempresa}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetalleEmpresa('${row.razonsocial}','${row.correo}','${row.ruc}')">
+                    <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetalleEmpresa('${row.razonsocial}','${row.correo}','${row.modificado}')">
                       <i class='fa-solid fa-clipboard-list'></i>
                     </button>`;
           }

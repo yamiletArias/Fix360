@@ -112,7 +112,7 @@ require_once "../../partials/header.php";
           <div class="row">
             <div class="col-md-4 mb-3">
               <div class="form-floating">
-                <input type="text" name="ruc" class="form-control input" placeholder="rucdelaempresa" minlength="11" maxlength="11" required>
+                <input type="text" id="ruc" name="ruc" class="form-control input" placeholder="rucdelaempresa" minlength="11" maxlength="11" required>
                 <label for="ruc">RUC</label>
               </div>
             </div>
@@ -169,6 +169,38 @@ require_once "../../partials/header.php";
 </body>
 
 </html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+  // Al salir del campo RUC (blur) se dispara la consulta a la API
+  document.getElementById('ruc').addEventListener('blur', async function() {
+    let ruc = this.value.trim();
+    // Si tiene 11 dígitos (o la longitud que exija la API)
+    if(ruc.length === 11) {
+      try {
+        let response = await fetch(`http://localhost/fix360/app/controllers/consultaRuc.php?ruc=${encodeURIComponent(ruc)}`);
+        let data = await response.json();
+        // Suponiendo que la API retorna un objeto con, por ejemplo, "nombreComercial" y "razonSocial"
+        if(data && data.razonSocial) {
+          // Completa los campos del formulario de empresa
+          // Si existe "nombreComercial", úsalo; si no, usa la razón social
+          document.querySelector('[name="razonsocial"]').value = data.razonSocial;
+          // Opcional: deshabilita esos campos para que el usuario no los edite manualmente
+          document.querySelector('[name="razonsocial"]').disabled = true;
+        } else {
+          // Si no se retorna información válida, habilita los campos para ingreso manual
+          document.querySelector('[name="razonsocial"]').disabled = false;
+        }
+      } catch (error) {
+        console.error("Error al consultar API de RUC:", error);
+        // En caso de error, se habilitan los campos para ingreso manual
+        document.querySelector('[name="razonsocial"]').disabled = false;
+      }
+    }
+  });
+});
+
+</script>
 
 <script>
   document.addEventListener("DOMContentLoaded",function(){
