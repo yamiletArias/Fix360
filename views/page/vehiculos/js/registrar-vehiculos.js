@@ -12,7 +12,7 @@
       if (placa.length === 6) {
         try {
           // Llamada al endpoint intermedio que creaste (consultaPlaca.php)
-          const response = await fetch(`http://localhost/fix360/app/controllers/consultaPlaca.php?placa=${encodeURIComponent(placa)}`);
+          const response = await fetch(`http://localhost/fix360/app/api/consultaPlaca.php?placa=${encodeURIComponent(placa)}`);
           const data = await response.json();
           // Supongamos que la API retorna datos como "marca", "modelo", "anio", etc.
           if (data && data.marca) {

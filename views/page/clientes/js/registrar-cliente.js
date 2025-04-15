@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const ruc = rucInput.value.trim();
       if(ruc.length === 11) {
         try {
-          const response = await fetch(`http://localhost/fix360/app/controllers/consultaRuc.php?ruc=${encodeURIComponent(ruc)}`);
+          const response = await fetch(`http://localhost/fix360/app/api/consultaRuc.php?ruc=${encodeURIComponent(ruc)}`);
           const data = await response.json();
           const inputRazonSocial = document.querySelector('#razonsocial');
           if(data && data.razonSocial && inputRazonSocial) {
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const dni = numdocInput.value.trim();
         if(dni.length === 8) {
           try {
-            const response = await fetch(`http://localhost/fix360/app/controllers/consultaDni.php?dni=${encodeURIComponent(dni)}`);
+            const response = await fetch(`http://localhost/fix360/app/api/consultaDni.php?dni=${encodeURIComponent(dni)}`);
             const data = await response.json();
             if(data && data.nombres) {
               nombresInput.value   = data.nombres;
