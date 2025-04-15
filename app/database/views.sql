@@ -1,3 +1,4 @@
+USE dbfix360;
 DROP VIEW IF EXISTS vwCategoriasSubcategorias;
 SELECT * FROM personas;
 CREATE VIEW vwCategoriasSubcategorias AS
@@ -88,8 +89,7 @@ FROM
   LEFT JOIN empresas e
     ON c.idempresa = e.idempresa;
 
--- select * from propietarios;
-
+-- select * from personas;
 
 CREATE OR REPLACE VIEW vwClientesPersona AS
 SELECT
