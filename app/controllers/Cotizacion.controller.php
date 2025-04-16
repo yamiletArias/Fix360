@@ -37,18 +37,37 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
         error_log("Error: JSON inválido.");
         echo json_encode(["status" => "error", "message" => "JSON inválido."]);
         exit;
-      }
+      } 
 
       //limpiar y validacion de datos
       $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
-      $vigenciadias = Helper::limpiarCadena($dataJSON['vigenciadias'] ?? "");
+      $vigenciaInput = Helper::limpiarCadena($dataJSON['vigenciadias'] ?? "");
 
-      if (empty($fechahora && $vigenciadias)) {
-        $fechahora = date("Y-m-d H:i:s");
-        $vigenciadias = date("Y-m-d H:i:s");
-      }elseif (strpos($fechahora, ' ') === false) {
-        $fechahora .= " " . date("H:i:s");
-      }
+      // Si el valor de vigenciadias es una fecha (contiene "-"), calculamos la diferencia en días.
+if (strpos($vigenciaInput, "-") !== false) {
+  try {
+      $fechaVigencia = new DateTime($vigenciaInput);
+      // Usamos $fechahora para la fecha de cotización, o la fecha actual si no se definió
+      $fechaCotizacion = !empty($fechahora)
+          ? new DateTime($fechahora)
+          : new DateTime();
+      $intervalo = $fechaCotizacion->diff($fechaVigencia);
+      $vigenciadias = $intervalo->days;
+  } catch (Exception $e) {
+      error_log("Error al convertir la fecha de vigencia: " . $e->getMessage());
+      $vigenciadias = 0;
+  }
+} else {
+  // Si ya es un número (por ejemplo, enviado desde JavaScript), se usa directamente
+  $vigenciadias = intval($vigenciaInput);
+}
+
+// Si $fechahora está vacío, asignamos la fecha y hora actual
+if (empty($fechahora)) {
+  $fechahora = date("Y-m-d H:i:s");
+} elseif (strpos($fechahora, ' ') === false) {
+  $fechahora .= " " . date("H:i:s");
+}
 
       $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
       $idcliente = $dataJSON['idcliente'] ?? 0;

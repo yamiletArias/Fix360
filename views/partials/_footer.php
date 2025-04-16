@@ -48,7 +48,7 @@
   <script src="<?= SERVERURL?>views/assets/js/settings.js"></script>
   <script src="<?= SERVERURL?>views/assets/js/todolist.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
  <!-- DataTables JS -->
  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>

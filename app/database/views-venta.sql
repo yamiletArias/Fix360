@@ -44,7 +44,27 @@ LEFT JOIN empresas e ON cli.idempresa = e.idempresa
 LEFT JOIN personas p ON cli.idpersona = p.idpersona
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion;
 	
+-- prueba para detalle de venta
+CREATE OR REPLACE VIEW vista_detalle_venta AS
+SELECT 
+  v.idventa,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  pr.descripcion AS producto,
+  dv.precioventa AS precio,
+  dv.descuento
+FROM ventas v
+JOIN clientes c ON v.idcliente = c.idcliente
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+JOIN detalleventa dv ON v.idventa = dv.idventa
+JOIN productos pr ON dv.idproducto = pr.idproducto;
+SELECT * FROM vista_detalle_venta WHERE idventa = 2;
+SELECT producto, precio, descuento 
+FROM vista_detalle_venta 
+WHERE idventa = 2;
 
+
+-- fin detalle de venta
 
 -- registro de venta
 CREATE VIEW vs_registro_venta AS
