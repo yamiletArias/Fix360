@@ -13,7 +13,7 @@ require_once "../../partials/header.php";
     margin: 0px;
   }
 
- /* .btn-opciones{
+  /* .btn-opciones{
     padding: 7px;
   }
     */
@@ -55,93 +55,94 @@ require_once "../../partials/header.php";
               data-bs-target="#miModal">...</button>
           </div>
         </div>
-        </div>
       </div>
-    </div>
-    <div class="card border">
-      <div class="card-header">
-        <div class="row">
-          <h4 class="col-md-4">Vehiculos</h4>
-          <div class="col-md-7"></div>
-          <button class="text-center col-md-1  btn btn-sm btn-registrar btn-success">
-            Registrar
-          </button>
-        </div>
-      </div>
-      <div class="card-body">
-      <table class="table table-striped ">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>T. Vehiculo</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Placa</th>
-                    <th>Color</th>
-                    <th>mecanico</th>
-                    <th>Operaciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Camioneta</td>
-                    <td>Briliance</td>
-                    <td>MarcaDCarro</td>
-                    <td>8S5WCK</td>
-                    <td>Rojo</td>
-                    <td>Walter Aquije</td>
-                    <td>
-                      <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
-                      <a href="#" class="btn btn-sm btn-danger btn-opciones"title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
-                      <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
-                      <a href="#" class="btn btn-sm btn-primary btn-opciones" title="Evidencias"><i class="fa-solid fa-eye"></i></a> <!-- EVIDENCIAS -->
-                      <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
-                      <a href="listar-observacion-orden2.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
-                    </td>
-                  </tr>ñ
-                  <tr>
-                    <td>1</td>
-                    <td>Impresora</td>
-                    <td>Inyección</td>
-                    <td>Epson</td>
-                    <td>L555</td>
-                    <td>A85S5-WCK</td>
-                    <td>No enciende</td>
-                    <td>
-                      <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
-                      <a href="#" class="btn btn-sm btn-danger btn-opciones"title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
-                      <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
-                      <a href="#" class="btn btn-sm btn-primary btn-opciones" title="Evidencias"><i class="fa-solid fa-eye"></i></a> <!-- EVIDENCIAS -->
-                      <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
-                      <a href="listar-observacion-orden2.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>1</td>
-                    <td>Impresora</td>
-                    <td>Inyección</td>
-                    <td>Epson</td>
-                    <td>L555</td>
-                    <td>A85S5-WCK</td>
-                    <td>No enciende</td>
-                    <td>
-                      <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
-                      <a href="#" class="btn btn-sm btn-danger btn-opciones"title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
-                      <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
-                      <a href="#" class="btn btn-sm btn-primary btn-opciones" title="Evidencias"><i class="fa-solid fa-eye"></i></a> <!-- EVIDENCIAS -->
-                      <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
-                      <a href="listar-observacion-orden2.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-      </div>
-    </div>
-    <div class="mb-3 text-right">
-      <a href="listar-observacion-orden2.php" class="mb-3 btn btn-sm btn-secondary">Volver</a>
     </div>
   </div>
+  <div class="card border">
+    <div class="card-header">
+      <div class="row">
+        <h4 class="col-md-4">Vehiculos</h4>
+        <div class="col-md-7"></div>
+        <button class="text-center col-md-1  btn btn-sm btn-registrar btn-success">
+          Registrar
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped ">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>T. Vehiculo</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Placa</th>
+            <th>Color</th>
+            <th>mecanico</th>
+            <th>Operaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Camioneta</td>
+            <td>Briliance</td>
+            <td>MarcaDCarro</td>
+            <td>8S5WCK</td>
+            <td>Rojo</td>
+            <td>Walter Aquije</td>
+            <td>
+              <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
+              <a href="#" class="btn btn-sm btn-danger btn-opciones" title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
+              <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
+              <a href="listar-observacion-orden2.php" class="btn btn-sm btn-primary btn-opciones" title="observaciones"><i class="fa-solid fa-eye"></i></a> <!-- observaciones -->
+              <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
+              <a href="listar-serviciosbrindados.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
+            </td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Camioneta</td>
+            <td>Briliance</td>
+            <td>MarcaDCarro</td>
+            <td>8S5WCK</td>
+            <td>Rojo</td>
+            <td>Walter Aquije</td>
+            <td>
+              <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
+              <a href="#" class="btn btn-sm btn-danger btn-opciones" title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
+              <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
+              <a href="listar-observacion-orden2.php" class="btn btn-sm btn-primary btn-opciones" title="observaciones"><i class="fa-solid fa-eye"></i></a> <!-- observaciones -->
+              <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
+              <a href="listar-serviciosbrindados.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
+            </td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Camioneta</td>
+            <td>Briliance</td>
+            <td>MarcaDCarro</td>
+            <td>8S5WCK</td>
+            <td>Rojo</td>
+            <td>Walter Aquije</td>
+            <td>
+              <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
+              <a href="#" class="btn btn-sm btn-danger btn-opciones" title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
+              <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
+              <a href="listar-observacion-orden2.php" class="btn btn-sm btn-primary btn-opciones" title="observaciones"><i class="fa-solid fa-eye"></i></a> <!-- observaciones -->
+              <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
+              <a href="listar-serviciosbrindados.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer text-right">
+      <a href="listar-observacion-orden2.php" class="btn btn-sm btn-secondary">Volver</a>
+    </div>
+  </div>
+
+</div>
 </div>
 </div>
 
