@@ -11,118 +11,90 @@ require_once "../../partials/header.php";
 
 
 <div class="container-main">
-  <div class="row">
-  <div class="header-group">
-    <div class="form-group d-flex justify-content-between align-items-center">
+  <div class="card border">
+  <div class="card-header">
+  <div class="row align-items-center">
+    <div class="col-md-3 mb-2 mb-md-0">
+      <!-- Botones de filtro: Día, Semana, Mes -->
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-primary text-white">Semana</button>
+        <button type="button" class="btn btn-primary text-white">Mes</button>
+      </div>
+    </div>
+    <div class="col-md-6"></div>
+    <div class="col-md-3 text-md-end">
+      <!-- Input para la fecha y botón -->
+      <div class="input-group">
+        <input type="date" class="form-control" aria-label="Fecha" aria-describedby="button-addon2">
+        <a href="registrar-ordenes2.php" class="btn btn-success text-center" type="button" id="button-addon2" >Registrar</a>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <div class="col-md-4 btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-primary">Dia</button>
-          <button type="button" class="btn btn-primary">Semana</button>
-          <button type="button" class="btn btn-primary">Mes</button>
-          <button type="button" class="btn btn-outline-danger btn-sm">
-            <i class="fa-solid fa-file-pdf"></i>
-          </button>
-        </div>
-        <div class="col-md-4">
+    <div class="card-body">
+      <div class="table-container">
+        <table id="miTabla" class="table table-striped display">
+          <thead>
+            <tr>
+              <th class="text-center">#</th>
+              <th>Propietario</th>
+              <th>Cliente</th>
+              <th>H. Ingreso</th>
+              <th>Atendido</th>
+              <th>Vehiculos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Carlos Gonzales</td>
+              <td>Jose Hernandez</td>
+              <td>10:00</td>
+              <td>Capibara</td>
+              <td>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-car"></i>(1)
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Carlos Gonzales</td>
+              <td>Jose Hernandez</td>
+              <td>10:00</td>
+              <td>Capibara</td>
+              <td>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-car"></i>(1)
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Carlos Gonzales</td>
+              <td>Jose Hernandez</td>
+              <td>10:00</td>
+              <td>Capibara</td>
+              <td>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-car"></i>(1)
+                </button>
+              </td>
+            </tr>
 
-        </div>
-        
-        <div class="col-md-3 text-end">
-          <button type="button" onclick="window.location.href='registrar-ordenes.php'"
-          class="text-end btn btn-success">Registrar</button>
-        </div>
+
+
+
+          </tbody>
+
+        </table>
       </div>
     </div>
 
 
-
   </div>
-  <div class="table-container">
-    <table id="miTabla" class="table table-striped display">
-      <thead>
-        <tr>
-          <th class="text-center">#</th>
-          <th>Mecanico</th>
-          <th>Admin.</th>
-          <th>Cliente</th>
-          <th>Vehiculo</th>
-          <th>Kilometraje</th>
-          <th>Ingreso Grua</th>
-          <th>Fch. Ingreso</th>
-          <th>Fch. Salida</th>
-          <th>Opciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="text-center">1</td>
-          <td class="text-left">Juan torres</td>
-          <td>Elena</td>
-          <td class="text-left">Estefano Gutierrez</td>
-          <td>H6H-980</td>
-          <td>1400</td>
-          <td>Si</td>
-          <td>10/02/2025</td>
-          <td>09/01/2025</td>
-          <td>
-            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.php'">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.php'">
-              <i class="fa-solid fa-clipboard-list"></i>
-            </Button>
-          </td>
-        </tr>
-        <tr>
-          <td class="text-center">2</td>
-          <td class="text-left">Jose Perez</td>
-          <td>Elena</td>
-          <td class="text-left">Pedro Tasayco</td>
-          <td>JUN-987</td>
-          <td>2460</td>
-          <td>No</td>
-          <td>07/01/2025</td>
-          <td><button id="btnConfirmarSalida" data-id="10/10/2024" class="btn btn-success btn-sm">
-              <i class="fa-solid fa-circle-check"></i>
-            </button>
-          </td>
-          <td>
-            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.php'">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.php'">
-              <i class="fa-solid fa-clipboard-list"></i>
-            </Button>
-          </td>
-        </tr>
-        <tr>
-          <td class="text-center">3</td>
-          <td class="text-left">Rosario Navarrete</td>
-          <td>Elena</td>
-          <td class="text-left">Antony Mendoza</td>
-          <td>LO7-12X</td>
-          <td>1895</td>
-          <td>Si</td>
-          <td>08/10/2024</td>
-          <td>10/11/2024</td>
-          <td>
-            <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-ordenes.php'">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <Button class=" btn btn-outline-dark btn-sm" onclick="window.location.href='listar-observacion-orden.php'">
-              <i class="fa-solid fa-clipboard-list"></i>
-            </Button>
-          </td>
-        </tr>
-
-      </tbody>
-
-    </table>
-  </div>
-
-
 </div>
-
 </div>
 
 
@@ -136,7 +108,7 @@ require_once "../../partials/_footer.php";
 ?>
 
 <script>
-  document.querySelector("#btnEliminar").addEventListener("click", async function () {
+  document.querySelector("#btnEliminar").addEventListener("click", async function() {
     const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
 
     if (await ask("¿Estás seguro de eliminar este registro?", "Ventas")) {
@@ -150,7 +122,7 @@ require_once "../../partials/_footer.php";
 </script>
 
 <script>
-  document.querySelector("#btnConfirmarSalida").addEventListener("click", async function () {
+  document.querySelector("#btnConfirmarSalida").addEventListener("click", async function() {
     const id = this.getAttribute("data-id"); // ID del registro a eliminar (opcional)
 
     if (await ask("¿Estás seguro de asignarle Fecha de Salida?", "Orden de servicio")) {
