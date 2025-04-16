@@ -30,7 +30,6 @@ require_once "../../partials/header.php";
             </div>
         </div>
     </div>
-
     <div class="row">
         <div id="tableDia" class="col-12">
             <table class="table table-striped display" id="tablaventasdia">
@@ -50,9 +49,7 @@ require_once "../../partials/header.php";
             </table>
         </div>
     </div>
-
 </div>
-
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" style="max-width: 600px;"> <!-- Cambié el tamaño aquí -->
@@ -109,11 +106,8 @@ require_once "../../partials/header.php";
 </div>
 </div>
 <!--FIN VENTAS-->
-
 </body>
-
 </html>
-
 <script>
     function cargarTablaCompras() {
         if ($.fn.DataTable.isDataTable("#tablaventasdia")) {

@@ -72,10 +72,10 @@ class Producto extends Conexion {
         }
         return $result;
     } */
-    public function add($params = []):int {
-        $numRows = 0;
+    public function add($params = []): int {
+        $idProducto = 0;
         try {
-            $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?)";
+            $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?, @idproducto)";
             $cmd = $this->pdo->prepare($query);
             $cmd->execute([
                 $params["idsubcategoria"],
@@ -87,12 +87,13 @@ class Producto extends Conexion {
                 $params["cantidad"],
                 $params["img"]
             ]);
-            $numRows = $cmd->rowCount();
+            // Obtenemos el valor de la variable de salida
+            $idProducto = $this->pdo->query("SELECT @idproducto")->fetchColumn();
         } catch (Exception $e) {
             error_log("Error DB: " . $e->getMessage());
-            return $numRows;
+            return 0;
         }
-        return $numRows;
+        return $idProducto;
     }
 
     /**
