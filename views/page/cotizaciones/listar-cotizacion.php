@@ -1,10 +1,8 @@
 <?php
 const NAMEVIEW = "Lista de cotizaciones";
-
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
-
 ?>
 
 <div class="container-main">
@@ -34,62 +32,43 @@ require_once "../../partials/header.php";
 </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal de Detalle de Cotizacion -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Detalle de la Cotizacion 001-002</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div>
-          <div class="table-container">
-            <!-- Tabla Día -->
-            <table id="miTabla" class="table table-striped display">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Productos</th>
-                  <th>Precio</th>
-                  <td>Moneda</td>
-                  <th>Descuento</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Filtro de aceite</td>
-                  <td>120.00</td>
-                  <td>Soles</td>
-                  <td>0%</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Pastillas de freno</td>
-                  <td>150.00</td>
-                  <td>Soles</td>
-                  <td>0%</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Amortiguador delantero</td>
-                  <td>250.00</td>
-                  <td>Soles</td>
-                  <td>20%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+    <div class="modal-dialog" style="max-width: 800px;"> <!-- Cambié el tamaño aquí -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle de la Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Cliente:</strong> <label for="cliente"></label></p>
+                <!-- <div class="form-group" style="margin: 10px">
+                  <div class="form-floating input-group">
+                    <input type="text" disabled class="form-control input" id="modeloInput" />
+                    <label for="modeloInput">Cliente</label>
+                  </div>
+                </div> -->
+                <div class="table-container">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Productos</th>
+                                <th>Precio</th>
+                                <th>Descuento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-            Cerrar
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 
 <?php
@@ -137,7 +116,8 @@ require_once "../../partials/_footer.php";
                             <i class="fa-solid fa-trash"></i>
                         </button>
                         <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#miModal">
+                        data-bs-target="#miModal"
+                        onclick="verDetalleVenta('${row.idcotizacion}', '${row.cliente}')">
                             <i class="fa-solid fa-circle-info"></i>
                         </button>
                         `;
@@ -162,7 +142,44 @@ require_once "../../partials/_footer.php";
       cargarTablaCotizacion();
     });
 </script>
+<script>
+    function verDetalleCotizacion(idcotizacion, cliente) {
+        $("#miModal").modal("show");
+        $("#miModal label[for='cliente']").text(cliente);
 
+        $.ajax({
+            url: "<?= SERVERURL ?>app/controllers/Detcotizacion.controller.php",
+            method: "GET",
+            data: { idcotizacion: idcotizacion },
+            dataType: "json",
+            success: function (response) {
+                console.log(response);  // Verifica la respuesta del servidor
+
+                const tbody = $("#miModal tbody");
+                tbody.empty(); // Limpiar contenido anterior
+
+                if (response.length > 0) {
+                    response.forEach((item, index) => {
+                        const fila = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item.producto}</td>
+                            <td>${item.precio}</td>
+                            <td>${item.descuento}%</td>
+                        </tr>
+                    `;
+                        tbody.append(fila);
+                    });
+                } else {
+                    tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
+                }
+            },
+            error: function () {
+                alert("Ocurrió un error al cargar el detalle.");
+            }
+        });
+    }
+</script>
 </body>
 
 </html>

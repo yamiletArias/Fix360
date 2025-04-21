@@ -1,6 +1,5 @@
 <?php
 
-
 if (isset($_SERVER['REQUEST_METHOD'])) {
 
     header('Content-Type: application/json; charset=utf-8');

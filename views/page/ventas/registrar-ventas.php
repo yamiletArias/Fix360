@@ -180,14 +180,13 @@ require_once "../../partials/header.php";
       </div>
     </div>
   </div>
-
 </div>
 </div>
 <!-- Formulario Venta -->
 </body>
-
 </html>
 
+<!-- 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
@@ -482,7 +481,7 @@ require_once "../../partials/header.php";
                 showConfirmButton: false,
                 timer: 1800
               }).then(() => {
-                window.location.href = 'listar-ventas2.php';
+                window.location.href = 'listar-ventas.php';
               });
             } else {
               Swal.fire({
@@ -506,12 +505,10 @@ require_once "../../partials/header.php";
         });
     });
   });
-</script>
-
+</script> -->
+<script src="<?= SERVERURL?>views/page/ventas/js/registrar-ventas.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
 <?php
-
 require_once "../../partials/_footer.php";
-
 ?>

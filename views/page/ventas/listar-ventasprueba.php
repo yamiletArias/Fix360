@@ -59,7 +59,7 @@ require_once "../../partials/header.php";
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <p><strong>Cliente:</strong> <label for="cliente"></label></p>
+                <p><strong>Cliente:</strong> <label for="cliente"></label></p>
                 <!-- <div class="form-group" style="margin: 10px">
                   <div class="form-floating input-group">
                     <input type="text" disabled class="form-control input" id="modeloInput" />
@@ -112,6 +112,7 @@ require_once "../../partials/header.php";
 </div>
 <!--FIN VENTAS-->
 </body>
+
 </html>
 <script>
     function cargarTablaVentas() {
@@ -160,7 +161,7 @@ require_once "../../partials/header.php";
                         </button>
                         <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                         data-bs-target="#miModal"
-                        onclick="verDetalleVenta('${row.idventa}', '${row.cliente}')">
+                        onclick="verDetalleVenta('${row.id}', '${row.cliente}')">
                             <i class="fa-solid fa-circle-info"></i>
                         </button>
                         `;
@@ -182,46 +183,46 @@ require_once "../../partials/header.php";
     } // Cierra cargarTablaVehiculos()
 
     document.addEventListener("DOMContentLoaded", function () {
-      cargarTablaVentas();
+        cargarTablaVentas();
     });
 </script>
 <script>
-  function verDetalleVenta(idventa, cliente) {
-    $("#miModal").modal("show");
-    $("#miModal label[for='cliente']").text(cliente);
+    function verDetalleVenta(idventa, cliente) {
+        $("#miModal").modal("show");
+        $("#miModal label[for='cliente']").text(cliente);
 
-    $.ajax({
-        url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
-        method: "GET",
-        data: { idventa: idventa },
-        dataType: "json",
-        success: function (response) {
-    console.log(response);  // Verifica la respuesta del servidor
+        $.ajax({
+            url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
+            method: "GET",
+            data: { idventa: idventa },
+            dataType: "json",
+            success: function (response) {
+                console.log(response);  // Verifica la respuesta del servidor
 
-    const tbody = $("#miModal tbody");
-    tbody.empty(); // Limpiar contenido anterior
+                const tbody = $("#miModal tbody");
+                tbody.empty(); // Limpiar contenido anterior
 
-    if (response.length > 0) {
-        response.forEach((item, index) => {
-            const fila = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.producto}</td>
-                    <td>${item.precio}</td>
-                    <td>${item.descuento}%</td>
-                </tr>
-            `;
-            tbody.append(fila);
+                if (response.length > 0) {
+                    response.forEach((item, index) => {
+                        const fila = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item.producto}</td>
+                            <td>${item.precio}</td>
+                            <td>${item.descuento}%</td>
+                        </tr>
+                    `;
+                        tbody.append(fila);
+                    });
+                } else {
+                    tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
+                }
+            },
+            error: function () {
+                alert("Ocurrió un error al cargar el detalle.");
+            }
         });
-    } else {
-        tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
     }
-},
-        error: function () {
-            alert("Ocurrió un error al cargar el detalle.");
-        }
-    });
-}
 </script>
 <?php
 require_once "../../partials/_footer.php";

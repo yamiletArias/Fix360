@@ -52,14 +52,20 @@ require_once "../../partials/header.php";
 </div>
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 600px;"> <!-- Cambié el tamaño aquí -->
+    <div class="modal-dialog" style="max-width: 800px;"> <!-- Cambié el tamaño aquí -->
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detalle de la Venta 001-0022</h5>
+                <h5 class="modal-title">Detalle de la Venta</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Cliente:</strong> Jose Hernandez</p>
+                <p><strong>Cliente:</strong> <label for="cliente"></label></p>
+                <!-- <div class="form-group" style="margin: 10px">
+                  <div class="form-floating input-group">
+                    <input type="text" disabled class="form-control input" id="modeloInput" />
+                    <label for="modeloInput">Cliente</label>
+                  </div>
+                </div> -->
                 <div class="table-container">
                     <table class="table table-striped table-bordered">
                         <thead>
@@ -67,32 +73,11 @@ require_once "../../partials/header.php";
                                 <th>#</th>
                                 <th>Productos</th>
                                 <th>Precio</th>
-                                <th>Moneda</th>
                                 <th>Descuento</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Filtro de aceite</td>
-                                <td>120.00</td>
-                                <td>Soles</td>
-                                <td>0%</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Pastillas de freno</td>
-                                <td>150.00</td>
-                                <td>Soles</td>
-                                <td>0%</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Amortiguador delantero</td>
-                                <td>250.00</td>
-                                <td>Soles</td>
-                                <td>0%</td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -107,9 +92,10 @@ require_once "../../partials/header.php";
 </div>
 <!--FIN VENTAS-->
 </body>
+
 </html>
 <script>
-    function cargarTablaCompras() {
+    function cargarTablaVentas() {
         if ($.fn.DataTable.isDataTable("#tablaventasdia")) {
             $("#tablaventasdia").DataTable().destroy();
         } // Cierra if
@@ -147,14 +133,15 @@ require_once "../../partials/header.php";
                     data: null,
                     render: function (data, type, row) { // Inicio de render de opciones
                         return `
-                        <a href="editar-ventas.php" class="btn btn-sm btn-warning" title="Editar">
+                        <a href="editar-ventas.php?id=${row.idventa}" class="btn btn-sm btn-warning" title="Editar">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                         <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                         <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#miModal">
+                        data-bs-target="#miModal"
+                        onclick="verDetalleVenta('${row.id}', '${row.cliente}')">
                             <i class="fa-solid fa-circle-info"></i>
                         </button>
                         `;
@@ -176,99 +163,47 @@ require_once "../../partials/header.php";
     } // Cierra cargarTablaVehiculos()
 
     document.addEventListener("DOMContentLoaded", function () {
-        cargarTablaCompras();
+        cargarTablaVentas();
     });
 </script>
+<script>
+    function verDetalleVenta(idventa, cliente) {
+        $("#miModal").modal("show");
+        $("#miModal label[for='cliente']").text(cliente);
 
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Tabla donde se mostrarán las ventas
-        const tabla = document.querySelector("#miTabla tbody");
-        let enlace = null; // Objeto público - dinámico
+        $.ajax({
+            url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
+            method: "GET",
+            data: { idventa: idventa },
+            dataType: "json",
+            success: function (response) {
+                console.log(response);  // Verifica la respuesta del servidor
 
+                const tbody = $("#miModal tbody");
+                tbody.empty(); // Limpiar contenido anterior
 
-        // Función para obtener los datos de ventas
-        function obtenerVentas() {
-            fetch('/Fix360/app/controllers/Venta.controller.php', {
-                method: 'GET'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Limpiar tabla antes de agregar nuevos datos
-                    tabla.innerHTML = '';
-
-                    // Si no hay datos
-                    if (data.length === 0) {
-                        tabla.innerHTML = `<tr><td colspan="6">No hay ventas registradas.</td></tr>`;
-                    } else {
-                        // Recorrer los datos y agregarlos a la tabla
-                        data.forEach(element => {
-                            tabla.innerHTML += `
-                            <tr data-id="${element.id}">
-                                <td>${element.id}</td>
-                                <td>${element.cliente}</td>
-                                <td>${element.tipocom}</td>
-                                <td>${element.numcom}</td>
-                                <td>${element.fechahora}</td>
-                                <td>
-                                    <a href='editar-venta.php?id=${element.id}' class='btn btn-warning btn-sm'>
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                    <a href='#' data-idventa='${element.id}' class='btn btn-danger btn-sm delete'>
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal" data-idventa="${element.id}">
-                                        <i class="fa-solid fa-circle-info"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al obtener las ventas:", error);
-                });
-        }
-
-        // Función para eliminar una venta
-        function eliminarVenta(idVenta) {
-            fetch(`../../app/controllers/Venta.controller.php?id=${idVenta}`, { method: 'DELETE' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Eliminar la fila de la tabla
-                        const fila = enlace.closest('tr');
-                        if (fila) { fila.remove(); }
-                    } else {
-                        alert("No se pudo eliminar el registro.");
-                    }
-                })
-                .catch(error => console.error(error));
-        }
-
-        // Delegación de eventos para los botones de eliminar
-        tabla.addEventListener("click", (event) => {
-            enlace = event.target.closest("a"); // Buscar la etiqueta "a" más cercana
-
-            if (enlace && enlace.classList.contains("delete")) {
-                event.preventDefault(); // Evitar que el hipervínculo funcione
-                const idVenta = enlace.getAttribute("data-idventa");
-
-                if (confirm("¿Está seguro de eliminar este registro?")) {
-                    eliminarVenta(idVenta);
+                if (response.length > 0) {
+                    response.forEach((item, index) => {
+                        const fila = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item.producto}</td>
+                            <td>${item.precio}</td>
+                            <td>${item.descuento}%</td>
+                        </tr>
+                    `;
+                        tbody.append(fila);
+                    });
+                } else {
+                    tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
                 }
+            },
+            error: function () {
+                alert("Ocurrió un error al cargar el detalle.");
             }
         });
-
-        // Llamada inicial para obtener las ventas
-        obtenerVentas();
-    });
-</script> -->
-
-
+    }
+</script>
 <?php
-
 require_once "../../partials/_footer.php";
-
 ?>

@@ -339,6 +339,8 @@ BEGIN
 END$$
 DELIMITER ;
 -- fin register productos
+
+
 -- FIN PROCEDIMIENTO DE PRODUCTOS
 
 CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);

@@ -44,7 +44,7 @@ LEFT JOIN empresas e ON cli.idempresa = e.idempresa
 LEFT JOIN personas p ON cli.idpersona = p.idpersona
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion;
 	
--- prueba para detalle de venta
+-- detalle de venta modal
 CREATE OR REPLACE VIEW vista_detalle_venta AS
 SELECT 
   v.idventa,
@@ -58,15 +58,70 @@ LEFT JOIN personas p ON c.idpersona = p.idpersona
 LEFT JOIN empresas e ON c.idempresa = e.idempresa
 JOIN detalleventa dv ON v.idventa = dv.idventa
 JOIN productos pr ON dv.idproducto = pr.idproducto;
+
+CREATE OR REPLACE VIEW vista_detalle_venta AS
+SELECT 
+  v.idventa,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.precioventa AS precio,
+  dv.descuento
+FROM ventas v
+JOIN clientes c ON v.idcliente = c.idcliente
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+JOIN detalleventa dv ON v.idventa = dv.idventa
+JOIN productos pr ON dv.idproducto = pr.idproducto
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
+-- fin detalle de venta modal
+
+-- detalle de compra modal
+-- vista detalle de compra (si solo hay empresas como proveedores)
+CREATE OR REPLACE VIEW vista_detalle_compra AS
+SELECT 
+  c.idcompra,
+  e.nomcomercial AS proveedor,
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.preciocompra AS precio,
+  dc.descuento
+FROM compras c
+JOIN proveedores prov ON c.idproveedor = prov.idproveedor
+JOIN empresas e ON prov.idempresa = e.idempresa
+JOIN detallecompra dc ON c.idcompra = dc.idcompra
+JOIN productos pr ON dc.idproducto = pr.idproducto
+JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria;
+
+-- fin detalle de compra modal
+
+-- detalle de cotizacion modal
+CREATE OR REPLACE VIEW vista_detalle_cotizacion AS
+SELECT 
+  c.idcotizacion,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.precio,
+  dc.descuento
+FROM cotizaciones c
+JOIN clientes c ON c.idcliente = c.idcliente
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+JOIN productos pr ON dc.idproducto = pr.idproducto
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
+-- fin de detalle cotizacion modal
+
+SELECT producto, precio, descuento 
+FROM vista_detalle_compra 
+WHERE idcompra= 1;
 SELECT * FROM vista_detalle_venta WHERE idventa = 2;
 SELECT producto, precio, descuento 
 FROM vista_detalle_venta 
-WHERE idventa = 2;
+WHERE idventa = 1;
 
 
--- fin detalle de venta
 
--- registro de venta
+
+-- pruebas registro de venta
 CREATE VIEW vs_registro_venta AS
 SELECT 
     CASE

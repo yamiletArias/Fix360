@@ -42,7 +42,7 @@ require_once "../../partials/header.php";
         <div class="row g-2 mt-3">
           <div class="col-md-6">
             <div class="form-floating">
-              <input name="cliente" id="cliente" type="text" class=" form-control input" placeholder="Producto"
+              <input name="cliente" id="cliente" type="text" class=" form-control input" placeholder="Cliente"
                 required />
               <label for="cliente">Cliente</label>
             </div>
@@ -51,7 +51,7 @@ require_once "../../partials/header.php";
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
                 <option value="soles" selected>Soles</option>
-                <!-- Aquí se insertan dinámicamente el resto de monedas -->
+                <!-- Aquí se insertan dinámicamente el tipo de monedas -->
               </select>
               <label for="moneda">Moneda:</label>
             </div>
@@ -63,7 +63,6 @@ require_once "../../partials/header.php";
           <div class="col-md-5">
             <div class="autocomplete">
               <div class="form-floating">
-                <!-- Campo de búsqueda de Producto -->
                 <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
                   placeholder="Buscar Producto" required>
                 <label for="producto">Buscar Producto:</label>
@@ -173,10 +172,15 @@ require_once "../../partials/header.php";
 
 </html>
 
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const inputCliente = document.getElementById("cliente");
     const inputProductElement = document.getElementById("producto");
+    const inputPrecio = document.getElementById("precio");
+    const inputCantidad = document.getElementById("cantidad");
+    const inputDescuento = document.getElementById("descuento");
+
     let clienteId = null;
     let selectedProduct = {};
     const agregarProductoBtn = document.getElementById("agregarProducto");
@@ -185,26 +189,48 @@ require_once "../../partials/header.php";
     const fechaInput = document.getElementById("fecha");
     const vigenciaDiasInput = document.getElementById("vigenciadias");
     const monedaSelect = document.getElementById('moneda');
-    const btnFinalizarCotizacion = document.getElementById('btnFinalizarCotizacion');
 
-    function calcularTotales() {
-      let totalImporte = 0;
-      let totalDescuento = 0;
+    // Función debounce
+    function debounce(func, delay) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
 
-      document.querySelectorAll("#tabla-detalle tbody tr").forEach(fila => {
-        const subtotal = parseFloat(fila.querySelector("td:nth-child(6)").textContent) || 0;
-        const descuento = parseFloat(fila.querySelector("td:nth-child(5)").textContent) || 0;
-        totalImporte += subtotal;
-        totalDescuento += descuento;
+    // Función para navegación con el teclado en la lista de autocompletado
+    function agregaNavegacion(input, itemsDiv) {
+      let currentFocus = -1;
+      input.addEventListener("keydown", function (e) {
+        const items = itemsDiv.getElementsByTagName("div");
+        if (e.key === "ArrowDown") {
+          currentFocus++;
+          addActive(items);
+        } else if (e.key === "ArrowUp") {
+          currentFocus--;
+          addActive(items);
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          if (currentFocus > -1 && items[currentFocus]) {
+            items[currentFocus].click();
+          }
+        }
       });
 
-      // Calcular IGV y Neto
-      const igv = totalImporte - (totalImporte / 1.18);
-      const neto = totalImporte / 1.18;
-      document.getElementById("total").value = totalImporte.toFixed(2);
-      document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
-      document.getElementById("igv").value = igv.toFixed(2);
-      document.getElementById("neto").value = neto.toFixed(2);
+      function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        items[currentFocus].classList.add("autocomplete-active");
+      }
+
+      function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+          items[i].classList.remove("autocomplete-active");
+        }
+      }
     }
 
     // Función de autocompletado para clientes
@@ -235,16 +261,11 @@ require_once "../../partials/header.php";
             });
             itemsDiv.appendChild(optionDiv);
           });
+          // Habilitar navegación con el teclado en la lista de clientes
+          agregaNavegacion(input, itemsDiv);
         })
         .catch(err => console.error('Error al obtener los clientes: ', err));
     }
-    inputCliente.addEventListener("input", function () {
-      mostrarOpcionesCliente(this);
-    });
-    inputCliente.addEventListener("click", function () {
-      mostrarOpcionesCliente(this);
-    });
-
 
     // Función de autocompletado para productos
     function mostrarOpcionesProducto(input) {
@@ -269,35 +290,159 @@ require_once "../../partials/header.php";
             optionDiv.textContent = producto.subcategoria_producto;
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
-              document.getElementById('precio').value = producto.precio;
-              document.getElementById('cantidad').value = 1;
-              document.getElementById('descuento').value = 0;
+              inputPrecio.value = producto.precio;
+              inputCantidad.value = 1;
+              inputDescuento.value = 0;
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
                 precio: producto.precio
               };
               cerrarListas();
+              // Al seleccionar con el autocomplete, mueve el foco al campo "precio"
+              inputPrecio.focus();
             });
             itemsDiv.appendChild(optionDiv);
           });
+          // Habilitar navegación con el teclado en la lista de productos
+          agregaNavegacion(input, itemsDiv);
         })
         .catch(err => console.error('Error al obtener los productos: ', err));
     }
-    inputProductElement.addEventListener("input", function () {
-      mostrarOpcionesProducto(this);
-    });
-    inputProductElement.addEventListener("click", function () {
-      mostrarOpcionesProducto(this);
-    });
-    document.addEventListener("click", function (e) {
-      cerrarListas(e.target);
-    });
+
+    // Función para cerrar las listas de autocompletado
     function cerrarListas(elemento) {
       const items = document.getElementsByClassName("autocomplete-items");
       while (items.length > 0) {
         items[0].parentNode.removeChild(items[0]);
       }
+    }
+
+    // Crear versiones debounced de las funciones de autocompletado
+    const debouncedMostrarOpcionesCliente = debounce(mostrarOpcionesCliente, 500);
+    const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+
+    // Listeners usando debounce para clientes y productos
+    inputCliente.addEventListener("input", function () {
+      debouncedMostrarOpcionesCliente(this);
+    });
+    inputCliente.addEventListener("click", function () {
+      debouncedMostrarOpcionesCliente(this);
+    });
+    inputProductElement.addEventListener("input", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+    inputProductElement.addEventListener("click", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+
+    document.addEventListener("click", function (e) {
+      cerrarListas(e.target);
+    });
+
+    // Agregar eventos de navegación por Enter en los campos: precio, cantidad y descuento
+    inputPrecio.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputCantidad.focus();
+      }
+    });
+
+    inputCantidad.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputDescuento.focus();
+      }
+    });
+
+    // Puedes decidir qué hacer al presionar Enter en descuento:
+    // Por ejemplo: mover el foco al botón "Agregar" o llamar a la función de agregar producto.
+    inputDescuento.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        agregarProductoBtn.focus();
+        // o directamente desencadenar la acción, por ejemplo:
+        // agregarProductoBtn.click();
+      }
+    });
+
+    // Agregar producto al detalle de venta
+    agregarProductoBtn.addEventListener("click", function () {
+      const productoNombre = inputProductElement.value;
+      const productoPrecio = parseFloat(inputPrecio.value);
+      const productoCantidad = parseFloat(inputCantidad.value);
+      const productoDescuento = parseFloat(inputDescuento.value);
+      if (!productoNombre || isNaN(productoPrecio) || isNaN(productoCantidad)) {
+        alert("Por favor, complete todos los campos correctamente.");
+        return;
+      }
+      if (estaDuplicado(selectedProduct.idproducto)) {
+        alert("Este producto ya ha sido agregado.");
+        inputProductElement.value = "";
+        inputPrecio.value = "";
+        inputCantidad.value = 1;
+        inputDescuento.value = 0;
+        return;
+      }
+      const importe = (productoPrecio * productoCantidad) - productoDescuento;
+      const nuevaFila = document.createElement("tr");
+      nuevaFila.innerHTML = `
+                <td>${tabla.rows.length + 1}</td>
+                <td>${productoNombre}</td>
+                <td>${productoPrecio.toFixed(2)}</td>
+                <td>${productoCantidad}</td>
+                <td>${productoDescuento.toFixed(2)}</td>
+                <td>${importe.toFixed(2)}</td>
+                <td><button class="btn btn-danger btn-sm">X</button></td>
+            `;
+      nuevaFila.querySelector("button").addEventListener("click", function () {
+        nuevaFila.remove();
+        actualizarNumeros();
+        calcularTotales();
+      });
+      tabla.appendChild(nuevaFila);
+      // Agregar al array de detalles
+      const detalle = {
+        idproducto: selectedProduct.idproducto,
+        producto: productoNombre,
+        precio: productoPrecio,
+        cantidad: productoCantidad,
+        descuento: productoDescuento,
+        importe: importe.toFixed(2)
+      };
+      detalleCotizacion.push(detalle);
+      inputProductElement.value = "";
+      inputPrecio.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
+      calcularTotales();
+    });
+
+    function actualizarNumeros() {
+      const filas = tabla.getElementsByTagName("tr");
+      for (let i = 0; i < filas.length; i++) {
+        filas[i].children[0].textContent = i + 1;
+      }
+    }
+
+    function calcularTotales() {
+      let totalImporte = 0;
+      let totalDescuento = 0;
+
+      document.querySelectorAll("#tabla-detalle tbody tr").forEach(fila => {
+        const subtotal = parseFloat(fila.querySelector("td:nth-child(6)").textContent) || 0;
+        const descuento = parseFloat(fila.querySelector("td:nth-child(5)").textContent) || 0;
+        totalImporte += subtotal;
+        totalDescuento += descuento;
+      });
+
+      // Calcular IGV y Neto
+      const igv = totalImporte - (totalImporte / 1.18);
+      const neto = totalImporte / 1.18;
+      document.getElementById("total").value = totalImporte.toFixed(2);
+      document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
+      document.getElementById("igv").value = igv.toFixed(2);
+      document.getElementById("neto").value = neto.toFixed(2);
     }
 
     // Establecer fecha actual por defecto en ambos campos
@@ -315,7 +460,6 @@ require_once "../../partials/header.php";
 
     // Variable para almacenar días de vigencia calculados
     let diasVigencia = 0;
-
     // Evento para calcular días de vigencia al cambiar la fecha
     vigenciaDiasInput.addEventListener("change", function () {
       const fechaCotizacion = new Date(fechaInput.value);
@@ -345,65 +489,6 @@ require_once "../../partials/header.php";
         i++;
       }
       return estado;
-    }
-
-    // Agregar producto al detalle de venta
-    agregarProductoBtn.addEventListener("click", function () {
-      const productoNombre = inputProductElement.value;
-      const productoPrecio = parseFloat(document.getElementById('precio').value);
-      const productoCantidad = parseFloat(document.getElementById('cantidad').value);
-      const productoDescuento = parseFloat(document.getElementById('descuento').value);
-      if (!productoNombre || isNaN(productoPrecio) || isNaN(productoCantidad)) {
-        alert("Por favor, complete todos los campos correctamente.");
-        return;
-      }
-      if (estaDuplicado(selectedProduct.idproducto)) {
-        alert("Este producto ya ha sido agregado.");
-        inputProductElement.value = "";
-        document.getElementById('precio').value = "";
-        document.getElementById('cantidad').value = 1;
-        document.getElementById('descuento').value = 0;
-        return;
-      }
-      const importe = (productoPrecio * productoCantidad) - productoDescuento;
-      const nuevaFila = document.createElement("tr");
-      nuevaFila.innerHTML = `
-      <td>${tabla.rows.length + 1}</td>
-      <td>${productoNombre}</td>
-      <td>${productoPrecio.toFixed(2)}</td>
-      <td>${productoCantidad}</td>
-      <td>${productoDescuento.toFixed(2)}</td>
-      <td>${importe.toFixed(2)}</td>
-      <td><button class="btn btn-danger btn-sm">X</button></td>
-    `;
-      nuevaFila.querySelector("button").addEventListener("click", function () {
-        nuevaFila.remove();
-        actualizarNumeros();
-      });
-      tabla.appendChild(nuevaFila);
-      // Agregar al array de detalles
-      const detalle = {
-        idproducto: selectedProduct.idproducto,
-        producto: productoNombre,
-        precio: productoPrecio,
-        cantidad: productoCantidad,
-        descuento: productoDescuento,
-        importe: importe.toFixed(2)
-      };
-      detalleCotizacion.push(detalle);
-      inputProductElement.value = "";
-      document.getElementById('precio').value = "";
-      document.getElementById('cantidad').value = 1;
-      document.getElementById('descuento').value = 0;
-
-      // ¡Recalcular totales tras agregar!
-      calcularTotales();
-    });
-    function actualizarNumeros() {
-      const filas = tabla.getElementsByTagName("tr");
-      for (let i = 0; i < filas.length; i++) {
-        filas[i].children[0].textContent = i + 1;
-      }
     }
 
     //boton Guardar
@@ -477,10 +562,9 @@ require_once "../../partials/header.php";
           btnFinalizarCotizacion.textContent = "Guardar";
         });
     });
-
   });
 </script>
-
+<script src="<?= SERVERURL ?>views/page/cotizaciones/js/registrar-cotizacion.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
 <?php
