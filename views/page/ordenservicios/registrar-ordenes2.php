@@ -19,7 +19,6 @@ require_once "../../partials/header.php";
     */
 </style>
 
-
 <div class="container-main">
   <div class="card border mb-3">
 
@@ -42,7 +41,7 @@ require_once "../../partials/header.php";
             <input type="text" disabled class="form-control" id="cliente" placeholder="Cliente">
             <label for="cliente">Cliente</label>
             <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
-              data-bs-target="#miModal">...</button>
+              data-bs-target="#ModalCliente">...</button>
           </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -83,7 +82,7 @@ require_once "../../partials/header.php";
               </select>
               <label for="servicio">Servicio:</label>
             </div>
-            <button class="btn btn-sm btn-success" type="button" id="button-addon2">
+            <button class="btn btn-sm btn-success" type="button" id="button-addon2" data-bs-toggle="modal" data-bs-target="#ModalServicio">
               <i class="fa-solid fa-circle-plus"></i>
             </button>
           </div>
@@ -99,7 +98,7 @@ require_once "../../partials/header.php";
         <div class="col-md-3 mb-3">
           <div class="input-group mb-3">
             <div class="form-floating">
-              <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2">
+              <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0">
               <label for="precio">Precio</label>
             </div>
             <button class="btn btn-sm btn-success" type="button" id="button-addon2">Agregar</button>
@@ -193,7 +192,7 @@ require_once "../../partials/_footer.php";
 ?>
 
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-  <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
+  <div class="modal-dialog">
     <div class="modal-content">
 
       <!-- Encabezado -->
@@ -213,93 +212,7 @@ require_once "../../partials/_footer.php";
             <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
               <div class="form-check form-check-inline" style="margin-right:40px;">
                 <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
-                  onclick="actualizarOpciones(); buscarPropietario();" checked>
-                <label class="form-check-label" for="rbtnpersona"
-                  style="margin-left:5px;">Persona</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
-                  onclick="actualizarOpciones(); buscarPropietario();">
-                <label class="form-check-label" for="rbtnempresa"
-                  style="margin-left:5px;">Empresa</label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fila para Método de Búsqueda -->
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-floating">
-              <select id="selectMetodo" class="form-select" style="color: black;">
-                <!-- Se actualizarán las opciones según el tipo (persona/empresa) -->
-              </select>
-              <label for="selectMetodo">Método de búsqueda:</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fila para Valor Buscado -->
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="vbuscado" style="background-color: white;"
-                placeholder="Valor buscado" />
-              <label for="vbuscado">Valor buscado</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tabla de Resultados -->
-        <p class="mt-3"><strong>Resultado:</strong></p>
-        <div class="table-responsive">
-          <table id="tabla-resultado" class="table table-striped">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Nombre</th>
-                <th>Documento</th>
-                <th>Confirmar</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Se llenará dinámicamente -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Pie del Modal -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="ModalServicio" tabindex="-1" aria-labelledby="ServicioModalLabel" aria-hidden="true">
-  <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
-    <div class="modal-content">
-
-      <!-- Encabezado -->
-      <div class="modal-header">
-        <h2 class="modal-title" id="miModalLabel">Registrar Servicio</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <!-- Cuerpo -->
-      <div class="modal-body">
-
-        <!-- Fila para Tipo de Propietario -->
-        <div class="row mb-3">
-          <div class="col">
-            <label><strong>Tipo de propietario:</strong></label>
-            <!-- Contenedor de radio buttons -->
-            <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
-              <div class="form-check form-check-inline" style="margin-right:40px;">
-                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
-                  onclick="actualizarOpciones(); buscarPropietario();" checked>
+                  onclick="actualizarOpciones(); buscarPropietario();" checked >
                 <label class="form-check-label" for="rbtnpersona"
                   style="margin-left:5px;">Persona</label>
               </div>
@@ -370,7 +283,7 @@ require_once "../../partials/_footer.php";
 
       <!-- Encabezado -->
       <div class="modal-header">
-        <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
+        <h2 class="modal-title" id="miModalLabel">Seleccionar Cliente</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -439,6 +352,54 @@ require_once "../../partials/_footer.php";
       <!-- Pie del Modal -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="ModalServicio" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
+    <div class="modal-content">
+
+      <!-- Encabezado -->
+      <div class="modal-header">
+        <h2 class="modal-title" id="miModalLabel">Registrar Servicio</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-floating">
+              <select id="selectMetodo" class="form-select input" style="color: black;">
+                <!-- Se actualizarán las opciones según el tipo (persona/empresa) -->
+              </select>
+              <label for="selectMetodo">Tipo de Servicio:</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila para Valor Buscado -->
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-floating">
+              <input type="text" class="form-control input" id="vbuscado" style="background-color: white;"
+                placeholder="Valor buscado" />
+              <label for="vbuscado">Servicio</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Resultados -->
+  
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Guardar</button>
       </div>
 
     </div>

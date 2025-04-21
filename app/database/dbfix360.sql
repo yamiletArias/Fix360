@@ -195,15 +195,15 @@ CONSTRAINT fk_idmarca_2 FOREIGN KEY (idmarca) REFERENCES marcas (idmarca)
 DROP TABLE IF EXISTS vehiculos;
 CREATE TABLE vehiculos(
 
-idvehiculo 		INT 					PRIMARY KEY 		AUTO_INCREMENT,
-idmodelo 		INT 					NOT NULL,
-placa 			CHAR(7)				NOT NULL,
-anio				CHAR(4)				NOT NULL,
-numserie 		VARCHAR(20)			NOT NULL,
-color 			VARCHAR(50)			NOT NULL,
-tipocombustible VARCHAR(30) 		NOT NULL,
-creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
-modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+idvehiculo 			INT 					PRIMARY KEY 		AUTO_INCREMENT,
+idmodelo 			INT 					NOT NULL,
+placa 				CHAR(7)				NOT NULL,
+anio					CHAR(4)				NULL,
+numserie 			VARCHAR(20)			NULL,
+color 				VARCHAR(50)			NOT NULL,
+tipocombustible 	VARCHAR(30) 		NOT NULL,
+creado  				TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP,  
+modificado  		TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idmodelo FOREIGN KEY (idmodelo) REFERENCES modelos (idmodelo),
 CONSTRAINT uq_numserie UNIQUE(numserie,placa)
 

@@ -166,12 +166,131 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="ModalAsignarVehiculo" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"> <!-- Modal grande si lo requieres -->
+    <div class="modal-content">
+      <!-- Encabezado -->
+      <div class="modal-header">
+        <h2 class="modal-title" id="miModalLabel">Asignar Vehiculo</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <!-- Cuerpo -->
+      <div class="modal-body" style="margin-top: 0px;">
+        <form action="" id="FormVehiculo">
+          <div class="card border">
+            <div class="card-body">
+              <div class="row">
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
+                      <option value="">Seleccione una opcion</option>
+                    </select>
+                    <label for="tipov">Tipo de vehiculo:</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 ">
+                  <div class="form-floating">
+                    <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
+                      <option value="">Seleccione una opcion</option>
+
+                    </select>
+                    <label for="marcav">Marca del vehiculo:</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
+                      <option value="">Seleccione una opcion</option>
+                    </select>
+                    <label for="modelo">Modelo del vehiculo:</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" required
+                      maxlength="6" />
+                    <label for="fplaca">Placa</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" maxlength="4"
+                      required />
+                    <label for="fanio">Año</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fnumserie" placeholder="numerodeserie" />
+                    <label for="fnumserie">N° de serie</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" />
+                    <label for="fcolor">Color</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="ftcombustible" style="color: black;">
+                      <option value="Gasolina" selected>Gasolina</option>
+                      <option value="Diesel">Diesel</option>
+                      <option value="GNV">GNV</option>
+                      <option value="GLP">GLP</option>
+                      <option value="Biodiésel">biodiésel</option>
+                      <option value="Etanol">Etanol</option>
+                      <option value="Allinol">Allinol</option>
+                      <option value="Electricidad">Electricidad</option>
+                      <option value="Hidrogeno">Hidrogeno</option>
+                      <option value="Biocombustible">Biocombustible</option>
+                    </select>
+                    <label for="ftcombustible">Tipo de combustible:</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating input-group mb-3">
+                    <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario" value="" />
+                    <label for="floatingInput">Propietario</label>
+                    <input type="hidden" id="hiddenIdCliente" />
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="btnRegistrarVehiculo">Guardar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
 <!-- plugins:js -->
 <?php
 require_once "../../partials/_footer.php";
 ?>
 
 <script>
+  // Cierra listener
   // Función para inicializar el DataTable para clientes Persona
   function cargarTablaPersona() { // Inicio de cargarTablaPersona()
     // Si ya está inicializado, se destruye la instancia anterior
@@ -211,6 +330,7 @@ require_once "../../partials/_footer.php";
         {
           data: null,
           render: (data, type, row) => {
+            const nombreCliente = `${row.nombres || ''} ${row.apellidos || ''}`.trim(); // para persona
             // Botón de detalle, puedes personalizarlo si lo deseas  
             return `
                     <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idpersona}">
@@ -218,6 +338,16 @@ require_once "../../partials/_footer.php";
                     </a>
                     <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetallePersona('${row.numruc}', '${row.direccion}', '${row.correo}', '${row.telalternativo}','${row.modificado}')">
                       <i class='fa-solid fa-clipboard-list'></i>
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-dark"
+                      data-bs-toggle="modal"
+                      data-bs-target="#ModalAsignarVehiculo"
+                      data-idcliente="${row.idpersona}"
+                      data-nombrecliente="${nombreCliente}"
+                      title="Asignar vehículo"
+                    >
+                    <i class="fa-solid fa-car"></i>
                     </button>
                     
                     `;
@@ -317,7 +447,6 @@ require_once "../../partials/_footer.php";
     }); // Cierra DataTable inicialización
   } // Cierra cargarTablaEmpresa()
 
-
   // Función para mostrar/ocultar la tabla correcta según el tipo seleccionado
   function mostrarTabla(tipo) { // Inicio de mostrarTabla()
     if (tipo === "persona") {
@@ -331,12 +460,10 @@ require_once "../../partials/_footer.php";
     }
   } // Cierra mostrarTabla()
 
-
   // Inicializar la vista al cargar la página: se muestra la tabla de personas por defecto
   document.addEventListener("DOMContentLoaded", function() { // Inicio de DOMContentLoaded para inicialización
     mostrarTabla("persona");
   }); // Cierra DOMContentLoaded
-
 
   // Función para ver detalles (ejemplo de uso: podrías abrir un modal para mostrar más información)
   function verDetalle(idcliente) { // Inicio de verDetalle()
@@ -345,6 +472,7 @@ require_once "../../partials/_footer.php";
   } // Cierra verDetalle()
 </script>
 
+<script src="<?= SERVERURL ?>views/page/clientes/js/asignar-vehiculo.js"></script>
 </body>
 
 </html>

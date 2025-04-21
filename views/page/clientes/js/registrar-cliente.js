@@ -85,54 +85,54 @@ document.addEventListener("DOMContentLoaded", function() {
       const numdoc      = numdocInput.value.trim();
       if (!cpersona) {
         esValido = false;
-        showToast('El campo "Contactabilidad" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Contactabilidad" es obligatorio', 'ERROR', 1500);
       }
       if (!apellidos) {
         esValido = false;
-        showToast('El campo "Apellidos" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Apellidos" es obligatorio', 'ERROR', 1500);
       }
       if (!nombres) {
         esValido = false;
-        showToast('El campo "Nombres" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Nombres" es obligatorio', 'ERROR', 1500);
       }
       if (!tipodoc) {
         esValido = false;
-        showToast('El campo "Tipo de documento" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Tipo de documento" es obligatorio', 'ERROR', 1500);
       }
       if (!numdoc) {
         esValido = false;
-        showToast('El campo "Número de documento" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Número de documento" es obligatorio', 'ERROR', 1500);
       }
       const numruc = document.querySelector('#numruc')?.value.trim();
       if (numruc && !/^10\d{9}$/.test(numruc)) {
         esValido = false;
-        showToast('El N° de RUC debe comenzar con 10 y tener 11 dígitos', 'ERROR', 3000);
+        showToast('El N° de RUC debe comenzar con 10 y tener 11 dígitos', 'ERROR', 1500);
       }
       if (tipodoc === "DNI") {
         if (!/^\d{8}$/.test(numdoc)) {
           esValido = false;
-          showToast('El DNI debe tener exactamente 8 dígitos', 'ERROR', 3000);
+          showToast('El DNI debe tener exactamente 8 dígitos', 'ERROR', 1500);
         }
       } else if (tipodoc === "Pasaporte" || tipodoc === "cde") {
         if (numdoc.length < 9) {
           esValido = false;
-          showToast('El Número de documento para Pasaporte/Carnet de extranjería debe tener al menos 9 caracteres', 'ERROR', 3000);
+          showToast('El Número de documento para Pasaporte/Carnet de extranjería debe tener al menos 9 caracteres', 'ERROR', 1500);
         }
       }
       const telprincipal = document.querySelector('#telprincipal')?.value.trim();
       if (telprincipal && !/^[9]\d{8}$/.test(telprincipal)) {
         esValido = false;
-        showToast('El Tel. principal debe tener 9 dígitos y comenzar con 9', 'ERROR', 3000);
+        showToast('El Tel. principal debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500);
       }
       const telalternativo = document.querySelector('#telalternativo')?.value.trim();
       if (telalternativo && !/^[9]\d{8}$/.test(telalternativo)) {
         esValido = false;
-        showToast('El Tel. alternativo debe tener 9 dígitos y comenzar con 9', 'ERROR', 3000);
+        showToast('El Tel. alternativo debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500);
       }
       const correo = document.querySelector('#correo')?.value.trim();
       if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
         esValido = false;
-        showToast('El correo electrónico es inválido', 'ERROR', 3000);
+        showToast('El correo electrónico es inválido', 'ERROR', 1500);
       }
     } else if (formulario.id === "formEmpresa") {
       const razonsocial = document.querySelector('#razonsocial')?.value.trim();
@@ -141,33 +141,33 @@ document.addEventListener("DOMContentLoaded", function() {
       const rucVal       = document.querySelector('#ruc')?.value.trim();
       if (!razonsocial) {
         esValido = false;
-        showToast('El campo "Razón Social" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Razón Social" es obligatorio', 'ERROR', 1500);
       }
       if (!cempresa) {
         esValido = false;
-        showToast('El campo "Contactabilidad" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Contactabilidad" es obligatorio', 'ERROR', 1500);
       }
       if (!nomcomercial) {
         esValido = false;
-        showToast('El campo "Nombre Comercial" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "Nombre Comercial" es obligatorio', 'ERROR', 1500);
       }
       if (!rucVal) {
         esValido = false;
-        showToast('El campo "RUC" es obligatorio', 'ERROR', 3000);
+        showToast('El campo "RUC" es obligatorio', 'ERROR', 1500);
       }
       if (!/^(20)\d{9}$/.test(rucVal)) {
         esValido = false;
-        showToast('El RUC debe tener 11 dígitos y comenzar con 20', 'ERROR', 3000);
+        showToast('El RUC debe tener 11 dígitos y comenzar con 20', 'ERROR', 1500);
       }
       const correoEmp = document.querySelector('#correoemp')?.value.trim();
       if (correoEmp && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoEmp)) {
         esValido = false;
-        showToast('El correo electrónico es inválido', 'ERROR', 3000);
+        showToast('El correo electrónico es inválido', 'ERROR', 1500);
       }
       const telempresa = document.querySelector('#telempresa')?.value.trim();
       if (telempresa && !/^[9]\d{8}$/.test(telempresa)) {
         esValido = false;
-        showToast('El Teléfono debe tener 9 dígitos y comenzar con 9', 'ERROR', 3000);
+        showToast('El Teléfono debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500);
       }
     }
     return esValido;
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function() {
   async function registrarCliente(datos, tipo) {
     const confirmacion = await ask("¿Estás seguro de registrar este cliente?", "Registro de Cliente");
     if (!confirmacion) {
-      showToast('Registro cancelado.', 'WARNING', 3000);
+      showToast('Registro cancelado.', 'WARNING', 1500);
       return;
     }
     const url = 'http://localhost/fix360/app/controllers/Cliente.controller.php';
@@ -190,14 +190,14 @@ document.addEventListener("DOMContentLoaded", function() {
       });
       const resData = await response.json();
       if (resData.rows > 0) {
-        showToast('Cliente registrado exitosamente.', 'SUCCESS', 1500);
+        showToast('Cliente registrado exitosamente.', 'SUCCESS', 1000);
         setTimeout(() => window.location.href = 'listar-cliente.php', 1500);
       } else {
-        showToast('Hubo un error al registrar al cliente. Intenta nuevamente.', 'ERROR', 3000);
+        showToast('Hubo un error al registrar al cliente. Intenta nuevamente.', 'ERROR', 1500);
       }
     } catch (error) {
       console.error('Error al registrar el cliente:', error);
-      showToast('Error al realizar la solicitud. Intenta nuevamente.', 'ERROR', 3000);
+      showToast('Error al realizar la solicitud. Intenta nuevamente.', 'ERROR', 1500);
     }
   }
   
