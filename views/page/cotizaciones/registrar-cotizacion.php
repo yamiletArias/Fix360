@@ -177,10 +177,9 @@ require_once "../../partials/header.php";
 </div>
 </div>
 </body>
-
 </html>
 
-
+<!-- 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const inputCliente = document.getElementById("cliente");
@@ -465,7 +464,7 @@ require_once "../../partials/header.php";
             vigenciaDiasInput.value = formattedDate;
         };
         setFechaDefault();
-        
+
         // Variable para almacenar días de vigencia calculados
         let diasVigencia = 0;
         // Evento para calcular días de vigencia al cambiar la fecha
@@ -570,81 +569,9 @@ require_once "../../partials/header.php";
                     btnFinalizarCotizacion.textContent = "Guardar";
                 });
         });
-
     });
-</script>
-<script>
-    /* $(function () {
-    // Autocompletado para "Cliente"
-    $("#cliente").autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                url: "http://localhost/Fix360/app/controllers/Cotizacion.controller.php",
-                dataType: "json",
-                data: {
-                    q: request.term,
-                    type: "cliente"
-                },
-                success: function (data) {
-                    response($.map(data, function (item) {
-                        return {
-                            label: item.cliente,
-                            value: item.cliente,
-                            idcliente: item.idcliente
-                        };
-                    }));
-                }
-            });
-        },
-        minLength: 2,
-        select: function (event, ui) {
-            $("#cliente").val(ui.item.value);
-            clienteId = ui.item.idcliente;
-            $("#producto").focus();
-            return false;
-        }
-    });
-
-    // Autocompletado para "Producto"
-    $("#producto").autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                url: "http://localhost/Fix360/app/controllers/Cotizacion.controller.php",
-                dataType: "json",
-                data: {
-                    q: request.term,
-                    type: "producto"
-                },
-                success: function (data) {
-                    response($.map(data, function (item) {
-                        return {
-                            label: item.subcategoria_producto,
-                            value: item.subcategoria_producto,
-                            precio: item.precio,
-                            idproducto: item.idproducto
-                        };
-                    }));
-                }
-            });
-        },
-        minLength: 2,
-        select: function (event, ui) {
-            $("#producto").val(ui.item.value);
-            $("#precio").val(ui.item.precio);
-            $("#cantidad").val(1);
-            $("#descuento").val(0);
-            selectedProduct = {
-                idproducto: ui.item.idproducto,
-                subcategoria_producto: ui.item.value,
-                precio: ui.item.precio
-            };
-            $("#precio").focus();
-            return false;
-        }
-    });
-}); */
-</script>
-
+</script> -->
+<script src="<?= SERVERURL?>views/page/cotizaciones/js/registrar-cotizacion.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
 <?php

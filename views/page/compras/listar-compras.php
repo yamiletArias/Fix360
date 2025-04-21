@@ -4,7 +4,6 @@ require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
-
 <div class="container-main mt-5">
   <div class="row mb-4">
     <div class="col-12 d-flex justify-content-between align-items-center">
@@ -77,7 +76,7 @@ require_once "../../partials/header.php";
         { // Columna 4: proveedor
           data: "proveedores",
           defaultContent: "No disponible",
-          class: 'text-start' 
+          class: 'text-start'
         },
         { // Columna 2: tipocom
           data: "tipocom",
@@ -100,14 +99,13 @@ require_once "../../partials/header.php";
           data: null,
           render: function (data, type, row) { // Inicio de render de opciones
             return `
-            <a href="editar-cventas.php" class="btn btn-sm btn-warning" title="Editar">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </a>
+            
             <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
               <i class="fa-solid fa-trash"></i>
             </button>
-            <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-              data-bs-target="#miModal">
+            <button title="Detalle" type="button" class="btn btn-primary btn-sm"
+            data-bs-toggle="modal" data-bs-target="#miModal"
+            onclick="verDetalleCompra('${row.id}', '${row.proveedores}')">
               <i class="fa-solid fa-circle-info"></i>
             </button>
 
@@ -134,59 +132,73 @@ require_once "../../partials/header.php";
   });
 </script>
 
+<script>
+  function verDetalleCompra(idcompra, proveedor) {
+    $("#miModal").modal("show");
+    $("#miModal label[for='proveedor']").text(proveedor);
 
-<!-- Modal -->
+    $.ajax({
+      url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
+      method: "GET",
+      data: { idcompra: idcompra },
+      dataType: "json",
+      success: function (response) {
+        const tbody = $("#miModal tbody").empty();
+        if (response.length > 0) {
+          response.forEach((item, i) => {
+            tbody.append(`
+            <tr>
+              <td>${i + 1}</td>
+              <td>${item.producto}</td>
+              <td>${item.precio}</td>
+              <td>${item.descuento}%</td>
+            </tr>
+          `);
+          });
+        } else {
+          tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
+        }
+      },
+      error: function () {
+        alert("Ocurrió un error al cargar el detalle.");
+      }
+    });
+  }
+</script>
+<!-- Modal de Detalle de Compras -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog" style="max-width: 800px;"> <!-- Cambié el tamaño aquí -->
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Detalle de la Compra 0001-022</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">Detalle de la Compra</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Cliente: Jose Hernandez</p>
+        <p><strong>Proveedor:</strong> <label for="proveedor"></label></p>
+        <!-- <div class="form-group" style="margin: 10px">
+                  <div class="form-floating input-group">
+                    <input type="text" disabled class="form-control input" id="modeloInput" />
+                    <label for="modeloInput">Cliente</label>
+                  </div>
+                </div> -->
         <div class="table-container">
-          <!-- Tabla Día -->
-          <table id="miTabla" class="table table-striped display">
+          <table class="table table-striped table-bordered">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Productos</th>
                 <th>Precio</th>
-                <th>Moneda</th>
                 <th>Descuento</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Filtro de aceite</td>
-                <td>120.00</td>
-                <td>Soles</td>
-                <td>0%</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Pastillas de freno</td>
-                <td>150.00</td>
-                <td>Soles</td>
-                <td>0%</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Amortiguador delantero</td>
-                <td>250.00</td>
-                <td>Soles</td>
-                <td>0%</td>
-              </tr>
+
             </tbody>
           </table>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-          Cerrar
-        </button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>

@@ -286,8 +286,31 @@ BEGIN
   VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
   SET _idproducto = LAST_INSERT_ID();
 END$$
-DELIMITER $$
+DELIMITER ;
 
+CREATE OR REPLACE VIEW vista_productos_completa AS
+SELECT 
+  p.idproducto,
+  CONCAT(s.subcategoria, ' ', p.descripcion) AS producto,
+  p.precio,
+  p.presentacion,
+  p.undmedida,
+  p.cantidad,
+  p.img,
+  s.idsubcategoria,
+  s.subcategoria,
+  c.idcategoria,
+  c.categoria,
+  m.idmarca,
+  m.nombre AS marca
+FROM productos p
+INNER JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
+INNER JOIN categorias c ON s.idcategoria = c.idcategoria
+INNER JOIN marcas m ON p.idmarca = m.idmarca;
+
+
+
+-- DIN PRODUCTO
 
 CREATE PROCEDURE spGetPersonaById(
 IN _idpersona INT
