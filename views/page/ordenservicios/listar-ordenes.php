@@ -58,13 +58,13 @@ require_once "../../partials/header.php";
               <td>21/07/2025 10:00</td>
               <td>G4D1CS</td>
               <td>
-                <button class="btn btn-sm btn-outline-dark">
+                <button class="btn btn-sm btn-danger">
                   <i class="fa-solid fa-trash"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-dark">
-                  <i class="fa-solid fa-clipboard"></i>
+                <button class="btn btn-sm btn-info">
+                  <i class="fa-solid fa-clipboard-list"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-dark">
+                <button class="btn btn-sm btn-primary">
                   <i class="fa-solid fa-eye"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-dark">
@@ -80,13 +80,13 @@ require_once "../../partials/header.php";
               <td>21/07/2025 10:00</td>
               <td>G4D1CS</td>
               <td>
-                <button class="btn btn-sm btn-outline-dark">
+                <button class="btn btn-sm btn-danger">
                   <i class="fa-solid fa-trash"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-dark">
-                  <i class="fa-solid fa-clipboard"></i>
+                <button class="btn btn-sm btn-info">
+                  <i class="fa-solid fa-clipboard-list"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-dark">
+                <button class="btn btn-sm btn-primary">
                   <i class="fa-solid fa-eye"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-dark">
@@ -102,13 +102,13 @@ require_once "../../partials/header.php";
               <td>21/07/2025 10:00</td>
               <td>G4D1CS</td>
               <td>
-                <button class="btn btn-sm btn-outline-dark">
+                <button class="btn btn-sm btn-danger">
                   <i class="fa-solid fa-trash"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-dark">
-                  <i class="fa-solid fa-clipboard"></i>
+                <button class="btn btn-sm btn-info">
+                  <i class="fa-solid fa-clipboard-list"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-dark">
+                <button class="btn btn-sm btn-primary">
                   <i class="fa-solid fa-eye"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-dark">

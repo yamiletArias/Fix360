@@ -94,7 +94,7 @@ razonsocial,
     (_idempresa, _idcontactabilidad);
 END $$
 
-
+DELIMITER $$
  CREATE PROCEDURE spRegisterVehiculo(
 IN _idmodelo INT,
 IN _placa CHAR(7),
