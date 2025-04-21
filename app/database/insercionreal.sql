@@ -357,9 +357,9 @@ INSERT INTO categorias (categoria)
  -- select * from contratos;
  -- Insertar colaboradores
  INSERT INTO Colaboradores (idcontrato, namuser, passuser) VALUES
- (10, 'cmendoza', 'pass123'),
- (11, 'lramirez', 'pass123'),
- (12, 'jperez', 'pass123');
+ (1, 'cmendoza', 'pass123'),
+ (2, 'lramirez', 'pass123'),
+ (3, 'jperez', 'pass123');
  
 -- select * from colaboradores;
 

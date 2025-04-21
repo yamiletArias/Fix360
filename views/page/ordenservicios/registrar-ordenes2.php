@@ -22,20 +22,10 @@ require_once "../../partials/header.php";
 
 <div class="container-main">
   <div class="card border mb-3">
-    <div class="card-header">
-      <div class="row">
-        <h4 class="col-md-4">Propietario</h4>
-        <div class="col-md-7"></div>
-        <button class="text-center col-md-1  btn btn-sm btn-registrar btn-success">
-          Registrar
-        </button>
-      </div>
-    </div>
+
     <div class="card-body">
       <div class="row">
-
-
-        <div class="col-md-6">
+        <div class="col-md-6 mb-3">
           <div class="form-floating input-group mb-3">
             <input type="text" disabled class="form-control input" id="propietario"
               placeholder="Propietario" />
@@ -47,7 +37,7 @@ require_once "../../partials/header.php";
             </button>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 mb-3">
           <div class="form-floating input-group mb-3">
             <input type="text" disabled class="form-control" id="cliente" placeholder="Cliente">
             <label for="cliente">Cliente</label>
@@ -55,94 +45,144 @@ require_once "../../partials/header.php";
               data-bs-target="#miModal">...</button>
           </div>
         </div>
+        <div class="col-md-4 mb-3">
+          <div class="form-floating">
+            <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
+              <option selected>Eliga un vehículo</option>
+            </select>
+            <label for="vehiculo">Vehículo:</label>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="form-floating">
+            <input type="number" step="0.1" class="form-control input" id="kilometraje" placeholder="201">
+            <label for="kilometraje">Kilometraje</label>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="form-floating">
+            <input type="date" class="form-control input" id="fechaIngreso">
+            <label for="fechaIngreso">Fecha de ingreso:</label>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="form-floating">
+            <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
+              required>
+              <option selected>Eliga un tipo de servicio</option>
+
+            </select>
+            <label for="subcategoria">Tipo de Servicio:</label>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="input-group mb-3">
+            <div class="form-floating">
+              <select class="form-select" id="servicio" name="servicio" style="color:black;">
+                <option selected>Eliga un servicio</option>
+              </select>
+              <label for="servicio">Servicio:</label>
+            </div>
+            <button class="btn btn-sm btn-success" type="button" id="button-addon2">
+              <i class="fa-solid fa-circle-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="form-floating">
+            <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
+              <option selected>Eliga un mecánico</option>
+            </select>
+            <label for="mecanico">Mecánico:</label>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="input-group mb-3">
+            <div class="form-floating">
+              <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2">
+              <label for="precio">Precio</label>
+            </div>
+            <button class="btn btn-sm btn-success" type="button" id="button-addon2">Agregar</button>
+          </div>
+        </div>
       </div>
     </div>
+
+
   </div>
-  <div class="card border">
-    <div class="card-header">
-      <div class="row">
-        <h4 class="col-md-4">Vehiculos</h4>
-        <div class="col-md-7"></div>
-        <button class="text-center col-md-1  btn btn-sm btn-registrar btn-success">
-          Registrar
-        </button>
-      </div>
-    </div>
+
+  <div class="card mt-2 border">
     <div class="card-body">
-      <table class="table table-striped ">
+      <table class="table table-striped table-sm" id="tabla-detalle">
         <thead>
           <tr>
             <th>#</th>
-            <th>T. Vehiculo</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Placa</th>
-            <th>Color</th>
-            <th>mecanico</th>
-            <th>Operaciones</th>
+            <th>Servicio</th>
+            <th>Mecanico</th>
+            <th>Precio</th>
+            <th>Eliminar</th>
           </tr>
         </thead>
         <tbody>
+          <!-- Datos asíncronos -->
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+  <div class="card mt-2 border">
+    <div class="card-body">
+      <table class="tabla table-sm">
+        <colgroup>
+          <col style="width: 5%;">
+          <col style="width: 60%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 5%;">
+        </colgroup>
+        <tbody>
           <tr>
-            <td>1</td>
-            <td>Camioneta</td>
-            <td>Briliance</td>
-            <td>MarcaDCarro</td>
-            <td>8S5WCK</td>
-            <td>Rojo</td>
-            <td>Walter Aquije</td>
+            <td colspan="4" class="text-end">Subtotal</td>
             <td>
-              <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
-              <a href="#" class="btn btn-sm btn-danger btn-opciones" title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
-              <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
-              <a href="listar-observacion-orden2.php" class="btn btn-sm btn-primary btn-opciones" title="observaciones"><i class="fa-solid fa-eye"></i></a> <!-- observaciones -->
-              <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
-              <a href="listar-serviciosbrindados.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
+              <input type="text" class="form-control form-control-sm text-end" id="subtotal" readonly>
             </td>
+            <td></td>
           </tr>
           <tr>
-            <td>1</td>
-            <td>Camioneta</td>
-            <td>Briliance</td>
-            <td>MarcaDCarro</td>
-            <td>8S5WCK</td>
-            <td>Rojo</td>
-            <td>Walter Aquije</td>
+            <td colspan="4" class="text-end">IGV</td>
             <td>
-              <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
-              <a href="#" class="btn btn-sm btn-danger btn-opciones" title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
-              <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
-              <a href="listar-observacion-orden2.php" class="btn btn-sm btn-primary btn-opciones" title="observaciones"><i class="fa-solid fa-eye"></i></a> <!-- observaciones -->
-              <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
-              <a href="listar-serviciosbrindados.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
+              <input type="text" class="form-control form-control-sm text-end" id="igv" readonly>
             </td>
+            <td></td>
+
           </tr>
           <tr>
-            <td>1</td>
-            <td>Camioneta</td>
-            <td>Briliance</td>
-            <td>MarcaDCarro</td>
-            <td>8S5WCK</td>
-            <td>Rojo</td>
-            <td>Walter Aquije</td>
+            <td colspan="4" class="text-end">Neto</td>
             <td>
-              <a href="#" class="btn btn-sm btn-warning btn-opciones" title="Editar"><i class="fa-solid fa-pen-to-square"></i></a> <!-- Edita DETEQUIPOS -->
-              <a href="#" class="btn btn-sm btn-danger btn-opciones" title="Eliminar"><i class="fa-solid fa-trash"></i></a> <!-- Elimina de forma física de DETEQUIPOS -->
-              <a href="#" class="btn btn-sm btn-info btn-opciones" title="Características"><i class="fa-solid fa-clipboard-list"></i></a> <!-- Datos de CARACTERÍSTICAS / ESPECIFICACIONES -->
-              <a href="listar-observacion-orden2.php" class="btn btn-sm btn-primary btn-opciones" title="observaciones"><i class="fa-solid fa-eye"></i></a> <!-- observaciones -->
-              <a href="#" class="btn btn-sm btn-outline-dark btn-opciones" title="Asignar mecanico"><i class="fa-solid fa-user-gear"></i></a> <!-- Asignar mecanico DETALLE_SERVICIO -->
-              <a href="listar-serviciosbrindados.php" class="btn btn-sm btn-outline-dark btn-opciones" title="Revisión"><i class="fa-solid fa-toolbox"></i></a> <!-- Mostrar vista DETALLE_SERVICIO (x equipo) -->
+              <input type="text" class="form-control form-control-sm text-end" id="neto" readonly>
+            </td>
+            <td></td>
+
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">
+              <button class="btn btn-success text-end">Aceptar</button>
+            </td>
+            <td>
+              <a class="btn btn-secondary text-end" href="listar-ordenes.php">Cancelar</a>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="card-footer text-right">
-      <a href="listar-observacion-orden2.php" class="btn btn-sm btn-secondary">Volver</a>
-    </div>
   </div>
 
+
 </div>
+
+
 </div>
 </div>
 
@@ -159,6 +199,92 @@ require_once "../../partials/_footer.php";
       <!-- Encabezado -->
       <div class="modal-header">
         <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="modal-body">
+
+        <!-- Fila para Tipo de Propietario -->
+        <div class="row mb-3">
+          <div class="col">
+            <label><strong>Tipo de propietario:</strong></label>
+            <!-- Contenedor de radio buttons -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
+              <div class="form-check form-check-inline" style="margin-right:40px;">
+                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
+                  onclick="actualizarOpciones(); buscarPropietario();" checked>
+                <label class="form-check-label" for="rbtnpersona"
+                  style="margin-left:5px;">Persona</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
+                  onclick="actualizarOpciones(); buscarPropietario();">
+                <label class="form-check-label" for="rbtnempresa"
+                  style="margin-left:5px;">Empresa</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila para Método de Búsqueda -->
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-floating">
+              <select id="selectMetodo" class="form-select" style="color: black;">
+                <!-- Se actualizarán las opciones según el tipo (persona/empresa) -->
+              </select>
+              <label for="selectMetodo">Método de búsqueda:</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila para Valor Buscado -->
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="vbuscado" style="background-color: white;"
+                placeholder="Valor buscado" />
+              <label for="vbuscado">Valor buscado</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Resultados -->
+        <p class="mt-3"><strong>Resultado:</strong></p>
+        <div class="table-responsive">
+          <table id="tabla-resultado" class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Documento</th>
+                <th>Confirmar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Se llenará dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="ModalServicio" tabindex="-1" aria-labelledby="ServicioModalLabel" aria-hidden="true">
+  <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
+    <div class="modal-content">
+
+      <!-- Encabezado -->
+      <div class="modal-header">
+        <h2 class="modal-title" id="miModalLabel">Registrar Servicio</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
