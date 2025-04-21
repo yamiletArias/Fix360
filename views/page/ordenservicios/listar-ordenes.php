@@ -19,6 +19,9 @@ require_once "../../partials/header.php";
       <div class="btn-group" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-primary text-white">Semana</button>
         <button type="button" class="btn btn-primary text-white">Mes</button>
+        <button type="button" class="btn btn-danger text-white">
+          <i class="fa-solid fa-file-pdf"></i>
+        </button>
       </div>
     </div>
     <div class="col-md-6"></div>
@@ -40,9 +43,10 @@ require_once "../../partials/header.php";
               <th class="text-center">#</th>
               <th>Propietario</th>
               <th>Cliente</th>
-              <th>H. Ingreso</th>
-              <th>Atendido</th>
-              <th>Vehiculos</th>
+              <th>Fch. Ingreso</th>
+              <th>Fch. Salida</th>
+              <th>Placa</th>
+              <th>Opciones</th>
             </tr>
           </thead>
           <tbody>
@@ -50,11 +54,21 @@ require_once "../../partials/header.php";
               <td>1</td>
               <td>Carlos Gonzales</td>
               <td>Jose Hernandez</td>
-              <td>10:00</td>
-              <td>Capibara</td>
+              <td>21/02/2025 10:00</td>
+              <td>21/07/2025 10:00</td>
+              <td>G4D1CS</td>
               <td>
                 <button class="btn btn-sm btn-outline-dark">
-                  <i class="fa-solid fa-car"></i>(1)
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-clipboard"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-calendar-days"></i>
                 </button>
               </td>
             </tr>
@@ -62,11 +76,21 @@ require_once "../../partials/header.php";
               <td>1</td>
               <td>Carlos Gonzales</td>
               <td>Jose Hernandez</td>
-              <td>10:00</td>
-              <td>Capibara</td>
+              <td>21/02/2025 10:00</td>
+              <td>21/07/2025 10:00</td>
+              <td>G4D1CS</td>
               <td>
                 <button class="btn btn-sm btn-outline-dark">
-                  <i class="fa-solid fa-car"></i>(1)
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-clipboard"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-calendar-days"></i>
                 </button>
               </td>
             </tr>
@@ -74,11 +98,21 @@ require_once "../../partials/header.php";
               <td>1</td>
               <td>Carlos Gonzales</td>
               <td>Jose Hernandez</td>
-              <td>10:00</td>
-              <td>Capibara</td>
+              <td>21/02/2025 10:00</td>
+              <td>21/07/2025 10:00</td>
+              <td>G4D1CS</td>
               <td>
                 <button class="btn btn-sm btn-outline-dark">
-                  <i class="fa-solid fa-car"></i>(1)
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-clipboard"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark">
+                  <i class="fa-solid fa-calendar-days"></i>
                 </button>
               </td>
             </tr>
