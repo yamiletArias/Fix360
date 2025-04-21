@@ -88,8 +88,9 @@ VALUES
 -- COMPRA
 INSERT INTO proveedores (idempresa)
 VALUES 
-(1),
-(2);  
+(1); 
+SELECT * FROM proveedores;
+
 INSERT INTO compras (idproveedor, idcolaborador, fechacompra, tipocom, numserie, numcom, moneda)
 VALUES 
 (1, 1, '2025-03-10', 'boleta', 'B001', '0001', 'Soles'),
@@ -196,7 +197,10 @@ INSERT INTO cotizaciones (idcolaborador, idcliente, vigenciadias, moneda)
 VALUES 
 (1, 1, 15, 'Soles'),
 (1, 2, 15, 'Dólares');
-
+INSERT INTO cotizaciones (moneda)
+VALUES 
+('Soles'),
+('Dólares');
 INSERT INTO detallecotizacion (idcotizacion, idproducto, cantidad, precio, descuento)
 VALUES 
 -- Cotización 1

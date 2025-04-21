@@ -12,21 +12,22 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
         case 'GET':
             $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? "");
             if (isset($_GET['type']) && $_GET['type'] == 'moneda') {
-                echo json_encode($venta->getMonedasVentas());
+              echo json_encode($venta->getMonedasVentas());
             } else if (isset($_GET['q']) && !empty($_GET['q'])) {
-                if (isset($_GET['type']) && $_GET['type'] == 'producto') {
-                    // Buscar productos
-                    $termino = $_GET['q'];
-                    echo json_encode($venta->buscarProducto($termino));
-                } else {
-                    // Buscar clientes
-                    $termino = $_GET['q'];
-                    echo json_encode($venta->buscarCliente($termino));
-                }
+              if (isset($_GET['type']) && $_GET['type'] == 'producto') {
+                // Buscar productos
+                $termino = $_GET['q'];
+                echo json_encode($venta->buscarProducto($termino));
+              } else {
+                // Buscar clientes
+                $termino = $_GET['q'];
+                echo json_encode($venta->buscarCliente($termino));
+              }
             } else {
-                echo json_encode($venta->getAll());
+              echo json_encode($venta->getAll());
             }
             break;
+
         case 'POST':
             // Captura el JSON de entrada
             $input = file_get_contents('php://input');

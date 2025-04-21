@@ -131,6 +131,7 @@ require_once "../../partials/header.php";
     cargarTablaCompras();
   });
 </script>
+
 <script>
   function verDetalleCompra(idcompra, proveedor) {
     $("#miModal").modal("show");
@@ -139,7 +140,7 @@ require_once "../../partials/header.php";
     $.ajax({
       url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
       method: "GET",
-      data: { idcompra: idcompra }, 
+      data: { idcompra: idcompra },
       dataType: "json",
       success: function (response) {
         const tbody = $("#miModal tbody").empty();

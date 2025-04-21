@@ -14,16 +14,14 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             // Si el tipo es 'proveedor', obtener los proveedores
             if ($tipo === 'proveedor') {
                 echo json_encode($compra->getProveedoresCompra());
-            }
-            elseif (isset($_GET['q']) && !empty($_GET['q'])) {
+            } elseif (isset($_GET['q']) && !empty($_GET['q'])) {
                 $termino = Helper::limpiarCadena($_GET['q']);
                 if ($tipo === 'producto') {
                     echo json_encode($compra->buscarProductoCompra($termino));
                 } else {
                     echo json_encode(["error" => "Tipo no válido para búsqueda"]);
                 }
-            }
-            else {
+            } else {
                 echo json_encode($compra->getAll());
             }
             break;
@@ -33,7 +31,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             error_log("Entrada POST (compras): " . $input);
 
             $dataJSON = json_decode($input, true);
-        if (!$dataJSON) {
+            if (!$dataJSON) {
                 error_log("Error: JSON invalido en compras.");
                 echo json_encode(["status" => "error", "message" => "JSON invalido."]);
                 exit;
@@ -75,7 +73,20 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 echo json_encode(["status" => "error", "message" => "No se pudo registrar la compra."]);
             }
             break;
+        case 'DELETE':
+            parse_str(file_get_contents("php://input"), $deleteData);
+            $id = intval($deleteData['idcompra'] ?? 0);
 
+            if ($id > 0) {
+                $exito = $compra->eliminarCompra($id);
+                echo json_encode([
+                    "status" => $exito ? "success" : "error",
+                    "message" => $exito ? "Compra eliminada correctamente." : "No se pudo eliminar la compra."
+                ]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "ID de compra inválido."]);
+            }
+            break;
     }
 }
 ?>

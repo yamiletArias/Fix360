@@ -78,7 +78,28 @@ BEGIN
   SELECT DISTINCT moneda FROM ventas;
 END $$
 DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE spuGetMonedasVentas()
+BEGIN
+  -- Devolver "Soles" y "Dólares" incluso si no están registrados en la tabla
+  SELECT 'Soles' AS moneda
+  UNION
+  SELECT 'Dólares' AS moneda
+  UNION
+  -- Ahora también verificamos las monedas registradas
+  SELECT DISTINCT
+    CASE
+      WHEN UPPER(TRIM(moneda)) = 'SOLES' THEN 'Soles'
+      WHEN UPPER(TRIM(moneda)) = 'DOLARES' THEN 'Dólares'
+      ELSE NULL
+    END AS moneda
+  FROM ventas
+  WHERE moneda IN ('SOLES', 'DOLARES');
+END $$
+DELIMITER ;
 -- Fin Moneda
+CALL spuGetMonedasVentas();
 
 -- Procedimiento para buscar clientes
 DELIMITER $$
@@ -232,13 +253,55 @@ BEGIN
   SELECT DISTINCT 
     p.idproveedor,
     e.nomcomercial AS nombre_empresa
-  FROM compras c
-  INNER JOIN proveedores p ON c.idproveedor = p.idproveedor
-  INNER JOIN empresas e ON p.idempresa = e.idempresa;
+  FROM proveedores p
+  INNER JOIN empresas e ON p.idempresa = e.idempresa
+  LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE spRegisterClienteEmpresa (
+  IN _ruc CHAR(11),
+  IN _nomcomercial VARCHAR(80),
+  IN _razonsocial VARCHAR(80),
+  IN _telefono VARCHAR(20),
+  IN _correo VARCHAR(100),
+  IN _idcontactabilidad INT
+)
+BEGIN
+  DECLARE _idempresa INT;
+  -- Insertar en la tabla empresas
+  INSERT INTO empresas (
+    ruc,
+    nomcomercial,
+    razonsocial,
+    telefono,
+    correo
+  )
+  VALUES (
+    _ruc,
+    _nomcomercial,
+    _razonsocial,
+    _telefono,
+    _correo
+  );
+  -- Obtener el ID de la empresa insertada
+  SET _idempresa = LAST_INSERT_ID();
+  -- Insertar en la tabla clientes vinculando la empresa
+  INSERT INTO clientes (idempresa, idcontactabilidad)
+  VALUES (_idempresa, _idcontactabilidad);
+  -- Insertar en la tabla proveedores solo si no existe ya
+  IF NOT EXISTS (
+    SELECT 1 FROM proveedores WHERE idempresa = _idempresa
+  ) THEN
+    INSERT INTO proveedores (idempresa)
+    VALUES (_idempresa);
+  END IF;
 END $$
 DELIMITER ;
 
 CALL spuGetProveedores();
+-- FIN PROVEEDOR
 
 -- Buscar producto
 DELIMITER $$

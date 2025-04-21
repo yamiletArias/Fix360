@@ -48,7 +48,7 @@ class Producto extends Conexion {
      * @param array $params
      * @return array
      */
-/*     public function add($params = []): array {
+    public function add($params = []): array {
         $result = ["rows" => 0, "idproducto" => null];
         try {
             $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?)";
@@ -71,29 +71,6 @@ class Producto extends Conexion {
             error_log("Error DB: " . $e->getMessage());
         }
         return $result;
-    } */
-    public function add($params = []): int {
-        $idProducto = 0;
-        try {
-            $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?, @idproducto)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([
-                $params["idsubcategoria"],
-                $params["idmarca"],
-                $params["descripcion"],
-                $params["precio"],
-                $params["presentacion"],
-                $params["undmedida"],
-                $params["cantidad"],
-                $params["img"]
-            ]);
-            // Obtenemos el valor de la variable de salida
-            $idProducto = $this->pdo->query("SELECT @idproducto")->fetchColumn();
-        } catch (Exception $e) {
-            error_log("Error DB: " . $e->getMessage());
-            return 0;
-        }
-        return $idProducto;
     }
 
     /**
