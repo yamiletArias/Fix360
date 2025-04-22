@@ -127,6 +127,7 @@ LEFT JOIN empresas e
 ON c.idempresa = e.idempresa
 WHERE c.idpersona IS NULL;
 
+-- select * from vwvehiculos;
 
 CREATE OR REPLACE VIEW vwVehiculos AS
 SELECT
@@ -216,7 +217,7 @@ SELECT * FROM componentes;
 -- select * from vwMecanicos ORDER BY nombres;
 
 -- select * from vwSubcategoriaServicio;
-
+-- select * from 
 -- select * from productos;
 -- select * from vehiculos;
 -- select * from clientes;

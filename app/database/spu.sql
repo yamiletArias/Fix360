@@ -94,10 +94,12 @@ razonsocial,
     (_idempresa, _idcontactabilidad);
 END $$
 
+-- drop procedure spRegisterVehiculo;
+
 DELIMITER $$
  CREATE PROCEDURE spRegisterVehiculo(
 IN _idmodelo INT,
-IN _placa CHAR(7),
+IN _placa CHAR(6),
 IN _anio CHAR(4),
 IN _numserie VARCHAR(50),
 IN _color VARCHAR(20),
@@ -115,7 +117,7 @@ INSERT INTO propietarios (idcliente, idvehiculo) VALUES
 
 END $$
 DELIMITER $$
-
+-- select * from vwClientesPersona;
 CREATE PROCEDURE spGetAllContactabilidad ()
 BEGIN
   SELECT
@@ -348,7 +350,7 @@ DELIMITER $$
 -- drop procedure spGetServicioBySubcategoria;
 -- call spGetServicioBySubcategoria(50)
 -- select * from servicios;
-DROP PROCEDURE IF EXISTS spGetVehiculosByCliente
+DROP PROCEDURE IF EXISTS spGetVehiculoByCliente
 DELIMITER $$
 CREATE PROCEDURE spGetVehiculoByCliente(
 IN _idcliente INT
@@ -365,6 +367,29 @@ ON c.idcliente = p.idcliente
 WHERE p.idcliente = _idcliente;
 END $$
 
+-- experimento:
+DROP PROCEDURE IF EXISTS spGetVehiculoByCliente
+DELIMITER $$
+CREATE PROCEDURE spGetVehiculoByCliente(
+IN _idcliente INT
+)
+BEGIN
+SELECT 
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
+FROM vehiculos v
+LEFT JOIN modelos m ON v.idmodelo = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
+LEFT JOIN marcas ma ON m.idmarca = ma.idmarca
+WHERE p.idcliente = _idcliente;
+END $$
+
+SELECT 
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
+FROM vehiculos v
+LEFT JOIN modelos m ON v.idmodelo = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
+LEFT JOIN marcas ma ON m.idmarca = ma.idmarca;
+
 
 
 -- call spGetVehiculoByCliente(7)
@@ -372,6 +397,7 @@ END $$
 -- select * from empresas;
 -- select * from clientes;
 -- select * from vehiculos;
+-- select 
 -- CREATE PROCEDURE spUpdatePersona()
 
 -- call spGetEmpresaById(6)               

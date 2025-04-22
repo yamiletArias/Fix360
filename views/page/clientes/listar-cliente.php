@@ -343,7 +343,7 @@ require_once "../../partials/_footer.php";
                       class="btn btn-sm btn-outline-dark"
                       data-bs-toggle="modal"
                       data-bs-target="#ModalAsignarVehiculo"
-                      data-idcliente="${row.idpersona}"
+                      data-idcliente="${row.idcliente}"
                       data-nombrecliente="${nombreCliente}"
                       title="Asignar vehículo"
                     >
@@ -429,7 +429,18 @@ require_once "../../partials/_footer.php";
                     </a>
                     <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetalleEmpresa('${row.razonsocial}','${row.correo}','${row.modificado}')">
                       <i class='fa-solid fa-clipboard-list'></i>
-                    </button>`;
+                    </button>
+                    <button
+        class="btn btn-sm btn-outline-dark"
+        data-bs-toggle="modal"
+        data-bs-target="#ModalAsignarVehiculo"
+        data-idcliente="${row.idcliente}"
+        data-nombrecliente="${row.nomcomercial}"
+        title="Asignar vehículo"
+      >
+        <i class="fa-solid fa-car"></i>
+      </button>
+                    `;
           }
         } // Cierra columna 5
       ], // Cierra columns
