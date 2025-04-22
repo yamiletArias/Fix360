@@ -48,8 +48,8 @@ class Producto extends Conexion {
      * @param array $params
      * @return array
      */
-    public function add($params = []): array {
-        $result = ["rows" => 0, "idproducto" => null];
+    public function add($params = []):int {
+        $numRows = 0;
         try {
             $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?)";
             $cmd = $this->pdo->prepare($query);
@@ -63,14 +63,12 @@ class Producto extends Conexion {
                 $params["cantidad"],
                 $params["img"]
             ]);
-    
-            $data = $cmd->fetch(PDO::FETCH_ASSOC);
-            $result["idproducto"] = $data["idproducto"] ?? null;
-            $result["rows"] = $cmd->rowCount(); // Esto puede que no devuelva lo esperado con SELECT
+            $numRows = $cmd->rowCount();
         } catch (Exception $e) {
             error_log("Error DB: " . $e->getMessage());
+            return $numRows;
         }
-        return $result;
+        return $numRows;
     }
 
     /**

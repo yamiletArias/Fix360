@@ -71,14 +71,7 @@ END $$
 DELIMITER ;
 -- Fin de registrar detalle ventas con idventa
 
--- Moneda
-DELIMITER $$
-CREATE PROCEDURE spuGetMonedasVentas()
-BEGIN
-  SELECT DISTINCT moneda FROM ventas;
-END $$
-DELIMITER ;
-
+-- MONEDA
 DELIMITER $$
 CREATE PROCEDURE spuGetMonedasVentas()
 BEGIN
@@ -258,7 +251,10 @@ BEGIN
   LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
 END $$
 DELIMITER ;
+CALL spuGetProveedores();
+-- FIN PROVEEDOR
 
+-- registro real de cliente empresa (para que se vea en proveedores)
 DELIMITER $$
 CREATE PROCEDURE spRegisterClienteEmpresa (
   IN _ruc CHAR(11),
@@ -299,27 +295,8 @@ BEGIN
   END IF;
 END $$
 DELIMITER ;
+-- fin registro real de clientes empresa
 
-CALL spuGetProveedores();
--- FIN PROVEEDOR
-
--- Buscar producto
-DELIMITER $$
-CREATE PROCEDURE buscar_producto_compras(IN termino_busqueda VARCHAR(255))
-BEGIN
-    SELECT 
-        P.idproducto,
-        CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-        DV.preciocompra
-    FROM productos P
-    INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
-    LEFT JOIN detallecompra DV ON P.idproducto = DV.idproducto
-    WHERE 
-        (S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%'))
-    LIMIT 10;
-END $$
-DELIMITER ;
--- Fin Buscar producto
 -- FIN DEL PROCEDIMIENTO DE COMPRAS
 
 -- PROCEDIMIENTO DE COTIZACIONES
@@ -381,34 +358,8 @@ DELIMITER ;
 -- fin de registrar detalle cotizacion
 -- FIN DEL PROCEDIMIENTO DE COTIZACIONES
 
--- PROCEDIMIENTO DE PRODUCTOS
--- register productos
-DELIMITER $$
-CREATE PROCEDURE spRegisterProducto(
-  IN _idsubcategoria INT,
-  IN _idmarca INT,
-  IN _descripcion VARCHAR(50),
-  IN _precio DECIMAL(7,2),
-  IN _presentacion VARCHAR(40),
-  IN _undmedida VARCHAR(40),
-  IN _cantidad DECIMAL(10,2),
-  IN _img VARCHAR(255)
-)
-BEGIN
-  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
-  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
-  
-  SELECT LAST_INSERT_ID() AS idproducto;
-END$$
-DELIMITER ;
--- fin register productos
-
-
--- FIN PROCEDIMIENTO DE PRODUCTOS
-
-CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);
-
 -- PROBAR 
+CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);
 CALL spuGetDetalleVenta(2);
 CALL spuRegisterVenta('boleta', '2025-04-07 10:30:00', 'B076', 'B-0928971', 'Soles', 5);
 CALL spuInsertDetalleVenta(18, 3, 1, 'B076', 120.50, 0);

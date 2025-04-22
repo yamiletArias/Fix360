@@ -302,7 +302,6 @@ CONSTRAINT fk_idempresa FOREIGN KEY (idempresa) REFERENCES empresas(idempresa)
 
 DROP TABLE IF EXISTS compras;
 CREATE TABLE compras (
-
 idcompra 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idproveedor 	INT 				NOT NULL,
 idcolaborador 	INT 				NOT NULL,
@@ -318,7 +317,6 @@ modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idproveedor FOREIGN KEY (idproveedor) REFERENCES proveedores (idproveedor),
 CONSTRAINT fk_idcolaborador_1 FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT uq_compra UNIQUE (idproveedor, tipocom, numserie, numcom)
-
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS cotizaciones;

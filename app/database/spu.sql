@@ -271,22 +271,20 @@ DELIMITER $$
 -- para la interfaz de productos (modal otro)
 DELIMITER $$
 CREATE PROCEDURE spRegisterProducto(
-  IN _idsubcategoria INT,
-  IN _idmarca INT,
-  IN _descripcion VARCHAR(50),
-  IN _precio DECIMAL(7,2),
-  IN _presentacion VARCHAR(40),
-  IN _undmedida VARCHAR(40),
-  IN _cantidad DECIMAL(10,2),
-  IN _img VARCHAR(255),
-  OUT _idproducto INT
+IN _idsubcategoria INT,
+IN _idmarca INT,
+IN _descripcion VARCHAR(50),
+IN _precio DECIMAL(7,2),
+IN _presentacion VARCHAR(40),
+IN _undmedida VARCHAR(40),
+IN _cantidad DECIMAL(10,2),
+IN _img 		VARCHAR(255)
 )
 BEGIN
-  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
-  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
-  SET _idproducto = LAST_INSERT_ID();
+	INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida,cantidad,img) 
+					VALUES (_idsubcategoria,_idmarca,_descripcion,_precio,_presentacion,_undmedida,_cantidad,_img);
 END$$
-DELIMITER ;
+DELIMITER $$
 
 CREATE OR REPLACE VIEW vista_productos_completa AS
 SELECT 
