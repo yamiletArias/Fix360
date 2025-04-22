@@ -14,7 +14,8 @@ SELECT
 	LEFT JOIN empresas E ON C.idempresa = E.idempresa
 	LEFT JOIN personas P ON C.idpersona = P.idpersona;
     
--- vista de las compras
+-- PRUEBA real DE COMPRA CON EL ESTADO
+DROP VIEW IF EXISTS vs_compras;
 CREATE VIEW vs_compras AS
 SELECT 
     C.idcompra AS id,
@@ -22,30 +23,14 @@ SELECT
     C.numcom,
     E.nomcomercial AS proveedores,
     C.fechacompra,
-    SUM(DC.preciocompra) AS preciocompra -- Para agrupar los precios de compra
+    SUM(DC.preciocompra) AS preciocompra
 FROM compras C
 JOIN proveedores P ON C.idproveedor = P.idproveedor
 JOIN empresas E ON P.idempresa = E.idempresa
 LEFT JOIN detallecompra DC ON C.idcompra = DC.idcompra
+WHERE C.estado = TRUE
 GROUP BY C.idcompra, C.tipocom, C.numcom, E.nomcomercial, C.fechacompra;
-
--- prueba de compras con estado:
-CREATE VIEW vs_compras AS
-SELECT 
-    C.idcompra AS id,
-    C.tipocom,
-    C.numcom,
-    E.nomcomercial AS proveedores,
-    C.fechacompra,
-    DC.preciocompra
-FROM compras C
-JOIN proveedores P ON C.idproveedor = P.idproveedor
-JOIN empresas E ON P.idempresa = E.idempresa
-LEFT JOIN detallecompra DC ON C.idcompra = DC.idcompra
-WHERE C.estado = TRUE; -- Solo compras activas
-
-
--- fin compras
+-- FIN PRUEBA DE COMPRA CON ESTADO
 
 -- vista cotizacion
 CREATE VIEW vs_cotizaciones AS
@@ -124,20 +109,6 @@ SELECT producto, precio, descuento
 FROM vista_detalle_venta 
 WHERE idventa = 1;
 
--- prueba detalle de venta modal
-CREATE VIEW vista_detalle_venta AS
-SELECT 
-  v.idventa,
-  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  pr.descripcion AS producto,
-  dv.precioventa AS precio,
-  dv.descuento
-FROM ventas v
-JOIN clientes c ON v.idcliente = c.idcliente
-LEFT JOIN personas p ON c.idpersona = p.idpersona
-LEFT JOIN empresas e ON c.idempresa = e.idempresa
-JOIN detalleventa dv ON v.idventa = dv.idventa
-JOIN productos pr ON dv.idproducto = pr.idproducto;
 
 -- PRUEBAS Y VISTAS ******************
 -- registro de venta

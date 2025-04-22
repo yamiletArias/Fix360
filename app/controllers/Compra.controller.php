@@ -27,6 +27,25 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             break;
 
         case 'POST':
+
+            // 1) Soft‑delete: si llega action=eliminar ...
+            if (isset($_POST['action'], $_POST['idcompra']) && $_POST['action'] === 'eliminar') {
+                $id = intval($_POST['idcompra']);
+                $justificacion = $_POST['justificacion']; // Obtener la justificación
+                
+                error_log("Intentando anular compra #{$id}. Justificación: {$justificacion}");
+                
+                // Aquí puedes registrar la justificación en la base de datos si es necesario
+                $ok = $compra->deleteCompra($id, $justificacion); // Pasa la justificación al método
+                error_log("Resultado deleteCompra: " . ($ok ? 'OK' : 'FAIL'));
+        
+                echo json_encode([
+                    'status'  => $ok ? 'success' : 'error',
+                    'message' => $ok ? 'Compra anulada.' : 'No se pudo anular la compra.'
+                ]);
+                exit;
+            }
+
             $input = file_get_contents('php://input');
             error_log("Entrada POST (compras): " . $input);
 
@@ -73,20 +92,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 echo json_encode(["status" => "error", "message" => "No se pudo registrar la compra."]);
             }
             break;
-        case 'DELETE':
-            parse_str(file_get_contents("php://input"), $deleteData);
-            $id = intval($deleteData['idcompra'] ?? 0);
 
-            if ($id > 0) {
-                $exito = $compra->eliminarCompra($id);
-                echo json_encode([
-                    "status" => $exito ? "success" : "error",
-                    "message" => $exito ? "Compra eliminada correctamente." : "No se pudo eliminar la compra."
-                ]);
-            } else {
-                echo json_encode(["status" => "error", "message" => "ID de compra inválido."]);
-            }
-            break;
     }
 }
 ?>

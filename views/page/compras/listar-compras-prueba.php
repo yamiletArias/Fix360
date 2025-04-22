@@ -23,8 +23,8 @@ require_once "../../partials/header.php";
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <div class="col text-end">
-                      <a href="registrar-compras.php" class="btn btn-success" disabled>Registrar Compra</a>
+                    <div class="col text-end"><a href="registrar-compras.php" class="btn btn-success" disabled>Registrar
+                            Compra</a>
                     </div>
                 </div>
             </div>
@@ -133,29 +133,46 @@ require_once "../../partials/header.php";
     });
 
     // Manejar click en “Eliminar”
-    $(document).on('click', '.btn-eliminar', function () {
-        const id = $(this).data('id');
-        if (!confirm('¿Seguro que quieres anular esta compra?')) return;
-        $.ajax({
-            url: "<?= SERVERURL ?>app/controllers/Compra.controller.php",
-            method: "POST",
-            data: {
-                action: 'eliminar',
-                idcompra: id
-            },
-            dataType: "json",
-            success: function (res) {
-                if (res.status === 'success') {
-                    cargarTablaCompras();
-                } else {
-                    alert('Error: ' + res.message);
-                }
-            },
-            error: function () {
-                alert('Ocurrió un error en la petición.');
+$(document).on('click', '.btn-eliminar', function () {
+    const id = $(this).data('id');
+    $('#modalJustificacion').modal('show');  // Mostrar el modal de justificación inmediatamente
+    $('#btnEliminarCompra').data('id', id);  // Guardar el ID de la compra para eliminar más tarde
+});
+
+// Eliminar compra con justificación
+$('#btnEliminarCompra').on('click', function () {
+    const justificacion = $('#justificacion').val().trim();
+    const idcompra = $(this).data('id');
+
+    if (!justificacion) {
+        alert('Por favor, escribe una justificación para eliminar la compra.');
+        return;
+    }
+
+    // Enviar la justificación junto con la solicitud de eliminación
+    $.ajax({
+        url: "<?= SERVERURL ?>app/controllers/Compra.controller.php",
+        method: "POST",
+        data: {
+            action: 'eliminar',
+            idcompra: idcompra,
+            justificacion: justificacion
+        },
+        dataType: "json",
+        success: function (res) {
+            if (res.status === 'success') {
+                alert('Compra anulada con éxito.');
+                cargarTablaCompras();  // Recargar la tabla
+                $('#modalJustificacion').modal('hide'); // Cerrar el modal después de la eliminación
+            } else {
+                alert('Error: ' + res.message);
             }
-        });
+        },
+        error: function () {
+            alert('Ocurrió un error en la petición.');
+        }
     });
+});
 </script>
 
 <script>
@@ -193,20 +210,21 @@ require_once "../../partials/header.php";
 </script>
 
 <!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 600px;">
+<div class="modal fade" id="modalJustificacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Confirmar Eliminación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>¿Por qué deseas eliminar esta compra?</strong></p>
-                <textarea id="motivoEliminacion" class="form-control" rows="4" placeholder="Escribe el motivo aquí..."></textarea>
+                <p>¿Por qué deseas eliminar esta compra? (Escribe una justificación)</p>
+                <textarea id="justificacion" class="form-control" rows="4"
+                    placeholder="Escribe tu justificación aquí..."></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="btnConfirmarEliminacion">Eliminar</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEliminarCompra" class="btn btn-danger">Eliminar Compra</button>
             </div>
         </div>
     </div>

@@ -81,6 +81,7 @@ INSERT INTO categorias (categoria) VALUES
 ('TEMPLADOR'),
 ('TRICETA'),
 ('VALVULA PCV VALVE');
+SELECT * FROM categorias;
 
 INSERT INTO subcategorias (idcategoria, subcategoria) VALUES
 (1,'ABRAZADERAS'),

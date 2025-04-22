@@ -8,7 +8,7 @@ if (isset($_GET['idcotizacion'])) {
         $db = Conexion::getConexion();
 
         $stmt = $db->prepare("SELECT producto, precio, descuento 
-        FROM vista_detalle_venta WHERE idcotizacion = ?");
+        FROM vista_detalle_cotizacion WHERE idcotizacion = ?");
 
         $stmt->execute([$idcotizacion]);
 

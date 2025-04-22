@@ -15,7 +15,6 @@ class Compra extends Conexion
   {
     $result = [];
     try {
-      /* $sql = "SELECT * FROM vs_compras WHERE estado = 1 ORDER BY id DESC"; */
       $sql = "SELECT * FROM vs_compras ORDER BY id DESC";
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute();
@@ -26,18 +25,47 @@ class Compra extends Conexion
     return $result;
   }
 
-  // estado de eliminar compra:
-  public function eliminarCompra(int $idcompra): bool
+  public function deleteCompra(int $idcompra, string $justificacion = null): bool
   {
     try {
-      $sql = "UPDATE compras SET estado = 0 WHERE idcompra = ?";
+      $sql = "UPDATE compras SET estado = FALSE WHERE idcompra = :id";
       $stmt = $this->pdo->prepare($sql);
-      return $stmt->execute([$idcompra]);
+      $res = $stmt->execute([':id' => $idcompra]);
+
+      // Si la justificación no es nula, puedes registrar la justificación en otra tabla
+      if ($justificacion) {
+        $this->logJustificacion($idcompra, $justificacion);
+      }
+
+      error_log("SQL deleteCompra ejecutado, rowCount = " . $stmt->rowCount());
+      return $res;
     } catch (PDOException $e) {
-      error_log("Error al eliminar compra: " . $e->getMessage());
+      error_log("Error al anular compra #{$idcompra}: " . $e->getMessage());
       return false;
     }
   }
+
+  private function logJustificacion(int $idcompra, string $justificacion)
+  {
+    $sql = "INSERT INTO log_eliminaciones (idcompra, justificacion) VALUES (:idcompra, :justificacion)";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':idcompra' => $idcompra, ':justificacion' => $justificacion]);
+  }
+
+  // (eliminar) desactivar compra
+  /*   public function deleteCompra(int $idcompra): bool
+    {
+        try {
+            $sql  = "UPDATE compras SET estado = FALSE WHERE idcompra = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $res  = $stmt->execute([':id' => $idcompra]);
+            error_log("SQL deleteCompra ejecutado, rowCount = " . $stmt->rowCount());
+            return $res;
+        } catch (PDOException $e) {
+            error_log("Error al anular compra #{$idcompra}: " . $e->getMessage());
+            return false;
+        }
+    } */
 
   //obtener los proveedores
   public function getProveedoresCompra(): array
