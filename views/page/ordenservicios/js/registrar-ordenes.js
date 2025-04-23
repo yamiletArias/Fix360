@@ -171,7 +171,7 @@
                         data.forEach(item => {
                             const option = document.createElement("option");
                             option.value = item.idvehiculo;
-                            option.textContent = item.placa;
+                            option.textContent = item.vehiculo;
                             vehiculoSelect.appendChild(option);
                         });
                     })

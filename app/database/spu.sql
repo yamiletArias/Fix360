@@ -1,16 +1,8 @@
-/* Registrar un nuevo cliente*/
--- insert into contactabilidad (contactabilidad) values ('redes sociales');
- -- select * from empresas;
- -- select * from productos;
- -- select * from personas;
- -- select * from propietarios;
- -- select * from clientes;
- -- select * from vehiculos;
--- drop procedure spRegisterPersona;
- -- call spRegisterCliente('empresa',null, null,null,null,null,'correoempresa@gmail.com',null,null,'nueva salud','empresa SAC','912498430','12345678948',1);
- 
- DELIMITER $$
+-- Cambiar delimitador para definir procedimientos
+DELIMITER $$
 
+-- 1) Registrar cliente (persona)
+DROP PROCEDURE IF EXISTS spRegisterClientePersona$$
 CREATE PROCEDURE spRegisterClientePersona (
   IN _nombres VARCHAR (50),
   IN _apellidos VARCHAR (50),
@@ -25,41 +17,21 @@ CREATE PROCEDURE spRegisterClientePersona (
 )
 BEGIN
   DECLARE _idpersona INT;
-  -- Insertar en la tabla personas
-   INSERT INTO personas (
-    nombres,
-    apellidos,
-    tipodoc,
-    numdoc,
-    numruc,
-    direccion,
-    correo,
-    telprincipal,
-    telalternativo
+  INSERT INTO personas (
+    nombres, apellidos, tipodoc, numdoc, numruc,
+    direccion, correo, telprincipal, telalternativo
   )
-  VALUES
-    (
-      _nombres,
-      _apellidos,
-      _tipodoc,
-      _numdoc,
-      _numruc,
-      _direccion,
-      _correo,
-      _telprincipal,
-      _telalternativo
-    );
-  -- Obtener el ID de la persona insertada
-   SET _idpersona = LAST_INSERT_ID();
-  -- Insertar en la tabla clientes a la persona
-   INSERT INTO clientes (idpersona, idcontactabilidad)
-  VALUES
-    (_idpersona, _idcontactabilidad);
-END $$
+  VALUES (
+    _nombres, _apellidos, _tipodoc, _numdoc, _numruc,
+    _direccion, _correo, _telprincipal, _telalternativo
+  );
+  SET _idpersona = LAST_INSERT_ID();
+  INSERT INTO clientes (idpersona, idcontactabilidad)
+  VALUES (_idpersona, _idcontactabilidad);
+END$$
 
-DELIMITER $$
-
-DELIMITER $$
+-- 2) Registrar cliente (empresa)
+DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa$$
 CREATE PROCEDURE spRegisterClienteEmpresa (
   IN _ruc CHAR(11),
   IN _nomcomercial VARCHAR (80),
@@ -70,128 +42,106 @@ CREATE PROCEDURE spRegisterClienteEmpresa (
 )
 BEGIN
   DECLARE _idempresa INT;
-  -- Insertar en la tabla empresas
-   INSERT INTO empresas (
-    ruc,
-    nomcomercial,
-razonsocial,
-    telefono,
-    correo
+  INSERT INTO empresas (
+    ruc, nomcomercial, razonsocial, telefono, correo
   )
-  VALUES
-    (
-      _ruc,
-      _nomcomercial,
-      _razonsocial,
-      _telefono,
-      _correo
-    );
-  -- Obtener el ID de la empresa insertada
-   SET _idempresa = LAST_INSERT_ID();
-  -- Insertar en la tabla clientes vinculando la empresa
-   INSERT INTO clientes (idempresa, idcontactabilidad)
-  VALUES
-    (_idempresa, _idcontactabilidad);
-END $$
+  VALUES (
+    _ruc, _nomcomercial, _razonsocial, _telefono, _correo
+  );
+  SET _idempresa = LAST_INSERT_ID();
+  INSERT INTO clientes (idempresa, idcontactabilidad)
+  VALUES (_idempresa, _idcontactabilidad);
+END$$
 
--- drop procedure spRegisterVehiculo;
-
-DELIMITER $$
- CREATE PROCEDURE spRegisterVehiculo(
-IN _idmodelo INT,
-IN _placa CHAR(6),
-IN _anio CHAR(4),
-IN _numserie VARCHAR(50),
-IN _color VARCHAR(20),
-IN _tipocombustible VARCHAR(20),
-IN _idcliente INT
+-- 3) Registrar vehículo y propietario
+DROP PROCEDURE IF EXISTS spRegisterVehiculo$$
+CREATE PROCEDURE spRegisterVehiculo(
+  IN _idmodelo INT,
+  IN _placa CHAR(6),
+  IN _anio CHAR(4),
+  IN _numserie VARCHAR(50),
+  IN _color VARCHAR(20),
+  IN _tipocombustible VARCHAR(20),
+  IN _idcliente INT
 )
 BEGIN
-DECLARE _idvehiculo INT;
+  DECLARE _idvehiculo INT;
+  INSERT INTO vehiculos (
+    idmodelo, placa, anio, numserie, color, tipocombustible
+  )
+  VALUES (
+    _idmodelo, _placa, _anio, _numserie, _color, _tipocombustible
+  );
+  SET _idvehiculo = LAST_INSERT_ID();
+  INSERT INTO propietarios (idcliente, idvehiculo)
+  VALUES (_idcliente, _idvehiculo);
+END$$
 
-INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
-VALUES (_idmodelo,_placa,_anio,_numserie,_color,_tipocombustible);
-SET _idvehiculo = LAST_INSERT_ID();
-INSERT INTO propietarios (idcliente, idvehiculo) VALUES
-(_idcliente, _idvehiculo);
-
-END $$
-DELIMITER $$
--- select * from vwClientesPersona;
-CREATE PROCEDURE spGetAllContactabilidad ()
+-- 4) Registrar producto
+DROP PROCEDURE IF EXISTS spRegisterProducto$$
+CREATE PROCEDURE spRegisterProducto(
+  IN _idsubcategoria INT,
+  IN _idmarca INT,
+  IN _descripcion VARCHAR(50),
+  IN _precio DECIMAL(7,2),
+  IN _presentacion VARCHAR(40),
+  IN _undmedida VARCHAR(40),
+  IN _cantidad DECIMAL(10,2),
+  IN _img VARCHAR(255)
+)
 BEGIN
-  SELECT
-    *
-  FROM
-    contactabilidad
+  INSERT INTO productos (
+    idsubcategoria, idmarca, descripcion, precio,
+    presentacion, undmedida, cantidad, img
+  )
+  VALUES (
+    _idsubcategoria, _idmarca, _descripcion, _precio,
+    _presentacion, _undmedida, _cantidad, _img
+  );
+END$$
+
+-- 5) Registrar servicio
+DROP PROCEDURE IF EXISTS spRegisterServicio$$
+CREATE PROCEDURE spRegisterServicio(
+  IN _idsubcategoria INT,
+  IN _servicio VARCHAR(255)
+)
+BEGIN
+  INSERT INTO servicios (idsubcategoria, servicio)
+  VALUES (_idsubcategoria, _servicio);
+END$$
+
+-- 6) Obtener todas las contactabilidades
+DROP PROCEDURE IF EXISTS spGetAllContactabilidad$$
+CREATE PROCEDURE spGetAllContactabilidad()
+BEGIN
+  SELECT * FROM contactabilidad
   ORDER BY contactabilidad ASC;
-END $$
+END$$
 
-DELIMITER $$
-
-DELIMITER $$
-CREATE PROCEDURE spGetSubcategoriaByCategoria (
-IN _idcategoria INT
-)
+-- 7) Obtener todas las categorías
+DROP PROCEDURE IF EXISTS spGetAllCategoria$$
+CREATE PROCEDURE spGetAllCategoria()
 BEGIN
-SELECT 
-s.idsubcategoria,
-s.subcategoria
-FROM
-subcategorias s
-WHERE 
-s.idcategoria = _idcategoria;
-END $$
+  SELECT * FROM categorias;
+END$$
 
-DELIMITER $$
-
--- call spGetSubcategoriaByCategoria(1); 
--- select * from subcategorias order by idsubcategoria asc;
-DELIMITER $$
-
-CREATE PROCEDURE spGetModelosByTipoMarca (IN p_idtipov INT, IN p_idmarca INT)
-BEGIN
-  SELECT
-    m.idmodelo,
-    m.modelo
-  FROM
-    Modelos m
-  WHERE m.idtipov = p_idtipov
-    AND m.idmarca = p_idmarca;
-END $$
-
-DELIMITER $$
-
-DELIMITER $$
+-- 8) Obtener todas las marcas de producto
+DROP PROCEDURE IF EXISTS spGetAllMarcaProducto$$
 CREATE PROCEDURE spGetAllMarcaProducto()
 BEGIN
-SELECT
-* 
-FROM 
-marcas 
-WHERE tipo != 'vehiculo';
-END $$
- DELIMITER $$
- 
- DELIMITER $$
- CREATE PROCEDURE spGetAllCategoria()
- BEGIN
- SELECT 
- *
- FROM
- categorias;
- END $$
- DELIMITER $$
- 
- DELIMITER $$
-CREATE PROCEDURE spGetAllMarcaVehiculo ()
+  SELECT * FROM marcas
+  WHERE tipo != 'vehiculo';
+END$$
+
+-- 9) Obtener todas las marcas de vehículo
+DROP PROCEDURE IF EXISTS spGetAllMarcaVehiculo$$
+CREATE PROCEDURE spGetAllMarcaVehiculo()
 BEGIN
-  SELECT
-    *
-  FROM
-    marcas
+  SELECT * FROM marcas
   WHERE tipo = 'vehiculo'
   ORDER BY nombre ASC;
+<<<<<<< HEAD
 END $$
 
 DELIMITER $$
@@ -310,102 +260,131 @@ INNER JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
 INNER JOIN categorias c ON s.idcategoria = c.idcategoria
 INNER JOIN marcas m ON p.idmarca = m.idmarca;
 SELECT idproducto, descripcion FROM productos ORDER BY idproducto DESC LIMIT 5;
+=======
+END$$
 
+-- 10) Obtener todos los tipos de vehículo
+DROP PROCEDURE IF EXISTS spGetAllTipoVehiculo$$
+CREATE PROCEDURE spGetAllTipoVehiculo()
+BEGIN
+  SELECT idtipov, tipov
+  FROM tipovehiculos
+  ORDER BY tipov ASC;
+END$$
+>>>>>>> 4db45f40872fbcd49ef01e50c51865c619e11939
 
+-- 11) Obtener subcategorías por categoría
+DROP PROCEDURE IF EXISTS spGetSubcategoriaByCategoria$$
+CREATE PROCEDURE spGetSubcategoriaByCategoria(
+  IN _idcategoria INT
+)
+BEGIN
+  SELECT s.idsubcategoria, s.subcategoria
+  FROM subcategorias s
+  WHERE s.idcategoria = _idcategoria;
+END$$
 
+-- 12) Obtener modelos por tipo y marca
+DROP PROCEDURE IF EXISTS spGetModelosByTipoMarca$$
+CREATE PROCEDURE spGetModelosByTipoMarca(
+  IN p_idtipov INT,
+  IN p_idmarca INT
+)
+BEGIN
+  SELECT m.idmodelo, m.modelo
+  FROM Modelos m
+  WHERE m.idtipov = p_idtipov
+    AND m.idmarca = p_idmarca;
+END$$
+
+<<<<<<< HEAD
 -- DIN PRODUCTO
 DELIMITER $$
+=======
+-- 13) Obtener servicios por subcategoría
+DROP PROCEDURE IF EXISTS spGetServicioBySubcategoria$$
+CREATE PROCEDURE spGetServicioBySubcategoria(
+  IN _idsubcategoria INT
+)
+BEGIN
+  SELECT s.idservicio, s.idsubcategoria, s.servicio
+  FROM servicios s
+  WHERE s.idsubcategoria = _idsubcategoria;
+END$$
+
+-- 14) Obtener persona por ID
+DROP PROCEDURE IF EXISTS spGetPersonaById$$
+>>>>>>> 4db45f40872fbcd49ef01e50c51865c619e11939
 CREATE PROCEDURE spGetPersonaById(
-IN _idpersona INT
+  IN _idpersona INT
 )
 BEGIN
-SELECT * FROM personas WHERE idpersona = _idpersona;
-END $$
+  SELECT * FROM personas
+  WHERE idpersona = _idpersona;
+END$$
 
-DELIMITER $$
-
-
-DELIMITER $$
-
+-- 15) Obtener empresa por ID
+DROP PROCEDURE IF EXISTS spGetEmpresaById$$
 CREATE PROCEDURE spGetEmpresaById(
-IN _idempresa INT
+  IN _idempresa INT
 )
 BEGIN
-SELECT * FROM empresas WHERE idempresa = _idempresa;
-END $$
-DELIMITER $$
+  SELECT * FROM empresas
+  WHERE idempresa = _idempresa;
+END$$
 
-
-CREATE PROCEDURE spUpdatePersona(
+-- 16) Buscar persona (por DNI o NOMBRE)
+DROP PROCEDURE IF EXISTS spBuscarPersona$$
+CREATE PROCEDURE spBuscarPersona(
+  IN _tipoBusqueda VARCHAR(20),
+  IN _criterio VARCHAR(100)
 )
--- call spGetEmpresaById(6)
+BEGIN
+  IF _tipoBusqueda = 'DNI' THEN
+    SELECT * FROM personas
+    WHERE numdoc LIKE CONCAT('%', _criterio, '%');
+  ELSEIF _tipoBusqueda = 'NOMBRE' THEN
+    SELECT * FROM personas
+    WHERE CONCAT(nombres, ' ', apellidos)
+      LIKE CONCAT('%', _criterio, '%');
+  END IF;
+END$$
 
-DELIMITER $$
- CREATE PROCEDURE spGetServicioBySubcategoria(
- IN _idsubcategoria INT
- )
- BEGIN
- SELECT s.idservicio, s.idsubcategoria, s.servicio FROM servicios s WHERE idsubcategoria = _idsubcategoria;
- END $$
+-- 17) Buscar empresa (por RUC, RAZONSOCIAL o NOMBRECOMERCIAL)
+DROP PROCEDURE IF EXISTS spBuscarEmpresa$$
+CREATE PROCEDURE spBuscarEmpresa(
+  IN _tipoBusqueda VARCHAR(20),
+  IN _criterio VARCHAR(100)
+)
+BEGIN
+  IF _tipoBusqueda = 'RUC' THEN
+    SELECT * FROM empresas
+    WHERE ruc LIKE CONCAT('%', _criterio, '%');
+  ELSEIF _tipoBusqueda = 'RAZONSOCIAL' THEN
+    SELECT * FROM empresas
+    WHERE razonsocial LIKE CONCAT('%', _criterio, '%');
+  ELSEIF _tipoBusqueda = 'NOMBRECOMERCIAL' THEN
+    SELECT * FROM empresas
+    WHERE nomcomercial LIKE CONCAT('%', _criterio, '%');
+  END IF;
+END$$
 
--- drop procedure spGetServicioBySubcategoria;
--- call spGetServicioBySubcategoria(50)
--- select * from servicios;
-DROP PROCEDURE IF EXISTS spGetVehiculoByCliente
-DELIMITER $$
+-- 18) Obtener vehículos por cliente
+DROP PROCEDURE IF EXISTS spGetVehiculoByCliente$$
 CREATE PROCEDURE spGetVehiculoByCliente(
-IN _idcliente INT
+  IN _idcliente INT
 )
 BEGIN
-SELECT 
-v.idvehiculo,
-v.placa
-FROM vehiculos v
-LEFT JOIN propietarios p 
-ON v.idvehiculo = p.idvehiculo
-LEFT JOIN clientes c
-ON c.idcliente = p.idcliente
-WHERE p.idcliente = _idcliente;
-END $$
+  SELECT
+    v.idvehiculo,
+    CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
+  FROM vehiculos v
+    LEFT JOIN propietarios p ON v.idvehiculo = p.idvehiculo
+    LEFT JOIN modelos m ON v.idmodelo = m.idmodelo
+    LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
+    LEFT JOIN marcas ma ON m.idmarca = ma.idmarca
+  WHERE p.idcliente = _idcliente;
+END$$
 
--- experimento:
-DROP PROCEDURE IF EXISTS spGetVehiculoByCliente
-DELIMITER $$
-CREATE PROCEDURE spGetVehiculoByCliente(
-IN _idcliente INT
-)
-BEGIN
-SELECT 
-  CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
-FROM vehiculos v
-LEFT JOIN modelos m ON v.idmodelo = m.idmodelo
-LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
-LEFT JOIN marcas ma ON m.idmarca = ma.idmarca
-WHERE p.idcliente = _idcliente;
-END $$
-
-SELECT 
-  CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
-FROM vehiculos v
-LEFT JOIN modelos m ON v.idmodelo = m.idmodelo
-LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
-LEFT JOIN marcas ma ON m.idmarca = ma.idmarca;
-
-
-
--- call spGetVehiculoByCliente(7)
--- select * from propietarios;
--- select * from empresas;
--- select * from clientes;
--- select * from vehiculos;
--- select 
--- CREATE PROCEDURE spUpdatePersona()
-
--- call spGetEmpresaById(6)               
--- call spBuscarEmpresa ('nombrecomercial', 'SAC');
--- select * from categorias;
--- call spRegistrarVehiculoYPropietario(1,'345345','2025','987987987','rojo','Allinol','20','dni',1);
--- call spGetClienteByDni('40');
--- select * from propietarios;
--- select * from clientes;
--- select * from personas;
+-- Restaurar delimitador por defecto
+DELIMITER ;

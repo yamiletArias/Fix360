@@ -1,44 +1,35 @@
 USE dbfix360;
+
+-- 1) Categorías y subcategorías
 DROP VIEW IF EXISTS vwCategoriasSubcategorias;
-SELECT * FROM personas;
 CREATE VIEW vwCategoriasSubcategorias AS
 SELECT
   c.categoria AS categoria,
   s.subcategoria AS subcategoria
-FROM
-  subcategorias s
-  INNER JOIN categorias c
-    ON s.idcategoria = c.idcategoria;
+FROM subcategorias s
+INNER JOIN categorias c
+  ON s.idcategoria = c.idcategoria;
 
--- SELECT * FROM vwCategoriasSubcategorias; */
- -- VISTA PARA LA INFORMACION DE VENTAS */
-
-
--- VISTA DE COMPRAS CON DETALLES DE LOS PRODUCTOS */
-
-
--- MUESTRA EL STOCK DE LOS PRODUCTOS */
- 
-
--- VISTA DE DATOS DE CLIENTE A SI SEA PERSONA O EMPRESA
- CREATE OR REPLACE VIEW vw_clientes AS
+-- 2) Información de cliente (persona o empresa, con contactabilidad)
+DROP VIEW IF EXISTS vw_clientes;
+CREATE OR REPLACE VIEW vw_clientes AS
 SELECT
   c.idcliente,
   p.nombres,
   p.apellidos,
   e.nomcomercial AS empresa,
   ct.contactabilidad
-FROM
-  clientes c
-  LEFT JOIN personas p
-    ON c.idpersona = p.idpersona
-  LEFT JOIN empresas e
-    ON c.idempresa = e.idempresa
-  JOIN contactabilidad ct
-    ON c.idcontactabilidad = ct.idcontactabilidad;
+FROM clientes c
+LEFT JOIN personas p
+  ON c.idpersona = p.idpersona
+LEFT JOIN empresas e
+  ON c.idempresa = e.idempresa
+JOIN contactabilidad ct
+  ON c.idcontactabilidad = ct.idcontactabilidad;
 
--- VISTA DETALLADA DE LOS COLABORADORES
- CREATE OR REPLACE VIEW vw_colaboradores AS
+-- 3) Colaboradores con contrato y rol
+DROP VIEW IF EXISTS vw_colaboradores;
+CREATE OR REPLACE VIEW vw_colaboradores AS
 SELECT
   col.idcolaborador,
   col.namuser,
@@ -48,29 +39,27 @@ SELECT
   p.apellidos,
   c.fechainicio,
   c.fechafin
-FROM
-  colaboradores col
-  JOIN contratos c
-    ON col.idcontrato = c.idcontrato
-  JOIN roles r
-    ON c.idrol = r.idrol
-  JOIN personas p
-    ON c.idpersona = p.idpersona;
+FROM colaboradores col
+JOIN contratos c
+  ON col.idcontrato = c.idcontrato
+JOIN roles r
+  ON c.idrol = r.idrol
+JOIN personas p
+  ON c.idpersona = p.idpersona;
 
--- VISTA DEL KARDEX CON DETALLE DEL PRODUCTO
- CREATE OR REPLACE VIEW vwKardex AS
+-- 4) Kardex con detalle de producto
+DROP VIEW IF EXISTS vwKardex;
+CREATE OR REPLACE VIEW vwKardex AS
 SELECT
   k.*,
   p.descripcion,
   p.precio
-FROM
-  kardex k
-  INNER JOIN productos p
-    ON k.idproducto = p.idproducto;
+FROM kardex k
+INNER JOIN productos p
+  ON k.idproducto = p.idproducto;
 
--- create view vwClientePrincipal
- -- SELECT * FROM vwModelosConTipoYMarca;
-
+-- 5) Información cliente extendida (versión 2)
+DROP VIEW IF EXISTS vw_clientes;
 CREATE OR REPLACE VIEW vw_clientes AS
 SELECT
   c.idcliente,
@@ -82,89 +71,86 @@ SELECT
   e.nomcomercial,
   e.razonsocial,
   e.ruc
-FROM
-  clientes c
-  LEFT JOIN personas p
-    ON c.idpersona = p.idpersona
-  LEFT JOIN empresas e
-    ON c.idempresa = e.idempresa;
+FROM clientes c
+LEFT JOIN personas p
+  ON c.idpersona = p.idpersona
+LEFT JOIN empresas e
+  ON c.idempresa = e.idempresa;
 
--- select * from personas;
-
+-- 6) Solo clientes persona
+DROP VIEW IF EXISTS vwClientesPersona;
 CREATE OR REPLACE VIEW vwClientesPersona AS
 SELECT
-c.idcliente,
-p.idpersona,
-p.nombres,
-p.apellidos,
-p.tipodoc,
-p.numdoc,
-p.numruc,
-p.direccion,
-p.correo,
-p.telprincipal,
-p.telalternativo
-FROM
-clientes c
+  c.idcliente,
+  p.idpersona,
+  p.nombres,
+  p.apellidos,
+  p.tipodoc,
+  p.numdoc,
+  p.numruc,
+  p.direccion,
+  p.correo,
+  p.telprincipal,
+  p.telalternativo
+FROM clientes c
 LEFT JOIN personas p
-ON c.idpersona = p.idpersona
+  ON c.idpersona = p.idpersona
 WHERE c.idempresa IS NULL;
 
--- select nombres, apellidos,tipodoc,numdoc from vwClientesPersona;
-
+-- 7) Solo clientes empresa
+DROP VIEW IF EXISTS vwClientesEmpresa;
 CREATE OR REPLACE VIEW vwClientesEmpresa AS
 SELECT 
-c.idcliente,
-e.idempresa,
-e.nomcomercial,
-e.razonsocial,
-e.telefono,
-e.correo,
-e.ruc
-FROM
-clientes c
+  c.idcliente,
+  e.idempresa,
+  e.nomcomercial,
+  e.razonsocial,
+  e.telefono,
+  e.correo,
+  e.ruc
+FROM clientes c
 LEFT JOIN empresas e
-ON c.idempresa = e.idempresa
+  ON c.idempresa = e.idempresa
 WHERE c.idpersona IS NULL;
 
--- select * from vwvehiculos;
-
+-- 8) Vehículos con datos de propietario
+DROP VIEW IF EXISTS vwVehiculos;
 CREATE OR REPLACE VIEW vwVehiculos AS
 SELECT
-CASE
-WHEN c.idpersona IS NULL THEN em.nomcomercial
-ELSE CONCAT(pe.nombres, ' ',pe.apellidos)
-END AS propietario,
-v.idvehiculo,
-t.tipov,
-ma.nombre,
-m.modelo,
-v.anio,
-v.numserie,
-v.tipocombustible,
-v.placa,
-v.color
-FROM
-propietarios p
+  CASE
+    WHEN c.idpersona IS NULL THEN em.nomcomercial
+    ELSE CONCAT(pe.nombres, ' ', pe.apellidos)
+  END AS propietario,
+  v.idvehiculo,
+  t.tipov,
+  ma.nombre,
+  m.modelo,
+  v.anio,
+  v.numserie,
+  v.tipocombustible,
+  v.placa,
+  v.color
+FROM propietarios p
 LEFT JOIN vehiculos v
-ON p.idvehiculo = v.idvehiculo
+  ON p.idvehiculo = v.idvehiculo
 LEFT JOIN clientes c
-ON p.idcliente = c.idcliente
+  ON p.idcliente = c.idcliente
 LEFT JOIN modelos m
-ON v.idmodelo = m.idmodelo
+  ON v.idmodelo = m.idmodelo
 LEFT JOIN tipovehiculos t
-ON m.idtipov = t.idtipov
+  ON m.idtipov = t.idtipov
 LEFT JOIN marcas ma
-ON m.idmarca = ma.idmarca
+  ON m.idmarca = ma.idmarca
 LEFT JOIN personas pe
-ON c.idpersona = pe.idpersona
+  ON c.idpersona = pe.idpersona
 LEFT JOIN empresas em
-ON c.idempresa = em.idempresa;
+  ON c.idempresa = em.idempresa;
 
-
+-- 9) Productos con marca y subcategoría
+DROP VIEW IF EXISTS vwproductos;
 CREATE OR REPLACE VIEW vwproductos AS 
 SELECT
-p.idproducto,
+  p.idproducto,
   m.nombre      AS marca,
   s.subcategoria AS subcategoria,
   p.descripcion AS descripcion,
@@ -174,51 +160,37 @@ p.idproducto,
   p.precio       AS precio,
   p.img          AS img
 FROM productos p
-    LEFT JOIN marcas m
-      ON p.idmarca = m.idmarca
-   LEFT JOIN subcategorias s
-     ON p.idsubcategoria = s.idsubcategoria;
+LEFT JOIN marcas m
+  ON p.idmarca = m.idmarca
+LEFT JOIN subcategorias s
+  ON p.idsubcategoria = s.idsubcategoria;
 
-
-
-
--- insert into agendas(idpropietario, fchproxvisita, comentario, estado)
--- values (2,curdate(),"Cambio de aceite", 1);
-
--- select * from agendas;
-
+-- 10) Subcategorías cuyo categoría es 'servicio'
+DROP VIEW IF EXISTS vwSubcategoriaServicio;
 CREATE OR REPLACE VIEW vwSubcategoriaServicio AS
 SELECT
-s.*
+  s.*
 FROM subcategorias s
 INNER JOIN categorias c
-ON s.idcategoria = c.idcategoria
-WHERE categoria = 'servicio';
+  ON s.idcategoria = c.idcategoria
+WHERE c.categoria = 'servicio';
 
-
+-- 11) Colaboradores con rol 'mecanico'
+DROP VIEW IF EXISTS vwMecanicos;
 CREATE OR REPLACE VIEW vwMecanicos AS
 SELECT
-c.idcolaborador,
-CONCAT(p.nombres,' ',p.apellidos) AS nombres 
+  c.idcolaborador,
+  CONCAT(p.nombres, ' ', p.apellidos) AS nombres 
 FROM colaboradores c
 LEFT JOIN contratos co
-ON c.idcontrato = co.idcontrato
+  ON c.idcontrato = co.idcontrato
 LEFT JOIN roles r
-ON co.idrol = r.idrol
+  ON co.idrol = r.idrol
 LEFT JOIN personas p
-ON co.idpersona = p.idpersona
+  ON co.idpersona = p.idpersona
 WHERE r.rol = 'mecanico';
 
+-- 12) Componentes (lista completa)
+DROP VIEW IF EXISTS vwComponentes;
 CREATE OR REPLACE VIEW vwComponentes AS
 SELECT * FROM componentes;
-
-
-
--- select * from vwMecanicos ORDER BY nombres;
-
--- select * from vwSubcategoriaServicio;
--- select * from 
--- select * from productos;
--- select * from vehiculos;
--- select * from clientes;
--- select * from propietarios;

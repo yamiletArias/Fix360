@@ -350,17 +350,17 @@ INSERT INTO categorias (categoria)
  
  -- Insertar contratos con rol de mecánico (idrol = 2, por ejemplo)
  INSERT INTO Contratos ( idpersona, idrol, fechainicio, fechafin) VALUES
- (11, 1, '2023-01-01', '2924-02-01'),
- (12, 1, '2023-06-15', '2924-02-01'),
- (13, 1, '2024-02-01', '2924-02-01');
+ (1, 1, '2023-01-01', '2924-02-01'),
+ (2, 1, '2023-06-15', '2924-02-01'),
+ (3, 1, '2024-02-01', '2924-02-01');
  
  -- select * from personas;
  -- select * from contratos;
  -- Insertar colaboradores
  INSERT INTO Colaboradores (idcontrato, namuser, passuser) VALUES
- (10, 'cmendoza', 'pass123'),
- (11, 'lramirez', 'pass123'),
- (12, 'jperez', 'pass123');
+ (1, 'cmendoza', 'pass123'),
+ (2, 'lramirez', 'pass123'),
+ (3, 'jperez', 'pass123');
  
 -- select * from colaboradores;
 
