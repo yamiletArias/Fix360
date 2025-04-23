@@ -28,7 +28,7 @@ require_once "../../partials/header.php";
     <div class="col-md-3 text-md-end">
       <!-- Input para la fecha y botón -->
       <div class="input-group">
-        <input type="date" class="form-control" aria-label="Fecha" aria-describedby="button-addon2" id="Fecha">
+        <input type="date" class="form-control input" aria-label="Fecha" aria-describedby="button-addon2" id="Fecha">
         <a href="registrar-ordenes2.php" class="btn btn-success text-center" type="button" id="button-addon2" >Registrar</a>
       </div>
     </div>

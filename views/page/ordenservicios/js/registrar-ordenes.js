@@ -151,6 +151,7 @@
                             const option = document.createElement("option");
                             option.value = item.idservicio;
                             option.textContent = item.servicio;
+                            option.dataset.precio = item.precio;
                             servicioSelect.appendChild(option);
                         });
                     })
@@ -240,3 +241,89 @@
         }
         document.addEventListener("DOMContentLoaded", actualizarOpciones);
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnAgregar   = document.querySelector('#button-addon2.btn-success');
+        const btnAceptar   = document.querySelector('button.btn-success.text-end');
+        const tbody        = document.querySelector('#tabla-detalle tbody');
+        const detalleArr   = [];
+        const selectServ   = document.getElementById('servicio');
+        const selectMec    = document.getElementById('mecanico');
+        const selectVeh    = document.getElementById('vehiculo');
+        const kmInput      = document.getElementById('kilometraje');
+        const fechaIn      = document.getElementById('fechaIngreso');
+        const hidCliente   = document.getElementById('hiddenIdCliente');
+        const obsInput     = document.getElementById('observaciones'); // si lo agregas al form
+        const ingGruaChk   = document.getElementById('ingresogrua');   // idem
+      
+        function recalcular() {
+          let sub = detalleArr.reduce((s, i) => s + i.precio, 0);
+          let igv = sub - sub/1.18;
+          let net = sub/1.18;
+          document.getElementById('subtotal').value = sub.toFixed(2);
+          document.getElementById('igv').value      = igv.toFixed(2);
+          document.getElementById('neto').value     = net.toFixed(2);
+        }
+      
+        btnAgregar.addEventListener('click', () => {
+          const idserv = +selectServ.value;
+          const srvTxt = selectServ.selectedOptions[0].textContent;
+          const precio = parseFloat(selectServ.selectedOptions[0].dataset.precio || 0);
+          const mecId  = +selectMec.value;
+          const mecTxt = selectMec.selectedOptions[0].textContent;
+      
+          if (!idserv || !mecId) return alert('Selecciona servicio y mecánico');
+      
+          detalleArr.push({ idservicio: idserv, precio });
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${tbody.children.length+1}</td>
+            <td>${srvTxt}</td>
+            <td>${mecTxt}</td>
+            <td>${precio.toFixed(2)}</td>
+            <td><button class="btn btn-sm btn-danger">X</button></td>
+          `;
+          tr.querySelector('button').onclick = () => {
+            const idx = Array.from(tbody.children).indexOf(tr);
+            detalleArr.splice(idx, 1);
+            tr.remove();
+            recalcular();
+          };
+          tbody.appendChild(tr);
+          recalcular();
+        });
+      
+        btnAceptar.addEventListener('click', e => {
+          e.preventDefault();
+          if (detalleArr.length === 0) {
+            return alert('Agrega al menos un servicio');
+          }
+          const payload = {
+            idmecanico:    +selectMec.value,
+            idpropietario:+hidCliente.value,
+            idcliente:    +hidCliente.value,
+            idvehiculo:   +selectVeh.value,
+            kilometraje:  parseFloat(kmInput.value),
+            observaciones: obsInput?.value || '',
+            ingresogrua:  ingGruaChk?.checked || false,
+            fechaingreso: fechaIn.value,
+            fecharecordatorio: null,
+            detalle:      detalleArr
+          };
+      
+          fetch("http://localhost/fix360/app/controllers/OrdenServicio.controller.php", {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+          })
+          .then(r => r.json())
+          .then(js => {
+            if (js.status==='success') {
+                showToast('Orden registrada exitosamente', 'SUCCESS', 1000);
+            } else {
+                showToast('Error al registrar el orden de servicio', 'ERROR', 1500);
+            }
+          });
+        });
+      });
+      
