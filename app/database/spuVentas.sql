@@ -283,7 +283,7 @@ DELIMITER ;
 
 SELECT idcompra, justificacion, estado
 FROM compras
-WHERE idcompra = 1;
+WHERE idcompra = 3;
 -- FIN DE JUSTIFICACION DE LA COMPRA ELIMINADA
 
 -- registro real de cliente empresa (para que se vea en proveedores)

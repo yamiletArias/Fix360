@@ -7,7 +7,7 @@ if (isset($_GET['idcompra'])) {
     try {
         $db = Conexion::getConexion();
         $stmt = $db->prepare(
-          "SELECT producto, precio, descuento
+            "SELECT producto, precio, descuento
              FROM vista_detalle_compra
             WHERE idcompra = ?"
         );

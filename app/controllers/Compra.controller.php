@@ -54,7 +54,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 exit;
             }
 
-            // ➤ Registro de nueva compra
+            // Registro de nueva compra
             $input = file_get_contents('php://input');
             error_log("Entrada POST (compras): " . $input);
 
@@ -88,7 +88,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "moneda"      => $moneda,
                 "idproveedor" => $idproveedor,
                 "productos"   => $productos
-            ]);
+            ]); 
 
             if ($idCompraInsertada > 0) {
                 echo json_encode([

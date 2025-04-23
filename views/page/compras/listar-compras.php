@@ -140,33 +140,53 @@ require_once "../../partials/header.php";
         $('#modalJustificacion').modal('show');
     });
 
-    $(document).on('click', '#btnEliminarCompra', function () {
-        console.log("Botón Eliminar Compra presionado"); 
-        const justificacion = $('#justificacion').val().trim();
-        const idcompra = $(this).data('id');
-        //console.log("Justificación:", justificacion, "ID Compra:", idcompra);
 
-        if (!justificacion) {
-            alert('Escribe la justificación.');
-            return;
-        }
-
-        $.post("<?= SERVERURL ?>app/controllers/Compra.controller.php", {
-            action: 'eliminar',
-            idcompra: idcompra,
-            justificacion: justificacion
-        }, function (res) {
-            console.log("Respuesta del servidor:", res);
-            if (res.status === 'success') {
-                $('#modalJustificacion').modal('hide');
-                cargarTablaCompras();
-            } else {
-                alert(res.message);
-            }
-        }, 'json');
-    });
 </script>
+<script>
+  // reemplaza el handler existente por éste
+  $(document).off('click', '#btnEliminarCompra');  // quita cualquier handler previo
+  $(document).on('click', '#btnEliminarCompra', async function () {
+    const justificacion = $('#justificacion').val().trim();
+    const idcompra      = $(this).data('id');
 
+    if (!justificacion) {
+      alert('Escribe la justificación.');
+      return;
+    }
+
+    // 1) pregunto con tu helper ask()
+    const confirmado = await ask(
+      "¿Estás seguro de eliminar esta compra?",
+      "Confirmar eliminación"
+    );
+    if (!confirmado) {
+      showToast('Eliminación cancelada.', 'WARNING', 1500);
+      return;
+    }
+
+    // 2) feedback de “eliminando…”
+    showToast('Eliminando compra…', 'INFO', 1000);
+
+    // 3) envío la petición de eliminación
+    $.post("<?= SERVERURL ?>app/controllers/Compra.controller.php", {
+      action: 'eliminar',
+      idcompra: idcompra,
+      justificacion: justificacion
+    }, function (res) {
+      // 4) tras respuesta muestro éxito o error
+      if (res.status === 'success') {
+        showToast('Compra eliminada.', 'SUCCESS', 1500);
+        $('#modalJustificacion').modal('hide');
+        setTimeout(cargarTablaCompras, 500);
+      } else {
+        showToast(res.message || 'Error al eliminar.', 'ERROR', 1500);
+      }
+    }, 'json')
+    .fail(function () {
+      showToast('Error de conexión.', 'ERROR', 1500);
+    });
+  });
+</script>
 <script>
     function verDetalleCompra(idcompra, proveedor) {
         $("#miModal").modal("show");

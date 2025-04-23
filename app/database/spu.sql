@@ -1,5 +1,7 @@
+-- Cambiar delimitador para definir procedimientos
+DELIMITER $$
 
- DELIMITER $$
+-- 1) Registrar cliente (persona)
 DROP PROCEDURE IF EXISTS spRegisterClientePersona$$
 CREATE PROCEDURE spRegisterClientePersona (
   IN _nombres VARCHAR (50),
@@ -28,6 +30,7 @@ BEGIN
   VALUES (_idpersona, _idcontactabilidad);
 END$$
 
+-- 2) Registrar cliente (empresa)
 DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa$$
 CREATE PROCEDURE spRegisterClienteEmpresa (
   IN _ruc CHAR(11),
@@ -50,6 +53,7 @@ BEGIN
   VALUES (_idempresa, _idcontactabilidad);
 END$$
 
+-- 3) Registrar vehículo y propietario
 DROP PROCEDURE IF EXISTS spRegisterVehiculo$$
 CREATE PROCEDURE spRegisterVehiculo(
   IN _idmodelo INT,
@@ -73,6 +77,7 @@ BEGIN
   VALUES (_idcliente, _idvehiculo);
 END$$
 
+-- 4) Registrar producto
 DROP PROCEDURE IF EXISTS spRegisterProducto$$
 CREATE PROCEDURE spRegisterProducto(
   IN _idsubcategoria INT,
@@ -215,25 +220,27 @@ END $$
 
 DELIMITER $$
 
--- para la interfaz de productos (modal otro)
+-- PROCEDIMIENTO DE PRODUCTOS
+-- prueba register productos
 DELIMITER $$
 CREATE PROCEDURE spRegisterProducto(
-IN _idsubcategoria INT,
-IN _idmarca INT,
-IN _descripcion VARCHAR(50),
-IN _precio DECIMAL(7,2),
-IN _presentacion VARCHAR(40),
-IN _undmedida VARCHAR(40),
-IN _cantidad DECIMAL(10,2),
-IN _img 		VARCHAR(255)
+  IN _idsubcategoria INT,
+  IN _idmarca INT,
+  IN _descripcion VARCHAR(50),
+  IN _presentacion VARCHAR(40),
+  IN _undmedida VARCHAR(40),
+  IN _cantidad DECIMAL(10,2),
+  IN _img VARCHAR(255)
 )
 BEGIN
-	INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida,cantidad,img) 
-	VALUES (_idsubcategoria,_idmarca,_descripcion,_precio,_presentacion,_undmedida,_cantidad,_img);
-    
-    SELECT LAST_INSERT_ID() AS idproducto;
+  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
+  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
+  
+  SELECT LAST_INSERT_ID() AS idproducto;
 END$$
-
+DELIMITER $$
+-- fin register productos
+-- FIN PROCEDIMIENTO DE PRODUCTOS
 
 CREATE OR REPLACE VIEW vista_productos_completa AS
 SELECT 
@@ -382,50 +389,4 @@ BEGIN
 END$$
 
 -- Restaurar delimitador por defecto
-
-DROP PROCEDURE IF EXISTS spRegisterOrdenServicio$$
-DELIMITER $$
-CREATE PROCEDURE spRegisterOrdenServicio (
-  IN _idadmin      INT,
-  IN _idmecanico   INT,
-  IN _idpropietario INT,
-  IN _idcliente    INT,
-  IN _idvehiculo   INT,
-  IN _kilometraje  DECIMAL(10,2),
-  IN _observaciones VARCHAR(255),
-  IN _ingresogrua  BOOLEAN,
-  IN _fechaingreso DATETIME,
-  IN _fecharecordatorio DATE
-)
-BEGIN
-  INSERT INTO ordenservicios (
-    idadmin, idmecanico, idpropietario, idcliente,
-    idvehiculo, kilometraje, observaciones,
-    ingresogrua, fechaingreso, fecharecordatorio
-  )
-  VALUES (
-    _idadmin, _idmecanico, _idpropietario, _idcliente,
-    _idvehiculo, _kilometraje, _observaciones,
-    _ingresogrua, _fechaingreso, _fecharecordatorio
-  );
-  SELECT LAST_INSERT_ID() AS idorden;
-END $$
-
-
-DROP PROCEDURE IF EXISTS spInsertDetalleOrden$$
-DELIMITER $$
-CREATE PROCEDURE spInsertDetalleOrden (
-  IN _idorden   INT,
-  IN _idservicio INT,
-  IN _precio     DECIMAL(10,2)
-)
-BEGIN
-  INSERT INTO detalleordenservicios (
-    idorden, idservicio, precio
-  )
-  VALUES (
-    _idorden, _idservicio, _precio
-  );
-END $$
-
 DELIMITER ;
