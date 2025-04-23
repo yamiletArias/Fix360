@@ -311,6 +311,7 @@ tipocom 		ENUM('boleta', 'factura') 		NOT NULL,
 numserie 		VARCHAR(10) 	NOT NULL,
 numcom 			VARCHAR(10) 	NOT NULL,
 moneda 			VARCHAR(20)		NOT NULL,
+justificacion VARCHAR(255),
 estado 			BOOLEAN 			DEFAULT TRUE,
 creado  		TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -463,20 +464,18 @@ CONSTRAINT fk_idorden_5 FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden
 
 DROP TABLE IF EXISTS detallecompra;
 CREATE TABLE detallecompra(
-
 iddetcompra 	INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idcompra 		INT 				NOT NULL,
 idproducto 		INT 				NOT NULL,
 cantidad 		INT 				NOT NULL,
-preciocompra   DECIMAL(7,2)	NOT NULL,
-descuento 		DECIMAL(5,2)   DEFAULT 0,
+preciocompra   	DECIMAL(7,2)		NOT NULL,
+descuento 		DECIMAL(5,2)   		DEFAULT 0,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idcompra FOREIGN KEY (idcompra) REFERENCES compras (idcompra),
 CONSTRAINT fk_idproducto_2 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
 CONSTRAINT chk_detallecompra CHECK (cantidad > 0 AND preciocompra > 0),
 CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100)
-
 )ENGINE = INNODB;
 
 

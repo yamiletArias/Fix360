@@ -254,6 +254,38 @@ DELIMITER ;
 CALL spuGetProveedores();
 -- FIN PROVEEDOR
 
+-- PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA
+-- pasa a estado = false:
+DELIMITER $$
+CREATE PROCEDURE spuDeleteCompra (
+  IN _idcompra      INT,
+  IN _justificacion VARCHAR(255)
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+  START TRANSACTION;
+
+    -- Eliminar detalles
+    DELETE FROM detallecompra WHERE idcompra = _idcompra;
+
+    -- Marcar como anulada + guardar justificación
+    UPDATE compras
+    SET estado = FALSE,
+        justificacion = _justificacion
+    WHERE idcompra = _idcompra;
+  COMMIT;
+END$$
+DELIMITER ;
+
+SELECT idcompra, justificacion, estado
+FROM compras
+WHERE idcompra = 1;
+-- FIN DE JUSTIFICACION DE LA COMPRA ELIMINADA
+
 -- registro real de cliente empresa (para que se vea en proveedores)
 DELIMITER $$
 CREATE PROCEDURE spRegisterClienteEmpresa (
@@ -286,7 +318,7 @@ BEGIN
   -- Insertar en la tabla clientes vinculando la empresa
   INSERT INTO clientes (idempresa, idcontactabilidad)
   VALUES (_idempresa, _idcontactabilidad);
-  -- Insertar en la tabla proveedores solo si no existe ya
+  -- Insertar en la tabla proveedores solo si no existe
   IF NOT EXISTS (
     SELECT 1 FROM proveedores WHERE idempresa = _idempresa
   ) THEN
@@ -296,8 +328,8 @@ BEGIN
 END $$
 DELIMITER ;
 -- fin registro real de clientes empresa
-
 -- FIN DEL PROCEDIMIENTO DE COMPRAS
+
 
 -- PROCEDIMIENTO DE COTIZACIONES
 -- POR EL MOMENTO ALTERAR ID COLABORADOR
@@ -357,6 +389,7 @@ END $$
 DELIMITER ;
 -- fin de registrar detalle cotizacion
 -- FIN DEL PROCEDIMIENTO DE COTIZACIONES
+
 
 -- PROBAR 
 CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);

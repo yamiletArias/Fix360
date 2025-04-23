@@ -28,44 +28,20 @@ class Compra extends Conexion
   public function deleteCompra(int $idcompra, string $justificacion = null): bool
   {
     try {
-      $sql = "UPDATE compras SET estado = FALSE WHERE idcompra = :id";
+      $sql = "CALL spuDeleteCompra(:idcompra, :justificacion)";
       $stmt = $this->pdo->prepare($sql);
-      $res = $stmt->execute([':id' => $idcompra]);
-
-      // Si la justificación no es nula, puedes registrar la justificación en otra tabla
-      if ($justificacion) {
-        $this->logJustificacion($idcompra, $justificacion);
-      }
-
-      error_log("SQL deleteCompra ejecutado, rowCount = " . $stmt->rowCount());
+      $res = $stmt->execute([
+        ':idcompra' => $idcompra,
+        ':justificacion' => $justificacion
+      ]);
+  
+      error_log("Procedimiento spuDeleteCompra ejecutado.");
       return $res;
     } catch (PDOException $e) {
-      error_log("Error al anular compra #{$idcompra}: " . $e->getMessage());
+      error_log("Error al ejecutar spuDeleteCompra para compra #{$idcompra}: " . $e->getMessage());
       return false;
     }
   }
-
-  private function logJustificacion(int $idcompra, string $justificacion)
-  {
-    $sql = "INSERT INTO log_eliminaciones (idcompra, justificacion) VALUES (:idcompra, :justificacion)";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute([':idcompra' => $idcompra, ':justificacion' => $justificacion]);
-  }
-
-  // (eliminar) desactivar compra
-  /*   public function deleteCompra(int $idcompra): bool
-    {
-        try {
-            $sql  = "UPDATE compras SET estado = FALSE WHERE idcompra = :id";
-            $stmt = $this->pdo->prepare($sql);
-            $res  = $stmt->execute([':id' => $idcompra]);
-            error_log("SQL deleteCompra ejecutado, rowCount = " . $stmt->rowCount());
-            return $res;
-        } catch (PDOException $e) {
-            error_log("Error al anular compra #{$idcompra}: " . $e->getMessage());
-            return false;
-        }
-    } */
 
   //obtener los proveedores
   public function getProveedoresCompra(): array

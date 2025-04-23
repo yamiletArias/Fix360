@@ -284,9 +284,11 @@ IN _img 		VARCHAR(255)
 )
 BEGIN
 	INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida,cantidad,img) 
-					VALUES (_idsubcategoria,_idmarca,_descripcion,_precio,_presentacion,_undmedida,_cantidad,_img);
+	VALUES (_idsubcategoria,_idmarca,_descripcion,_precio,_presentacion,_undmedida,_cantidad,_img);
+    
+    SELECT LAST_INSERT_ID() AS idproducto;
 END$$
-DELIMITER $$
+
 
 CREATE OR REPLACE VIEW vista_productos_completa AS
 SELECT 
@@ -307,11 +309,12 @@ FROM productos p
 INNER JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
 INNER JOIN categorias c ON s.idcategoria = c.idcategoria
 INNER JOIN marcas m ON p.idmarca = m.idmarca;
+SELECT idproducto, descripcion FROM productos ORDER BY idproducto DESC LIMIT 5;
 
 
 
 -- DIN PRODUCTO
-
+DELIMITER $$
 CREATE PROCEDURE spGetPersonaById(
 IN _idpersona INT
 )
