@@ -11,6 +11,22 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
         echo json_encode($servicio->getServicioBySubcategoria($_GET['idsubcategoria']));
       }
       break;
+
+    case 'POST':
+      $input = file_get_contents('php://input');
+
+      $dataJSON = json_decode($input,true);
+
+      if($dataJSON === null){
+        echo json_encode(["error" => "JSON invalido"]);
+        error_log("JSON Recibido: " . $input);
+        exit;
+      }
+
+      $registro = [
+        "idsubcategoria" => Helper::limpiarCadena($dataJSON["idsubcategoria"] ?? "" ),
+        "servicio"       => Helper::limpiarCadena($dataJSON["servicio"] ?? "")
+      ];
     
     default:
       # code...

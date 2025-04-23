@@ -26,4 +26,23 @@ class Servicio extends Conexion
     }
     return $result;
   }
+
+  public function registerServicio($params =[]): int{
+    $numRows = 0;
+    try {
+      $query = "CALL spRegisterServicio(?,?)";
+      $stmt = $this->pdo->prepare($query);
+      $stmt->execute([
+        $params["idsubcategoria"],
+        $params["servicio"]
+      ]);
+      $numRows = $stmt->rowCount();
+    } catch (PDOException $e) {
+      error_log("Error DB: " . $e->getMessage());
+      return $numRows;
+    }
+    return $numRows;
+  }
+
+  
 }

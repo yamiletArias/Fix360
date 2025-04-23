@@ -38,10 +38,15 @@ require_once "../../partials/header.php";
         </div>
         <div class="col-md-6 mb-3">
           <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control" id="cliente" placeholder="Cliente">
+            <input type="text" disabled class="form-control input"
+              id="cliente"
+              placeholder="Cliente">
             <label for="cliente">Cliente</label>
-            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
-              data-bs-target="#ModalCliente">...</button>
+            <button
+              type="button"
+              class="btn btn-outline-dark btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#ModalCliente">…</button>
           </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -195,13 +200,11 @@ require_once "../../partials/_footer.php";
   <div class="modal-dialog">
     <div class="modal-content">
 
-      <!-- Encabezado -->
       <div class="modal-header">
         <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <!-- Cuerpo -->
       <div class="modal-body">
 
         <!-- Fila para Tipo de Propietario -->
@@ -212,7 +215,7 @@ require_once "../../partials/_footer.php";
             <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
               <div class="form-check form-check-inline" style="margin-right:40px;">
                 <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
-                  onclick="actualizarOpciones(); buscarPropietario();" checked >
+                  onclick="actualizarOpciones(); buscarPropietario();" checked>
                 <label class="form-check-label" for="rbtnpersona"
                   style="margin-left:5px;">Persona</label>
               </div>
@@ -242,8 +245,8 @@ require_once "../../partials/_footer.php";
         <div class="row mb-3">
           <div class="col">
             <div class="form-floating">
-              <input type="text" class="form-control" id="vbuscado" style="background-color: white;"
-                placeholder="Valor buscado" />
+              <input type="text" class="form-control input" id="vbuscado" style="background-color: white;"
+                placeholder="Valor buscado" style="accent-color:white;" autofocus />
               <label for="vbuscado">Valor buscado</label>
             </div>
           </div>
@@ -277,63 +280,49 @@ require_once "../../partials/_footer.php";
   </div>
 </div>
 
-<div class="modal fade" id="ModalCliente" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-  <div class="modal-dialog"> <!-- Modal grande si lo requieres -->
+<div class="modal fade" id="ModalCliente" tabindex="-1" aria-labelledby="ModalClienteLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
 
-      <!-- Encabezado -->
+      <!-- Header -->
       <div class="modal-header">
-        <h2 class="modal-title" id="miModalLabel">Seleccionar Cliente</h2>
+        <h2 class="modal-title" id="ModalClienteLabel">Seleccionar Cliente</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <!-- Cuerpo -->
+      <!-- Body -->
       <div class="modal-body">
+        <!-- Forzamos tipo “persona” -->
+        <input type="hidden" id="tipoBusquedaCliente" value="persona">
 
-        <!-- Fila para Tipo de Propietario -->
-        <div class="row mb-3">
-          <div class="col">
-            <label><strong>Tipo de propietario:</strong></label>
-            <!-- Contenedor de radio buttons -->
-            <div style="display: flex; align-items: center; gap: 10px; margin-left:20px;">
-              <div class="form-check form-check-inline" style="margin-right:40px;">
-                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona" onclick="actualizarOpciones(); buscarPropietario();" checked>
-                <label class="form-check-label" for="rbtnpersona" style="margin-left:5px;">Persona</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa" onclick="actualizarOpciones(); buscarPropietario();">
-                <label class="form-check-label" for="rbtnempresa" style="margin-left:5px;">Empresa</label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fila para Método de Búsqueda -->
+        <!-- Método de búsqueda -->
         <div class="row mb-3">
           <div class="col">
             <div class="form-floating">
-              <select id="selectMetodo" class="form-select" style="color: black;">
-                <!-- Se actualizarán las opciones según el tipo (persona/empresa) -->
+              <select id="selectMetodoCliente" class="form-select" style="color:black;">
+                <option value="dni">DNI</option>
+                <option value="nombre">Nombre</option>
               </select>
-              <label for="selectMetodo">Método de búsqueda:</label>
+              <label for="selectMetodoCliente">Método de búsqueda</label>
             </div>
           </div>
         </div>
 
-        <!-- Fila para Valor Buscado -->
+        <!-- Valor buscado -->
         <div class="row mb-3">
           <div class="col">
             <div class="form-floating">
-              <input type="text" class="form-control" id="vbuscado" style="background-color: white;" placeholder="Valor buscado" />
-              <label for="vbuscado">Valor buscado</label>
+              <input type="text" class="form-control input" id="vbuscadoCliente" placeholder="Valor buscado" autofocus>
+              <label for="vbuscadoCliente">Valor buscado</label>
             </div>
           </div>
         </div>
-
-        <!-- Tabla de Resultados -->
+        <!-- Resultados -->
         <p class="mt-3"><strong>Resultado:</strong></p>
         <div class="table-responsive">
-          <table id="tabla-resultado" class="table table-striped">
+          <table
+            id="tabla-resultado-cliente"
+            class="table table-striped">
             <thead>
               <tr>
                 <th>#</th>
@@ -343,15 +332,18 @@ require_once "../../partials/_footer.php";
               </tr>
             </thead>
             <tbody>
-              <!-- Se llenará dinámicamente -->
+              <!-- Se llena dinámicamente -->
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Pie del Modal -->
+      <!-- Footer -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal">Cerrar</button>
       </div>
 
     </div>
@@ -374,7 +366,6 @@ require_once "../../partials/_footer.php";
           <div class="col">
             <div class="form-floating">
               <select id="selectMetodo" class="form-select input" style="color: black;">
-                <!-- Se actualizarán las opciones según el tipo (persona/empresa) -->
               </select>
               <label for="selectMetodo">Tipo de Servicio:</label>
             </div>
@@ -393,7 +384,7 @@ require_once "../../partials/_footer.php";
         </div>
 
         <!-- Tabla de Resultados -->
-  
+
       </div>
 
       <!-- Pie del Modal -->
@@ -407,6 +398,72 @@ require_once "../../partials/_footer.php";
 </div>
 
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+
+<script>
+  let clienteTimer;
+
+  const vbuscado = document.getElementById("vbuscadoCliente");
+  const selectMetodo = document.getElementById("selectMetodoCliente");
+
+  // Disparamos búsqueda automática al tipear o cambiar el método
+  vbuscado.addEventListener("input", () => {
+    clearTimeout(clienteTimer);
+    clienteTimer = setTimeout(buscarCliente, 300);
+  });
+  selectMetodo.addEventListener("change", () => {
+    clearTimeout(clienteTimer);
+    clienteTimer = setTimeout(buscarCliente, 300);
+  });
+
+  function buscarCliente() {
+    const tipo = document.getElementById("tipoBusquedaCliente").value; // siempre “persona”
+    const metodo = selectMetodo.value;
+    const valor = vbuscado.value.trim();
+    if (!valor) {
+      // limpiamos tabla si no hay texto
+      document.querySelector("#tabla-resultado-cliente tbody").innerHTML = "";
+      return;
+    }
+
+    fetch(
+        `http://localhost/fix360/app/controllers/propietario.controller.php?` +
+        `task=buscarPropietario&tipo=${tipo}` +
+        `&metodo=${metodo}&valor=${encodeURIComponent(valor)}`
+      )
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#tabla-resultado-cliente tbody");
+        tbody.innerHTML = "";
+        data.forEach((item, i) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${item.nombre}</td>
+            <td>${item.documento}</td>
+            <td>
+              <button
+                class="btn btn-sm btn-success"
+                onclick="seleccionarCliente(${item.idcliente}, '${item.nombre}')"
+              >
+              <i class="fa-solid fa-circle-check"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(console.error);
+  }
+
+  function seleccionarCliente(id, nombre) {
+    // Seteamos el formulario principal
+    document.getElementById("hiddenIdCliente").value = id;
+    document.getElementById("cliente").value = nombre;
+    // Simulamos clic en la “X” para cerrar correctamente
+    document.querySelector("#ModalCliente .btn-close").click();
+  }
+</script>
+
 </body>
 
 </html>

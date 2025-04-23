@@ -287,6 +287,7 @@ iddetorden 		INT 					PRIMARY KEY 	AUTO_INCREMENT,
 idorden 			INT 					NOT NULL,
 idservicio 		INT 					NOT NULL,
 precio 			DECIMAL(10,2) 		NOT NULL,
+estado 			ENUM('A','D') 		DEFAULT 'A' NOT NULL, -- A = Activo : D = Desasctivado
 CONSTRAINT fk_idorden_7 FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden),
 CONSTRAINT fk_idservicio_7 FOREIGN KEY (idservicio) REFERENCES servicios (idservicio)
 
