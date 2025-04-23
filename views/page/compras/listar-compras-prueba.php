@@ -132,47 +132,39 @@ require_once "../../partials/header.php";
         cargarTablaCompras();
     });
 
-    // Manejar click en “Eliminar”
-$(document).on('click', '.btn-eliminar', function () {
-    const id = $(this).data('id');
-    $('#modalJustificacion').modal('show');  // Mostrar el modal de justificación inmediatamente
-    $('#btnEliminarCompra').data('id', id);  // Guardar el ID de la compra para eliminar más tarde
-});
+    $(document).on('click', '.btn-eliminar', function () {
+        const idCompra = $(this).data('id');
+        console.log("ID recibido en el botón eliminar:", idCompra); // <-- agrega esto
+        $('#justificacion').val('');
+        $('#btnEliminarCompra').data('id', idCompra);
+        $('#modalJustificacion').modal('show');
+    });
 
-// Eliminar compra con justificación
-$('#btnEliminarCompra').on('click', function () {
-    const justificacion = $('#justificacion').val().trim();
-    const idcompra = $(this).data('id');
+    $(document).on('click', '#btnEliminarCompra', function () {
+        console.log("Botón Eliminar Compra presionado"); // <-- Aquí
+        const justificacion = $('#justificacion').val().trim();
+        const idcompra = $(this).data('id');
+        console.log("Justificación:", justificacion, "ID Compra:", idcompra); // <-- Aquí también
 
-    if (!justificacion) {
-        alert('Por favor, escribe una justificación para eliminar la compra.');
-        return;
-    }
+        if (!justificacion) {
+            alert('Escribe la justificación.');
+            return;
+        }
 
-    // Enviar la justificación junto con la solicitud de eliminación
-    $.ajax({
-        url: "<?= SERVERURL ?>app/controllers/Compra.controller.php",
-        method: "POST",
-        data: {
+        $.post("<?= SERVERURL ?>app/controllers/Compra.controller.php", {
             action: 'eliminar',
             idcompra: idcompra,
             justificacion: justificacion
-        },
-        dataType: "json",
-        success: function (res) {
+        }, function (res) {
+            console.log("Respuesta del servidor:", res); // <-- Aquí también
             if (res.status === 'success') {
-                alert('Compra anulada con éxito.');
-                cargarTablaCompras();  // Recargar la tabla
-                $('#modalJustificacion').modal('hide'); // Cerrar el modal después de la eliminación
+                $('#modalJustificacion').modal('hide');
+                cargarTablaCompras();
             } else {
-                alert('Error: ' + res.message);
+                alert(res.message);
             }
-        },
-        error: function () {
-            alert('Ocurrió un error en la petición.');
-        }
+        }, 'json');
     });
-});
 </script>
 
 <script>

@@ -71,8 +71,9 @@ require_once "../../partials/header.php";
           <div class="col-md-3">
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
-                <option value="soles" selected>Soles</option>
-                <!-- Aquí se insertan dinámicamente el resto de monedas -->
+                <!-- “Soles” siempre estático y seleccionado -->
+                <option value="Soles" selected>Soles</option>
+                <!-- Aquí sólo meteremos el resto -->
               </select>
               <label for="moneda">Moneda:</label>
             </div>
@@ -517,7 +518,7 @@ require_once "../../partials/header.php";
 </script>
 <!-- <script src="<?= SERVERURL ?>views/page/ventas/js/registrar-ventas.js"></script> -->
 <!-- js de carga moneda -->
-<script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <?php
 require_once "../../partials/_footer.php";
 ?>

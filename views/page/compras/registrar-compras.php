@@ -22,11 +22,13 @@ require_once "../../partials/header.php";
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input  class="form-check-input text-start" type="radio" name="tipo" value="factura"  onclick="inicializarCampos()" checked>
+              <input class="form-check-input text-start" type="radio" name="tipo" value="factura"
+                onclick="inicializarCampos()" checked>
               Factura
             </label>
             <label style="padding-left: 10px;">
-              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
+              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta"
+                onclick="inicializarCampos()">
               Boleta
             </label>
             <!-- <label>
@@ -68,8 +70,9 @@ require_once "../../partials/header.php";
           <div class="col-md-3">
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
+                <!-- “Soles” siempre estático y seleccionado -->
                 <option value="Soles" selected>Soles</option>
-                <!-- Aquí se insertan dinámicamente el resto de monedas -->
+                <!-- Aquí sólo meteremos el resto -->
               </select>
               <label for="moneda">Moneda:</label>
             </div>
@@ -285,7 +288,7 @@ require_once "../../partials/header.php";
 
 <script src="<?= SERVERURL ?>views/page/compras/js/registrar-compras.js"></script>
 <!-- js de carga moneda -->
-<script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <?php
 require_once "../../partials/_footer.php";
 ?>

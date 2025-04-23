@@ -136,6 +136,126 @@ BEGIN
   SELECT * FROM marcas
   WHERE tipo = 'vehiculo'
   ORDER BY nombre ASC;
+<<<<<<< HEAD
+END $$
+
+DELIMITER $$
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetAllTipoVehiculo ()
+BEGIN
+  SELECT
+    idtipov,
+    tipov
+  FROM
+    tipovehiculos
+  ORDER BY tipov ASC;
+END $$
+
+DELIMITER $$
+
+CREATE PROCEDURE spBuscarPersona (
+  IN _tipoBusqueda VARCHAR (20),
+  IN _criterio VARCHAR (100)
+)
+BEGIN
+  IF _tipoBusqueda = 'DNI'
+  THEN
+  SELECT
+    *
+  FROM
+    personas
+  WHERE numdoc LIKE CONCAT('%', _criterio, '%');
+  ELSEIF _tipoBusqueda = 'NOMBRE'
+  THEN
+  SELECT
+    *
+  FROM
+    personas
+  WHERE CONCAT(nombres, ' ', apellidos) LIKE CONCAT('%', _criterio, '%');
+  END IF;
+END $$
+
+DELIMITER $$
+
+-- CALL spBuscarPersona ('dni', '761');
+-- CALL spBuscarPersona ('nombre', 'herna') -- select * from personas;
+ DROP PROCEDURE IF EXISTS spBuscarEmpresa;
+DELIMITER $$
+
+CREATE PROCEDURE spBuscarEmpresa (
+  IN _tipoBusqueda VARCHAR (20),
+  IN _criterio VARCHAR (100)
+)
+BEGIN
+  IF _tipoBusqueda = 'RUC'
+  THEN
+  SELECT
+    *
+  FROM
+    empresas
+  WHERE ruc LIKE CONCAT('%', _criterio, '%');
+  ELSEIF _tipoBusqueda = 'RAZONSOCIAL'
+  THEN
+  SELECT
+    *
+  FROM
+    empresas
+  WHERE razonsocial LIKE CONCAT('%', _criterio, '%');
+  ELSEIF _tipoBusqueda = 'NOMBRECOMERCIAL'
+  THEN
+  SELECT
+    *
+  FROM
+    empresas
+  WHERE nomcomercial LIKE CONCAT('%', _criterio, '%');
+  END IF;
+END $$
+
+DELIMITER $$
+
+-- para la interfaz de productos (modal otro)
+DELIMITER $$
+CREATE PROCEDURE spRegisterProducto(
+IN _idsubcategoria INT,
+IN _idmarca INT,
+IN _descripcion VARCHAR(50),
+IN _precio DECIMAL(7,2),
+IN _presentacion VARCHAR(40),
+IN _undmedida VARCHAR(40),
+IN _cantidad DECIMAL(10,2),
+IN _img 		VARCHAR(255)
+)
+BEGIN
+	INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida,cantidad,img) 
+	VALUES (_idsubcategoria,_idmarca,_descripcion,_precio,_presentacion,_undmedida,_cantidad,_img);
+    
+    SELECT LAST_INSERT_ID() AS idproducto;
+END$$
+
+
+CREATE OR REPLACE VIEW vista_productos_completa AS
+SELECT 
+  p.idproducto,
+  CONCAT(s.subcategoria, ' ', p.descripcion) AS producto,
+  p.precio,
+  p.presentacion,
+  p.undmedida,
+  p.cantidad,
+  p.img,
+  s.idsubcategoria,
+  s.subcategoria,
+  c.idcategoria,
+  c.categoria,
+  m.idmarca,
+  m.nombre AS marca
+FROM productos p
+INNER JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
+INNER JOIN categorias c ON s.idcategoria = c.idcategoria
+INNER JOIN marcas m ON p.idmarca = m.idmarca;
+SELECT idproducto, descripcion FROM productos ORDER BY idproducto DESC LIMIT 5;
+=======
 END$$
 
 -- 10) Obtener todos los tipos de vehículo
@@ -146,6 +266,7 @@ BEGIN
   FROM tipovehiculos
   ORDER BY tipov ASC;
 END$$
+>>>>>>> 4db45f40872fbcd49ef01e50c51865c619e11939
 
 -- 11) Obtener subcategorías por categoría
 DROP PROCEDURE IF EXISTS spGetSubcategoriaByCategoria$$
@@ -171,6 +292,10 @@ BEGIN
     AND m.idmarca = p_idmarca;
 END$$
 
+<<<<<<< HEAD
+-- DIN PRODUCTO
+DELIMITER $$
+=======
 -- 13) Obtener servicios por subcategoría
 DROP PROCEDURE IF EXISTS spGetServicioBySubcategoria$$
 CREATE PROCEDURE spGetServicioBySubcategoria(
@@ -184,6 +309,7 @@ END$$
 
 -- 14) Obtener persona por ID
 DROP PROCEDURE IF EXISTS spGetPersonaById$$
+>>>>>>> 4db45f40872fbcd49ef01e50c51865c619e11939
 CREATE PROCEDURE spGetPersonaById(
   IN _idpersona INT
 )

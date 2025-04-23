@@ -19,7 +19,7 @@ VALUES
 -- INSERT para la tabla 'roles'
 INSERT INTO roles (rol)
 VALUES ('Administrador'), ('Mecánico');
-
+select * from roles;
 -- INSERT para la tabla 'contactabilidad'
 INSERT INTO contactabilidad (contactabilidad)
 VALUES ('Teléfono'), ('Email');
@@ -88,7 +88,8 @@ VALUES
 -- COMPRA
 INSERT INTO proveedores (idempresa)
 VALUES 
-(1); 
+(1),
+(2); 
 SELECT * FROM proveedores;
 
 INSERT INTO compras (idproveedor, idcolaborador, fechacompra, tipocom, numserie, numcom, moneda)
@@ -234,6 +235,6 @@ SELECT * FROM productos WHERE idproducto IN (1, 2, 3);
 
 -- Mostrar la estructura de la tabla 'clientes' y 'productos'
 SHOW CREATE TABLE clientes;
-SELECT * FROM productos;
+SELECT * FROM colaboradores;
 SELECT * FROM personas WHERE numdoc = '12345678';
 

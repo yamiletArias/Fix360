@@ -23,8 +23,8 @@ require_once "../../partials/header.php";
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <div class="col text-end">
-                      <a href="registrar-compras.php" class="btn btn-success" disabled>Registrar Compra</a>
+                    <div class="col text-end"><a href="registrar-compras.php" class="btn btn-success" disabled>Registrar
+                            Compra</a>
                     </div>
                 </div>
             </div>
@@ -132,29 +132,38 @@ require_once "../../partials/header.php";
         cargarTablaCompras();
     });
 
-    // Manejar click en “Eliminar”
     $(document).on('click', '.btn-eliminar', function () {
-        const id = $(this).data('id');
-        if (!confirm('¿Seguro que quieres anular esta compra?')) return;
-        $.ajax({
-            url: "<?= SERVERURL ?>app/controllers/Compra.controller.php",
-            method: "POST",
-            data: {
-                action: 'eliminar',
-                idcompra: id
-            },
-            dataType: "json",
-            success: function (res) {
-                if (res.status === 'success') {
-                    cargarTablaCompras();
-                } else {
-                    alert('Error: ' + res.message);
-                }
-            },
-            error: function () {
-                alert('Ocurrió un error en la petición.');
+        const idCompra = $(this).data('id');
+        console.log("ID recibido en el botón eliminar:", idCompra);
+        $('#justificacion').val('');
+        $('#btnEliminarCompra').data('id', idCompra);
+        $('#modalJustificacion').modal('show');
+    });
+
+    $(document).on('click', '#btnEliminarCompra', function () {
+        console.log("Botón Eliminar Compra presionado"); 
+        const justificacion = $('#justificacion').val().trim();
+        const idcompra = $(this).data('id');
+        //console.log("Justificación:", justificacion, "ID Compra:", idcompra);
+
+        if (!justificacion) {
+            alert('Escribe la justificación.');
+            return;
+        }
+
+        $.post("<?= SERVERURL ?>app/controllers/Compra.controller.php", {
+            action: 'eliminar',
+            idcompra: idcompra,
+            justificacion: justificacion
+        }, function (res) {
+            console.log("Respuesta del servidor:", res);
+            if (res.status === 'success') {
+                $('#modalJustificacion').modal('hide');
+                cargarTablaCompras();
+            } else {
+                alert(res.message);
             }
-        });
+        }, 'json');
     });
 </script>
 
@@ -193,20 +202,21 @@ require_once "../../partials/header.php";
 </script>
 
 <!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 600px;">
+<div class="modal fade" id="modalJustificacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Confirmar Eliminación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>¿Por qué deseas eliminar esta compra?</strong></p>
-                <textarea id="motivoEliminacion" class="form-control" rows="4" placeholder="Escribe el motivo aquí..."></textarea>
+                <p>¿Por qué deseas eliminar esta compra? (Escribe una justificación)</p>
+                <textarea id="justificacion" class="form-control" rows="4"
+                    placeholder="Escribe tu justificación aquí..."></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="btnConfirmarEliminacion">Eliminar</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEliminarCompra" class="btn btn-danger">Eliminar Compra</button>
             </div>
         </div>
     </div>
@@ -214,7 +224,7 @@ require_once "../../partials/header.php";
 
 <!-- Modal de Detalle de Compras -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 800px;"> <!-- Cambié el tamaño aquí -->
+    <div class="modal-dialog" style="max-width: 800px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Compra</h5>
