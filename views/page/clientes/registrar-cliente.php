@@ -33,28 +33,28 @@ require_once "../../partials/header.php";
                   <option value="Pasaporte">Pasaporte</option>
                   <option value="cde">Carnet de extranjeria</option>
                 </select>
-                <label for="tipodoc">Tipo de Documento:</label>
+                <label for="tipodoc"><strong>Tipo de Documento:</strong></label>
               </div>
             </div>
 
             <div class="col-md-2 mb-3">
               <div class="form-floating">
                 <input type="text" class="form-control input"  name="numdoc" id="numdoc" minlength="8" maxlength="20" placeholder="numdoc" autofocus required>
-                <label for="numdoc">N° de Documento</label>
+                <label for="numdoc"><strong> N° de Documento</strong></label>
               </div>
             </div>
 
             <div class="col-md-4 mb-3">
               <div class="form-floating">
                 <input type="text" name="apellidos" class="form-control input" id="apellidos" minlength="2" maxlength="100" placeholder="apellidos" required>
-                <label for="apellidos">Apellidos</label>
+                <label for="apellidos"><strong>Apellidos</strong></label>
               </div>
             </div>
 
             <div class="col-md-4 mb-3">
               <div class="form-floating">
                 <input type="text" id="nombres" class="form-control input" name="nombres" minlength="2" maxlength="100" required placeholder="nombrealazar">
-                <label for="nombres">Nombres</label>
+                <label for="nombres"><strong>Nombres</strong></label>
               </div>
             </div>
 
@@ -99,7 +99,7 @@ require_once "../../partials/header.php";
                 <select class="form-select" id="cpersona" name="cpersona" style="color: black;" required>
                   <option value="">Seleccione una opción</option>
                 </select>
-                <label for="cpersona">Contactabilidad:</label>
+                <label for="cpersona"><strong>Contactabilidad:</strong></label>
               </div>
             </div>
 
@@ -113,25 +113,25 @@ require_once "../../partials/header.php";
             <div class="col-md-4 mb-3">
               <div class="form-floating">
                 <input type="text" id="ruc" name="ruc" class="form-control input" placeholder="rucdelaempresa" minlength="11" maxlength="11" required>
-                <label for="ruc">RUC</label>
+                <label for="ruc"><strong>RUC</strong></label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
                 <input type="text" id="nomcomercial" name="nomcomercial" class="form-control input" placeholder="nomcomercial" minlength="5" maxlength="100" required>
-                <label for="nomcomercial">Nombre Comercial</label>
+                <label for="nomcomercial"><strong>Nombre Comercial</strong></label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
                 <input type="text" id="razonsocial" name="razonsocial" class="form-control input" placeholder="razonsocia0l" minlength="5" maxlength="100" required>
-                <label for="razonsocial">Razón Social</label>
+                <label for="razonsocial"><strong>Razón Social</strong></label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
                 <input type="text" id="telempresa" name="telempresa" class="form-control input" placeholder="telempresa" minlength="9" maxlength="9">
-                <label for="telempresa">Teléfono</label>
+                <label for="telempresa"><strong>Teléfono</strong></label>
               </div>
             </div>
             <div class="col-md-4">
@@ -146,7 +146,7 @@ require_once "../../partials/header.php";
                 <select class="form-select" id="cempresa" name="cempresa" style="color: black;" required>
                   <option value="">Seleccione una opción</option>
                 </select>
-                <label for="cempresa">Contactabilidad:</label>
+                <label for="cempresa"><strong>Contactabilidad:</strong></label>
               </div>
             </div>
           </div>

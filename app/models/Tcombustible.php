@@ -13,7 +13,7 @@ class Tcombustible extends Conexion {
         $result = [];
 
         try {
-         $sql = "SELECT * FROM vwtcombustible";
+         $sql = "SELECT * FROM vwtcombustible ORDER BY tcombustible ASC";
          $stmt = $this->conexion->prepare($sql);
          $stmt->execute();
          $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

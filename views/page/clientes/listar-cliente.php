@@ -182,47 +182,47 @@ require_once "../../partials/header.php";
             <div class="card-body">
               <div class="row">
 
-                <div class="col-md-4 mb-3">
-                  <div class="form-floating">
-                    <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
-                      <option value="">Seleccione una opcion</option>
-                    </select>
-                    <label for="tipov">Tipo de vehiculo:</label>
-                  </div>
-                </div>
-
-                <div class="col-md-4 ">
+              <div class="col-md-4 ">
                   <div class="form-floating">
                     <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
                       <option value="">Seleccione una opcion</option>
 
                     </select>
-                    <label for="marcav">Marca del vehiculo:</label>
+                    <label for="marcav"><strong> Marca del vehiculo:</strong></label>
                   </div>
                 </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
+                      <option value="">Seleccione una opcion</option>
+                    </select>
+                    <label for="tipov"><strong>Tipo de vehiculo:</strong></label>
+                  </div>
+                </div>                
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
                     <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
                       <option value="">Seleccione una opcion</option>
                     </select>
-                    <label for="modelo">Modelo del vehiculo:</label>
+                    <label for="modelo"><strong> Modelo del vehiculo:</strong></label>
                   </div>
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-2 mb-3">
                   <div class="form-floating">
                     <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" required
                       maxlength="6" />
-                    <label for="fplaca">Placa</label>
+                    <label for="fplaca"><strong>Placa</strong></label>
                   </div>
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-2 mb-3">
                   <div class="form-floating">
                     <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" maxlength="4"
                       required />
-                    <label for="fanio">Año</label>
+                    <label for="fanio"><strong> Año</strong></label>
                   </div>
                 </div>
 
@@ -233,35 +233,39 @@ require_once "../../partials/header.php";
                   </div>
                 </div>
 
-                <div class="col-md-4 mb-3">
+                <div class="col-md-2 mb-3">
                   <div class="form-floating">
                     <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" />
-                    <label for="fcolor">Color</label>
+                    <label for="fcolor"><strong>Color</strong></label>
+                  </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="ftcombustible" style="color: black;">
+                    </select>
+                    <label for="ftcombustible"><strong> Tipo de combustible:</strong></label>
                   </div>
                 </div>
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <select class="form-select" id="ftcombustible" style="color: black;">
-                      <option value="Gasolina" selected>Gasolina</option>
-                      <option value="Diesel">Diesel</option>
-                      <option value="GNV">GNV</option>
-                      <option value="GLP">GLP</option>
-                      <option value="Biodiésel">biodiésel</option>
-                      <option value="Etanol">Etanol</option>
-                      <option value="Allinol">Allinol</option>
-                      <option value="Electricidad">Electricidad</option>
-                      <option value="Hidrogeno">Hidrogeno</option>
-                      <option value="Biocombustible">Biocombustible</option>
-                    </select>
-                    <label for="ftcombustible">Tipo de combustible:</label>
+                    <input type="text" class="form-control input" id="vin" placeholder="vin" />
+                    <label for="vin">VIN</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" />
+                    <label for="numchasis">N° Chasis</label>
                   </div>
                 </div>
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating input-group mb-3">
                     <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario" value="" />
-                    <label for="floatingInput">Propietario</label>
+                    <label for="floatingInput"><strong>Propietario</strong></label>
                     <input type="hidden" id="hiddenIdCliente" />
                   </div>
                 </div>
@@ -349,7 +353,7 @@ require_once "../../partials/_footer.php";
                     >
                     <i class="fa-solid fa-car"></i>
                     </button>
-                    <button class= "btn btn-sm btn-outline-dark title="Vehiculos a su nombre">
+                    <button class= "btn btn-sm btn-outline-dark" title="Vehiculos a su nombre" >
                     <i class="fa-regular fa-address-card"></i>
                     </button>
 

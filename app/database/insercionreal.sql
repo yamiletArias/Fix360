@@ -247,15 +247,15 @@ VALUES
   ('Biocombustible');
   
   
-INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
+INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,idtcombustible)
 VALUES
-(1,'98654','2020','asda5s46d54as6d5','rojo','allinol'),
-(2,'321qwe','2021','a65das4d65a4','azul','GNV'),
-(3,'fgh987','2022','987vas98das7','blanco','GLP'),
-(4,'321vbn','2023','asvda65c4wq','negro','Gas'),
-(5,'64n87a','2024','sacd4a65c14','gris','GNV'),
-(6,'s1lt6r','2025','8465c32a132za','amarillo','GNV'),
-(7,'aw4bq4','2018','as9c3x21a3z','verde','GLP');
+(1,'98654','2020','asda5s46d54as6d5','rojo',1),
+(2,'321qwe','2021','a65das4d65a4','azul',2),
+(3,'fgh987','2022','987vas98das7','blanco',3),
+(4,'321vbn','2023','asvda65c4wq','negro',4),
+(5,'64n87a','2024','sacd4a65c14','gris',5),
+(6,'s1lt6r','2025','8465c32a132za','amarillo',6),
+(7,'aw4bq4','2018','as9c3x21a3z','verde',7);
 
 -- select * from productos;
 

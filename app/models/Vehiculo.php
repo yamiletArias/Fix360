@@ -49,11 +49,11 @@ class Vehiculo extends Conexion
       $stmt = $this->pdo->prepare($query);
       $stmt->execute([
         $params["idmodelo"],
+        $params["idtcombustible"],
         $params["placa"],
         $params["anio"],
         $params["numserie"],
         $params["color"],
-        $params["tipocombustible"],
         $params["vin"],
         $params["numchasis"],
         $params["idcliente"] // Agregar este campo

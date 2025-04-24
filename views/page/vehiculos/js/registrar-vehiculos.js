@@ -45,6 +45,18 @@
   // ... (resto de tu código, por ejemplo, listeners para DNI, RUC, registro del vehículo, etc.)
 });
 
+fetch("http://localhost/fix360/app/controllers/Tcombustible.controller.php")
+.then(res => res.json())
+.then(data => {
+  const tcombustibleSelect = document.getElementById("ftcombustible");
+  tcombustibleSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
+  data.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value   = item.idtcombustible;
+    opt.textContent = item.tcombustible;
+    tcombustibleSelect.appendChild(opt);
+  });
+})
 
   // Función para actualizar las opciones del select según el tipo de propietario (persona/empresa)
   function actualizarOpciones() {

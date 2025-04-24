@@ -71,16 +71,6 @@ require_once "../../partials/header.php";
           <div class="col-md-4">
             <div class="form-floating">
               <select class="form-select" id="ftcombustible" style="color: black;">
-                <option value="Gasolina" selected>Gasolina</option>
-                <option value="Diesel">Diesel</option>
-                <option value="GNV">GNV</option>
-                <option value="GLP">GLP</option>
-                <option value="Biodiésel">biodiésel</option>
-                <option value="Etanol">Etanol</option>
-                <option value="Allinol">Allinol</option>
-                <option value="Electricidad">Electricidad</option>
-                <option value="Hidrogeno">Hidrogeno</option>
-                <option value="Biocombustible">Biocombustible</option>
               </select>
               <label for="ftcombustible">Tipo de combustible:</label>
             </div>

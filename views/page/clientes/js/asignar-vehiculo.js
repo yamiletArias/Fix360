@@ -1,13 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
   // Elementos del modal de asignar vehículo
-  const tipovSelect      = document.getElementById("tipov");
-  const marcavSelect     = document.getElementById("marcav");
-  const modeloSelect     = document.getElementById("modelo");
-  const hiddenIdCliente  = document.getElementById("hiddenIdCliente");
-  const btnRegistrar     = document.getElementById("btnRegistrarVehiculo");
-  const formVehiculo     = document.getElementById("FormVehiculo");
-  const modalEl          = document.getElementById("ModalAsignarVehiculo");
-  const bsModal          = new bootstrap.Modal(modalEl);
+  const tipovSelect        = document.getElementById("tipov");
+  const marcavSelect       = document.getElementById("marcav");
+  const modeloSelect       = document.getElementById("modelo");
+  const hiddenIdCliente    = document.getElementById("hiddenIdCliente");
+  const btnRegistrar       = document.getElementById("btnRegistrarVehiculo");
+  const formVehiculo       = document.getElementById("FormVehiculo");
+  const modalEl            = document.getElementById("ModalAsignarVehiculo");
+  const tcombustibleSelect = document.getElementById("ftcombustible");
+  const vin                = document.getElementById("vin");  
+  const numchasis          = document.getElementById("numchasis");
+  const bsModal            = new bootstrap.Modal(modalEl);
 
   // Si no estamos en la vista de asignar vehículo, salimos
   if (!tipovSelect || !marcavSelect || !modeloSelect || !btnRegistrar) return;
@@ -25,6 +28,19 @@ document.addEventListener("DOMContentLoaded", function() {
       });
     })
     .catch(err => console.error("Error al cargar tipos de vehículo:", err));
+
+    fetch("http://localhost/fix360/app/controllers/Tcombustible.controller.php")
+    .then(res => res.json())
+    .then(data => {
+      const tcombustibleSelect = document.getElementById("ftcombustible");
+      tcombustibleSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
+      data.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value   = item.idtcombustible;
+        opt.textContent = item.tcombustible;
+        tcombustibleSelect.appendChild(opt);
+      });
+    })
 
   // 2) Carga de marcas de vehículo
   fetch("http://localhost/fix360/app/controllers/Marca.controller.php?task=getAllMarcaVehiculo")
@@ -81,6 +97,8 @@ document.addEventListener("DOMContentLoaded", function() {
       anio:            document.getElementById("fanio").value.trim(),
       numserie:        document.getElementById("fnumserie").value.trim(),
       color:           document.getElementById("fcolor").value.trim(),
+      vin:             document.getElementById("vin").value.trim(),
+      numchasis:       document.getElementById("numchasis").value.trim(),
       tipocombustible: document.getElementById("ftcombustible").value,
       idcliente:       hiddenIdCliente.value
     };
