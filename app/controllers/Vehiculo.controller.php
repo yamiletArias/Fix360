@@ -29,13 +29,15 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 }
             
                 $registro = [
-                    "idmodelo"       => Helper::limpiarCadena($dataJSON["idmodelo"] ?? ""),
-                    "placa"          => Helper::limpiarCadena($dataJSON["placa"] ?? ""),
-                    "anio"           => Helper::limpiarCadena($dataJSON["anio"] ?? ""),
-                    "numserie"       => Helper::limpiarCadena($dataJSON["numserie"] ?? ""),
-                    "color"          => Helper::limpiarCadena($dataJSON["color"] ?? ""),
-                    "tipocombustible"=> Helper::limpiarCadena($dataJSON["tipocombustible"] ?? ""),
-                    "idcliente"      => Helper::limpiarCadena($dataJSON["idcliente"] ?? ""),
+                    "idmodelo"          => Helper::limpiarCadena($dataJSON["idmodelo"] ?? ""),
+                    "placa"             => Helper::limpiarCadena($dataJSON["placa"] ?? ""),
+                    "anio"              => Helper::limpiarCadena($dataJSON["anio"] ?? ""),
+                    "numserie"          => Helper::limpiarCadena($dataJSON["numserie"] ?? ""),
+                    "color"             => Helper::limpiarCadena($dataJSON["color"] ?? ""),
+                    "tipocombustible"   => Helper::limpiarCadena($dataJSON["tipocombustible"] ?? ""),
+                    "vin"               => Helper::limpiarCadena($dataJSON["vin"] ?? ""),
+                    "numchasis"         => Helper::limpiarCadena($dataJSON["numchasis"] ?? ""),
+                    "idcliente"         => Helper::limpiarCadena($dataJSON["idcliente"] ?? ""),
                 ];
             
                 $n = $vehiculo->registerVehiculo($registro);

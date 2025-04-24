@@ -45,7 +45,7 @@ class Vehiculo extends Conexion
   {
     $numRows = 0;
     try {
-      $query = "CALL spRegisterVehiculo( ?, ?, ?, ?, ?, ?, ?)"; // Agregar un "?" más para idcliente
+      $query = "CALL spRegisterVehiculo( ?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Agregar un "?" más para idcliente
       $stmt = $this->pdo->prepare($query);
       $stmt->execute([
         $params["idmodelo"],
@@ -54,6 +54,8 @@ class Vehiculo extends Conexion
         $params["numserie"],
         $params["color"],
         $params["tipocombustible"],
+        $params["vin"],
+        $params["numchasis"],
         $params["idcliente"] // Agregar este campo
       ]);
 

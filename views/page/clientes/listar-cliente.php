@@ -349,6 +349,10 @@ require_once "../../partials/_footer.php";
                     >
                     <i class="fa-solid fa-car"></i>
                     </button>
+                    <button class= "btn btn-sm btn-outline-dark title="Vehiculos a su nombre">
+                    <i class="fa-regular fa-address-card"></i>
+                    </button>
+
                     
                     `;
           }

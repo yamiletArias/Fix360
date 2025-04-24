@@ -127,9 +127,11 @@ SELECT
   m.modelo,
   v.anio,
   v.numserie,
-  v.tipocombustible,
+  tc.tcombustible,
   v.placa,
-  v.color
+  v.color,
+  v.vin,
+  v.numchasis
 FROM propietarios p
 LEFT JOIN vehiculos v
   ON p.idvehiculo = v.idvehiculo
@@ -144,7 +146,18 @@ LEFT JOIN marcas ma
 LEFT JOIN personas pe
   ON c.idpersona = pe.idpersona
 LEFT JOIN empresas em
-  ON c.idempresa = em.idempresa;
+  ON c.idempresa = em.idempresa
+  LEFT JOIN tipocombustibles tc
+  ON v.idtcombustible = tc.idtcombustible;
+  
+-- select * from vwtcombustible;  
+  
+  DROP VIEW IF EXISTS vwtcombustible;
+  CREATE OR REPLACE VIEW vwtcombustible AS
+  SELECT
+  idtcombustible,
+  tcombustible
+  FROM tipocombustibles;
 
 -- 9) Productos con marca y subcategoría
 DROP VIEW IF EXISTS vwproductos;

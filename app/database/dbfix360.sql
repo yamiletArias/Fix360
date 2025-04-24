@@ -54,6 +54,13 @@ CONSTRAINT uq_contac UNIQUE(contactabilidad)
 
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS tipocombustibles;
+CREATE TABLE tipocombustibles(
+idtcombustible 		INT 		PRIMARY KEY 		AUTO_INCREMENT,
+tcombustible 		VARCHAR(50) 	NOT NULL,
+CONSTRAINT uq_tcombustible UNIQUE(tcombustible)
+)ENGINE = INNODB;
+
 DROP TABLE IF EXISTS formapagos;
 CREATE TABLE formapagos(
 
@@ -197,14 +204,17 @@ CREATE TABLE vehiculos(
 
 idvehiculo 			INT 					PRIMARY KEY 		AUTO_INCREMENT,
 idmodelo 			INT 					NOT NULL,
+idtcombustible 			INT 					NOT NULL,
 placa 				CHAR(7)				NOT NULL,
 anio					CHAR(4)				NULL,
 numserie 			VARCHAR(20)			NULL,
 color 				VARCHAR(50)			NOT NULL,
-tipocombustible 	VARCHAR(30) 		NOT NULL,
+vin 				CHAR(17)		NULL,
+numchasis			CHAR(17)		NULL,
 creado  				TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP,  
 modificado  		TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idmodelo FOREIGN KEY (idmodelo) REFERENCES modelos (idmodelo),
+CONSTRAINT fk_idtcombustible FOREIGN KEY (idtcombustible) REFERENCES tipocombustibles (idtcombustible),
 CONSTRAINT uq_numserie UNIQUE(numserie,placa)
 
 )ENGINE = INNODB;

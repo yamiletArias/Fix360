@@ -234,6 +234,18 @@ VALUES
   ('Campaña publicitaria'),
   ('Recomendacion');
   
+  INSERT INTO tipocombustibles (tcombustible) VALUES
+  ('Gasolina'),
+  ('Diesel'),
+  ('GNV'),
+  ('GLP'),
+  ('Biodiesel'),
+  ('Etanol'),
+  ('Allinol'),
+  ('Electricidad'),
+  ('Hidrogeno'),
+  ('Biocombustible');
+  
   
 INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,tipocombustible)
 VALUES
