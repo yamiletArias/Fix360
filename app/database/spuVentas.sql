@@ -4,7 +4,7 @@ MODIFY COLUMN idorden INT NULL,
 MODIFY COLUMN idpromocion INT NULL;
 ALTER TABLE ventas MODIFY idcolaborador INT NULL;
 
--- PROCEDIMIENTO DE VENTAS
+-- 1) PROCEDIMIENTO DE VENTAS
 -- registrar ventas
 DELIMITER $$
 CREATE PROCEDURE spuRegisterVenta (
@@ -95,6 +95,7 @@ DELIMITER ;
 CALL spuGetMonedasVentas();
 
 -- Procedimiento para buscar clientes
+
 DELIMITER $$
 CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
 BEGIN
@@ -102,7 +103,7 @@ BEGIN
         C.idcliente,
         CASE
             WHEN C.idempresa IS NOT NULL AND E.nomcomercial IS NOT NULL THEN E.nomcomercial
-            WHEN C.idpersona IS NOT NULL AND P.nombres IS NOT NULL THEN P.nombres
+            WHEN C.idpersona IS NOT NULL AND P.nombres IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
         END AS cliente,
         C.idempresa,
         C.idpersona
@@ -112,11 +113,11 @@ BEGIN
     WHERE 
         (E.nomcomercial LIKE CONCAT('%', termino_busqueda, '%') AND E.nomcomercial IS NOT NULL)
         OR 
-        (P.nombres LIKE CONCAT('%', termino_busqueda, '%') AND P.nombres IS NOT NULL)
+        ((P.nombres LIKE CONCAT('%', termino_busqueda, '%') OR P.apellidos LIKE CONCAT('%', termino_busqueda, '%')) 
+         AND P.nombres IS NOT NULL AND P.apellidos IS NOT NULL)
     LIMIT 10;
 END$$
 DELIMITER ;
--- fin busqueda cliente
 
 -- Buscar producto
 DELIMITER $$
