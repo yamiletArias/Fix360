@@ -263,13 +263,19 @@ BEGIN
 END$$
 
 -- 18) Obtener vehículos por cliente
-DROP PROCEDURE IF EXISTS spGetVehiculoByCliente$$
+DROP PROCEDURE IF EXISTS spGetVehiculoByCliente;
+delimiter $$
 CREATE PROCEDURE spGetVehiculoByCliente(
   IN _idcliente INT
 )
 BEGIN
   SELECT
     v.idvehiculo,
+    tv.tipov,
+    ma.nombre,
+    m.modelo,
+    v.placa,
+    v.color,
     CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
   FROM vehiculos v
     LEFT JOIN propietarios p ON v.idvehiculo = p.idvehiculo
@@ -278,6 +284,8 @@ BEGIN
     LEFT JOIN marcas ma ON m.idmarca = ma.idmarca
   WHERE p.idcliente = _idcliente;
 END$$
+-- select * from vwvehiculos;
+-- CALL spGetVehiculoByCliente(2)
 
 DROP PROCEDURE IF EXISTS spRegisterTcombustible$$
 CREATE PROCEDURE spRegisterTcombustible(

@@ -79,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
   marcavSelect.addEventListener("change", cargarModelos);
 
   // 4) Pintar nombre e ID de cliente al abrir el modal
+  
   modalEl.addEventListener("show.bs.modal", function(event) {
     const button        = event.relatedTarget;
     const idCliente     = button.getAttribute("data-idcliente");
@@ -136,5 +137,23 @@ document.addEventListener("DOMContentLoaded", function() {
       console.error("Error en la solicitud:", err);
       alert("Ocurrió un error de comunicación con el servidor.");
     }
+
+
   });
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const modalVeh = document.getElementById("ModalVehiculos");
+    modalVeh.addEventListener("show.bs.modal", function(e){
+      const btn       = e.relatedTarget;
+      const idcliente = btn.getAttribute("data-idcliente");
+      const nombre    = btn.getAttribute("data-nombrecliente");
+      document.getElementById("nombreCliente").textContent = nombre;
+      cargarTablaVehiculos(idcliente);
+    });
+  });
+
+  modalVeh.addEventListener('show.bs.modal', function(e){
+    const idcliente = e.relatedTarget.getAttribute('data-idcliente');
+    cargarTablaVehiculos(idcliente);
+  }, { once: true });
 });

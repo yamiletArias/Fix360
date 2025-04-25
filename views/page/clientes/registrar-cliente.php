@@ -68,7 +68,7 @@ require_once "../../partials/header.php";
             <div class="col-md-2 mb-3">
               <div class="form-floating">
                 <input type="text" id="telprincipal" class="form-control input" minlength="9" maxlength="9" name="telprincipal" placeholder="celular">
-                <label for="telprincipal">Tel. principal</label>
+                <label for="telprincipal"><strong>Tel. principal</strong></label>
               </div>
             </div>
 

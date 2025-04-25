@@ -15,7 +15,7 @@ class Vehiculo extends Conexion
   {
     $result = [];
     try {
-      $sql = "SELECT * FROM vwVehiculos order by idvehiculo DESC";
+      $sql = "SELECT * FROM vwVehiculos";
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute();
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

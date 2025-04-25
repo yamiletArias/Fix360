@@ -14,16 +14,19 @@ require_once "../../partials/header.php";
       <div class="form-group col-md-10">
 
         <div class="form-check form-check-inline" style="margin-left: 20px;">
-          <input class="form-check-input text-start" type="radio" name="tipoCliente" id="persona" checked onchange="mostrarTabla('persona')">
+          <input class="form-check-input text-start" type="radio" name="tipoCliente" id="persona" checked
+            onchange="mostrarTabla('persona')">
           <label class="form-check-label text-start" for="persona" style="margin: 0px;">Persona</label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input text-start" type="radio" name="tipoCliente" id="empresa" onchange="mostrarTabla('empresa')">
+          <input class="form-check-input text-start" type="radio" name="tipoCliente" id="empresa"
+            onchange="mostrarTabla('empresa')">
           <label class="form-check-label text-start" for="empresa" style="margin: 0px;">Empresa</label>
         </div>
       </div>
       <div class="text-end col-md-2">
-        <button onclick="window.location.href='registrar-cliente.php'" class=" btn btn-success text-end">Registrar</button>
+        <button onclick="window.location.href='registrar-cliente.php'"
+          class=" btn btn-success text-end">Registrar</button>
       </div>
 
     </div>
@@ -182,7 +185,7 @@ require_once "../../partials/header.php";
             <div class="card-body">
               <div class="row">
 
-              <div class="col-md-4 ">
+                <div class="col-md-4 ">
                   <div class="form-floating">
                     <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
                       <option value="">Seleccione una opcion</option>
@@ -199,7 +202,7 @@ require_once "../../partials/header.php";
                     </select>
                     <label for="tipov"><strong>Tipo de vehiculo:</strong></label>
                   </div>
-                </div>                
+                </div>
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
@@ -212,16 +215,16 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-2 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" required
-                      maxlength="6" />
+                    <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6"
+                      required maxlength="6" />
                     <label for="fplaca"><strong>Placa</strong></label>
                   </div>
                 </div>
 
                 <div class="col-md-2 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" maxlength="4"
-                      required />
+                    <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4"
+                      maxlength="4" required />
                     <label for="fanio"><strong> Año</strong></label>
                   </div>
                 </div>
@@ -264,7 +267,8 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating input-group mb-3">
-                    <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario" value="" />
+                    <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario"
+                      value="" />
                     <label for="floatingInput"><strong>Propietario</strong></label>
                     <input type="hidden" id="hiddenIdCliente" />
                   </div>
@@ -285,6 +289,42 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="ModalVehiculos" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="miModalLabel">Vehículos a Nombre de <span id="nombreCliente"></span></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 10px;">
+        <!-- Aquí vendrá la tabla con los vehículos -->
+        <div class="table-responsive">
+          <table id="tabla-vehiculos" class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Tipo</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Placa</th>
+                <th>Color</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Se llenará dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </div>
 </div>
 
@@ -293,8 +333,7 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 
-<script>
-  // Cierra listener
+<script>  
   // Función para inicializar el DataTable para clientes Persona
   function cargarTablaPersona() { // Inicio de cargarTablaPersona()
     // Si ya está inicializado, se destruye la instancia anterior
@@ -309,34 +348,34 @@ require_once "../../partials/_footer.php";
         dataSrc: ""
       }, // Cierra ajax
       columns: [{
-          data: null,
-          render: (data, type, row, meta) => meta.row + 1 // Número de fila  
-        }, // Cierra columna 1
-        {
-          data: "nombres",
-          render: (data, type, row) => {
-            // Si nombres o apellidos están vacíos, se muestra "No proporcionado"
-            let nombre = data ? data : "No proporcionado";
-            let apellido = row.apellidos ? row.apellidos : "No proporcionado";
-            return nombre + " " + apellido;
-          }
-        }, // Cierra columna 2
-        {
-          data: "tipodoc",
-        }, // Cierra columna 3
-        {
-          data: "numdoc",
-        }, // Cierra columna 4
-        {
-          data: "telprincipal",
-          defaultContent: "No proporcionado" // Si telprincipal es vacío  
-        }, // Cierra columna 5
-        {
-          data: null,
-          render: (data, type, row) => {
-            const nombreCliente = `${row.nombres || ''} ${row.apellidos || ''}`.trim(); // para persona
-            // Botón de detalle, puedes personalizarlo si lo deseas  
-            return `
+        data: null,
+        render: (data, type, row, meta) => meta.row + 1 // Número de fila  
+      }, // Cierra columna 1
+      {
+        data: "nombres",
+        render: (data, type, row) => {
+          // Si nombres o apellidos están vacíos, se muestra "No proporcionado"
+          let nombre = data ? data : "No proporcionado";
+          let apellido = row.apellidos ? row.apellidos : "No proporcionado";
+          return nombre + " " + apellido;
+        }
+      }, // Cierra columna 2
+      {
+        data: "tipodoc",
+      }, // Cierra columna 3
+      {
+        data: "numdoc",
+      }, // Cierra columna 4
+      {
+        data: "telprincipal",
+        defaultContent: "No proporcionado", // Si telprincipal es vacío  
+      }, // Cierra columna 5
+      {
+        data: null,
+        render: (data, type, row) => {
+          const nombreCliente = `${row.nombres || ''} ${row.apellidos || ''}`.trim(); // para persona
+          // Botón de detalle, puedes personalizarlo si lo deseas  
+          return `
                     <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idpersona}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
@@ -353,14 +392,19 @@ require_once "../../partials/_footer.php";
                     >
                     <i class="fa-solid fa-car"></i>
                     </button>
-                    <button class= "btn btn-sm btn-outline-dark" title="Vehiculos a su nombre" >
-                    <i class="fa-regular fa-address-card"></i>
-                    </button>
+                     <button class="btn-confirmar btn btn-sm btn-outline-dark"
+          data-idcliente="${row.idcliente}"
+          data-nombrecliente="${nombreCliente}"
+          data-bs-toggle="modal"
+          data-bs-target="#ModalVehiculos">
+    <i class="fa-regular fa-address-card"></i>
+  </button>
+
 
                     
                     `;
-          }
-        } // Cierra columna 6
+        }
+      } // Cierra columna 6
       ], // Cierra columns
       language: {
         "lengthMenu": "Mostrar _MENU_ registros por página",
@@ -415,23 +459,23 @@ require_once "../../partials/_footer.php";
         dataSrc: ""
       }, // Cierra ajax
       columns: [{
-          data: null,
-          render: (data, type, row, meta) => meta.row + 1
-        }, // Cierra columna 1
-        {
-          data: "nomcomercial",
-        }, // Cierra columna 2
-        {
-          data: "ruc",
-        }, // Cierra columna 3
-        {
-          data: "telefono",
-          defaultContent: "No proporcionado"
-        }, // Cierra columna 4
-        {
-          data: null,
-          render: (data, type, row) => {
-            return `
+        data: null,
+        render: (data, type, row, meta) => meta.row + 1
+      }, // Cierra columna 1
+      {
+        data: "nomcomercial",
+      }, // Cierra columna 2
+      {
+        data: "ruc",
+      }, // Cierra columna 3
+      {
+        data: "telefono",
+        defaultContent: "No proporcionado"
+      }, // Cierra columna 4
+      {
+        data: null,
+        render: (data, type, row) => {
+          return `
             <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idempresa}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
@@ -449,8 +493,8 @@ require_once "../../partials/_footer.php";
         <i class="fa-solid fa-car"></i>
       </button>
                     `;
-          }
-        } // Cierra columna 5
+        }
+      } // Cierra columna 5
       ], // Cierra columns
       language: {
         "lengthMenu": "Mostrar _MENU_ registros por página",
@@ -480,7 +524,7 @@ require_once "../../partials/_footer.php";
   } // Cierra mostrarTabla()
 
   // Inicializar la vista al cargar la página: se muestra la tabla de personas por defecto
-  document.addEventListener("DOMContentLoaded", function() { // Inicio de DOMContentLoaded para inicialización
+  document.addEventListener("DOMContentLoaded", function () { // Inicio de DOMContentLoaded para inicialización
     mostrarTabla("persona");
   }); // Cierra DOMContentLoaded
 
@@ -491,6 +535,47 @@ require_once "../../partials/_footer.php";
   } // Cierra verDetalle()
 </script>
 
+<script>
+
+// 1) Listener para cuando se abre el modal
+document.getElementById('ModalVehiculos')
+  .addEventListener('show.bs.modal', function(e){
+    const button    = e.relatedTarget;
+    const idcliente = button.getAttribute('data-idcliente');
+    const nombre    = button.getAttribute('data-nombrecliente');
+    document.getElementById('nombreCliente').textContent = nombre;
+    cargarTablaVehiculos(idcliente);
+});
+
+
+
+// 2) Función que rellena la tabla
+function cargarTablaVehiculos(idcliente) {
+  const url   = `http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(idcliente)}`;
+  const tbody = document.querySelector('#tabla-vehiculos tbody');
+  tbody.innerHTML = ''; 
+
+  fetch(url)
+    .then(res => res.json())           // aquí ya recibirá un JSON válido
+    .then(data => {
+      data.forEach((item, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${item.tipov}</td>
+          <td>${item.nombre}</td>
+          <td>${item.modelo}</td>
+          <td>${item.placa}</td>
+          <td>${item.color}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(err => console.error('Error al cargar vehículos:', err));
+}
+
+
+</script>
 <script src="<?= SERVERURL ?>views/page/clientes/js/asignar-vehiculo.js"></script>
 </body>
 
