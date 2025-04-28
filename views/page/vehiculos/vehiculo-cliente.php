@@ -11,13 +11,12 @@ require_once "../../partials/header.php";
 $idcliente = isset($_GET['idcliente']) ? intval($_GET['idcliente']) : 0;
 // 2) (Opcional) Obtener el nombre del cliente para el título
 //    Puedes llamar a tu modelo o hacer una consulta directa aquí.
-$nombreCliente = ""; 
+$nombreCliente = "";
 if ($idcliente) {
-    // Ejemplo rápido con tu controlador Cliente.controller.php:
-    $info = file_get_contents("http://localhost/fix360/app/controllers/Cliente.controller.php?task=getClienteById&idcliente=$idcliente");
-    $cli  = json_decode($info, true);
-    $nombreCliente = $cli[0]['propietario'] 
-               ?? "Cliente #$idcliente";
+  // Ejemplo rápido con tu controlador Cliente.controller.php:
+  $info = file_get_contents("http://localhost/fix360/app/controllers/Cliente.controller.php?task=getClienteById&idcliente=$idcliente");
+  $cli  = json_decode($info, true);
+  $nombreCliente = $cli[0]['propietario'] ?? "Cliente #$idcliente";
 }
 
 ?>
@@ -28,17 +27,17 @@ if ($idcliente) {
       <div class="text-right">
         <h3>Vehículos a nombre de: <strong><?= htmlspecialchars($nombreCliente) ?></strong></h3>
       </div>
-    </div>    
+    </div>
     <div class="col-md-2">
       <div class="text-end">
         <button title="Registrar vehiculo" type="button" onclick="window.location.href='registrar-vehiculos.php'"
-        class="btn btn-success ">
-        Registrar
-      </button>
+          class="btn btn-success ">
+          Registrar
+        </button>
+      </div>
     </div>
   </div>
-</div>
-  
+
   <div class="table-responsive">
     <table id="tablaVehiculos" class="table table-striped display">
       <thead>
@@ -55,7 +54,7 @@ if ($idcliente) {
     </table>
   </div>
   <div class="text-right">
-<a href="../clientes/listar-cliente.php" class="btn btn-secondary">Volver</a>
+    <a href="../clientes/listar-cliente.php" class="btn btn-secondary">Volver</a>
   </div>
 </div>
 </div>
@@ -138,12 +137,26 @@ require_once "../../partials/_footer.php";
         },
         dataSrc: ''
       },
-      columns: [
-        { data: null, render: (d,t,r,m) => m.row + 1 },
-        { data: 'tipov',    defaultContent: 'N/A' },
-        { data: 'nombre',   defaultContent: 'N/A' },
-        { data: 'placa',    defaultContent: 'N/A' },
-        { data: 'color',    defaultContent: 'N/A' },
+      columns: [{
+          data: null,
+          render: (d, t, r, m) => m.row + 1
+        },
+        {
+          data: 'tipov',
+          defaultContent: 'N/A'
+        },
+        {
+          data: 'nombre',
+          defaultContent: 'N/A'
+        },
+        {
+          data: 'placa',
+          defaultContent: 'N/A'
+        },
+        {
+          data: 'color',
+          defaultContent: 'N/A'
+        },
         { // Columna 7: Opciones (botones: editar, ver detalle, y otro para ver más)
           data: null,
           render: function(data, type, row) { // Inicio de render de opciones
@@ -163,17 +176,17 @@ require_once "../../partials/_footer.php";
 
       ],
       language: {
-        lengthMenu:    "Mostrar _MENU_ registros por página",
-        zeroRecords:   "No se encontraron vehículos",
-        info:          "Página _PAGE_ de _PAGES_",
-        infoEmpty:     "No hay vehículos asignados",
-        search:        "Buscar:",
-        loadingRecords:"Cargando..."
+        lengthMenu: "Mostrar _MENU_ registros por página",
+        zeroRecords: "No se encontraron vehículos",
+        info: "Página _PAGE_ de _PAGES_",
+        infoEmpty: "No hay vehículos asignados",
+        search: "Buscar:",
+        loadingRecords: "Cargando..."
       }
     });
   });
 
-  function verDetalle(modelo, anio, serie, combustible,modificado,vin,numchasis) { // Inicio de verDetalle()
+  function verDetalle(modelo, anio, serie, combustible, modificado, vin, numchasis) {
     document.querySelector("#modeloInput").value = modelo || 'No proporcionado';
     document.querySelector("#anioInput").value = anio || 'No proporcionado';
     document.querySelector("#serieInput").value = serie || 'No proporcionado';
@@ -183,5 +196,5 @@ require_once "../../partials/_footer.php";
     document.querySelector("#numchasisInput").value = numchasis || 'No proporcionado';
     let modal = new bootstrap.Modal(document.getElementById("miModal"));
     modal.show();
-  } // 
+  }
 </script>

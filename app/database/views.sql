@@ -91,6 +91,7 @@ SELECT
   p.direccion,
   p.correo,
   p.telprincipal,
+  p.modificado,
   p.telalternativo
 FROM clientes c
 LEFT JOIN personas p
@@ -107,6 +108,7 @@ SELECT
   e.razonsocial,
   e.telefono,
   e.correo,
+  e.modificado,
   e.ruc
 FROM clientes c
 LEFT JOIN empresas e
@@ -114,6 +116,7 @@ LEFT JOIN empresas e
 WHERE c.idpersona IS NULL;
 
 -- 8) Vehículos con datos de propietario
+-- select * from vwVehiculos;
 DROP VIEW IF EXISTS vwVehiculos;
 CREATE OR REPLACE VIEW vwVehiculos AS
 SELECT
@@ -207,3 +210,5 @@ WHERE r.rol = 'mecanico';
 DROP VIEW IF EXISTS vwComponentes;
 CREATE OR REPLACE VIEW vwComponentes AS
 SELECT * FROM componentes;
+
+-- select * from ordenservicios;

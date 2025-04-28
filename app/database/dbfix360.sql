@@ -235,18 +235,19 @@ CONSTRAINT fk_idvehiculo_8 FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehi
 DROP TABLE IF EXISTS ordenservicios;
 CREATE TABLE ordenservicios(
 
-idorden 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
-idadmin 			INT 				NOT NULL,
-idmecanico		INT 				NOT NULL,
-idpropietario  INT 				NOT NULL,
-idcliente 		INT 				NOT NULL,
-idvehiculo 		INT 				NOT NULL,
-kilometraje 	DECIMAL(10,2)	NOT NULL,
-observaciones 	VARCHAR(255)	NOT NULL,
-ingresogrua 	BOOLEAN 			NOT NULL,
-fechaingreso 	DATETIME 		DEFAULT 			CURRENT_TIMESTAMP,
-fechasalida 	DATETIME 		NULL, 
+idorden 				INT 				PRIMARY KEY 	AUTO_INCREMENT,
+idadmin 				INT 				NOT NULL,
+idmecanico			INT 				NOT NULL,
+idpropietario  	INT 				NOT NULL,
+idcliente 			INT 				NOT NULL,
+idvehiculo 			INT 				NOT NULL,
+kilometraje 		DECIMAL(10,2)	NOT NULL,
+observaciones 		VARCHAR(255)	NULL,
+ingresogrua 		BOOLEAN 			NOT NULL,
+fechaingreso 		DATETIME 		DEFAULT 			CURRENT_TIMESTAMP,
+fechasalida 		DATETIME 		NULL, 
 fecharecordatorio DATE 			NULL,
+estado 				ENUM('A','D') 	DEFAULT 'A' NOT NULL, 
 notificado 			BOOLEAN     DEFAULT FALSE,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,		
@@ -297,7 +298,7 @@ iddetorden 		INT 					PRIMARY KEY 	AUTO_INCREMENT,
 idorden 			INT 					NOT NULL,
 idservicio 		INT 					NOT NULL,
 precio 			DECIMAL(10,2) 		NOT NULL,
-estado 			ENUM('A','D') 		DEFAULT 'A' NOT NULL, -- A = Activo : D = Desasctivado
+estado 			ENUM('A','D') 		DEFAULT 'A' NOT NULL, -- A = Activo : D = Desactivado
 CONSTRAINT fk_idorden_7 FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden),
 CONSTRAINT fk_idservicio_7 FOREIGN KEY (idservicio) REFERENCES servicios (idservicio)
 
