@@ -52,6 +52,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             $numcom = Helper::limpiarCadena($dataJSON['numcom'] ?? "");
             $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
             $idcliente = $dataJSON['idcliente'] ?? 0;
+            $idvehiculo = intval($dataJSON['idvehiculo'] ?? 0); 
             $productos = $dataJSON['productos'] ?? [];
 
             if (empty($productos)) {
@@ -69,6 +70,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "numcom" => $numcom,
                 "moneda" => $moneda,
                 "idcliente" => $idcliente,
+                "idvehiculo"=> $idvehiculo,
                 "productos" => $productos
             ]);
 

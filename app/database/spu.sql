@@ -88,17 +88,13 @@ CREATE PROCEDURE spRegisterProducto(
   IN _presentacion VARCHAR(40),
   IN _undmedida VARCHAR(40),
   IN _cantidad DECIMAL(10,2),
-  IN _img VARCHAR(255)
+  IN _img VARCHAR(255),
+  OUT _idproducto INT
 )
 BEGIN
-  INSERT INTO productos (
-    idsubcategoria, idmarca, descripcion, precio,
-    presentacion, undmedida, cantidad, img
-  )
-  VALUES (
-    _idsubcategoria, _idmarca, _descripcion, _precio,
-    _presentacion, _undmedida, _cantidad, _img
-  );
+  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
+  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
+  SET _idproducto = LAST_INSERT_ID();
 END$$
 
 -- 5) Registrar servicio

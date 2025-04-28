@@ -211,14 +211,11 @@ require_once "../../partials/header.php";
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-
       <div class="modal-header">
         <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-
       <div class="modal-body">
-
         <!-- Fila para Tipo de Propietario -->
         <div class="row mb-3">
           <div class="col">
@@ -238,7 +235,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
         <!-- Fila para Método de Búsqueda -->
         <div class="row mb-3">
           <div class="col">
@@ -250,7 +246,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
         <!-- Fila para Valor Buscado -->
         <div class="row mb-3">
           <div class="col">
@@ -261,7 +256,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
         <!-- Tabla de Resultados -->
         <p class="mt-3"><strong>Resultado:</strong></p>
         <div class="table-responsive">
@@ -280,19 +274,15 @@ require_once "../../partials/header.php";
           </table>
         </div>
       </div>
-
       <!-- Pie del Modal -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
-
     </div>
   </div>
 </div>
-
 <!-- Formulario Venta -->
 </body>
-
 </html>
 
 <script>
@@ -357,6 +347,7 @@ require_once "../../partials/header.php";
     const agregarProductoBtn = document.getElementById("agregarProducto");
     const tabla = document.querySelector("#tabla-detalle tbody");
     const detalleVenta = [];
+    const vehiculoSelect     = document.getElementById("vehiculo");
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
     function initDateField(id) {
       const el = document.getElementById(id);
@@ -584,6 +575,14 @@ require_once "../../partials/header.php";
         btnFinalizarVenta.textContent = "Guardar";
         return;
       }
+      // aquí ya existe vehiculoSelect
+      const idVehiculo = parseInt( vehiculoSelect.value );
+      if (!idVehiculo) {
+        alert("Selecciona un vehículo.");
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
+        return;
+      }
 
       const data = {
         tipocom: document.querySelector('input[name="tipo"]:checked').value,
@@ -592,6 +591,7 @@ require_once "../../partials/header.php";
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
         idcliente: clienteId,
+        idvehiculo: idVehiculo, 
         productos: detalleVenta
       };
 
