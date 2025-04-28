@@ -1,4 +1,5 @@
 <?php
+// app/models/OrdenServicio.php
 require_once "../models/Conexion.php";
 
 class OrdenServicio extends Conexion
@@ -11,7 +12,7 @@ class OrdenServicio extends Conexion
     }
 
     /**
-     * Registra la orden (cabecera + detalle)
+     * Registra la orden (cabecera + detalle) usando SP único
      * @param array $p {
      *   @var int    idadmin
      *   @var int    idmecanico
@@ -21,56 +22,70 @@ class OrdenServicio extends Conexion
      *   @var float  kilometraje
      *   @var string observaciones
      *   @var bool   ingresogrua
-     *   @var string fechaingreso
-     *   @var string fecharecordatorio
-     *   @var array  detalle [ ['idservicio'=>…, 'precio'=>…], … ]
+     *   @var string fechaingreso  Formato 'YYYY-MM-DD HH:MM:SS'
+     *   @var string fecharecordatorio Formato 'YYYY-MM-DD'
+     *   @var array  detalle      Array de {idservicio, precio}
      * }
      * @return int ID de la orden (0 si falla)
      */
     public function registerOrden(array $p): int
     {
         try {
-            $this->pdo->beginTransaction();
+            // Convertir detalle a JSON
+            $jsonDet = json_encode($p['detalle'], JSON_UNESCAPED_UNICODE);
 
-            // 1) insert cabecera
-            $stmt = $this->pdo->prepare("CALL spuRegisterOrdenServicio(?,?,?,?,?,?,?,?,?,?)");
+            // Llamada al SP que inserta cabecera y detalle en una sola transacción
+            $stmt = $this->pdo->prepare(
+                "CALL spRegistrarOrdenServicio(?,?,?,?,?,?,?,?,?,?,?)"
+            );
             $stmt->execute([
-                $p['idadmin'],
-                $p['idmecanico'],
-                $p['idpropietario'],
-                $p['idcliente'],
-                $p['idvehiculo'],
-                $p['kilometraje'],
-                $p['observaciones'],
-                $p['ingresogrua'],
-                $p['fechaingreso'],
-                $p['fecharecordatorio']
+                $p['idadmin'],           // Admin quien registra
+                $p['idmecanico'],        // Mecánico asignado
+                $p['idpropietario'],     // Propietario del vehículo
+                $p['idcliente'],         // Cliente (empresa o persona)
+                $p['idvehiculo'],        // Vehículo
+                $p['kilometraje'],       // Kilometraje al ingreso
+                $p['observaciones'],     // Observaciones
+                $p['ingresogrua'] ? 1 : 0,// Flag ingreso grúa
+                $p['fechaingreso'],      // Fecha y hora de ingreso
+                $p['fecharecordatorio'], // Fecha de recordatorio
+                $jsonDet                 // Detalle como JSON
             ]);
+
+            // Obtener el nuevo ID retornado por el SP
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $idorden = $row['idorden'] ?? 0;
+            $nuevoId = $row['nuevoIdOrden'] ?? 0;
             $stmt->closeCursor();
 
-            if (!$idorden) {
-                throw new Exception("No se obtuvo ID");
-            }
-
-            // 2) insert detalle
-            $stmtDet = $this->pdo->prepare("CALL spuInsertDetalleOrden(?,?,?)");
-            foreach ($p['detalle'] as $item) {
-                $stmtDet->execute([
-                    $idorden,
-                    $item['idservicio'],
-                    $item['precio']
-                ]);
-            }
-
-            $this->pdo->commit();
-            return $idorden;
+            return $nuevoId;
 
         } catch (Exception $e) {
-            $this->pdo->rollBack();
             error_log("OrdenServicio::registerOrden error: " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Lista órdenes por periodo: 'dia', 'semana' o 'mes'
+     *
+     * @param string $modo  'dia' | 'semana' | 'mes'
+     * @param string $fecha Fecha en formato 'YYYY-MM-DD'
+     * @return array
+     */
+    public function listarPorPeriodo(string $modo, string $fecha): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("CALL spListOrdenesPorPeriodo(:modo, :fecha)");
+            $stmt->execute([
+                ':modo'  => $modo,
+                ':fecha' => $fecha,
+            ]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $result;
+        } catch (Exception $e) {
+            error_log("OrdenServicio::listarPorPeriodo error: " . $e->getMessage());
+            return [];
         }
     }
 }

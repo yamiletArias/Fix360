@@ -146,11 +146,8 @@ END $$
 
 DELIMITER $$
 
-DELIMITER $$
-
 -- CALL spBuscarPersona ('dni', '761');
 -- CALL spBuscarPersona ('nombre', 'herna') -- select * from personas;
-
 -- PROCEDIMIENTO DE PRODUCTOS
 -- prueba register productos
 -- fin register productos
@@ -188,8 +185,6 @@ BEGIN
   WHERE m.idtipov = p_idtipov
     AND m.idmarca = p_idmarca;
 END$$
-
-
 -- DIN PRODUCTO
 DELIMITER $$
 
@@ -336,3 +331,213 @@ LEFT JOIN empresas em
   ON v.idtcombustible = tc.idtcombustible
   WHERE c.idcliente = _idcliente;
 END $$
+
+DROP PROCEDURE IF EXISTS spRegisterOrdenServicio;
+DELIMITER $$
+CREATE PROCEDURE spRegisterOrdenServicio(
+IN _idadmin INT,
+
+)
+BEGIN
+
+END $$
+
+-- Semana actual (usa la fecha de hoy en tu servidor)
+CALL spListOrdenesPorPeriodo('semana', CURDATE());
+
+-- Mes actual
+CALL spListOrdenesPorPeriodo('mes', CURDATE());
+
+-- Día específico
+CALL spListOrdenesPorPeriodo('dia', '2025-04-08');
+
+-- CALL spListOrdenesPorPeriodo('dia', '2025-04-08');
+DELIMITER $$
+
+CREATE PROCEDURE spListOrdenesPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  -- Semana: usamos YEARWEEK con modo ISO (semana empieza lunes)
+  IF _modo = 'semana' THEN
+    SELECT
+      o.idorden,
+      o.fechaingreso,
+      o.fechasalida,
+      v.placa,
+      /* aquí suma los joins que necesites para mostrar propietario, cliente, etc. */
+      CASE
+        WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
+        ELSE em.nomcomercial
+      END AS propietario
+    FROM ordenservicios o
+    JOIN vehiculos v      ON o.idvehiculo   = v.idvehiculo
+    JOIN propietarios p   ON o.idpropietario= p.idpropietario
+    JOIN clientes c       ON p.idcliente    = c.idcliente
+    LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
+    LEFT JOIN empresas em ON c.idempresa    = em.idempresa
+    WHERE YEARWEEK(DATE(o.fechaingreso),1) = YEARWEEK(_fecha,1)
+    AND o.estado = 'A'
+    ORDER BY o.fechaingreso;
+
+  -- Mes: mismo año y mes  
+  ELSEIF _modo = 'mes' THEN
+    SELECT
+      o.idorden, o.fechaingreso, o.fechasalida, v.placa,
+      CASE
+        WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
+        ELSE em.nomcomercial
+      END AS propietario
+    FROM ordenservicios o
+    JOIN vehiculos v      ON o.idvehiculo   = v.idvehiculo
+    JOIN propietarios p   ON o.idpropietario= p.idpropietario
+    JOIN clientes c       ON p.idcliente    = c.idcliente
+    LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
+    LEFT JOIN empresas em ON c.idempresa    = em.idempresa
+    WHERE YEAR(o.fechaingreso) = YEAR(_fecha)
+      AND MONTH(o.fechaingreso) = MONTH(_fecha)
+      AND o.estado = 'A'
+    ORDER BY o.fechaingreso;
+
+  -- Día: sólo la fecha exacta  
+  ELSEIF _modo = 'dia' THEN
+    SELECT
+      o.idorden, o.fechaingreso, o.fechasalida, v.placa,
+      CASE
+        WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
+        ELSE em.nomcomercial
+      END AS propietario
+    FROM ordenservicios o
+    JOIN vehiculos v      ON o.idvehiculo   = v.idvehiculo
+    JOIN propietarios p   ON o.idpropietario= p.idpropietario
+    JOIN clientes c       ON p.idcliente    = c.idcliente
+    LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
+    LEFT JOIN empresas em ON c.idempresa    = em.idempresa
+    WHERE DATE(o.fechaingreso) = _fecha
+      AND o.estado = 'A'
+    ORDER BY o.fechaingreso;
+
+  END IF;
+END$$
+
+-- Semana actual
+-- CALL spListOrdenesPorPeriodo('semana', '2025-04-15');
+
+-- Mes actual
+-- CALL spListOrdenesPorPeriodo('mes',   '2025-04-02');
+
+-- Día concreto
+-- CALL spListOrdenesPorPeriodo('dia',   '2025-04-08');
+
+DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListOrdenesPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'semana' THEN
+    -- lunes de la semana de _fecha
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    -- domingo siguiente
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+
+  ELSEIF _modo = 'mes' THEN
+    -- primer día del mes
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    -- último día del mes
+    SET end_date   = LAST_DAY(_fecha);
+
+  ELSE  -- 'dia'
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    o.idorden,
+    o.fechaingreso,
+    o.fechasalida,
+    v.placa,
+    CASE
+      WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
+      ELSE em.nomcomercial
+    END AS propietario
+  FROM ordenservicios o
+  JOIN vehiculos   v  ON o.idvehiculo    = v.idvehiculo
+  JOIN propietarios p  ON o.idpropietario = p.idpropietario
+  JOIN clientes    c  ON p.idcliente      = c.idcliente
+  LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
+  LEFT JOIN empresas em ON c.idempresa    = em.idempresa
+  WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
+    AND o.estado = 'A'
+  ORDER BY o.fechaingreso;
+END$$
+DELIMITER ;
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ --
+
+-- call spRegistrarOrdenServicio( )
+DROP PROCEDURE IF EXISTS spRegistrarOrdenServicio;
+DELIMITER $$
+CREATE PROCEDURE spRegistrarOrdenServicio (
+  IN  _idvehiculo     INT,
+  IN  _idpropietario  INT,
+  IN  _fechaIngreso   DATETIME,
+  IN  _fechaSalida    DATETIME,
+  IN  _detalles       JSON
+)
+BEGIN
+  DECLARE _idorden   INT;
+  DECLARE _i         INT DEFAULT 0;
+  DECLARE _n         INT;
+  DECLARE _iditem    INT;
+  DECLARE _cantidad  DECIMAL(10,2);
+  DECLARE _precio    DECIMAL(12,2);
+  DECLARE _subtotal  DECIMAL(14,2);
+
+  -- Manejador de errores: si algo falla, hace ROLLBACK y relanza
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+
+  START TRANSACTION;
+
+    -- 1) Inserta cabecera
+    INSERT INTO ordenservicios
+      (idvehiculo, idpropietario, fechaingreso, fechasalida, estado)
+    VALUES
+      (_idvehiculo, _idpropietario, _fechaIngreso, _fechaSalida, 'A');
+
+    SET _idorden = LAST_INSERT_ID();
+
+    -- 2) Recorre el array JSON de detalles
+    SET _n = JSON_LENGTH(_detalles);
+    WHILE _i < _n DO
+      SET _iditem   = JSON_UNQUOTE(JSON_EXTRACT(_detalles, CONCAT('$[', _i, '].idItem')));
+      SET _cantidad = JSON_EXTRACT(_detalles,   CONCAT('$[', _i, '].cantidad'));
+      SET _precio   = JSON_EXTRACT(_detalles,   CONCAT('$[', _i, '].precio'));
+      SET _subtotal = _cantidad * _precio;
+
+      INSERT INTO detalleordenservicio
+        (idorden, iditem, cantidad, precio_unitario, subtotal)
+      VALUES
+        (_idOrden, _idItem, _cantidad, _precio, _subtotal);
+
+      -- (Opcional) actualizar stock de repuestos
+      -- UPDATE productos
+      --   SET stock = stock - v_cantidad
+      --   WHERE idproducto = v_idItem;
+
+      SET _i = _i + 1;
+    END WHILE;
+
+  COMMIT;
+
+  -- Devuelve el ID generado por si lo quieres capturar en la aplicación
+  SELECT _idorden AS nuevoidorden;
+END$$

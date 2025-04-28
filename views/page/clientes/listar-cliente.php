@@ -231,7 +231,7 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17"  placeholder="numerodeserie" />
+                    <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17" placeholder="numerodeserie" />
                     <label for="fnumserie">N° de serie</label>
                   </div>
                 </div>
@@ -253,7 +253,7 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="vin" placeholder="vin"  minlength="17" maxlength="17" />
+                    <input type="text" class="form-control input" id="vin" placeholder="vin" minlength="17" maxlength="17" />
                     <label for="vin">VIN</label>
                   </div>
                 </div>
@@ -349,34 +349,34 @@ require_once "../../partials/_footer.php";
         dataSrc: ""
       }, // Cierra ajax
       columns: [{
-        data: null,
-        render: (data, type, row, meta) => meta.row + 1 // Número de fila  
-      }, // Cierra columna 1
-      {
-        data: "nombres",
-        render: (data, type, row) => {
-          // Si nombres o apellidos están vacíos, se muestra "No proporcionado"
-          let nombre = data ? data : "No proporcionado";
-          let apellido = row.apellidos ? row.apellidos : "No proporcionado";
-          return nombre + " " + apellido;
-        }
-      }, // Cierra columna 2
-      {
-        data: "tipodoc",
-      }, // Cierra columna 3
-      {
-        data: "numdoc",
-      }, // Cierra columna 4
-      {
-        data: "telprincipal",
-        defaultContent: "No proporcionado", // Si telprincipal es vacío  
-      }, // Cierra columna 5
-      {
-        data: null,
-        render: (data, type, row) => {
-          const nombreCliente = `${row.nombres || ''} ${row.apellidos || ''}`.trim(); // para persona
-          // Botón de detalle, puedes personalizarlo si lo deseas  
-          return `
+          data: null,
+          render: (data, type, row, meta) => meta.row + 1 // Número de fila  
+        }, // Cierra columna 1
+        {
+          data: "nombres",
+          render: (data, type, row) => {
+            // Si nombres o apellidos están vacíos, se muestra "No proporcionado"
+            let nombre = data ? data : "No proporcionado";
+            let apellido = row.apellidos ? row.apellidos : "No proporcionado";
+            return nombre + " " + apellido;
+          }
+        }, // Cierra columna 2
+        {
+          data: "tipodoc",
+        }, // Cierra columna 3
+        {
+          data: "numdoc",
+        },
+        {
+          data: "telprincipal",
+          defaultContent: "No proporcionado",
+        },
+        {
+          data: null,
+          render: (data, type, row) => {
+            const nombreCliente = `${row.nombres || ''} ${row.apellidos || ''}`.trim();
+
+            return `
                     <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idpersona}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
@@ -395,12 +395,12 @@ require_once "../../partials/_footer.php";
                     </button>
                      <a class="btn btn-sm btn-confirmar btn-outline-dark" title="Vehiculos a nombre de este cliente"
                       href="../vehiculos/vehiculo-cliente.php?idcliente=${row.idcliente}">
-                     <i class="fa-regular fa-address-card"></i>
+                     <i class="fa-solid fa-id-card"></i>
                     </a>
                     `;
+          }
         }
-      } // Cierra columna 6
-      ], // Cierra columns
+      ],
       language: {
         "lengthMenu": "Mostrar _MENU_ registros por página",
         "zeroRecords": "No se encontraron resultados",
@@ -454,23 +454,23 @@ require_once "../../partials/_footer.php";
         dataSrc: ""
       }, // Cierra ajax
       columns: [{
-        data: null,
-        render: (data, type, row, meta) => meta.row + 1
-      }, // Cierra columna 1
-      {
-        data: "nomcomercial",
-      }, // Cierra columna 2
-      {
-        data: "ruc",
-      }, // Cierra columna 3
-      {
-        data: "telefono",
-        defaultContent: "No proporcionado"
-      }, // Cierra columna 4
-      {
-        data: null,
-        render: (data, type, row) => {
-          return `
+          data: null,
+          render: (data, type, row, meta) => meta.row + 1
+        }, // Cierra columna 1
+        {
+          data: "nomcomercial",
+        }, // Cierra columna 2
+        {
+          data: "ruc",
+        }, // Cierra columna 3
+        {
+          data: "telefono",
+          defaultContent: "No proporcionado"
+        }, // Cierra columna 4
+        {
+          data: null,
+          render: (data, type, row) => {
+            return `
             <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idempresa}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
@@ -490,11 +490,11 @@ require_once "../../partials/_footer.php";
 
       <a class="btn btn-sm btn-confirmar btn-outline-dark" title="Vehiculos a nombre de este cliente"
                       href="../vehiculos/vehiculo-cliente.php?idcliente=${row.idcliente}">
-                     <i class="fa-regular fa-address-card"></i>
+                     <i class="fa-solid fa-id-card"></i>
                     </a>
                     `;
-        }
-      } // Cierra columna 5
+          }
+        } // Cierra columna 5
       ], // Cierra columns
       language: {
         "lengthMenu": "Mostrar _MENU_ registros por página",
@@ -524,7 +524,7 @@ require_once "../../partials/_footer.php";
   } // Cierra mostrarTabla()
 
   // Inicializar la vista al cargar la página: se muestra la tabla de personas por defecto
-  document.addEventListener("DOMContentLoaded", function () { // Inicio de DOMContentLoaded para inicialización
+  document.addEventListener("DOMContentLoaded", function() { // Inicio de DOMContentLoaded para inicialización
     mostrarTabla("persona");
   }); // Cierra DOMContentLoaded
 
@@ -533,7 +533,6 @@ require_once "../../partials/_footer.php";
     console.log("Ver detalles del cliente con ID:", idcliente);
     // Aquí podrías hacer una solicitud AJAX para obtener todos los datos y mostrarlos en un modal  
   } // Cierra verDetalle()
-
 </script>
 
 <script src="<?= SERVERURL ?>views/page/clientes/js/asignar-vehiculo.js"></script>
