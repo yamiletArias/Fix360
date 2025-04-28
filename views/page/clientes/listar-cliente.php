@@ -333,7 +333,8 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 
-<script>  
+
+<script>
   // Función para inicializar el DataTable para clientes Persona
   function cargarTablaPersona() { // Inicio de cargarTablaPersona()
     // Si ya está inicializado, se destruye la instancia anterior
@@ -533,50 +534,11 @@ require_once "../../partials/_footer.php";
     console.log("Ver detalles del cliente con ID:", idcliente);
     // Aquí podrías hacer una solicitud AJAX para obtener todos los datos y mostrarlos en un modal  
   } // Cierra verDetalle()
-</script>
-
-<script>
-
-// 1) Listener para cuando se abre el modal
-document.getElementById('ModalVehiculos')
-  .addEventListener('show.bs.modal', function(e){
-    const button    = e.relatedTarget;
-    const idcliente = button.getAttribute('data-idcliente');
-    const nombre    = button.getAttribute('data-nombrecliente');
-    document.getElementById('nombreCliente').textContent = nombre;
-    cargarTablaVehiculos(idcliente);
-});
-
-
-
-// 2) Función que rellena la tabla
-function cargarTablaVehiculos(idcliente) {
-  const url   = `http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(idcliente)}`;
-  const tbody = document.querySelector('#tabla-vehiculos tbody');
-  tbody.innerHTML = ''; 
-
-  fetch(url)
-    .then(res => res.json())           // aquí ya recibirá un JSON válido
-    .then(data => {
-      data.forEach((item, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i+1}</td>
-          <td>${item.tipov}</td>
-          <td>${item.nombre}</td>
-          <td>${item.modelo}</td>
-          <td>${item.placa}</td>
-          <td>${item.color}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    })
-    .catch(err => console.error('Error al cargar vehículos:', err));
-}
-
 
 </script>
+
 <script src="<?= SERVERURL ?>views/page/clientes/js/asignar-vehiculo.js"></script>
+
 </body>
 
 </html>

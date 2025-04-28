@@ -33,14 +33,10 @@ require_once "../../partials/header.php";
 
       </tbody>
     </table>
-    </div>
-    </div>
-    </div>
-    </div>
-    
-
-
-
+  </div>
+</div>
+</div>
+</div>
 
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -166,7 +162,7 @@ require_once "../../partials/_footer.php";
 
 <script>
   function cargarTablaVehiculos() { // Inicio de cargarTablaVehiculos()
-    if($.fn.DataTable.isDataTable("#tablaVehiculos")){
+    if ($.fn.DataTable.isDataTable("#tablaVehiculos")) {
       $("#tablaVehiculos").DataTable().destroy();
     } // Cierra if
 
@@ -175,8 +171,7 @@ require_once "../../partials/_footer.php";
         url: "<?= SERVERURL ?>app/controllers/vehiculo.controller.php?task=getAll", // URL que retorna JSON con los vehículos
         dataSrc: ""
       }, // Cierra ajax
-      columns: [
-        { // Columna 1: Número de fila
+      columns: [{ // Columna 1: Número de fila
           data: null,
           render: (data, type, row, meta) => meta.row + 1
         }, // Cierra columna 1
@@ -231,7 +226,7 @@ require_once "../../partials/_footer.php";
     }); // Cierra DataTable inicialización
   } // Cierra cargarTablaVehiculos()
 
-  document.addEventListener("DOMContentLoaded", function(){
+  document.addEventListener("DOMContentLoaded", function() {
     cargarTablaVehiculos();
   });
 
