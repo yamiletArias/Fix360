@@ -207,14 +207,19 @@
              throw new Error(`Error del servidor: ${res.status} - ${res.statusText}. ${errorText}`);
         }
         const resp = await res.json();
-        if (resp.rows > 0) { // Asumiendo que tu backend devuelve { rows: n } en caso de éxito
-          bootstrap.Modal.getInstance(modalAsignar).hide();
-          formVehiculo.reset(); // Limpia el formulario
-          modeloSelect.innerHTML = `<option value="">Seleccione una opción</option>`; // Resetea el select de modelos también
+        if (resp.rows > 0) { // Inicio de éxito en asignación
+          // 1) Simular click en el botón de cerrar del modal
+          const btnCerrar = modalAsignar.querySelector('button[data-bs-dismiss="modal"]');
+          if (btnCerrar) btnCerrar.click();
+        
+          // 2) Resetear formulario y select de modelos
+          formVehiculo.reset();                                    // Limpia campos
+          modeloSelect.innerHTML = `<option value="">Seleccione una opción</option>`; // Resetea modelo
+        
+          // 3) Feedback al usuario
           alert("Vehículo asignado exitosamente.");
-          // Opcional: Podrías recargar la tabla de vehículos si el modal estuviera visible
-          // o actualizar la tabla principal si es necesario.
-        } else {
+        } // Fin de éxito en asignación
+         else {
           // Si el backend devuelve rows: 0 u otra estructura en caso de error conocido
            alert(resp.message || "Error: No se pudo asignar el vehículo. Verifique los datos."); // Muestra mensaje del backend si existe
         }

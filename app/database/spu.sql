@@ -1,6 +1,5 @@
--- Cambiar delimitador para definir procedimientos
+-- Cambiar delimitador para definir procedimiento
 DELIMITER $$
-
 -- 1) Registrar cliente (persona)
 DROP PROCEDURE IF EXISTS spRegisterClientePersona$$
 CREATE PROCEDURE spRegisterClientePersona (
@@ -264,7 +263,7 @@ END$$
 
 -- 18) Obtener vehículos por cliente
 DROP PROCEDURE IF EXISTS spGetVehiculoByCliente;
-delimiter $$
+DELIMITER $$
 CREATE PROCEDURE spGetVehiculoByCliente(
   IN _idcliente INT
 )
@@ -276,14 +275,22 @@ BEGIN
     m.modelo,
     v.placa,
     v.color,
+    v.anio,
+    v.vin,
+    v.numserie,
+    tc.tcombustible,
+    v.numchasis,
+    v.modificado,
     CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
   FROM vehiculos v
     LEFT JOIN propietarios p ON v.idvehiculo = p.idvehiculo
     LEFT JOIN modelos m ON v.idmodelo = m.idmodelo
     LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
     LEFT JOIN marcas ma ON m.idmarca = ma.idmarca
+    LEFT JOIN tipocombustibles tc ON v.idtcombustible = tc.idtcombustible
   WHERE p.idcliente = _idcliente;
 END$$
+
 -- select * from vwvehiculos;
 -- CALL spGetVehiculoByCliente(2)
 
@@ -298,3 +305,34 @@ END $$
 
 -- Restaurar delimitador por defecto
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS spGetClienteById;
+DELIMITER $$
+CREATE PROCEDURE spGetClienteById(
+IN _idcliente INT
+)
+BEGIN
+SELECT
+  CASE
+    WHEN c.idpersona IS NULL THEN em.nomcomercial
+    ELSE CONCAT(pe.nombres, ' ', pe.apellidos)
+  END AS propietario
+FROM propietarios p
+LEFT JOIN vehiculos v
+  ON p.idvehiculo = v.idvehiculo
+LEFT JOIN clientes c
+  ON p.idcliente = c.idcliente
+LEFT JOIN modelos m
+  ON v.idmodelo = m.idmodelo
+LEFT JOIN tipovehiculos t
+  ON m.idtipov = t.idtipov
+LEFT JOIN marcas ma
+  ON m.idmarca = ma.idmarca
+LEFT JOIN personas pe
+  ON c.idpersona = pe.idpersona
+LEFT JOIN empresas em
+  ON c.idempresa = em.idempresa
+  LEFT JOIN tipocombustibles tc
+  ON v.idtcombustible = tc.idtcombustible
+  WHERE c.idcliente = _idcliente;
+END $$

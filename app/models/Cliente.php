@@ -90,5 +90,23 @@ class Cliente extends Conexion {
     return $result;
   }
 
+  public function getClienteById($idcliente): array{
+
+    $result = [];
+
+    try {
+      $sql = "CALL spGetClienteById(?)";
+      $cmd = $this->pdo->prepare($sql);
+      $cmd->execute(
+        array($idcliente)
+      );
+      $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+      die($e->getMessage());
+    }
+
+    return $result;
+  }
+
   
 }

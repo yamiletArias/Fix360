@@ -231,14 +231,14 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fnumserie" placeholder="numerodeserie" />
+                    <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17"  placeholder="numerodeserie" />
                     <label for="fnumserie">N° de serie</label>
                   </div>
                 </div>
 
                 <div class="col-md-2 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" />
+                    <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" minlength="3" maxlength="20" />
                     <label for="fcolor"><strong>Color</strong></label>
                   </div>
                 </div>
@@ -253,14 +253,14 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="vin" placeholder="vin" />
+                    <input type="text" class="form-control input" id="vin" placeholder="vin"  minlength="17" maxlength="17" />
                     <label for="vin">VIN</label>
                   </div>
                 </div>
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" />
+                    <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" minlength="17" maxlength="17" />
                     <label for="numchasis">N° Chasis</label>
                   </div>
                 </div>
@@ -393,16 +393,10 @@ require_once "../../partials/_footer.php";
                     >
                     <i class="fa-solid fa-car"></i>
                     </button>
-                     <button class="btn-confirmar btn btn-sm btn-outline-dark"
-          data-idcliente="${row.idcliente}"
-          data-nombrecliente="${nombreCliente}"
-          data-bs-toggle="modal"
-          data-bs-target="#ModalVehiculos">
-    <i class="fa-regular fa-address-card"></i>
-  </button>
-
-
-                    
+                     <a class="btn btn-sm btn-confirmar btn-outline-dark" title="Vehiculos a nombre de este cliente"
+                      href="../vehiculos/vehiculo-cliente.php?idcliente=${row.idcliente}">
+                     <i class="fa-regular fa-address-card"></i>
+                    </a>
                     `;
         }
       } // Cierra columna 6
@@ -493,6 +487,11 @@ require_once "../../partials/_footer.php";
       >
         <i class="fa-solid fa-car"></i>
       </button>
+
+      <a class="btn btn-sm btn-confirmar btn-outline-dark" title="Vehiculos a nombre de este cliente"
+                      href="../vehiculos/vehiculo-cliente.php?idcliente=${row.idcliente}">
+                     <i class="fa-regular fa-address-card"></i>
+                    </a>
                     `;
         }
       } // Cierra columna 5
