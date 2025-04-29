@@ -87,7 +87,7 @@ require_once "../../partials/header.php";
               </select>
               <label for="servicio">Servicio:</label>
             </div>
-            <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle"  data-bs-toggle="modal" data-bs-target="#ModalServicio">
+            <button class="btn btn-sm btn-success" type="button" id="btnAbrirModalServicio"  data-bs-toggle="modal" data-bs-target="#ModalServicio">
               <i class="fa-solid fa-circle-plus"></i>
             </button>
           </div>
@@ -103,10 +103,10 @@ require_once "../../partials/header.php";
         <div class="col-md-3 mb-3">
           <div class="input-group mb-3">
             <div class="form-floating">
-              <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0">
+              <input type="number" class="form-control input"  id="precio-input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0">
               <label for="precio">Precio</label>
             </div>
-            <button class="btn btn-sm btn-success" type="button" id="button-addon2">Agregar</button>
+            <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle">Agregar</button>
           </div>
         </div>
       </div>
@@ -412,8 +412,9 @@ require_once "../../partials/_footer.php";
   </div>
 </div>
 
-<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+
 <!--script src="<?= SERVERURL ?>views/page/ordenservicios/js/detorden.js"></!--script-->
+ <!--- 
 <script>
   let clienteTimer;
 
@@ -478,6 +479,10 @@ require_once "../../partials/_footer.php";
     document.querySelector("#ModalCliente .btn-close").click();
   }
 </script>
+--->
+<script>window.SERVERURL = '<?= SERVERURL ?>';</script>
+
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 
 </body>
 
