@@ -352,74 +352,66 @@ CALL spListOrdenesPorPeriodo('mes', CURDATE());
 CALL spListOrdenesPorPeriodo('dia', '2025-04-08');
 
 -- CALL spListOrdenesPorPeriodo('dia', '2025-04-08');
+DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo;
 DELIMITER $$
-
 CREATE PROCEDURE spListOrdenesPorPeriodo(
   IN _modo   ENUM('semana','mes','dia'),
   IN _fecha  DATE
 )
 BEGIN
-  -- Semana: usamos YEARWEEK con modo ISO (semana empieza lunes)
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
   IF _modo = 'semana' THEN
-    SELECT
-      o.idorden,
-      o.fechaingreso,
-      o.fechasalida,
-      v.placa,
-      /* aquí suma los joins que necesites para mostrar propietario, cliente, etc. */
-      CASE
-        WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
-        ELSE em.nomcomercial
-      END AS propietario
-    FROM ordenservicios o
-    JOIN vehiculos v      ON o.idvehiculo   = v.idvehiculo
-    JOIN propietarios p   ON o.idpropietario= p.idpropietario
-    JOIN clientes c       ON p.idcliente    = c.idcliente
-    LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
-    LEFT JOIN empresas em ON c.idempresa    = em.idempresa
-    WHERE YEARWEEK(DATE(o.fechaingreso),1) = YEARWEEK(_fecha,1)
-    AND o.estado = 'A'
-    ORDER BY o.fechaingreso;
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
 
-  -- Mes: mismo año y mes  
   ELSEIF _modo = 'mes' THEN
-    SELECT
-      o.idorden, o.fechaingreso, o.fechasalida, v.placa,
-      CASE
-        WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
-        ELSE em.nomcomercial
-      END AS propietario
-    FROM ordenservicios o
-    JOIN vehiculos v      ON o.idvehiculo   = v.idvehiculo
-    JOIN propietarios p   ON o.idpropietario= p.idpropietario
-    JOIN clientes c       ON p.idcliente    = c.idcliente
-    LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
-    LEFT JOIN empresas em ON c.idempresa    = em.idempresa
-    WHERE YEAR(o.fechaingreso) = YEAR(_fecha)
-      AND MONTH(o.fechaingreso) = MONTH(_fecha)
-      AND o.estado = 'A'
-    ORDER BY o.fechaingreso;
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
 
-  -- Día: sólo la fecha exacta  
-  ELSEIF _modo = 'dia' THEN
-    SELECT
-      o.idorden, o.fechaingreso, o.fechasalida, v.placa,
-      CASE
-        WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
-        ELSE em.nomcomercial
-      END AS propietario
-    FROM ordenservicios o
-    JOIN vehiculos v      ON o.idvehiculo   = v.idvehiculo
-    JOIN propietarios p   ON o.idpropietario= p.idpropietario
-    JOIN clientes c       ON p.idcliente    = c.idcliente
-    LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
-    LEFT JOIN empresas em ON c.idempresa    = em.idempresa
-    WHERE DATE(o.fechaingreso) = _fecha
-      AND o.estado = 'A'
-    ORDER BY o.fechaingreso;
-
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
   END IF;
+
+  SELECT
+    o.idorden,
+    o.fechaingreso,
+    o.fechasalida,
+    v.placa,
+
+    /* Nombre del PROPIETARIO (quien es dueño del vehículo) */
+    CASE
+      WHEN pc.idpersona IS NOT NULL THEN CONCAT(pp.nombres,' ',pp.apellidos)
+      ELSE pe.nomcomercial
+    END AS propietario,
+
+    /* Nombre del CLIENTE (quien contrata el servicio) */
+    CASE
+      WHEN cc.idpersona IS NOT NULL THEN CONCAT(cp.nombres,' ',cp.apellidos)
+      ELSE ce.nomcomercial
+    END AS cliente
+
+  FROM ordenservicios o
+  JOIN vehiculos      v  ON o.idvehiculo    = v.idvehiculo
+
+  /* Propietario → persona/empresa */
+  JOIN propietarios   p  ON o.idpropietario = p.idpropietario
+  JOIN clientes       pc ON p.idcliente     = pc.idcliente
+  LEFT JOIN personas   pp ON pc.idpersona   = pp.idpersona
+  LEFT JOIN empresas   pe ON pc.idempresa   = pe.idempresa
+
+  /* Cliente del servicio → persona/empresa */
+  JOIN clientes       cc ON o.idcliente     = cc.idcliente
+  LEFT JOIN personas   cp ON cc.idpersona   = cp.idpersona
+  LEFT JOIN empresas   ce ON cc.idempresa   = ce.idempresa
+
+  WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
+    AND o.estado = 'A'
+  ORDER BY o.fechaingreso;
 END$$
+DELIMITER ;
 
 -- Semana actual
 -- CALL spListOrdenesPorPeriodo('semana', '2025-04-15');
