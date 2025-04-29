@@ -12,7 +12,7 @@ class OrdenServicio extends Conexion
     }
 
     /**
-     * Registra la orden (cabecera + detalle) usando SP único
+     * Registra la orden (cabecera + detalle) usando SP separados
      * @param array $p {
      *   @var int    idadmin
      *   @var int    idmecanico
@@ -31,35 +31,54 @@ class OrdenServicio extends Conexion
     public function registerOrden(array $p): int
     {
         try {
-            // Convertir detalle a JSON
-            $jsonDet = json_encode($p['detalle'], JSON_UNESCAPED_UNICODE);
+            // Iniciar transacción
+            $this->pdo->beginTransaction();
 
-            // Llamada al SP que inserta cabecera y detalle en una sola transacción
+            // 1) Insertar cabecera
             $stmt = $this->pdo->prepare(
-                "CALL spRegistrarOrdenServicio(?,?,?,?,?,?,?,?,?,?,?)"
+                "CALL spuRegisterOrdenServicio(?,?,?,?,?,?,?,?,?,?)"
             );
             $stmt->execute([
                 $p['idadmin'],           // Admin quien registra
                 $p['idmecanico'],        // Mecánico asignado
                 $p['idpropietario'],     // Propietario del vehículo
-                $p['idcliente'],         // Cliente (empresa o persona)
+                $p['idcliente'],         // Cliente
                 $p['idvehiculo'],        // Vehículo
                 $p['kilometraje'],       // Kilometraje al ingreso
                 $p['observaciones'],     // Observaciones
                 $p['ingresogrua'] ? 1 : 0,// Flag ingreso grúa
                 $p['fechaingreso'],      // Fecha y hora de ingreso
-                $p['fecharecordatorio'], // Fecha de recordatorio
-                $jsonDet                 // Detalle como JSON
+                $p['fecharecordatorio']  // Fecha de recordatorio
             ]);
-
-            // Obtener el nuevo ID retornado por el SP
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $nuevoId = $row['nuevoIdOrden'] ?? 0;
+            $idorden = $row['idorden'] ?? 0;
             $stmt->closeCursor();
 
-            return $nuevoId;
+            if ($idorden <= 0) {
+                $this->pdo->rollBack();
+                return 0;
+            }
+
+            // 2) Insertar cada detalle
+            $stmtDetalle = $this->pdo->prepare(
+                "CALL spuInsertDetalleOrdenServicio(?,?,?)"
+            );
+            foreach ($p['detalle'] as $item) {
+                $stmtDetalle->execute([
+                    $idorden,
+                    intval($item['idservicio']),
+                    floatval($item['precio'])
+                ]);
+                // Liberar cursor para próxima llamada
+                $stmtDetalle->closeCursor();
+            }
+
+            // Confirmar transacción
+            $this->pdo->commit();
+            return $idorden;
 
         } catch (Exception $e) {
+            $this->pdo->rollBack();
             error_log("OrdenServicio::registerOrden error: " . $e->getMessage());
             return 0;
         }

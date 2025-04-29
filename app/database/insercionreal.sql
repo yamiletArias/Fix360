@@ -81,7 +81,6 @@ INSERT INTO categorias (categoria) VALUES
 ('TEMPLADOR'),
 ('TRICETA'),
 ('VALVULA PCV VALVE');
-SELECT * FROM categorias;
 
 INSERT INTO subcategorias (idcategoria, subcategoria) VALUES
 (1,'ABRAZADERAS'),
@@ -200,8 +199,6 @@ INSERT INTO productos (idmarca, idsubcategoria, descripcion, precio, presentacio
 (9, 30, 'Soporte de caja BYD F3 izquierdo', 39.00, 'unidad', 'Unidades', 1.00, 'img/soporte_byd.jpg'),
 (6, 7, 'Disco de freno NISSAN Sentra B13', 89.90, 'unidad', 'Unidades', 1.00, 'img/disco_nissan.jpg');
 
-
-
 INSERT INTO tipovehiculos (tipov) VALUES 
 ('Sedan'),
 ('Hatchback'),
@@ -245,8 +242,7 @@ VALUES
   ('Electricidad'),
   ('Hidrogeno'),
   ('Biocombustible');
-  
-  
+    
 INSERT INTO vehiculos (idmodelo,placa,anio,numserie,color,idtcombustible)
 VALUES
 (1,'98654','2020','asda5s46d54as6d5','rojo',1),
@@ -349,7 +345,6 @@ INSERT INTO categorias (categoria)
  (47, 'Cambio de brazos de suspensión'),
  (47, 'Revisión y reparación de dirección hidráulica');
  
- 
  -- Insertar personas
  INSERT INTO Personas (nombres, apellidos, tipodoc, numdoc, direccion, correo, telprincipal, telalternativo) VALUES
  ('Carlos', 'Mendoza', 'DNI', '12345678', 'Av. Siempre Viva 123', 'carlos.m@example.com', '987654321', '912345678'),
@@ -417,4 +412,3 @@ INSERT INTO componentes (componente) VALUES
 ('Carrocería'),
 ('Sistema de cierre y seguridad'),
 ('Radiador');
-
