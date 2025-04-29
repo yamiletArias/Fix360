@@ -85,7 +85,8 @@ class Venta extends Conexion
                 $params["numserie"],
                 $params["numcom"],
                 $params["moneda"],
-                $params["idcliente"]
+                $params["idcliente"],
+                $params["idvehiculo"] 
             ]);
 
             $result = [];

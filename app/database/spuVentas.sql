@@ -37,6 +37,43 @@ BEGIN
 END $$
 DELIMITER ;
 
+-- prueba de registro de ventas:
+DROP PROCEDURE IF EXISTS spuRegisterVenta;
+DELIMITER $$
+CREATE PROCEDURE spuRegisterVenta (
+  IN _tipocom VARCHAR(50),
+  IN _fechahora VARCHAR(50),
+  IN _numserie VARCHAR(30),
+  IN _numcom CHAR(20),
+  IN _moneda CHAR(11),
+  IN _idcliente INT,
+  IN _idvehiculo INT
+)
+BEGIN
+  INSERT INTO ventas (
+    idcliente,
+    idvehiculo,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda
+  )
+  VALUES (
+    _idcliente,
+    _idvehiculo,
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda
+  );
+  
+  SELECT LAST_INSERT_ID() AS idventa;
+END $$
+DELIMITER ;
+
+
 -- registrar detalle ventas con idventa
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleVenta (

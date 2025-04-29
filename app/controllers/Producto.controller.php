@@ -27,7 +27,6 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "cantidad" => Helper::limpiarCadena($_POST["cantidad"] ?? ""),
                 "img" => ""
             ];
-
             // Manejo del archivo
             if (isset($_FILES["img"]) && $_FILES["img"]["error"] === UPLOAD_ERR_OK) {
                 $fileTmpPath = $_FILES["img"]["tmp_name"];
@@ -54,15 +53,13 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                     exit;
                 }
             } else {
-                // La imagen es opcional en este ejemplo
                 $registro["img"] = "";
             }
-
             $n = $producto->add($registro);
-            if ($n === 0) {
-                echo json_encode(["error" => "No se pudo registrar el producto"]);
+            if ($n > 0) {
+                echo json_encode(["success" => "Producto registrado", "rows" => 1, "idproducto" => $n]);
             } else {
-                echo json_encode(["success" => "Producto registrado", "rows" => $n]);
+                echo json_encode(["error" => "No se pudo registrar el producto"]);
             }
             break;
 

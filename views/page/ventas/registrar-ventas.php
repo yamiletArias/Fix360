@@ -71,7 +71,7 @@ require_once "../../partials/header.php";
               <label for="cliente">Cliente</label>
             </div> -->
           </div>
-          <div class="col-md-3">
+          <div class="col-md-3 mb-3">
             <div class="form-floating">
               <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
                 <option selected>Eliga un vehículo</option>
@@ -81,8 +81,8 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="date" class="form-control input" name="fecha" id="fecha" required />
-              <label for="fecha">Fecha de venta:</label>
+              <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
+              <label for="fechaIngreso">Fecha de venta:</label>
             </div>
           </div>
           <div class="col-md-2">
@@ -211,14 +211,11 @@ require_once "../../partials/header.php";
 <div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-
       <div class="modal-header">
         <h2 class="modal-title" id="miModalLabel">Seleccionar Propietario</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-
       <div class="modal-body">
-
         <!-- Fila para Tipo de Propietario -->
         <div class="row mb-3">
           <div class="col">
@@ -238,7 +235,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
         <!-- Fila para Método de Búsqueda -->
         <div class="row mb-3">
           <div class="col">
@@ -250,7 +246,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
         <!-- Fila para Valor Buscado -->
         <div class="row mb-3">
           <div class="col">
@@ -261,7 +256,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
         <!-- Tabla de Resultados -->
         <p class="mt-3"><strong>Resultado:</strong></p>
         <div class="table-responsive">
@@ -280,19 +274,62 @@ require_once "../../partials/header.php";
           </table>
         </div>
       </div>
-
       <!-- Pie del Modal -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
-
     </div>
   </div>
 </div>
 <!-- Formulario Venta -->
 </body>
-
 </html>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+    const vehiculoSelect = document.getElementById("vehiculo");
+    let clienteId = null;
+
+    // 1) Función para cargar vehículos tras seleccionar cliente
+    function cargarVehiculos() {
+      const id = hiddenIdCliente.value;
+      vehiculoSelect.innerHTML = '<option value="">Eliga un vehículo</option>';
+      if (!id) return;
+      fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(id)}`)
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.idvehiculo;
+            option.textContent = item.vehiculo;
+            vehiculoSelect.appendChild(option);
+          });
+        })
+        .catch(err => console.error("Error al cargar vehículos:", err));
+    }
+
+    // 2) Al cambiar el hiddenIdCliente, recarga vehículos
+    hiddenIdCliente.addEventListener("change", cargarVehiculos);
+
+    // 3) Cuando confirmas en el modal, además de poner el input, actualiza clienteId y dispara change
+    document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
+      const btn = e.target.closest(".btn-success");
+      if (!btn) return;
+      const id = btn.getAttribute("data-id");
+      const fila = btn.closest("tr");
+      const nombre = fila.cells[1].textContent;
+
+      hiddenIdCliente.value = id;
+      document.getElementById("propietario").value = nombre;
+      clienteId = id;                        // ← actualizar variable interna
+      hiddenIdCliente.dispatchEvent(new Event("change"));  // ← dispara carga de vehículos
+    });
+
+    // … resto de tu código de ventas …
+  });
+
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -311,7 +348,19 @@ require_once "../../partials/header.php";
     const tabla = document.querySelector("#tabla-detalle tbody");
     const detalleVenta = [];
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
-    const fechaInput = document.getElementById("fecha");
+    function initDateField(id) {
+      const el = document.getElementById(id);
+      if (!el) return;               // si no existe, no hace nada
+      const today = new Date();
+      const twoAgo = new Date();
+      twoAgo.setDate(today.getDate() - 2);
+      const fmt = d => d.toISOString().split('T')[0];
+      el.value = fmt(today);
+      el.min = fmt(twoAgo);
+      el.max = fmt(today);
+    }
+    initDateField('fechaIngreso');
+    const fechaInput = document.getElementById("fechaIngreso");
     const monedaSelect = document.getElementById('moneda');
 
     // --- Funciones auxiliares ---
@@ -380,44 +429,6 @@ require_once "../../partials/header.php";
         if (div !== excepto) div.remove();
       });
     }
-
-    // --- Autocompletado Clientes ---
-
-    /* function mostrarOpcionesCliente(input) {
-      cerrarListas();
-      if (!input.value) return;
-      fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(input.value)}&type=cliente`)
-        .then(res => res.json())
-        .then(data => {
-          const itemsDiv = document.createElement("div");
-          itemsDiv.id = "autocomplete-list-cliente";
-          itemsDiv.className = "autocomplete-items";
-          input.parentNode.appendChild(itemsDiv);
-
-          if (data.length === 0) {
-            const noRes = document.createElement("div");
-            noRes.textContent = 'No se encontraron clientes';
-            itemsDiv.appendChild(noRes);
-          } else {
-            data.forEach(cliente => {
-              const optionDiv = document.createElement("div");
-              optionDiv.textContent = cliente.cliente;
-              optionDiv.addEventListener("click", () => {
-                input.value = cliente.cliente;
-                clienteId = cliente.idcliente;
-                cerrarListas(itemsDiv);
-              });
-              itemsDiv.appendChild(optionDiv);
-            });
-            agregaNavegacion(input, itemsDiv);
-          }
-        })
-        .catch(err => console.error('Error al obtener los clientes:', err));
-    }
-    const debouncedClientes = debounce(mostrarOpcionesCliente, 300);
-    inputCliente.addEventListener("input", () => debouncedClientes(inputCliente));
-    inputCliente.addEventListener("click", () => debouncedClientes(inputCliente));
-    document.addEventListener("click", e => cerrarListas(e.target)); */
 
     // --- Autocompletado Productos ---
 
@@ -535,13 +546,6 @@ require_once "../../partials/header.php";
     }
     tipoInputs.forEach(i => i.addEventListener("change", inicializarCampos));
     inicializarCampos();
-
-    // --- Fecha por defecto ---
-
-    (function setFechaDefault() {
-      const t = new Date();
-      fechaInput.value = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
-    })();
 
     // --- Navegación con Enter entre campos de producto ---
 
