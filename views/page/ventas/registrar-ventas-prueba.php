@@ -4,15 +4,12 @@ require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
-
 <div class="container-main mt-5">
   <div class="card border">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <!-- Título a la izquierda -->
       <div>
         <h3 class="mb-0">Complete los datos</h3>
       </div>
-      <!-- Botón a la derecha -->
       <div>
         <a href="listar-ventas.php" class="btn input btn-success">
           Mostrar Lista
@@ -34,14 +31,6 @@ require_once "../../partials/header.php";
                 onclick="inicializarCampos()" checked>
               Boleta
             </label>
-            <!-- <label>
-              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()">
-              Factura
-            </label>
-            <label>
-              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()" checked>
-              Boleta
-            </label> -->
           </div>
           <!-- N° serie y N° comprobante -->
           <div class="col-md-7 d-flex align-items-center justify-content-end">
@@ -55,7 +44,7 @@ require_once "../../partials/header.php";
         </div>
         <!-- Sección Cliente, Fecha y Moneda -->
         <div class="row g-2 mt-3">
-          <div class="col-md-5">
+          <div class="col-md-4">
             <div class="form-floating input-group mb-3">
               <input type="text" disabled class="form-control input" id="propietario" placeholder="Propietario" />
               <label for="propietario">Propietario</label>
@@ -79,13 +68,19 @@ require_once "../../partials/header.php";
               <label for="vehiculo">Vehículo:</label>
             </div>
           </div>
+          <div class="col-md-2 mb-3">
+            <div class="form-floating">
+              <input type="number" step="0.1" class="form-control input" id="kilometraje" placeholder="201">
+              <label for="kilometraje">Kilometraje</label>
+            </div>
+          </div>
           <div class="col-md-2">
             <div class="form-floating">
               <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
               <label for="fechaIngreso">Fecha de venta:</label>
             </div>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-1">
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
                 <!-- “Soles” siempre estático y seleccionado -->
@@ -109,23 +104,29 @@ require_once "../../partials/header.php";
               </div>
             </div>
           </div>
+          <div class="col-md-1">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="stock" id="stock" placeholder="Stock" required />
+              <label for="stock">Stock</label>
+            </div>
+          </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="precio" id="precio" required />
+              <input type="number" class="form-control input" name="precio" id="precio" placeholder="Precio" required />
               <label for="precio">Precio</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad" required />
               <label for="cantidad">Cantidad</label>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <div class="input-group">
               <div class="form-floating">
-                <input type="number" class="form-control input" name="descuento" id="descuento" required />
-                <label for="descuento">Descuento</label>
+                <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT" required />
+                <label for="descuento">DSCT</label>
               </div>
               <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
             </div>
@@ -336,10 +337,10 @@ require_once "../../partials/header.php";
     // Variables y elementos
     /* const inputCliente = document.getElementById("cliente"); */
     const inputProductElement = document.getElementById("producto");
+    const inputStock          = document.getElementById("stock");
     const inputPrecio = document.getElementById("precio");
     const inputCantidad = document.getElementById("cantidad");
     const inputDescuento = document.getElementById("descuento");
-    let clienteId = null;
     let selectedProduct = {};
     const numSerieInput = document.getElementById("numserie");
     const numComInput = document.getElementById("numcom");
@@ -347,7 +348,7 @@ require_once "../../partials/header.php";
     const agregarProductoBtn = document.getElementById("agregarProducto");
     const tabla = document.querySelector("#tabla-detalle tbody");
     const detalleVenta = [];
-    const vehiculoSelect     = document.getElementById("vehiculo");
+    const vehiculoSelect = document.getElementById("vehiculo");
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
     function initDateField(id) {
       const el = document.getElementById(id);
@@ -439,6 +440,7 @@ require_once "../../partials/header.php";
       fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(input.value)}&type=producto`)
         .then(res => res.json())
         .then(data => {
+          //console.log(data);
           const itemsDiv = document.createElement("div");
           itemsDiv.id = "autocomplete-list-producto";
           itemsDiv.className = "autocomplete-items";
@@ -450,17 +452,20 @@ require_once "../../partials/header.php";
             itemsDiv.appendChild(noRes);
           } else {
             data.forEach(prod => {
+              //console.log(prod.subcategoria_producto, prod.precio, prod.stock);
               const optionDiv = document.createElement("div");
               optionDiv.textContent = prod.subcategoria_producto;
               optionDiv.addEventListener("click", () => {
                 inputProductElement.value = prod.subcategoria_producto;
                 inputPrecio.value = prod.precio;
+                inputStock.value = prod.stock;
                 inputCantidad.value = 1;
                 inputDescuento.value = 0;
                 selectedProduct = {
                   idproducto: prod.idproducto,
                   subcategoria_producto: prod.subcategoria_producto,
-                  precio: prod.precio
+                  precio: prod.precio,
+                  stock: prod.cantidad 
                 };
                 cerrarListas(itemsDiv);
               });
@@ -576,13 +581,15 @@ require_once "../../partials/header.php";
         return;
       }
       // aquí ya existe vehiculoSelect
-      const idVehiculo = parseInt( vehiculoSelect.value );
+      const idVehiculo = parseInt(vehiculoSelect.value);
       if (!idVehiculo) {
         alert("Selecciona un vehículo.");
         btnFinalizarVenta.disabled = false;
         btnFinalizarVenta.textContent = "Guardar";
         return;
       }
+      // toma el kilometraje directamente del input
+      const km = parseFloat(document.getElementById("kilometraje").value) || 0;
 
       const data = {
         tipocom: document.querySelector('input[name="tipo"]:checked').value,
@@ -590,8 +597,9 @@ require_once "../../partials/header.php";
         numserie: numSerieInput.value.trim(),
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
-        idcliente: clienteId,
-        idvehiculo: idVehiculo, 
+        idcliente: hiddenIdCliente.value,
+        idvehiculo: idVehiculo,
+        kilometraje: km,
         productos: detalleVenta
       };
 
@@ -628,7 +636,6 @@ require_once "../../partials/header.php";
         });
     });
   });
-
 </script>
 <!-- <script src="<?= SERVERURL ?>views/page/ventas/js/registrar-ventas.js"></script> -->
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>

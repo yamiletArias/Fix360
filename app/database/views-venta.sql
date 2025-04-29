@@ -4,7 +4,7 @@ SELECT
     V.idventa AS id,
     CASE
         WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
-        WHEN C.idpersona IS NOT NULL THEN P.nombres
+        WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
     END AS cliente,
     V.tipocom,
     V.fechahora,
@@ -13,6 +13,34 @@ SELECT
 	INNER JOIN clientes C ON V.idcliente = C.idcliente
 	LEFT JOIN empresas E ON C.idempresa = E.idempresa
 	LEFT JOIN personas P ON C.idpersona = P.idpersona;
+    
+DROP VIEW IF EXISTS vs_ventas_cabecera;
+CREATE VIEW vs_ventas_cabecera AS
+SELECT
+  vt.idventa,
+  -- Cliente: empresa o persona
+  CASE
+    WHEN cl.idempresa IS NOT NULL THEN em.nomcomercial
+    WHEN cl.idpersona IS NOT NULL THEN CONCAT(pe.nombres, ' ', pe.apellidos)
+    ELSE 'Sin cliente'
+  END AS cliente,
+  vt.tipocom,
+  vt.fechahora,
+  vt.numserie,
+  vt.numcom,
+  vt.moneda,
+  vt.kilometraje,
+  -- Vehículo concatenado: tipo, marca, color y placa
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo
+FROM ventas       AS vt
+JOIN clientes     AS cl  ON vt.idcliente   = cl.idcliente
+LEFT JOIN empresas AS em ON cl.idempresa   = em.idempresa
+LEFT JOIN personas AS pe ON cl.idpersona   = pe.idpersona
+JOIN vehiculos    AS vh  ON vt.idvehiculo  = vh.idvehiculo
+JOIN modelos      AS m   ON vh.idmodelo    = m.idmodelo
+JOIN tipovehiculos AS tv ON m.idtipov      = tv.idtipov
+JOIN marcas       AS ma  ON m.idmarca      = ma.idmarca;
+
     
 -- PRUEBA real DE COMPRA CON EL ESTADO
 DROP VIEW IF EXISTS vs_compras;
@@ -98,6 +126,46 @@ JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
 INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
 -- fin de detalle cotizacion modal
+
+-- prueba para ver todo
+DROP VIEW IF EXISTS vs_ventas_detalle_all;
+CREATE VIEW vs_ventas_detalle_all AS
+SELECT
+  vt.idventa,
+  -- Cliente: nombre de persona o razón social de empresa
+  COALESCE(emp.nomcomercial, per.nombres) AS cliente,
+  vt.tipocom,
+  vt.fechahora,
+  vt.numserie     AS venta_serie,
+  vt.numcom       AS venta_comprobante,
+  vt.moneda,
+  vt.kilometraje,
+  -- Vehículo
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+  dv.idproducto,
+  CONCAT(sc.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa,
+  dv.descuento,
+  (dv.cantidad * dv.precioventa - dv.descuento) AS importe
+FROM ventas AS vt
+  INNER JOIN clientes AS cl    ON vt.idcliente    = cl.idcliente
+  LEFT  JOIN empresas AS emp   ON cl.idempresa    = emp.idempresa
+  LEFT  JOIN personas AS per   ON cl.idpersona    = per.idpersona
+
+  -- Unión con vehículo y sus tablas relacionadas:
+  INNER JOIN vehiculos AS vh   ON vt.idvehiculo   = vh.idvehiculo
+  INNER JOIN modelos AS m      ON vh.idmodelo     = m.idmodelo
+  INNER JOIN tipovehiculos AS tv ON m.idtipov     = tv.idtipov
+  INNER JOIN marcas AS ma      ON m.idmarca       = ma.idmarca
+
+  -- Detalle de venta
+  INNER JOIN detalleventa AS dv ON vt.idventa      = dv.idventa
+  INNER JOIN productos AS pr    ON dv.idproducto   = pr.idproducto
+  INNER JOIN subcategorias AS sc ON pr.idsubcategoria = sc.idsubcategoria;
+
+SELECT * 
+FROM vs_ventas_detalle_all;
 
 
 SELECT producto, precio, descuento 

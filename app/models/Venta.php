@@ -78,7 +78,7 @@ class Venta extends Conexion
 
             error_log("Parametros para spuRegisterVenta: " . print_r($params, true));
 
-            $stmtVenta = $pdo->prepare("CALL spuRegisterVenta(?,?,?,?,?,?)");
+            $stmtVenta = $pdo->prepare("CALL spuRegisterVenta(?,?,?,?,?,?,?,?)");
             $stmtVenta->execute([
                 $params["tipocom"],
                 $params["fechahora"],
@@ -86,7 +86,8 @@ class Venta extends Conexion
                 $params["numcom"],
                 $params["moneda"],
                 $params["idcliente"],
-                $params["idvehiculo"] 
+                $params["idvehiculo"],
+                $params["kilometraje"]
             ]);
 
             $result = [];

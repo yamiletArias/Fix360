@@ -17,7 +17,7 @@ require_once "../../partials/header.php";
                 <button id="btnMes" type="button" class="btn btn-primary">
                     Mes
                 </button>
-                <button type="button" class="btn btn-outline-danger">
+                <button type="button" class="btn btn-danger text-white">
                     <i class="fa-solid fa-file-pdf"></i>
                 </button>
             </div>

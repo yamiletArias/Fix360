@@ -3,51 +3,21 @@ ALTER TABLE detalleventa
 MODIFY COLUMN idorden INT NULL,
 MODIFY COLUMN idpromocion INT NULL;
 ALTER TABLE ventas MODIFY idcolaborador INT NULL;
+ALTER TABLE ventas MODIFY idvehiculo INT NULL;
 
 -- 1) PROCEDIMIENTO DE VENTAS
--- registrar ventas
-DELIMITER $$
-CREATE PROCEDURE spuRegisterVenta (
-  IN _tipocom VARCHAR(50),
-  IN _fechahora VARCHAR(50), -- TIMESTAMP
-  IN _numserie VARCHAR(30),
-  IN _numcom CHAR(20),
-  IN _moneda CHAR(11),
-  IN _idcliente INT
-)
-BEGIN
-  INSERT INTO ventas (
-    idcliente,
-    tipocom,
-    fechahora,
-    numserie,
-    numcom,
-    moneda
-  )
-  VALUES (
-    _idcliente,
-    _tipocom,
-    _fechahora,
-    _numserie,
-    _numcom,
-    _moneda
-  );
-  
-  SELECT LAST_INSERT_ID() AS idventa;
-END $$
-DELIMITER ;
-
--- prueba de registro de ventas:
+-- registrar ventas (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterVenta (
   IN _tipocom VARCHAR(50),
-  IN _fechahora VARCHAR(50),
+  IN _fechahora DATETIME, 
   IN _numserie VARCHAR(30),
   IN _numcom CHAR(20),
   IN _moneda CHAR(11),
   IN _idcliente INT,
-  IN _idvehiculo INT
+  IN _idvehiculo INT,
+  IN _kilometraje DECIMAL(10,2)
 )
 BEGIN
   INSERT INTO ventas (
@@ -57,7 +27,8 @@ BEGIN
     fechahora,
     numserie,
     numcom,
-    moneda
+    moneda,
+    kilometraje
   )
   VALUES (
     _idcliente,
@@ -66,15 +37,14 @@ BEGIN
     _fechahora,
     _numserie,
     _numcom,
-    _moneda
+    _moneda,
+    _kilometraje
   );
-  
   SELECT LAST_INSERT_ID() AS idventa;
 END $$
 DELIMITER ;
 
-
--- registrar detalle ventas con idventa
+-- registro detalle venta con idventa
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleVenta (
   IN _idventa INT,
@@ -170,6 +140,27 @@ BEGIN
     WHERE 
         S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') 
         OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
+    LIMIT 10;
+END $$
+DELIMITER ;
+-- PRUEBA 
+DROP PROCEDURE IF EXISTS buscar_producto;
+DELIMITER $$
+CREATE PROCEDURE buscar_producto(
+  IN termino_busqueda VARCHAR(255)
+)
+BEGIN
+    SELECT 
+        P.idproducto,
+        CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
+        P.precio,
+        P.cantidad AS stock
+    FROM productos P
+    INNER JOIN subcategorias S 
+      ON P.idsubcategoria = S.idsubcategoria
+    WHERE 
+        S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') 
+     OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
     LIMIT 10;
 END $$
 DELIMITER ;

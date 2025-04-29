@@ -216,7 +216,6 @@ modificado  		TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 CONSTRAINT fk_idmodelo FOREIGN KEY (idmodelo) REFERENCES modelos (idmodelo),
 CONSTRAINT fk_idtcombustible FOREIGN KEY (idtcombustible) REFERENCES tipocombustibles (idtcombustible),
 CONSTRAINT uq_numserie UNIQUE(numserie,placa)
-
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS propietarios;
@@ -414,20 +413,23 @@ CONSTRAINT chk_movimientos_cantidad CHECK (saldorestante > 0)
 
  )ENGINE = INNODB;
  
- DROP TABLE IF EXISTS ventas;
+DROP TABLE IF EXISTS ventas;
 CREATE TABLE ventas (
 
 idventa 			INT 		PRIMARY KEY 	AUTO_INCREMENT,
 idcliente 		INT 			NOT NULL,
 idcolaborador 	INT 			NOT NULL,
+idvehiculo 			INT 				NOT NULL,
 tipocom 		ENUM('boleta', 'factura') 		NOT NULL,
 fechahora 		DATETIME 		DEFAULT 		CURRENT_TIMESTAMP,
 numserie 		VARCHAR(10) 	NOT NULL,
 numcom 			VARCHAR(10) 	NOT NULL,
 moneda 			VARCHAR(20)		NOT NULL,
+kilometraje 		DECIMAL(10,2)	NOT NULL,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idcliente_6 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
+CONSTRAINT fk_idvehiculo_6 FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo),
 CONSTRAINT fk_idcolaborador_6 FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT uq_venta UNIQUE (idcliente, tipocom, numserie, numcom)
 
