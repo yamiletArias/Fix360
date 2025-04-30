@@ -28,62 +28,68 @@ class OrdenServicio extends Conexion
      * }
      * @return int ID de la orden (0 si falla)
      */
-    public function registerOrden(array $p): int
+    public function registerOrdenServicio($params = []): int
     {
         try {
-            // Iniciar transacción
-            $this->pdo->beginTransaction();
+            $pdo= $this->pdo;
+            $pdo->beginTransaction();
+            error_log("Parametros para spRegisterOrdenServicio: ". print_r($params,true));
 
-            // 1) Insertar cabecera
-            $stmt = $this->pdo->prepare(
-                "CALL spuRegisterOrdenServicio(?,?,?,?,?,?,?,?,?,?)"
-            );
-            $stmt->execute([
-                $p['idadmin'],           // Admin quien registra
-                $p['idmecanico'],        // Mecánico asignado
-                $p['idpropietario'],     // Propietario del vehículo
-                $p['idcliente'],         // Cliente
-                $p['idvehiculo'],        // Vehículo
-                $p['kilometraje'],       // Kilometraje al ingreso
-                $p['observaciones'],     // Observaciones
-                $p['ingresogrua'] ? 1 : 0,// Flag ingreso grúa
-                $p['fechaingreso'],      // Fecha y hora de ingreso
-                $p['fecharecordatorio']  // Fecha de recordatorio
+            $stmtOrden = $pdo->prepare("CALL spRegisterOrdenServicio(?,?,?,?,?,?,?,?)");
+            $stmtOrden->execute([
+                $params["idadmin"],
+                $params["idpropietario"],
+                $params["idcliente"],
+                $params["idvehiculo"],
+                $params["kilometraje"],
+                $params["observaciones"],
+                $params["ingresogrua"],
+                $params["fechaingreso"]
             ]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $idorden = $row['idorden'] ?? 0;
-            $stmt->closeCursor();
+            error_log("Sp SpRegisterOrdenServicio ejecutado");
 
-            if ($idorden <= 0) {
-                $this->pdo->rollBack();
-                return 0;
+            $result = [];
+            do{
+                $tmp = $stmtOrden->fetch(PDO::FETCH_ASSOC);
+                error_log("Resultado fetch: " . print_r($tmp,true));
+                if($tmp && isset($tmp['idorden'])){
+                    $result = $tmp;
+                    break;
+                }
+            } while($stmtOrden->nextRowset());
+            $stmtOrden->closeCursos();
+
+            $idorden = $result['idorden'] ?? 0;
+
+            if (!$idorden){
+                error_log("SP ejecutado pero no devolvio ID de orden");
+                throw new Exception("No se pudo obtener el id de orden");
             }
+            $stmtDetalle = $pdo->prepare("CALL spInsertDetalleOrden(?,?,?,?)");
+            $idorden = $result['idorden'] ?? 0;
 
-            // 2) Insertar cada detalle
-            $stmtDetalle = $this->pdo->prepare(
-                "CALL spuInsertDetalleOrdenServicio(?,?,?)"
-            );
-            foreach ($p['detalle'] as $item) {
+            foreach ($params['servicios'] as $servicio){
                 $stmtDetalle->execute([
                     $idorden,
-                    intval($item['idservicio']),
-                    floatval($item['precio'])
+                    $servicio["idservicio"],
+                    $servicio["idmecanico"],
+                    $servicio["precio"]
                 ]);
-                // Liberar cursor para próxima llamada
-                $stmtDetalle->closeCursor();
             }
-
-            // Confirmar transacción
-            $this->pdo->commit();
+            $pdo->commit();
+            error_log("Orden registrada con id: " . $idorden);
             return $idorden;
 
-        } catch (Exception $e) {
-            $this->pdo->rollBack();
-            error_log("OrdenServicio::registerOrden error: " . $e->getMessage());
+            } catch (PDOException $e) {
+            $pdo->rollBack();
+            error_log("Error DB: " . $e->getMessage());
             return 0;
-        }
+      
+          } catch (Exception $ex) {
+            error_log("Error general: " . $ex->getMessage());
+            return 0;
+          }
     }
-
     /**
      * Lista órdenes por periodo: 'dia', 'semana' o 'mes'
      *

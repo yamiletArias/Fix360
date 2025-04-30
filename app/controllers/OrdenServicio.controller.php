@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     // Llamada al modelo para insertar cabecera y detalle
-    $idorden = $ordenModel->registerOrden($params);
+    $idorden = $ordenModel->registerOrdenServicio($params);
 
     if ($idorden > 0) {
         echo json_encode(['status' => 'success', 'idorden' => $idorden]);

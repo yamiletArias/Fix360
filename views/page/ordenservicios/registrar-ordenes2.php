@@ -21,167 +21,175 @@ require_once "../../partials/header.php";
 
 <div class="container-main">
   <form id="form-orden" autocomplete="off">
-  <div class="card border mb-3">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control input" id="propietario"
-              placeholder="Propietario" />
-            <label for="propietario">Propietario</label>
-            <input type="hidden" id="hiddenIdCliente" />
-            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
-              data-bs-target="#miModal">
-              ...
-            </button>
+    <div class="card border mb-3">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="form-floating input-group mb-3">
+              <input type="text" disabled class="form-control input" id="propietario"
+                placeholder="Propietario" />
+              <label for="propietario">Propietario</label>
+              <input type="hidden" id="hiddenIdCliente" />
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                data-bs-target="#miModal">
+                ...
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="col-md-6 mb-3">
-          <div class="form-floating input-group mb-3">
-            <input type="text" disabled class="form-control input"
-              id="cliente"
-              placeholder="Cliente">
-            <label for="cliente">Cliente</label>
-            <button
-              type="button"
-              class="btn btn-outline-dark btn-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#ModalCliente">…</button>
+          <div class="col-md-4 mb-3">
+            <div class="form-floating input-group mb-3">
+              <input type="text" disabled class="form-control input" id="cliente" placeholder="Cliente">
+              <label for="cliente">Cliente</label>
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ModalCliente">…</button>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4 mb-3">
-          <div class="form-floating">
-            <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
-              <option selected>Eliga un vehículo</option>
-            </select>
-            <label for="vehiculo">Vehículo:</label>
-          </div>
-        </div>
-        <div class="col-md-4 mb-3">
-          <div class="form-floating">
-            <input type="number" step="0.1" class="form-control input" id="kilometraje" placeholder="201">
-            <label for="kilometraje">Kilometraje</label>
-          </div>
-        </div>
-        <div class="col-md-4 mb-3">
-          <div class="form-floating">
-            <input type="date" class="form-control input" id="fechaIngreso">
-            <label for="fechaIngreso">Fecha de ingreso:</label>
-          </div>
-        </div>
-        <div class="col-md-3 mb-3">
-          <div class="form-floating">
-            <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
-              required>
-              <option selected>Eliga un tipo de servicio</option>
 
-            </select>
-            <label for="subcategoria">Tipo de Servicio:</label>
-          </div>
-        </div>
-        <div class="col-md-3 mb-3">
-          <div class="input-group mb-3">
+          <div class="col-md-4 mb-3">
             <div class="form-floating">
-              <select class="form-select" id="servicio" name="servicio" style="color:black;">
-                <option selected>Eliga un servicio</option>
+              <input type="text" class="form-control input" id="observaciones" placeholder="observaciones" maxlength="255">
+              <label for="observaciones">Observaciones</label>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="form-floating">
+              <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
+                <option selected>Eliga un vehículo</option>
               </select>
-              <label for="servicio">Servicio:</label>
+              <label for="vehiculo">Vehículo:</label>
             </div>
-            <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle"  data-bs-toggle="modal" data-bs-target="#ModalServicio">
-              <i class="fa-solid fa-circle-plus"></i>
-            </button>
           </div>
-        </div>
-        <div class="col-md-3 mb-3">
-          <div class="form-floating">
-            <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
-              <option selected>Eliga un mecánico</option>
-            </select>
-            <label for="mecanico">Mecánico:</label>
-          </div>
-        </div>
-        <div class="col-md-3 mb-3">
-          <div class="input-group mb-3">
+          <div class="col-md-3 mb-3">
             <div class="form-floating">
-              <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0">
-              <label for="precio">Precio</label>
+              <input type="number" step="0.1" class="form-control input" id="kilometraje" placeholder="201">
+              <label for="kilometraje">Kilometraje</label>
             </div>
-            <button class="btn btn-sm btn-success" type="button" id="button-addon2">Agregar</button>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="ingresogrua">
+              <label class="input form-check-label" for="ingresogrua">Ingreso grúa</label>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="form-floating">
+              <input type="date" class="form-control input" id="fechaIngreso">
+              <label for="fechaIngreso">Fecha de ingreso:</label>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="form-floating">
+              <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
+                required>
+                <option selected>Eliga un tipo de servicio</option>
+
+              </select>
+              <label for="subcategoria">Tipo de Servicio:</label>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="input-group mb-3">
+              <div class="form-floating">
+                <select class="form-select" id="servicio" name="servicio" style="color:black;">
+                  <option selected>Eliga un servicio</option>
+                </select>
+                <label for="servicio">Servicio:</label>
+              </div>
+              <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle" data-bs-toggle="modal" data-bs-target="#ModalServicio">
+                <i class="fa-solid fa-circle-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="form-floating">
+              <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
+                <option selected>Eliga un mecánico</option>
+              </select>
+              <label for="mecanico">Mecánico:</label>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="input-group mb-3">
+              <div class="form-floating">
+                <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0">
+                <label for="precio">Precio</label>
+              </div>
+              <button class="btn btn-sm btn-success" type="button" id="button-addon2">Agregar</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="card mt-2 border">
-    <div class="card-body">
-      <table class="table table-striped table-sm" id="tabla-detalle">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Servicio</th>
-            <th>Mecanico</th>
-            <th>Precio</th>
-            <th>Eliminar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Datos asíncronos -->
-        </tbody>
+    <div class="card mt-2 border">
+      <div class="card-body">
+        <table class="table table-striped table-sm" id="tabla-detalle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Servicio</th>
+              <th>Mecanico</th>
+              <th>Precio</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Datos asíncronos -->
+          </tbody>
 
-      </table>
+        </table>
+      </div>
     </div>
-  </div>
 
-  <div class="card mt-2 border">
-    <div class="card-body">
-      <table class="tabla table-sm">
-        <colgroup>
-          <col style="width: 5%;">
-          <col style="width: 60%;">
-          <col style="width: 10%;">
-          <col style="width: 10%;">
-          <col style="width: 10%;">
-          <col style="width: 5%;">
-        </colgroup>
-        <tbody>
-          <tr>
-            <td colspan="4" class="text-end">Subtotal</td>
-            <td>
-              <input type="text" class="form-control form-control-sm text-end" id="subtotal" readonly>
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td colspan="4" class="text-end">IGV</td>
-            <td>
-              <input type="text" class="form-control form-control-sm text-end" id="igv" readonly>
-            </td>
-            <td></td>
+    <div class="card mt-2 border">
+      <div class="card-body">
+        <table class="tabla table-sm">
+          <colgroup>
+            <col style="width: 5%;">
+            <col style="width: 60%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 10%;">
+            <col style="width: 5%;">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td colspan="4" class="text-end">Subtotal</td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-end" id="subtotal" readonly>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">IGV</td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-end" id="igv" readonly>
+              </td>
+              <td></td>
 
-          </tr>
-          <tr>
-            <td colspan="4" class="text-end">Neto</td>
-            <td>
-              <input type="text" class="form-control form-control-sm text-end" id="neto" readonly>
-            </td>
-            <td></td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">Neto</td>
+              <td>
+                <input type="text" class="form-control form-control-sm text-end" id="neto" readonly>
+              </td>
+              <td></td>
 
-          </tr>
-          <tr>
-            <td colspan="4" class="text-end">
-            <button id="btnAceptarOrden" class="btn btn-success text-end">Aceptar</button>
-            </td>
-            <td>
-              <a class="btn btn-secondary text-end" href="listar-ordenes.php">Cancelar</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-end">
+                <button id="btnAceptarOrden" class="btn btn-success text-end">Aceptar</button>
+              </td>
+              <td>
+                <a class="btn btn-secondary text-end" href="listar-ordenes.php">Cancelar</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
 
-  <!-- Observaciones e Ingreso grúa 
+    <!-- Observaciones e Ingreso grúa 
 <div class="row g-2 mt-3">
   <div class="col-md-9">
     <div class="form-floating">
@@ -314,7 +322,7 @@ require_once "../../partials/_footer.php";
         <div class="row mb-3">
           <div class="col">
             <div class="form-floating">
-              <select id="selectMetodoCliente" class="form-select"  style="background-color: white;color:black;">
+              <select id="selectMetodoCliente" class="form-select" style="background-color: white;color:black;">
                 <option value="dni">DNI</option>
                 <option value="nombre">Nombre</option>
               </select>
@@ -413,7 +421,6 @@ require_once "../../partials/_footer.php";
 </div>
 
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
-<!--script src="<?= SERVERURL ?>views/page/ordenservicios/js/detorden.js"></!--script-->
 <script>
   let clienteTimer;
 
