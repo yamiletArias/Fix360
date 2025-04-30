@@ -140,36 +140,60 @@ END $$
 
 -- ALTERAR ID COLABORADOR EN COMPRAS POR EL MOMENTO
 ALTER TABLE compras MODIFY idcolaborador INT NULL;
+DROP PROCEDURE IF EXISTS spRegisterProducto;
+DELIMITER $$
+CREATE PROCEDURE spRegisterProducto(
+  IN _idsubcategoria INT,
+  IN _idmarca INT,
+  IN _descripcion VARCHAR(50),
+  IN _precio DECIMAL(7,2),
+  IN _presentacion VARCHAR(40),
+  IN _undmedida VARCHAR(40),
+  IN _cantidad DECIMAL(10,2),
+  IN _img VARCHAR(255),
+  OUT _idproducto INT
+)
+BEGIN
+  INSERT INTO productos (
+    idsubcategoria, idmarca, descripcion, precio,
+    presentacion, undmedida, cantidad, img
+  )
+  VALUES (
+    _idsubcategoria, _idmarca, _descripcion, _precio,
+    _presentacion, _undmedida, _cantidad, _img
+  );
+  SET _idproducto = LAST_INSERT_ID();
+END$$
 
 -- 6) PROCEDIMIENTO PARA REGISTRAR COMPRAS
 DELIMITER $$
-CREATE PROCEDURE spuRegisterCompra (
-  IN _fechacompra DATE,
-  IN _tipocom VARCHAR(50),
-  IN _numserie VARCHAR(10),
-  IN _numcom VARCHAR(10),
-  IN _moneda VARCHAR(20),
-  IN _idproveedor INT
-)
-BEGIN
-  INSERT INTO compras (
-    idproveedor,
-    fechacompra,
-    tipocom,
-    numserie,
-    numcom,
-    moneda
-  )
-  VALUES (
-    _idproveedor,
-    _fechacompra,
-    _tipocom,
-    _numserie,
-    _numcom,
-    _moneda
-  );
-  SELECT LAST_INSERT_ID() AS idcompra;
-END $$
+ CREATE PROCEDURE spuRegisterCompra (
+   IN _fechacompra DATE,
+   IN _tipocom VARCHAR(50),
+   IN _numserie VARCHAR(10),
+   IN _numcom VARCHAR(10),
+   IN _moneda VARCHAR(20),
+   IN _idproveedor INT
+ )
+ BEGIN
+   INSERT INTO compras (
+     idproveedor,
+     fechacompra,
+     tipocom,
+     numserie,
+     numcom,
+     moneda
+   )
+   VALUES (
+     _idproveedor,
+     _fechacompra,
+     _tipocom,
+     _numserie,
+     _numcom,
+     _moneda
+   );
+   SELECT LAST_INSERT_ID() AS idcompra;
+ END $$
 
 -- 7) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COMPRA OBTENIENDO EL IDCOMPRA
 DELIMITER $$
@@ -191,13 +215,14 @@ BEGIN
   VALUES (
     _idproducto,
     _idcompra,
-    _cantidad,
+    _cantspRegisterProductospRegisterProductoidad,
     _preciocompra,
     _descuento
   );
 END $$
 
 -- 8) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
+DROP PROCEDURE IF EXISTS spuGetProveedores;
 DELIMITER $$
 CREATE PROCEDURE spuGetProveedores()
 BEGIN
@@ -208,6 +233,22 @@ BEGIN
   INNER JOIN empresas e ON p.idempresa = e.idempresa
   LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
 END $$
+
+-- PRUEBA (OBTENER LOS PROVEEDORES AUN EXISTENTE ANTES DEL REGSITRO)
+DROP PROCEDURE IF EXISTS spuGetProveedores;
+DELIMITER $$
+CREATE PROCEDURE spuGetProveedores()
+BEGIN
+  SELECT 
+    e.idempresa      AS idempresa,
+    e.nomcomercial   AS nombre_empresa,
+    p.idproveedor    AS idproveedor
+  FROM empresas e
+  LEFT JOIN proveedores p 
+    ON e.idempresa = p.idempresa
+  ORDER BY e.nomcomercial;
+END $$
+DELIMITER ;
 
 -- 9) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA
 -- pasa a estado = false
@@ -230,6 +271,30 @@ BEGIN
     SET estado = FALSE,
         justificacion = _justificacion
     WHERE idcompra = _idcompra;
+  COMMIT;
+END$$
+
+-- 10) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA
+-- pasa a estado = false
+DELIMITER $$
+CREATE PROCEDURE spuDeleteVenta (
+  IN _idventa      INT,
+  IN _justificacion VARCHAR(255)
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+  START TRANSACTION;
+    -- Eliminar detalles
+    DELETE FROM detalleventa WHERE idventa = _idventa;
+    -- Marcar como anulada + guardar justificación
+    UPDATE ventas
+    SET estado = FALSE,
+        justificacion = _justificacion
+    WHERE idventa = _idventa;
   COMMIT;
 END$$
 
@@ -277,7 +342,7 @@ END $$
 -- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
 ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
 
--- 10) PROCEDIMIENTO PARA REGISTRAR COTIZACION
+-- 11) PROCEDIMIENTO PARA REGISTRAR COTIZACION
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCotizaciones (
   IN _fechahora TIMESTAMP,
@@ -301,7 +366,7 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idcotizacion;
 END $$
 
--- 11) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
+-- 12) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCotizacion (
   IN _idcotizacion INT,

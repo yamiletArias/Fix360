@@ -41,14 +41,14 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             if (isset($_POST['action'], $_POST['idcompra']) && $_POST['action'] === 'eliminar') {
                 $id = intval($_POST['idcompra']);
                 $justificacion = trim($_POST['justificacion'] ?? "");
-        
+
                 error_log("Intentando anular compra #$id. Justificación: $justificacion");
-        
+
                 $ok = $compra->deleteCompra($id, $justificacion);
                 error_log("Resultado deleteCompra: " . ($ok ? 'OK' : 'FAIL'));
-        
+
                 echo json_encode([
-                    'status'  => $ok ? 'success' : 'error',
+                    'status' => $ok ? 'success' : 'error',
                     'message' => $ok ? 'Compra anulada.' : 'No se pudo anular la compra.'
                 ]);
                 exit;
@@ -60,46 +60,46 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
             $dataJSON = json_decode($input, true);
             if (!$dataJSON) {
-                echo json_encode(["status" => "error", "message" => "JSON inválido."]);
+                error_log("Error: JSON invalido en compras.");
+                echo json_encode(["status" => "error", "message" => "JSON invalido."]);
                 exit;
             }
-
-            // Validar y limpiar los datos
-            $fechacompra = Helper::limpiarCadena($dataJSON['fechacompra'] ?? date("Y-m-d"));
-            $tipocom     = Helper::limpiarCadena($dataJSON['tipocom'] ?? "");
-            $numserie    = Helper::limpiarCadena($dataJSON['numserie'] ?? "");
-            $numcom      = Helper::limpiarCadena($dataJSON['numcom'] ?? "");
-            $moneda      = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
-            $idproveedor = intval($dataJSON['idproveedor'] ?? 0);
-            $productos   = $dataJSON['productos'] ?? [];
-
+            // Validación de datos
+            $fechacompra = Helper::limpiarCadena($dataJSON['fechacompra'] ?? "");
+            if (empty($fechacompra)) {
+                $fechacompra = date("Y-m-d");
+            }
+            $tipocom = Helper::limpiarCadena($dataJSON['tipocom'] ?? "");
+            $numserie = Helper::limpiarCadena($dataJSON['numserie'] ?? "");
+            $numcom = Helper::limpiarCadena($dataJSON['numcom'] ?? "");
+            $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
+            $idproveedor = $dataJSON['idproveedor'] ?? 0;
+            $productos = $dataJSON['productos'] ?? [];
             if (empty($productos)) {
                 echo json_encode(["status" => "error", "message" => "No se enviaron productos."]);
                 exit;
             }
-
-            // Registrar la compra
             error_log("Datos recibidos para compra: " . print_r($dataJSON, true));
+            // Registrar compra
+            $compra = new Compra();
             $idCompraInsertada = $compra->registerCompras([
                 "fechacompra" => $fechacompra,
-                "tipocom"     => $tipocom,
-                "numserie"    => $numserie,
-                "numcom"      => $numcom,
-                "moneda"      => $moneda,
+                "tipocom" => $tipocom,
+                "numserie" => $numserie,
+                "numcom" => $numcom,
+                "moneda" => $moneda,
                 "idproveedor" => $idproveedor,
-                "productos"   => $productos
-            ]); 
-
+                "productos" => $productos
+            ]);
             if ($idCompraInsertada > 0) {
                 echo json_encode([
-                    "status"   => "success",
-                    "message"  => "Compra registrada con éxito.",
+                    "status" => "success",
+                    "message" => "Compra registrada con exito.",
                     "idcompra" => $idCompraInsertada
                 ]);
             } else {
                 echo json_encode(["status" => "error", "message" => "No se pudo registrar la compra."]);
             }
-
             break;
     }
 }
