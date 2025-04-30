@@ -17,7 +17,7 @@ require_once "../../partials/header.php";
                 <button id="btnMes" type="button" class="btn btn-primary">
                     Mes
                 </button>
-                <button type="button" class="btn btn-outline-danger">
+                <button type="button" class="btn btn-danger text-white">
                     <i class="fa-solid fa-file-pdf"></i>
                 </button>
             </div>
@@ -39,7 +39,6 @@ require_once "../../partials/header.php";
                         <th>Cliente</th>
                         <th class="text-center">T. Comprobante</th>
                         <th class="text-center">N° Comprobante</th>
-                        <th>Fecha Hora</th>
                         <th class="text-center">Opciones</th>
                     </tr>
                 </thead>
@@ -52,20 +51,25 @@ require_once "../../partials/header.php";
 </div>
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 600px;"> <!-- Cambié el tamaño aquí -->
+    <div class="modal-dialog" style="max-width: 800px;"> <!-- Cambié el tamaño aquí -->
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Venta</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Cliente:</strong> <label for="cliente"></label></p>
-                <!-- <div class="form-group" style="margin: 10px">
+                <div class="form-group">
                   <div class="form-floating input-group">
                     <input type="text" disabled class="form-control input" id="modeloInput" />
                     <label for="modeloInput">Cliente</label>
                   </div>
-                </div> -->
+                </div>
+                <div class="form-group">
+                  <div class="form-floating input-group">
+                    <input type="text" disabled class="form-control input" id="fechaHora" />
+                    <label for="fechaHora">Fecha & Hora:</label>
+                  </div>
+                </div>
                 <div class="table-container">
                     <table class="table table-striped table-bordered">
                         <thead>
@@ -77,27 +81,7 @@ require_once "../../partials/header.php";
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- <tr>
-                                <td>1</td>
-                                <td>Filtro de aceite</td>
-                                <td>120.00</td>
-                                <td>Soles</td>
-                                <td>0%</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Pastillas de freno</td>
-                                <td>150.00</td>
-                                <td>Soles</td>
-                                <td>0%</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Amortiguador delantero</td>
-                                <td>250.00</td>
-                                <td>Soles</td>
-                                <td>0%</td>
-                            </tr> -->
+
                         </tbody>
                     </table>
                 </div>
@@ -108,12 +92,79 @@ require_once "../../partials/header.php";
         </div>
     </div>
 </div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="modalJustificacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Por qué deseas eliminar esta Venta? (Escribe una justificación)</p>
+                <textarea id="justificacion" class="form-control" rows="4"
+                    placeholder="Escribe tu justificación aquí..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEliminarVenta" class="btn btn-danger">Eliminar Venta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 </div>
 </div>
 <!--FIN VENTAS-->
 </body>
-
 </html>
+<script>
+  // reemplaza el handler existente por éste
+  $(document).off('click', '#btnEliminarVenta');  // quita cualquier handler previo
+  $(document).on('click', '#btnEliminarVenta', async function () {
+    const justificacion = $('#justificacion').val().trim();
+    const idventa      = $(this).data('id');
+
+    if (!justificacion) {
+      alert('Escribe la justificación.');
+      return;
+    }
+
+    // 1) pregunto con tu helper ask()
+    const confirmado = await ask(
+      "¿Estás seguro de eliminar esta venta?",
+      "Confirmar eliminación"
+    );
+    if (!confirmado) {
+      showToast('Eliminación cancelada.', 'WARNING', 1500);
+      return;
+    }
+
+    // 2) feedback de “eliminando…”
+    showToast('Eliminando Venta…', 'INFO', 1000);
+
+    // 3) envío la petición de eliminación
+    $.post("<?= SERVERURL ?>app/controllers/Venta.controller.php", {
+      action: 'eliminar',
+      idventa: idventa,
+      justificacion: justificacion
+    }, function (res) {
+      // 4) tras respuesta muestro éxito o error
+      if (res.status === 'success') {
+        showToast('Venta eliminada.', 'SUCCESS', 1500);
+        $('#modalJustificacion').modal('hide');
+        setTimeout(cargarTablaVentas, 500);
+      } else {
+        showToast(res.message || 'Error al eliminar.', 'ERROR', 1500);
+      }
+    }, 'json')
+    .fail(function () {
+      showToast('Error de conexión.', 'ERROR', 1500);
+    });
+  });
+</script>
 <script>
     function cargarTablaVentas() {
         if ($.fn.DataTable.isDataTable("#tablaventasdia")) {
@@ -145,10 +196,6 @@ require_once "../../partials/header.php";
                     defaultContent: "No disponible",
                     class: 'text-center' // Centrado de la columna numcom
                 }, // Cierra columna 4
-                { // Columna 5: fecha y hora de la venta
-                    data: "fechahora",
-                    defaultContent: "No disponible"
-                }, // Cierra columna 6
                 { // Columna 7: Opciones (botones: editar, ver detalle, y otro para ver más)
                     data: null,
                     render: function (data, type, row) { // Inicio de render de opciones
@@ -156,12 +203,14 @@ require_once "../../partials/header.php";
                         <a href="editar-ventas.php?id=${row.idventa}" class="btn btn-sm btn-warning" title="Editar">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
-                        <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
+                        <button title="Eliminar"
+                            class="btn btn-danger btn-sm btn-eliminar"
+                            data-id="${row.id}">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                         <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                         data-bs-target="#miModal"
-                        onclick="verDetalleVenta('${row.id}', '${row.cliente}')">
+                        onclick="verDetalleVenta('${row.id}', '${row.cliente}', '${row.fechahora}')">
                             <i class="fa-solid fa-circle-info"></i>
                         </button>
                         `;
@@ -189,7 +238,8 @@ require_once "../../partials/header.php";
 <script>
     function verDetalleVenta(idventa, cliente) {
         $("#miModal").modal("show");
-        $("#miModal label[for='cliente']").text(cliente);
+        $("#modeloInput").val(cliente);
+        //$("#fechaHora").val(cliente);
 
         $.ajax({
             url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
@@ -203,6 +253,7 @@ require_once "../../partials/header.php";
                 tbody.empty(); // Limpiar contenido anterior
 
                 if (response.length > 0) {
+                    $("#fechaHora").val(response[0].fechahora ?? "No disponible");
                     response.forEach((item, index) => {
                         const fila = `
                         <tr>

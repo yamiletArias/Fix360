@@ -24,6 +24,25 @@ class Venta extends Conexion
         return $result;
     }
 
+    //ELIMINAR VENTA
+    public function deleteVenta(int $idventa, string $justificacion = null): bool
+    {
+      try {
+        $sql = "CALL spuDeleteVenta(:idventa, :justificacion)";
+        $stmt = $this->pdo->prepare($sql);
+        $res = $stmt->execute([
+          ':idventa' => $idventa,
+          ':justificacion' => $justificacion
+        ]);
+    
+        error_log("Procedimiento spuDeleteVenta ejecutado.");
+        return $res;
+      } catch (PDOException $e) {
+        error_log("Error al ejecutar spuDeleteVenta para compra #{$idventa}: " . $e->getMessage());
+        return false;
+      }
+    }
+
     // Buscar clientes
     public function buscarCliente(string $termino): array
     {

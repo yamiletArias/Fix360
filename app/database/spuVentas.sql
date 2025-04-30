@@ -1,12 +1,11 @@
--- alterar por ahora
+-- ALTERAR POR AHORA (IDORDEN, IDPROMOCION, IDCOLABORADOR, IDVEHICULO) EN VENTAS
 ALTER TABLE detalleventa
 MODIFY COLUMN idorden INT NULL,
 MODIFY COLUMN idpromocion INT NULL;
 ALTER TABLE ventas MODIFY idcolaborador INT NULL;
 ALTER TABLE ventas MODIFY idvehiculo INT NULL;
 
--- 1) PROCEDIMIENTO DE VENTAS
--- registrar ventas (cabecera)
+-- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterVenta (
@@ -42,9 +41,8 @@ BEGIN
   );
   SELECT LAST_INSERT_ID() AS idventa;
 END $$
-DELIMITER ;
 
--- registro detalle venta con idventa
+-- 2) PROCEDIMIENTO DE REGISTRO DETALLE DE VENTA OBTENIENDO EL IDVENTA
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleVenta (
   IN _idventa INT,
@@ -75,10 +73,8 @@ BEGIN
 	_descuento
 	);
 END $$
-DELIMITER ;
--- Fin de registrar detalle ventas con idventa
 
--- MONEDA
+-- 3) PROCEDIMINETO PARA OBTENER MONEDAS (soles & dolares)
 DELIMITER $$
 CREATE PROCEDURE spuGetMonedasVentas()
 BEGIN
@@ -97,12 +93,8 @@ BEGIN
   FROM ventas
   WHERE moneda IN ('SOLES', 'DOLARES');
 END $$
-DELIMITER ;
--- Fin Moneda
-CALL spuGetMonedasVentas();
 
--- Procedimiento para buscar clientes
-
+-- 4) PROCEDIMIENTO PARA BUSCAR CLIENTES
 DELIMITER $$
 CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
 BEGIN
@@ -124,26 +116,8 @@ BEGIN
          AND P.nombres IS NOT NULL AND P.apellidos IS NOT NULL)
     LIMIT 10;
 END$$
-DELIMITER ;
 
--- Buscar producto
-DELIMITER $$
-CREATE PROCEDURE buscar_producto(IN termino_busqueda VARCHAR(255))
-BEGIN
-    SELECT 
-        P.idproducto,
-        CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-        P.precio
-    FROM productos P
-    INNER JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
-    LEFT JOIN detalleventa DV ON P.idproducto = DV.idproducto
-    WHERE 
-        S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') 
-        OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
-    LIMIT 10;
-END $$
-DELIMITER ;
--- PRUEBA 
+-- 5) PROCEDIMIENTO PARA BUSCAR PRODUCTO (producto, stock, precio)
 DROP PROCEDURE IF EXISTS buscar_producto;
 DELIMITER $$
 CREATE PROCEDURE buscar_producto(
@@ -163,52 +137,11 @@ BEGIN
      OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
     LIMIT 10;
 END $$
-DELIMITER ;
--- Fin Buscar producto
-CALL buscar_producto('moto');
 
--- ver Detalle ventas
-DELIMITER $$
-CREATE PROCEDURE spuGetDetalleVenta (
-    IN _idventa INT
-)
-BEGIN
-    SELECT 
-        d.iddetventa,
-        d.idproducto,
-        d.cantidad,
-        d.numserie,
-        d.precioventa,
-        d.descuento,
-        CONCAT(s.subcategoria, ' ', p.descripcion) AS producto,
-        
-        -- Datos del cliente
-        c.idcliente,
-        CASE
-            WHEN c.idpersona IS NOT NULL THEN 'Persona'
-            WHEN c.idempresa IS NOT NULL THEN 'Empresa'
-            ELSE 'Desconocido'
-        END AS tipo_cliente,
-        COALESCE(pe.nombres, em.nomcomercial) AS nombre_cliente
-
-    FROM detalleventa d
-    INNER JOIN ventas v ON d.idventa = v.idventa
-    INNER JOIN clientes c ON v.idcliente = c.idcliente
-    LEFT JOIN personas pe ON c.idpersona = pe.idpersona
-    LEFT JOIN empresas em ON c.idempresa = em.idempresa
-    LEFT JOIN productos p ON d.idproducto = p.idproducto
-    LEFT JOIN subcategorias s ON p.idsubcategoria = s.idsubcategoria
-    WHERE d.idventa = _idventa;
-END $$
-DELIMITER ;
--- Detalle ventas
--- FIN DEL PROCEDIMIENTO DE VENTAS
-
--- PROCEDIMIENTO DE COMPRAS
--- ALTERAR ID COLABORADOR POR EL MOMENTO
+-- ALTERAR ID COLABORADOR EN COMPRAS POR EL MOMENTO
 ALTER TABLE compras MODIFY idcolaborador INT NULL;
 
--- registrar compras
+-- 6) PROCEDIMIENTO PARA REGISTRAR COMPRAS
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCompra (
   IN _fechacompra DATE,
@@ -237,10 +170,8 @@ BEGIN
   );
   SELECT LAST_INSERT_ID() AS idcompra;
 END $$
-DELIMITER ;
--- fin registrar compras
 
--- registrar detalle compra
+-- 7) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COMPRA OBTENIENDO EL IDCOMPRA
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCompra (
   IN _idcompra INT,
@@ -265,10 +196,8 @@ BEGIN
     _descuento
   );
 END $$
-DELIMITER ;
--- fin registrar detalle compra
 
--- MOSTRAR Proveedor
+-- 8) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
 DELIMITER $$
 CREATE PROCEDURE spuGetProveedores()
 BEGIN
@@ -279,12 +208,9 @@ BEGIN
   INNER JOIN empresas e ON p.idempresa = e.idempresa
   LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
 END $$
-DELIMITER ;
-CALL spuGetProveedores();
--- FIN PROVEEDOR
 
--- PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA
--- pasa a estado = false:
+-- 9) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA
+-- pasa a estado = false
 DELIMITER $$
 CREATE PROCEDURE spuDeleteCompra (
   IN _idcompra      INT,
@@ -297,10 +223,8 @@ BEGIN
     RESIGNAL;
   END;
   START TRANSACTION;
-
     -- Eliminar detalles
     DELETE FROM detallecompra WHERE idcompra = _idcompra;
-
     -- Marcar como anulada + guardar justificación
     UPDATE compras
     SET estado = FALSE,
@@ -308,14 +232,8 @@ BEGIN
     WHERE idcompra = _idcompra;
   COMMIT;
 END$$
-DELIMITER ;
 
-SELECT idcompra, justificacion, estado
-FROM compras
-WHERE idcompra = 3;
--- FIN DE JUSTIFICACION DE LA COMPRA ELIMINADA
-
--- registro real de cliente empresa (para que se vea en proveedores)
+-- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES)
 DELIMITER $$
 CREATE PROCEDURE spRegisterClienteEmpresa (
   IN _ruc CHAR(11),
@@ -355,16 +273,11 @@ BEGIN
     VALUES (_idempresa);
   END IF;
 END $$
-DELIMITER ;
--- fin registro real de clientes empresa
--- FIN DEL PROCEDIMIENTO DE COMPRAS
 
-
--- PROCEDIMIENTO DE COTIZACIONES
--- POR EL MOMENTO ALTERAR ID COLABORADOR
+-- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
 ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
 
--- registrar Cotizacion
+-- 10) PROCEDIMIENTO PARA REGISTRAR COTIZACION
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCotizaciones (
   IN _fechahora TIMESTAMP,
@@ -387,10 +300,8 @@ BEGIN
   );
   SELECT LAST_INSERT_ID() AS idcotizacion;
 END $$
-DELIMITER ;
--- fin registrar Cotizacion
 
--- registrar detalle Cotizacion
+-- 11) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCotizacion (
   IN _idcotizacion INT,
@@ -415,22 +326,25 @@ BEGIN
     _descuento
   );
 END $$
-DELIMITER ;
--- fin de registrar detalle cotizacion
--- FIN DEL PROCEDIMIENTO DE COTIZACIONES
-
 
 -- PROBAR 
-CALL spuRegisterCotizacion(fechahora, vigenciadias, idcliente, moneda);
-CALL spuGetDetalleVenta(2);
-CALL spuRegisterVenta('boleta', '2025-04-07 10:30:00', 'B076', 'B-0928971', 'Soles', 5);
-CALL spuInsertDetalleVenta(18, 3, 1, 'B076', 120.50, 0);
+-- PRUEBA PARA OBTENER LAS MONEDAS
+CALL spuGetMonedasVentas();
+-- PRUEBA PARA BUSCAR PRODUCTO
+CALL buscar_producto('moto');
+-- PRUEBA PARA VER PROVEEDORE
+CALL spuGetProveedores();
+-- PRUEBA PARA VER LA JUSTIFICACION
+SELECT idcompra, justificacion, estado
+FROM compras
+WHERE idcompra = 3;
+
+-- PRUEBA DE VENTAS
 SELECT * FROM detalleventa;
 SELECT * FROM ventas;
-
-CALL buscar_producto_compras('ace');
+-- PRUEBA DE COMPRAS
 SELECT * FROM detallecompra;
 SELECT * FROM compras;
-
+-- PRUEBA DE COTIZACION
 SELECT * FROM detallecotizacion;
 SELECT * FROM cotizaciones;
