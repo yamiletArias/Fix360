@@ -1,196 +1,329 @@
-// views/page/ordenservicios/js/registrar-ordenes.js
-// Script unificado para registro de orden y manejo de modales
+
+function actualizarOpciones() {
+
+  const select = document.getElementById("selectMetodo");
+  const personaSeleccionada = document.getElementById("rbtnpersona").checked;
+  // Limpiar opciones actuales
+  select.innerHTML = "";
+  if (personaSeleccionada) {
+      select.innerHTML += `<option value="dni">DNI</option>`;
+      select.innerHTML += `<option value="nombre">Nombre</option>`;
+  } else {
+      select.innerHTML += `<option value="ruc">RUC</option>`;
+      select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
+  }
+}
+
+// Función para buscar propietarios en el modal y llenar la tabla de resultados
+function buscarPropietario() {
+  const tipo = document.getElementById("rbtnpersona").checked ? "persona" : "empresa";
+  const metodo = document.getElementById("selectMetodo").value;
+  const valor = document.getElementById("vbuscado").value.trim();
+
+  // Si no se ingresa valor, limpia la tabla
+  if (valor === "") {
+      document.querySelector("#tabla-resultado tbody").innerHTML = "";
+      return;
+  }
+
+  // Construir la URL de la consulta (ajusta la ruta según tu estructura)
+  const url = `http://localhost/fix360/app/controllers/Propietario.controller.php?tipo=${encodeURIComponent(tipo)}&metodo=${encodeURIComponent(metodo)}&valor=${encodeURIComponent(valor)}`;
+
+  fetch(url)
+      .then(response => response.json())
+      .then(data => {
+          const tbody = document.querySelector("#tabla-resultado tbody");
+          tbody.innerHTML = "";
+          // Crear filas para cada resultado
+          data.forEach((item, index) => {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+    <td>${index + 1}</td>
+    <td>${item.nombre}</td>
+    <td>${item.documento}</td>
+    <td>
+      <button type="button" class="btn btn-success btn-sm btn-confirmar" data-id="${item.idcliente}" data-bs-dismiss="modal">
+      <i class="fa-solid fa-circle-check"></i>
+      </button>
+    </td>
+  `;
+              tbody.appendChild(tr);
+          });
+      })
+      .catch(error => console.error("Error en búsqueda:", error));
+}
+
+// Cuando se hace clic en el botón "Confirmar" del modal
+document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
+  if (e.target.closest(".btn-confirmar")) {
+      const btn = e.target.closest(".btn-confirmar");
+      const idcliente = btn.getAttribute("data-id");
+
+      // Obtener el nombre desde la fila (segunda columna)
+      const fila = btn.closest("tr");
+      const nombre = fila.cells[1].textContent;
+
+      // Guardar el id y el nombre en los inputs correspondientes
+      document.getElementById("hiddenIdCliente").value = idcliente;
+      document.getElementById("propietario").value = nombre;
+
+      // Cerrar el modal después de un pequeño delay
+      setTimeout(() => {
+          const modalEl = document.getElementById("miModal");
+          const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+          modal.hide();
+      }, 100);
+  }
+});
+
+// Escuchar el input de búsqueda para disparar la consulta (puedes agregar debounce para evitar llamadas excesivas)
+document.getElementById("vbuscado").addEventListener("keyup", buscarPropietario);
+
+// Actualizar opciones del select y disparar búsqueda al cambiar los radio buttons
+document.getElementById("rbtnpersona").addEventListener("click", function () {
+  actualizarOpciones();
+  buscarPropietario();
+});
+document.getElementById("rbtnempresa").addEventListener("click", function () {
+  actualizarOpciones();
+  buscarPropietario();
+});
+
+// Inicializar las opciones del select al cargar el modal
+document.addEventListener("DOMContentLoaded", actualizarOpciones);
+const fechaInput = document.getElementById('fechaIngreso');
+const setFechaDefault = () => {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const year = today.getFullYear();
+  fechaInput.value = `${year}-${month}-${day}`;
+};
+setFechaDefault();
+
+// Ejecutar la función al cargar la página para establecer las opciones iniciales
+actualizarOpciones();
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Obtener los elementos del DOM
+  const tiposervicioSelect = document.getElementById("subcategoria");
+  const servicioSelect = document.getElementById("servicio");
+  const mecanicoSelect = document.getElementById("mecanico");
+  const vehiculoSelect = document.getElementById("vehiculo");
+  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+
+  // Cargar subcategorías de servicios
+  fetch("http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getServicioSubcategoria")
+      .then(response => response.json())
+      .then(data => {
+          data.forEach(item => {
+              const option = document.createElement("option");
+              option.value = item.idsubcategoria;
+              option.textContent = item.subcategoria;
+              tiposervicioSelect.appendChild(option);
+          });
+      })
+      .catch(error => console.error("Error al cargar los tipo de servicio:", error));
+
+  // Cargar mecánicos
+  fetch("http://localhost/fix360/app/controllers/mecanico.controller.php?task=getAllMecanico")
+      .then(response => response.json())
+      .then(data => {
+          data.forEach(item => {
+              const option = document.createElement("option");
+              option.value = item.idcolaborador;
+              option.textContent = item.nombres;
+              mecanicoSelect.appendChild(option);
+          });
+      })
+      .catch(error => console.error("Error al cargar mecanico:", error));
+
+  // Función para cargar servicios en función de la subcategoría seleccionada
+  function cargarServicio() {
+      const tiposervicio = tiposervicioSelect.value;
+      servicioSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+
+      if (tiposervicio) {
+          fetch(`http://localhost/fix360/app/controllers/servicio.controller.php?task=getServicioBySubcategoria&idsubcategoria=${encodeURIComponent(tiposervicio)}`)
+              .then(response => response.json())
+              .then(data => {
+                  data.forEach(item => {
+                      const option = document.createElement("option");
+                      option.value = item.idservicio;
+                      option.textContent = item.servicio;
+                      option.dataset.precio = item.precio;
+                      servicioSelect.appendChild(option);
+                  });
+              })
+              .catch(error => console.error("Error al cargar los servicios:", error));
+      }
+  }
+  tiposervicioSelect.addEventListener("change", cargarServicio);
+
+  // Función para cargar los vehículos asociados al cliente
+  function cargarVehiculos() {
+      const idcliente = hiddenIdCliente.value;
+      vehiculoSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+
+      if (idcliente) {
+          fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(idcliente)}`)
+              .then(response => response.json())
+              .then(data => {
+                  data.forEach(item => {
+                      const option = document.createElement("option");
+                      option.value = item.idvehiculo;
+                      option.textContent = item.vehiculo;
+                      vehiculoSelect.appendChild(option);
+                  });
+              })
+              .catch(error => console.error("Error al cargar los vehiculos:", error));
+      }
+  }
+  // Escuchar el evento 'change' en el input oculto
+  hiddenIdCliente.addEventListener("change", cargarVehiculos);
+
+  // Función para confirmar la selección del propietario en el modal.
+  // Se asume que en la tabla del modal existe un botón con la clase .btn-confirmar
+  document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
+      if (e.target.closest(".btn-confirmar")) {
+          const btn = e.target.closest(".btn-confirmar");
+          const idcliente = btn.getAttribute("data-id");
+
+          // Obtener el nombre desde la fila (segunda columna)
+          const fila = btn.closest("tr");
+          const nombre = fila.cells[1].textContent;
+
+          // Actualizar el input oculto y el input visible de propietario
+          hiddenIdCliente.value = idcliente;
+          document.getElementById("propietario").value = nombre;
+
+          // Disparar manualmente el evento 'change' para cargar los vehículos
+          hiddenIdCliente.dispatchEvent(new Event('change'));
+
+          // Cerrar el modal después de un pequeño delay
+          setTimeout(() => {
+              const modalEl = document.getElementById("miModal");
+              const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+              modal.hide();
+          }, 100);
+      }
+  });
+
+  // Ejemplo de otras funciones o inicializaciones (por ejemplo, para el input de fecha)
+  const today = new Date();
+
+  function formatDate(date) {
+      const yyyy = date.getFullYear();
+      const mm = date.getMonth() + 1; // Los meses inician en 0
+      const dd = date.getDate();
+      return `${yyyy}-${mm < 10 ? '0' + mm : mm}-${dd < 10 ? '0' + dd : dd}`;
+  }
+  const currentDate = formatDate(today);
+  const twoDaysAgo = new Date();
+  twoDaysAgo.setDate(today.getDate() - 2);
+  const minDate = formatDate(twoDaysAgo);
+  const dateInput = document.getElementById('fechaIngreso');
+  dateInput.setAttribute('min', minDate);
+  dateInput.setAttribute('max', currentDate);
+
+  // Inicialización de opciones en el modal para búsqueda (opcional)
+  function actualizarOpciones() {
+      const select = document.getElementById("selectMetodo");
+      const personaSeleccionada = document.getElementById("rbtnpersona").checked;
+      select.innerHTML = "";
+      if (personaSeleccionada) {
+          select.innerHTML += `<option value="dni">DNI</option>`;
+          select.innerHTML += `<option value="nombre">Nombre</option>`;
+      } else {
+          select.innerHTML += `<option value="ruc">RUC</option>`;
+          select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
+      }
+  }
+  document.addEventListener("DOMContentLoaded", actualizarOpciones);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
-    // —— ELEMENTOS COMUNES ——
-    const tiposervicioSelect = document.getElementById('subcategoria');
-    const servicioSelect     = document.getElementById('servicio');
-    const mecanicoSelect     = document.getElementById('mecanico');
-    const vehiculoSelect     = document.getElementById('vehiculo');
-    const hiddenIdCliente    = document.getElementById('hiddenIdCliente');
-    const precioInput        = document.getElementById('precio-input');
-    const btnAgregar         = document.getElementById('btnAgregarDetalle');
-    const btnAceptar         = document.getElementById('btnAceptarOrden');
-    const tbody              = document.querySelector('#tabla-detalle tbody');
-    const kmInput            = document.getElementById('kilometraje');
-    const fechaIn            = document.getElementById('fechaIngreso');
-    const obsInput           = document.getElementById('observaciones');
-    const ingGruaChk         = document.getElementById('ingresogrua');
-    const detalleArr         = [];
-  
-    // —— MODAL PROPIETARIO ——
-    function actualizarOpcionesProp() {
-      const select = document.getElementById('selectMetodo');
-      const persona = document.getElementById('rbtnpersona').checked;
-      select.innerHTML = persona
-        ? '<option value="dni">DNI</option><option value="nombre">Nombre</option>'
-        : '<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>';
-    }
-    async function buscarPropietario() {
-      const tipo   = document.getElementById('rbtnpersona').checked ? 'persona' : 'empresa';
-      const metodo = document.getElementById('selectMetodo').value;
-      const valor  = document.getElementById('vbuscado').value.trim();
-      const tbodyR = document.querySelector('#tabla-resultado tbody');
-      if (!valor) { tbodyR.innerHTML = ''; return; }
-      const url = `/app/controllers/Propietario.controller.php?tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`;
-      try {
-        const res  = await fetch(url);
-        const data = await res.json();
-        tbodyR.innerHTML = data.map((it,i) => `
-          <tr>
-            <td>${i+1}</td>
-            <td>${it.nombre}</td>
-            <td>${it.documento}</td>
-            <td><button class="btn btn-success btn-sm btn-confirmar" data-id="${it.idcliente}"><i class="fa-solid fa-circle-check"></i></button></td>
-          </tr>
-        `).join('');
-      } catch(e) { console.error(e); }
-    }
-    document.getElementById('vbuscado').addEventListener('keyup', buscarPropietario);
-    document.getElementById('rbtnpersona').addEventListener('click', () => { actualizarOpcionesProp(); buscarPropietario(); });
-    document.getElementById('rbtnempresa').addEventListener('click', () => { actualizarOpcionesProp(); buscarPropietario(); });
-    document.querySelector('#tabla-resultado').addEventListener('click', e => {
-      const btn = e.target.closest('.btn-confirmar'); if (!btn) return;
-      hiddenIdCliente.value = btn.dataset.id;
-      document.getElementById('propietario').value = btn.closest('tr').cells[1].textContent;
-      setTimeout(() => bootstrap.Modal.getOrCreateInstance('#miModal').hide(), 100);
-    });
-    actualizarOpcionesProp();
-  
-    // —— MODAL CLIENTE ——
-    let clienteTimer;
-    const vbuscadoCliente = document.getElementById('vbuscadoCliente');
-    const selectMetodoCl  = document.getElementById('selectMetodoCliente');
-    async function buscarCliente() {
-      const tipo   = document.getElementById('tipoBusquedaCliente').value;
-      const metodo = selectMetodoCl.value;
-      const valor  = vbuscadoCliente.value.trim();
-      const tbodyC = document.querySelector('#tabla-resultado-cliente tbody');
-      if (!valor) { tbodyC.innerHTML = ''; return; }
-      const url = `/app/controllers/propietario.controller.php?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`;
-      try {
-        const data = await (await fetch(url)).json();
-        tbodyC.innerHTML = data.map((it,i) => `
-          <tr>
-            <td>${i+1}</td>
-            <td>${it.nombre}</td>
-            <td>${it.documento}</td>
-            <td><button class="btn btn-success btn-sm" onclick="seleccionarCliente(${it.idcliente}, '${it.nombre}')"><i class="fa-solid fa-circle-check"></i></button></td>
-          </tr>
-        `).join('');
-      } catch(e) { console.error(e); }
-    }
-    vbuscadoCliente.addEventListener('input', () => { clearTimeout(clienteTimer); clienteTimer = setTimeout(buscarCliente, 300); });
-    selectMetodoCl.addEventListener('change', () => { clearTimeout(clienteTimer); clienteTimer = setTimeout(buscarCliente, 300); });
-  
-    // —— CARGAR SUBCATEGORÍA, SERVICIOS, MECÁNICOS, VEHÍCULOS ——
-    fetch('/app/controllers/subcategoria.controller.php?task=getServicioSubcategoria')
-      .then(r => r.json()).then(data => {
-        tiposervicioSelect.innerHTML = '<option selected>Eliga un tipo de servicio</option>';
-        data.forEach(it => tiposervicioSelect.append(new Option(it.subcategoria, it.idsubcategoria)));
-      });
-    fetch('/app/controllers/mecanico.controller.php?task=getAllMecanico')
-      .then(r => r.json()).then(data => {
-        mecanicoSelect.innerHTML = '<option selected>Eliga un mecánico</option>';
-        data.forEach(it => mecanicoSelect.append(new Option(it.nombres, it.idcolaborador)));
-      });
-    tiposervicioSelect.addEventListener('change', () => {
-      servicioSelect.innerHTML = '<option value="">Seleccione una opción</option>';
-      const idSub = tiposervicioSelect.value; if (!idSub) return;
-      fetch(`/app/controllers/servicio.controller.php?task=getServicioBySubcategoria&idsubcategoria=${idSub}`)
-        .then(r => r.json()).then(data => {
-          data.forEach(it => servicioSelect.append(new Option(it.servicio, it.idservicio)));
-        });
-    });
-    hiddenIdCliente.addEventListener('change', () => {
-      vehiculoSelect.innerHTML = '<option value="">Seleccione un vehículo</option>';
-      const idCli = hiddenIdCliente.value; if (!idCli) return;
-      fetch(`/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${idCli}`)
-        .then(r => r.json()).then(data => {
-          data.forEach(it => vehiculoSelect.append(new Option(it.vehiculo, it.idvehiculo)));
-        });
-    });
-  
-    // —— FECHA MÍN/MÁX y default ——
-    const today = new Date();
-    const y = today.getFullYear(), m = String(today.getMonth()+1).padStart(2,'0'), d = String(today.getDate()).padStart(2,'0');
-    fechaIn.value = `${y}-${m}-${d}`;
-    fechaIn.min   = `${y}-${m}-${String(today.getDate()-2).padStart(2,'0')}`;
-    fechaIn.max   = `${y}-${m}-${d}`;
-  
-    // —— AGREGAR DETALLE ——
-    function recalcular() {
-      const sub = detalleArr.reduce((s,i) => s + i.precio, 0);
-      const igv = sub - sub/1.18;
-      const net = sub/1.18;
-      document.getElementById('subtotal').value = sub.toFixed(2);
-      document.getElementById('igv').value      = igv.toFixed(2);
-      document.getElementById('neto').value     = net.toFixed(2);
-    }
-    btnAgregar.addEventListener('click', () => {
-      const idserv = +servicioSelect.value;
-      const mecId  = +mecanicoSelect.value;
-      console.log('botón Agregar es:', btnAgregar);
-console.log('input precio existe:', precioInput);
-console.log('input precio.value:', precioInput.value);
+  const btnAgregar   = document.querySelector('#button-addon2.btn-success');
+  const btnAceptar   = document.querySelector('button.btn-success.text-end');
+  const tbody        = document.querySelector('#tabla-detalle tbody');
+  const detalleArr   = [];
+  const selectServ   = document.getElementById('servicio');
+  const selectMec    = document.getElementById('mecanico');
+  const selectVeh    = document.getElementById('vehiculo');
+  const kmInput      = document.getElementById('kilometraje');
+  const fechaIn      = document.getElementById('fechaIngreso');
+  const hidCliente   = document.getElementById('hiddenIdCliente');
+  const obsInput     = document.getElementById('observaciones'); // si lo agregas al form
+  const ingGruaChk   = document.getElementById('ingresogrua');   // idem
 
-      const precio = parseFloat(precioInput.value);
-      if (!idserv || !mecId) return alert('Selecciona servicio y mecánico');
-      if (isNaN(precio) || precio <= 0) return alert('Precio inválido');
-      detalleArr.push({ idservicio: idserv, precio });
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${tbody.children.length+1}</td>
-        <td>${servicioSelect.selectedOptions[0].textContent}</td>
-        <td>${mecanicoSelect.selectedOptions[0].textContent}</td>
-        <td>${precio.toFixed(2)}</td>
-        <td><button class="btn btn-sm btn-danger">X</button></td>
-      `;
-      tr.querySelector('button').onclick = () => {
-        detalleArr.splice([...tbody.children].indexOf(tr), 1);
-        tr.remove();
-        recalcular();
-      };
-      tbody.appendChild(tr);
+  function recalcular() {
+    let sub = detalleArr.reduce((s, i) => s + i.precio, 0);
+    let igv = sub - sub/1.18;
+    let net = sub/1.18;
+    document.getElementById('subtotal').value = sub.toFixed(2);
+    document.getElementById('igv').value      = igv.toFixed(2);
+    document.getElementById('neto').value     = net.toFixed(2);
+  }
+
+  btnAgregar.addEventListener('click', () => {
+    const idserv = +selectServ.value;
+    const srvTxt = selectServ.selectedOptions[0].textContent;
+    const precio = parseFloat(selectServ.selectedOptions[0].dataset.precio || 0);
+    const mecId  = +selectMec.value;
+    const mecTxt = selectMec.selectedOptions[0].textContent;
+
+    if (!idserv || !mecId) return alert('Selecciona servicio y mecánico');
+
+    detalleArr.push({ idservicio: idserv, precio });
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${tbody.children.length+1}</td>
+      <td>${srvTxt}</td>
+      <td>${mecTxt}</td>
+      <td>${precio.toFixed(2)}</td>
+      <td><button class="btn btn-sm btn-danger">X</button></td>
+    `;
+    tr.querySelector('button').onclick = () => {
+      const idx = Array.from(tbody.children).indexOf(tr);
+      detalleArr.splice(idx, 1);
+      tr.remove();
       recalcular();
-      precioInput.value = '';
-    });
-  
-    // —— GUARDAR ORDEN ——
-    btnAceptar.addEventListener('click', async e => {
-      e.preventDefault();
-      if (detalleArr.length === 0) return alert('Agrega al menos un servicio');
-      const payload = {
-        idmecanico:        +mecanicoSelect.value,
-        idpropietario:     +hiddenIdCliente.value,
-        idcliente:         +hiddenIdCliente.value,
-        idvehiculo:        +vehiculoSelect.value,
-        kilometraje:       parseFloat(kmInput.value),
-        observaciones:     obsInput?.value || '',
-        ingresogrua:       ingGruaChk?.checked || false,
-        fechaingreso:      fechaIn.value,
-        fecharecordatorio: null,
-        detalle:           detalleArr
-      };
-      try {
-        const res = await fetch('/app/controllers/ordenservicio.controller.php', {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
-        const js = await res.json();
-        if (js.status === 'success') showToast('Orden registrada','SUCCESS',1000);
-        else showToast('Error al registrar','ERROR',1500);
-      } catch (err) {
-        console.error(err);
-        showToast('Error de conexión','ERROR',1500);
+    };
+    tbody.appendChild(tr);
+    recalcular();
+  });
+
+  btnAceptar.addEventListener('click', e => {
+    e.preventDefault();
+    if (detalleArr.length === 0) {
+      return alert('Agrega al menos un servicio');
+    }
+    const payload = {
+      idmecanico:    +selectMec.value,
+      idpropietario:+hidCliente.value,
+      idcliente:    +hidCliente.value,
+      idvehiculo:   +selectVeh.value,
+      kilometraje:  parseFloat(kmInput.value),
+      observaciones: obsInput?.value || '',
+      ingresogrua:  ingGruaChk?.checked || false,
+      fechaingreso: fechaIn.value,
+      fecharecordatorio: null,
+      detalle:      detalleArr
+    };
+
+    fetch("http://localhost/fix360/app/controllers/OrdenServicio.controller.php", {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(js => {
+      if (js.status==='success') {
+          showToast('Orden registrada exitosamente', 'SUCCESS', 1000);
+      } else {
+          showToast('Error al registrar el orden de servicio', 'ERROR', 1500);
       }
     });
   });
-  
-  // Función auxiliar para el modal cliente
-  function seleccionarCliente(id, nombre) {
-    document.getElementById('hiddenIdCliente').value = id;
-    document.getElementById('cliente').value = nombre;
-    setTimeout(() => bootstrap.Modal.getOrCreateInstance('#ModalCliente').hide(), 100);
-  }
-  
+});
+
