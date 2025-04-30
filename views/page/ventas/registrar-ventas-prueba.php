@@ -47,7 +47,7 @@ require_once "../../partials/header.php";
           <div class="col-md-4">
             <div class="form-floating input-group mb-3">
               <input type="text" disabled class="form-control input" id="propietario" placeholder="Propietario" />
-              <label for="propietario">Propietario</label>
+              <label for="propietario"><strong>Propietario</strong></label>
               <input type="hidden" id="hiddenIdCliente" />
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                 data-bs-target="#miModal">
@@ -65,13 +65,13 @@ require_once "../../partials/header.php";
               <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
                 <option selected>Eliga un vehículo</option>
               </select>
-              <label for="vehiculo">Vehículo:</label>
+              <label for="vehiculo"><strong>Vehículo:</strong></label>
             </div>
           </div>
           <div class="col-md-2 mb-3">
             <div class="form-floating">
               <input type="number" step="0.1" class="form-control input" id="kilometraje" placeholder="201">
-              <label for="kilometraje">Kilometraje</label>
+              <label for="kilometraje"><strong>Kilometraje</strong></label>
             </div>
           </div>
           <div class="col-md-2">
@@ -100,26 +100,26 @@ require_once "../../partials/header.php";
                 <!-- Campo de búsqueda de Producto -->
                 <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
                   placeholder="Buscar Producto" required>
-                <label for="producto">Buscar Producto:</label>
+                <label for="producto"><strong>Buscar Producto:</strong></label>
               </div>
             </div>
           </div>
           <div class="col-md-1">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="stock" id="stock" placeholder="Stock" required />
+              <input type="number" class="form-control input" name="stock" id="stock" placeholder="Stock" required readonly/>
               <label for="stock">Stock</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
               <input type="number" class="form-control input" name="precio" id="precio" placeholder="Precio" required />
-              <label for="precio">Precio</label>
+              <label for="precio"><strong>Precio</strong></label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
               <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad" required />
-              <label for="cantidad">Cantidad</label>
+              <label for="cantidad"><strong>Cantidad</strong></label>
             </div>
           </div>
           <div class="col-md-2">
@@ -389,96 +389,6 @@ require_once "../../partials/header.php";
       return detalleVenta.some(d => d.idproducto == idproducto);
     }
 
-    function debounce(func, delay) {
-      let timeout;
-      return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), delay);
-      };
-    }
-
-    function agregaNavegacion(input, itemsDiv) {
-      let currentFocus = -1;
-      input.addEventListener("keydown", function (e) {
-        const items = itemsDiv.getElementsByTagName("div");
-        if (e.key === "ArrowDown") {
-          currentFocus++;
-          addActive(items);
-        } else if (e.key === "ArrowUp") {
-          currentFocus--;
-          addActive(items);
-        } else if (e.key === "Enter") {
-          e.preventDefault();
-          if (currentFocus > -1 && items[currentFocus]) {
-            items[currentFocus].click();
-          }
-        }
-      });
-      function addActive(items) {
-        if (!items) return false;
-        removeActive(items);
-        if (currentFocus >= items.length) currentFocus = 0;
-        if (currentFocus < 0) currentFocus = items.length - 1;
-        items[currentFocus].classList.add("autocomplete-active");
-      }
-      function removeActive(items) {
-        Array.from(items).forEach(item => item.classList.remove("autocomplete-active"));
-      }
-    }
-
-    function cerrarListas(excepto) {
-      document.querySelectorAll(".autocomplete-items").forEach(div => {
-        if (div !== excepto) div.remove();
-      });
-    }
-
-    // --- Autocompletado Productos ---
-
-    function mostrarOpcionesProducto(input) {
-      cerrarListas();
-      if (!input.value) return;
-      fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(input.value)}&type=producto`)
-        .then(res => res.json())
-        .then(data => {
-          //console.log(data);
-          const itemsDiv = document.createElement("div");
-          itemsDiv.id = "autocomplete-list-producto";
-          itemsDiv.className = "autocomplete-items";
-          input.parentNode.appendChild(itemsDiv);
-
-          if (data.length === 0) {
-            const noRes = document.createElement("div");
-            noRes.textContent = 'No se encontraron productos';
-            itemsDiv.appendChild(noRes);
-          } else {
-            data.forEach(prod => {
-              //console.log(prod.subcategoria_producto, prod.precio, prod.stock);
-              const optionDiv = document.createElement("div");
-              optionDiv.textContent = prod.subcategoria_producto;
-              optionDiv.addEventListener("click", () => {
-                inputProductElement.value = prod.subcategoria_producto;
-                inputPrecio.value = prod.precio;
-                inputStock.value = prod.stock;
-                inputCantidad.value = 1;
-                inputDescuento.value = 0;
-                selectedProduct = {
-                  idproducto: prod.idproducto,
-                  subcategoria_producto: prod.subcategoria_producto,
-                  precio: prod.precio,
-                  stock: prod.cantidad 
-                };
-                cerrarListas(itemsDiv);
-              });
-              itemsDiv.appendChild(optionDiv);
-            });
-            agregaNavegacion(input, itemsDiv);
-          }
-        })
-        .catch(err => console.error('Error al obtener productos:', err));
-    }
-    const debouncedProductos = debounce(mostrarOpcionesProducto, 300);
-    inputProductElement.addEventListener("input", () => debouncedProductos(inputProductElement));
-    inputProductElement.addEventListener("click", () => debouncedProductos(inputProductElement));
 
     // --- Agregar Producto al Detalle ---
 
@@ -526,10 +436,125 @@ require_once "../../partials/header.php";
       // Reset campos
       inputProductElement.value = "";
       inputPrecio.value = "";
+      inputStock.value = "";
       inputCantidad.value = 1;
       inputDescuento.value = 0;
 
       calcularTotales();
+    });
+
+    function actualizarNumeros() {
+      const filas = tabla.getElementsByTagName("tr");
+      for (let i = 0; i < filas.length; i++) {
+        filas[i].children[0].textContent = i + 1;
+      }
+    }
+
+    // Función de debounce para evitar demasiadas llamadas en tiempo real
+    function debounce(func, delay) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    // Función de navegación con el teclado para autocompletar
+    function agregaNavegacion(input, itemsDiv) {
+      let currentFocus = -1;
+      input.addEventListener("keydown", function (e) {
+        const items = itemsDiv.getElementsByTagName("div");
+        if (e.key === "ArrowDown") {
+          currentFocus++;
+          addActive(items);
+        } else if (e.key === "ArrowUp") {
+          currentFocus--;
+          addActive(items);
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          if (currentFocus > -1 && items[currentFocus]) {
+            items[currentFocus].click();
+          }
+        }
+      });
+
+      function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        items[currentFocus].classList.add("autocomplete-active");
+      }
+
+      function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+          items[i].classList.remove("autocomplete-active");
+        }
+      }
+    }
+
+    // Función para mostrar opciones de productos (autocompletado)
+    function mostrarOpcionesProducto(input) {
+      cerrarListas();
+      if (!input.value) return;
+      const searchTerm = input.value;
+      fetch(`http://localhost/Fix360/app/controllers/Compra.controller.php?q=${searchTerm}&type=producto`)
+        .then(response => response.json())
+        .then(data => {
+          const itemsDiv = document.createElement("div");
+          itemsDiv.setAttribute("id", "autocomplete-list-producto");
+          itemsDiv.setAttribute("class", "autocomplete-items");
+          input.parentNode.appendChild(itemsDiv);
+          if (data.length === 0) {
+            const noResultsDiv = document.createElement("div");
+            noResultsDiv.textContent = 'No se encontraron productos';
+            itemsDiv.appendChild(noResultsDiv);
+            return;
+          }
+          data.forEach(function (producto) {
+            const optionDiv = document.createElement("div");
+            optionDiv.textContent = producto.subcategoria_producto;
+            optionDiv.addEventListener("click", function () {
+              input.value = producto.subcategoria_producto;
+              inputPrecio.value = producto.precio;
+              inputStock.value = producto.stock;
+              inputCantidad.value = 1;
+              inputDescuento.value = 0;
+              selectedProduct = {
+                idproducto: producto.idproducto,
+                subcategoria_producto: producto.subcategoria_producto,
+                precio: producto.precio
+              };
+              cerrarListas();
+            });
+            itemsDiv.appendChild(optionDiv);
+          });
+          // Habilitar navegación por teclado en la lista de productos
+          agregaNavegacion(input, itemsDiv);
+        })
+        .catch(err => console.error('Error al obtener los productos: ', err));
+    }
+
+    // Función para cerrar las listas de autocompletado
+    function cerrarListas(elemento) {
+      const items = document.getElementsByClassName("autocomplete-items");
+      for (let i = 0; i < items.length; i++) {
+        if (elemento !== items[i] && elemento !== inputProductElement) {
+          items[i].parentNode.removeChild(items[i]);
+        }
+      }
+    }
+
+    // Listeners para el autocompletado de productos usando debounce
+    const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+    inputProductElement.addEventListener("input", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+    inputProductElement.addEventListener("click", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+    document.addEventListener("click", function (e) {
+      cerrarListas(e.target);
     });
 
     // --- Generación de Serie y Comprobante ---

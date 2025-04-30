@@ -1,4 +1,5 @@
--- vista de las ventas
+
+-- 1) VISTA DE VENTAS PARA LISTAR-VENTAS
 CREATE VIEW vs_ventas AS
 SELECT 
     V.idventa AS id,
@@ -7,13 +8,95 @@ SELECT
         WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
     END AS cliente,
     V.tipocom,
-    V.fechahora,
     V.numcom
 	FROM ventas V
 	INNER JOIN clientes C ON V.idcliente = C.idcliente
 	LEFT JOIN empresas E ON C.idempresa = E.idempresa
 	LEFT JOIN personas P ON C.idpersona = P.idpersona;
     
+-- 2) VISTA DE COMPRAS PARA LISTAR-COMPRAS (se lista solo los de estado TRUE)
+DROP VIEW IF EXISTS vs_compras;
+CREATE VIEW vs_compras AS
+SELECT 
+    C.idcompra AS id,
+    C.tipocom,
+    C.numcom,
+    E.nomcomercial AS proveedores,
+    C.fechacompra,
+    SUM(DC.preciocompra) AS preciocompra
+FROM compras C
+JOIN proveedores P ON C.idproveedor = P.idproveedor
+JOIN empresas E ON P.idempresa = E.idempresa
+LEFT JOIN detallecompra DC ON C.idcompra = DC.idcompra
+WHERE C.estado = TRUE
+GROUP BY C.idcompra, C.tipocom, C.numcom, E.nomcomercial, C.fechacompra;
+
+-- 3) VISTA DE COTIZACIONES PARA LISTAR-COTIZACION
+CREATE VIEW vs_cotizaciones AS
+SELECT 
+  c.idcotizacion,
+  CASE
+    WHEN cli.idempresa IS NOT NULL THEN e.nomcomercial
+    WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+  END AS cliente,
+  dc.precio,
+  c.vigenciadias AS vigencia
+FROM cotizaciones c
+LEFT JOIN clientes cli ON c.idcliente = cli.idcliente
+LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+LEFT JOIN personas p ON cli.idpersona = p.idpersona
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion;
+
+-- 4) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA VENTA 
+CREATE VIEW vista_detalle_venta AS
+SELECT 
+  v.idventa,
+  v.fechahora,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.precioventa AS precio,
+  dv.descuento
+FROM ventas v
+JOIN clientes c ON v.idcliente = c.idcliente
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+JOIN detalleventa dv ON v.idventa = dv.idventa
+JOIN productos pr ON dv.idproducto = pr.idproducto
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
+
+
+-- 5) VISTA PARA EL DETALLE DE COMPRA PARA EL MODAL POR CADA IDCOMPRA
+CREATE VIEW vista_detalle_compra AS
+SELECT 
+  c.idcompra,
+  e.nomcomercial AS proveedor,
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.preciocompra AS precio,
+  dc.descuento
+FROM compras c
+JOIN proveedores prov ON c.idproveedor = prov.idproveedor
+JOIN empresas e ON prov.idempresa = e.idempresa
+JOIN detallecompra dc ON c.idcompra = dc.idcompra
+JOIN productos pr ON dc.idproducto = pr.idproducto
+JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria;
+
+-- 6) VISTA PARA EL DETALLE DE COTIZACION PARA EL MODAL POR CADA IDCOTIZACION
+CREATE VIEW vista_detalle_cotizacion AS
+SELECT 
+  c.idcotizacion,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.precio,
+  dc.descuento
+FROM cotizaciones c
+JOIN clientes cli ON c.idcliente = cli.idcliente
+LEFT JOIN personas p ON cli.idpersona = p.idpersona
+LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+JOIN productos pr ON dc.idproducto = pr.idproducto
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
+
+-- PRUEBA PARA VER LAS VENTAS REGISTRADAS:
 DROP VIEW IF EXISTS vs_ventas_cabecera;
 CREATE VIEW vs_ventas_cabecera AS
 SELECT
@@ -41,132 +124,9 @@ JOIN modelos      AS m   ON vh.idmodelo    = m.idmodelo
 JOIN tipovehiculos AS tv ON m.idtipov      = tv.idtipov
 JOIN marcas       AS ma  ON m.idmarca      = ma.idmarca;
 
-    
--- PRUEBA real DE COMPRA CON EL ESTADO
-DROP VIEW IF EXISTS vs_compras;
-CREATE VIEW vs_compras AS
-SELECT 
-    C.idcompra AS id,
-    C.tipocom,
-    C.numcom,
-    E.nomcomercial AS proveedores,
-    C.fechacompra,
-    SUM(DC.preciocompra) AS preciocompra
-FROM compras C
-JOIN proveedores P ON C.idproveedor = P.idproveedor
-JOIN empresas E ON P.idempresa = E.idempresa
-LEFT JOIN detallecompra DC ON C.idcompra = DC.idcompra
-WHERE C.estado = TRUE
-GROUP BY C.idcompra, C.tipocom, C.numcom, E.nomcomercial, C.fechacompra;
--- FIN PRUEBA DE COMPRA CON ESTADO
-
--- vista cotizacion
-CREATE VIEW vs_cotizaciones AS
-SELECT 
-  c.idcotizacion,
-  CASE
-    WHEN cli.idempresa IS NOT NULL THEN e.nomcomercial
-    WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
-  END AS cliente,
-  dc.precio,
-  c.vigenciadias AS vigencia
-FROM cotizaciones c
-LEFT JOIN clientes cli ON c.idcliente = cli.idcliente
-LEFT JOIN empresas e ON cli.idempresa = e.idempresa
-LEFT JOIN personas p ON cli.idpersona = p.idpersona
-JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion;
-
--- detalle de venta en el modal real
-CREATE VIEW vista_detalle_venta AS
-SELECT 
-  v.idventa,
-  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
-  dv.precioventa AS precio,
-  dv.descuento
-FROM ventas v
-JOIN clientes c ON v.idcliente = c.idcliente
-LEFT JOIN personas p ON c.idpersona = p.idpersona
-LEFT JOIN empresas e ON c.idempresa = e.idempresa
-JOIN detalleventa dv ON v.idventa = dv.idventa
-JOIN productos pr ON dv.idproducto = pr.idproducto
-INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
--- fin detalle de venta modal
-
--- detalle de compra modal
--- vista detalle de compra (si solo hay empresas como proveedores)
-CREATE VIEW vista_detalle_compra AS
-SELECT 
-  c.idcompra,
-  e.nomcomercial AS proveedor,
-  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
-  dc.preciocompra AS precio,
-  dc.descuento
-FROM compras c
-JOIN proveedores prov ON c.idproveedor = prov.idproveedor
-JOIN empresas e ON prov.idempresa = e.idempresa
-JOIN detallecompra dc ON c.idcompra = dc.idcompra
-JOIN productos pr ON dc.idproducto = pr.idproducto
-JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria;
--- fin detalle de compra modal
-
--- detalle de cotizacion modal
-CREATE VIEW vista_detalle_cotizacion AS
-SELECT 
-  c.idcotizacion,
-  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
-  dc.precio,
-  dc.descuento
-FROM cotizaciones c
-JOIN clientes cli ON c.idcliente = cli.idcliente
-LEFT JOIN personas p ON cli.idpersona = p.idpersona
-LEFT JOIN empresas e ON cli.idempresa = e.idempresa
-JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
-JOIN productos pr ON dc.idproducto = pr.idproducto
-INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
--- fin de detalle cotizacion modal
-
--- prueba para ver todo
-DROP VIEW IF EXISTS vs_ventas_detalle_all;
-CREATE VIEW vs_ventas_detalle_all AS
-SELECT
-  vt.idventa,
-  -- Cliente: nombre de persona o razón social de empresa
-  COALESCE(emp.nomcomercial, per.nombres) AS cliente,
-  vt.tipocom,
-  vt.fechahora,
-  vt.numserie     AS venta_serie,
-  vt.numcom       AS venta_comprobante,
-  vt.moneda,
-  vt.kilometraje,
-  -- Vehículo
-  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
-  dv.idproducto,
-  CONCAT(sc.subcategoria, ' ', pr.descripcion) AS producto,
-  dv.cantidad,
-  dv.precioventa,
-  dv.descuento,
-  (dv.cantidad * dv.precioventa - dv.descuento) AS importe
-FROM ventas AS vt
-  INNER JOIN clientes AS cl    ON vt.idcliente    = cl.idcliente
-  LEFT  JOIN empresas AS emp   ON cl.idempresa    = emp.idempresa
-  LEFT  JOIN personas AS per   ON cl.idpersona    = per.idpersona
-
-  -- Unión con vehículo y sus tablas relacionadas:
-  INNER JOIN vehiculos AS vh   ON vt.idvehiculo   = vh.idvehiculo
-  INNER JOIN modelos AS m      ON vh.idmodelo     = m.idmodelo
-  INNER JOIN tipovehiculos AS tv ON m.idtipov     = tv.idtipov
-  INNER JOIN marcas AS ma      ON m.idmarca       = ma.idmarca
-
-  -- Detalle de venta
-  INNER JOIN detalleventa AS dv ON vt.idventa      = dv.idventa
-  INNER JOIN productos AS pr    ON dv.idproducto   = pr.idproducto
-  INNER JOIN subcategorias AS sc ON pr.idsubcategoria = sc.idsubcategoria;
 
 SELECT * 
 FROM vs_ventas_detalle_all;
-
 
 SELECT producto, precio, descuento 
 FROM vista_detalle_compra 

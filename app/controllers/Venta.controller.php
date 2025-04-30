@@ -29,6 +29,24 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             break;
 
         case 'POST':
+
+            // Anulación de venta (soft-delete) con justificación
+            if (isset($_POST['action'], $_POST['idventa']) && $_POST['action'] === 'eliminar') {
+                $id = intval($_POST['idventa']);
+                $justificacion = trim($_POST['justificacion'] ?? "");
+        
+                error_log("Intentando anular compra #$id. Justificación: $justificacion");
+        
+                $ok = $venta->deleteVenta($id, $justificacion);
+                error_log("Resultado deleteVenta: " . ($ok ? 'OK' : 'FAIL'));
+        
+                echo json_encode([
+                    'status'  => $ok ? 'success' : 'error',
+                    'message' => $ok ? 'Compra anulada.' : 'No se pudo anular la compra.'
+                ]);
+                exit;
+            }
+
             // Captura el JSON de entrada
             $input = file_get_contents('php://input');
             error_log("Entrada POST: " . $input);

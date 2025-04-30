@@ -25,6 +25,7 @@ class Compra extends Conexion
     return $result;
   }
 
+  //ELIMINAR compra
   public function deleteCompra(int $idcompra, string $justificacion = null): bool
   {
     try {
