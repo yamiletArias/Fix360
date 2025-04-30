@@ -35,7 +35,7 @@ class Compra extends Conexion
         ':idcompra' => $idcompra,
         ':justificacion' => $justificacion
       ]);
-  
+
       error_log("Procedimiento spuDeleteCompra ejecutado.");
       return $res;
     } catch (PDOException $e) {

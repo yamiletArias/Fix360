@@ -51,25 +51,52 @@ require_once "../../partials/header.php";
 </div>
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 800px;"> <!-- Cambié el tamaño aquí -->
+    <div class="modal-dialog" style="max-width: 900px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Venta</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                  <div class="form-floating input-group">
-                    <input type="text" disabled class="form-control input" id="modeloInput" />
-                    <label for="modeloInput">Cliente</label>
-                  </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="modeloInput" placeholder="Cliente">
+                            <label for="modeloInput">Cliente: </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="fechaHora" placeholder="Fecha & Hora">
+                            <label for="fechaHora">Fecha & Hora: </label>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                  <div class="form-floating input-group">
-                    <input type="text" disabled class="form-control input" id="fechaHora" />
-                    <label for="fechaHora">Fecha & Hora:</label>
-                  </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="vehiculo" placeholder="Vehiculo">
+                            <label for="vehiculo">Vehiculo: </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="kilometraje" placeholder="Kilometraje">
+                            <label for="kilometraje">Kilometraje: </label>
+                        </div>
+                    </div>
                 </div>
+                <!--<div class="form-group">
+                    <div class="form-floating input-group">
+                        <input type="text" disabled class="form-control input" id="modeloInput" />
+                        <label for="modeloInput">Cliente</label>
+                    </div>
+                    <div class="form-floating input-group">
+                        <input type="text" disabled class="form-control input" id="fechaHora" />
+                        <label for="fechaHora">Fecha & Hora:</label>
+                    </div>
+                </div> -->
+
                 <div class="table-container">
                     <table class="table table-striped table-bordered">
                         <thead>
@@ -113,58 +140,10 @@ require_once "../../partials/header.php";
         </div>
     </div>
 </div>
-
-
 </div>
 </div>
 <!--FIN VENTAS-->
-</body>
-</html>
-<script>
-  // reemplaza el handler existente por éste
-  $(document).off('click', '#btnEliminarVenta');  // quita cualquier handler previo
-  $(document).on('click', '#btnEliminarVenta', async function () {
-    const justificacion = $('#justificacion').val().trim();
-    const idventa      = $(this).data('id');
-
-    if (!justificacion) {
-      alert('Escribe la justificación.');
-      return;
-    }
-
-    // 1) pregunto con tu helper ask()
-    const confirmado = await ask(
-      "¿Estás seguro de eliminar esta venta?",
-      "Confirmar eliminación"
-    );
-    if (!confirmado) {
-      showToast('Eliminación cancelada.', 'WARNING', 1500);
-      return;
-    }
-
-    // 2) feedback de “eliminando…”
-    showToast('Eliminando Venta…', 'INFO', 1000);
-
-    // 3) envío la petición de eliminación
-    $.post("<?= SERVERURL ?>app/controllers/Venta.controller.php", {
-      action: 'eliminar',
-      idventa: idventa,
-      justificacion: justificacion
-    }, function (res) {
-      // 4) tras respuesta muestro éxito o error
-      if (res.status === 'success') {
-        showToast('Venta eliminada.', 'SUCCESS', 1500);
-        $('#modalJustificacion').modal('hide');
-        setTimeout(cargarTablaVentas, 500);
-      } else {
-        showToast(res.message || 'Error al eliminar.', 'ERROR', 1500);
-      }
-    }, 'json')
-    .fail(function () {
-      showToast('Error de conexión.', 'ERROR', 1500);
-    });
-  });
-</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function cargarTablaVentas() {
         if ($.fn.DataTable.isDataTable("#tablaventasdia")) {
@@ -204,14 +183,14 @@ require_once "../../partials/header.php";
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                         <button title="Eliminar"
-                            class="btn btn-danger btn-sm btn-eliminar"
-                            data-id="${row.id}">
-                            <i class="fa-solid fa-trash"></i>
+                                class="btn btn-danger btn-sm btn-eliminar"
+                                data-id="${row.id}">
+                                <i class="fa-solid fa-trash"></i>
                         </button>
-                        <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#miModal"
-                        onclick="verDetalleVenta('${row.id}', '${row.cliente}', '${row.fechahora}')">
-                            <i class="fa-solid fa-circle-info"></i>
+                        <button class="btn btn-primary btn-sm"
+                                data-bs-toggle="modal" data-bs-target="#miModal"
+                                onclick="verDetalleVenta('${row.id}')">
+                        <i class="fa-solid fa-circle-info"></i>
                         </button>
                         `;
                     } // Cierra render de opciones
@@ -234,47 +213,103 @@ require_once "../../partials/header.php";
     document.addEventListener("DOMContentLoaded", function () {
         cargarTablaVentas();
     });
+    $(document).on('click', '.btn-eliminar', function () {
+        const idVenta = $(this).data('id');
+        console.log("ID recibido en el botón eliminar:", idVenta);
+        $('#justificacion').val('');
+        $('#btnEliminarVenta').data('id', idVenta);
+        $('#modalJustificacion').modal('show');
+    });
 </script>
 <script>
-    function verDetalleVenta(idventa, cliente) {
-        $("#miModal").modal("show");
-        $("#modeloInput").val(cliente);
-        //$("#fechaHora").val(cliente);
+function verDetalleVenta(idventa) {
+  $("#miModal").modal("show");
+  // limpia cualquier contenido previo
+  $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
+  $("#miModal tbody").empty();
 
-        $.ajax({
-            url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
-            method: "GET",
-            data: { idventa: idventa },
-            dataType: "json",
-            success: function (response) {
-                console.log(response);  // Verifica la respuesta del servidor
+  $.ajax({
+    url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
+    method: "GET",
+    data: { idventa },
+    dataType: "json",
+    success(response) {
+      if (response.length === 0) {
+        return $("#miModal tbody").append(
+          `<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`
+        );
+      }
+      // pinta cabecera (todos los datos vienen de la misma fila 0)
+      $("#modeloInput").val(response[0].cliente);
+      $("#fechaHora").val(response[0].fechahora);
+      $("#vehiculo").val(response[0].vehiculo);
+      $("#kilometraje").val(response[0].kilometraje);
 
-                const tbody = $("#miModal tbody");
-                tbody.empty(); // Limpiar contenido anterior
-
-                if (response.length > 0) {
-                    $("#fechaHora").val(response[0].fechahora ?? "No disponible");
-                    response.forEach((item, index) => {
-                        const fila = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${item.producto}</td>
-                            <td>${item.precio}</td>
-                            <td>${item.descuento}%</td>
-                        </tr>
-                    `;
-                        tbody.append(fila);
-                    });
-                } else {
-                    tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
-                }
-            },
-            error: function () {
-                alert("Ocurrió un error al cargar el detalle.");
-            }
-        });
+      // pinta cada producto
+      response.forEach((item, i) => {
+        $("#miModal tbody").append(`
+          <tr>
+            <td>${i+1}</td>
+            <td>${item.producto}</td>
+            <td>${item.precio}</td>
+            <td>${item.descuento}%</td>
+          </tr>
+        `);
+      });
+    },
+    error() {
+      alert("Ocurrió un error al cargar el detalle.");
     }
+  });
+}
 </script>
+<script>
+    // reemplaza el handler existente por éste
+    $(document).off('click', '#btnEliminarVenta');  // quita cualquier handler previo
+    $(document).on('click', '#btnEliminarVenta', async function () {
+        const justificacion = $('#justificacion').val().trim();
+        const idventa = $(this).data('id');
+
+        if (!justificacion) {
+            alert('Escribe la justificación.');
+            return;
+        }
+
+        // 1) pregunto con tu helper ask()
+        const confirmado = await ask(
+            "¿Estás seguro de eliminar esta venta?",
+            "Confirmar eliminación"
+        );
+        if (!confirmado) {
+            showToast('Eliminación cancelada.', 'WARNING', 1500);
+            return;
+        }
+
+        // 2) feedback de “eliminando…”
+        showToast('Eliminando Venta…', 'INFO', 1000);
+
+        // 3) envío la petición de eliminación
+        $.post("<?= SERVERURL ?>app/controllers/Venta.controller.php", {
+            action: 'eliminar',
+            idventa: idventa,
+            justificacion: justificacion
+        }, function (res) {
+            // 4) tras respuesta muestro éxito o error
+            if (res.status === 'success') {
+                showToast('Venta eliminada.', 'SUCCESS', 1500);
+                $('#modalJustificacion').modal('hide');
+                setTimeout(cargarTablaVentas, 500);
+            } else {
+                showToast(res.message || 'Error al eliminar.', 'ERROR', 1500);
+            }
+        }, 'json')
+            .fail(function () {
+                showToast('Error de conexión.', 'ERROR', 1500);
+            });
+    });
+</script>
+</body>
+</html>
 <?php
 require_once "../../partials/_footer.php";
 ?>

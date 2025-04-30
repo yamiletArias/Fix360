@@ -366,7 +366,6 @@ require_once "../../partials/header.php";
     const monedaSelect = document.getElementById('moneda');
 
     // --- Funciones auxiliares ---
-
     function calcularTotales() {
       let totalImporte = 0, totalDescuento = 0;
       document.querySelectorAll("#tabla-detalle tbody tr").forEach(fila => {

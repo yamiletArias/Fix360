@@ -2,11 +2,13 @@
 
 require_once "Conexion.php";
 
-class Producto extends Conexion {
+class Producto extends Conexion
+{
 
     private $pdo;
 
-    public function __CONSTRUCT() {
+    public function __CONSTRUCT()
+    {
         $this->pdo = parent::getConexion();
     }
 
@@ -14,7 +16,8 @@ class Producto extends Conexion {
      * Lista todos los productos
      * @return array
      */
-    public function getAll():array {
+    public function getAll(): array
+    {
         $result = [];
         try {
             $query = "SELECT * FROM vwproductos ORDER BY subcategoria";
@@ -32,7 +35,8 @@ class Producto extends Conexion {
      * @param int $idproducto
      * @return array
      */
-    public function find($idproducto) {
+    public function find($idproducto)
+    {
         try {
             $query = "CALL spGetProductoById(?)";
             $cmd = $this->pdo->prepare($query);
@@ -48,7 +52,8 @@ class Producto extends Conexion {
      * @param array $params
      * @return array
      */
-    public function add($params = []): int {
+    public function add($params = []): int
+    {
         $idProducto = 0;
         try {
             $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?, @idproducto)";
@@ -76,7 +81,8 @@ class Producto extends Conexion {
      * @param array $params
      * @return array
      */
-    public function update($params = []) {
+    public function update($params = [])
+    {
         $resultado = ["status" => false, "message" => ""];
         try {
             $query = "CALL spUpdateProducto(?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -105,7 +111,8 @@ class Producto extends Conexion {
      * @param int $idproducto
      * @return array
      */
-    public function delete($idproducto) {
+    public function delete($idproducto)
+    {
         $resultado = ["status" => false, "message" => ""];
         try {
             $query = "CALL spDeleteProducto(?)";

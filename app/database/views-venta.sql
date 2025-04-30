@@ -1,5 +1,6 @@
 
 -- 1) VISTA DE VENTAS PARA LISTAR-VENTAS
+DROP VIEW IF EXISTS vs_ventas;
 CREATE VIEW vs_ventas AS
 SELECT 
     V.idventa AS id,
@@ -9,10 +10,11 @@ SELECT
     END AS cliente,
     V.tipocom,
     V.numcom
-	FROM ventas V
-	INNER JOIN clientes C ON V.idcliente = C.idcliente
-	LEFT JOIN empresas E ON C.idempresa = E.idempresa
-	LEFT JOIN personas P ON C.idpersona = P.idpersona;
+FROM ventas V
+INNER JOIN clientes C ON V.idcliente = C.idcliente
+LEFT JOIN empresas E ON C.idempresa = E.idempresa
+LEFT JOIN personas P ON C.idpersona = P.idpersona
+WHERE V.estado = TRUE;
     
 -- 2) VISTA DE COMPRAS PARA LISTAR-COMPRAS (se lista solo los de estado TRUE)
 DROP VIEW IF EXISTS vs_compras;
@@ -48,22 +50,30 @@ LEFT JOIN personas p ON cli.idpersona = p.idpersona
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion;
 
 -- 4) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA VENTA 
+DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
 SELECT 
   v.idventa,
   v.fechahora,
-  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  COALESCE(CONCAT(p.nombres,' ',p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+  CONCAT(s.subcategoria,' ',pr.descripcion) AS producto,
   dv.precioventa AS precio,
   dv.descuento
 FROM ventas v
-JOIN clientes c ON v.idcliente = c.idcliente
-LEFT JOIN personas p ON c.idpersona = p.idpersona
-LEFT JOIN empresas e ON c.idempresa = e.idempresa
-JOIN detalleventa dv ON v.idventa = dv.idventa
-JOIN productos pr ON dv.idproducto = pr.idproducto
-INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
-
+JOIN clientes c    ON v.idcliente   = c.idcliente
+LEFT JOIN personas p ON c.idpersona   = p.idpersona
+LEFT JOIN empresas e ON c.idempresa   = e.idempresa
+-- Joins para obtener datos del vehículo
+JOIN vehiculos vh     ON v.idvehiculo  = vh.idvehiculo
+JOIN modelos m        ON vh.idmodelo   = m.idmodelo
+JOIN tipovehiculos tv ON m.idtipov     = tv.idtipov
+JOIN marcas ma        ON m.idmarca     = ma.idmarca
+-- Joins para detalle de venta
+JOIN detalleventa dv  ON v.idventa      = dv.idventa
+JOIN productos pr     ON dv.idproducto  = pr.idproducto
+JOIN subcategorias s  ON pr.idsubcategoria = s.idsubcategoria
+WHERE v.estado = TRUE;
 
 -- 5) VISTA PARA EL DETALLE DE COMPRA PARA EL MODAL POR CADA IDCOMPRA
 CREATE VIEW vista_detalle_compra AS

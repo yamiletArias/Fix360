@@ -55,7 +55,7 @@ require_once "../../partials/header.php";
 </div>
 </div>
 </div>
-<!--FIN VENTAS-->
+<!-- FIN COMPRAS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function cargarTablaCompras() {
