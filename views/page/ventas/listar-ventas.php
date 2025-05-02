@@ -1,5 +1,5 @@
 <?php
-const NAMEVIEW = "Lista de ventas";
+const NAMEVIEW = "Ventas";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
