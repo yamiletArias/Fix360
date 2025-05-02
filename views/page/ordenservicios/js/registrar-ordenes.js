@@ -1,4 +1,5 @@
-
+let selectedOrden = {};
+const detalleOrden = [];
 function actualizarOpciones() {
 
   const select = document.getElementById("selectMetodo");
@@ -6,11 +7,11 @@ function actualizarOpciones() {
   // Limpiar opciones actuales
   select.innerHTML = "";
   if (personaSeleccionada) {
-      select.innerHTML += `<option value="dni">DNI</option>`;
-      select.innerHTML += `<option value="nombre">Nombre</option>`;
+    select.innerHTML += `<option value="dni">DNI</option>`;
+    select.innerHTML += `<option value="nombre">Nombre</option>`;
   } else {
-      select.innerHTML += `<option value="ruc">RUC</option>`;
-      select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
+    select.innerHTML += `<option value="ruc">RUC</option>`;
+    select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
   }
 }
 
@@ -22,22 +23,22 @@ function buscarPropietario() {
 
   // Si no se ingresa valor, limpia la tabla
   if (valor === "") {
-      document.querySelector("#tabla-resultado tbody").innerHTML = "";
-      return;
+    document.querySelector("#tabla-resultado tbody").innerHTML = "";
+    return;
   }
 
   // Construir la URL de la consulta (ajusta la ruta según tu estructura)
   const url = `http://localhost/fix360/app/controllers/Propietario.controller.php?tipo=${encodeURIComponent(tipo)}&metodo=${encodeURIComponent(metodo)}&valor=${encodeURIComponent(valor)}`;
 
   fetch(url)
-      .then(response => response.json())
-      .then(data => {
-          const tbody = document.querySelector("#tabla-resultado tbody");
-          tbody.innerHTML = "";
-          // Crear filas para cada resultado
-          data.forEach((item, index) => {
-              const tr = document.createElement("tr");
-              tr.innerHTML = `
+    .then(response => response.json())
+    .then(data => {
+      const tbody = document.querySelector("#tabla-resultado tbody");
+      tbody.innerHTML = "";
+      // Crear filas para cada resultado
+      data.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
     <td>${index + 1}</td>
     <td>${item.nombre}</td>
     <td>${item.documento}</td>
@@ -47,32 +48,32 @@ function buscarPropietario() {
       </button>
     </td>
   `;
-              tbody.appendChild(tr);
-          });
-      })
-      .catch(error => console.error("Error en búsqueda:", error));
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(error => console.error("Error en búsqueda:", error));
 }
 
 // Cuando se hace clic en el botón "Confirmar" del modal
 document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
   if (e.target.closest(".btn-confirmar")) {
-      const btn = e.target.closest(".btn-confirmar");
-      const idcliente = btn.getAttribute("data-id");
+    const btn = e.target.closest(".btn-confirmar");
+    const idcliente = btn.getAttribute("data-id");
 
-      // Obtener el nombre desde la fila (segunda columna)
-      const fila = btn.closest("tr");
-      const nombre = fila.cells[1].textContent;
+    // Obtener el nombre desde la fila (segunda columna)
+    const fila = btn.closest("tr");
+    const nombre = fila.cells[1].textContent;
 
-      // Guardar el id y el nombre en los inputs correspondientes
-      document.getElementById("hiddenIdCliente").value = idcliente;
-      document.getElementById("propietario").value = nombre;
+    // Guardar el id y el nombre en los inputs correspondientes
+    document.getElementById("hiddenIdCliente").value = idcliente;
+    document.getElementById("propietario").value = nombre;
 
-      // Cerrar el modal después de un pequeño delay
-      setTimeout(() => {
-          const modalEl = document.getElementById("miModal");
-          const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-          modal.hide();
-      }, 100);
+    // Cerrar el modal después de un pequeño delay
+    setTimeout(() => {
+      const modalEl = document.getElementById("miModal");
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.hide();
+    }, 100);
   }
 });
 
@@ -114,70 +115,82 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Cargar subcategorías de servicios
   fetch("http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getServicioSubcategoria")
-      .then(response => response.json())
-      .then(data => {
-          data.forEach(item => {
-              const option = document.createElement("option");
-              option.value = item.idsubcategoria;
-              option.textContent = item.subcategoria;
-              tiposervicioSelect.appendChild(option);
-          });
-      })
-      .catch(error => console.error("Error al cargar los tipo de servicio:", error));
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.idsubcategoria;
+        option.textContent = item.subcategoria;
+        tiposervicioSelect.appendChild(option);
+      });
+    })
+    .catch(error => console.error("Error al cargar los tipo de servicio:", error));
 
   // Cargar mecánicos
   fetch("http://localhost/fix360/app/controllers/mecanico.controller.php?task=getAllMecanico")
-      .then(response => response.json())
-      .then(data => {
-          data.forEach(item => {
-              const option = document.createElement("option");
-              option.value = item.idcolaborador;
-              option.textContent = item.nombres;
-              mecanicoSelect.appendChild(option);
-          });
-      })
-      .catch(error => console.error("Error al cargar mecanico:", error));
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.idcolaborador;
+        option.textContent = item.nombres;
+        mecanicoSelect.appendChild(option);
+      });
+    })
+    .catch(error => console.error("Error al cargar mecanico:", error));
+
+  function estaDuplicado(idservicio = 0) {
+    let duplicado = false;
+    let i = 0;
+    while (i < detalleOrden.length && !duplicado) {
+      if (detalleOrden[i].idservicio === idservicio) {
+        duplicado = true;
+      }
+      i++;
+    }
+    return duplicado;
+  }
 
   // Función para cargar servicios en función de la subcategoría seleccionada
   function cargarServicio() {
-      const tiposervicio = tiposervicioSelect.value;
-      servicioSelect.innerHTML = '<option value="">Seleccione una opción</option>';
 
-      if (tiposervicio) {
-          fetch(`http://localhost/fix360/app/controllers/servicio.controller.php?task=getServicioBySubcategoria&idsubcategoria=${encodeURIComponent(tiposervicio)}`)
-              .then(response => response.json())
-              .then(data => {
-                  data.forEach(item => {
-                      const option = document.createElement("option");
-                      option.value = item.idservicio;
-                      option.textContent = item.servicio;
-                      option.dataset.precio = item.precio;
-                      servicioSelect.appendChild(option);
-                  });
-              })
-              .catch(error => console.error("Error al cargar los servicios:", error));
-      }
+    const tiposervicio = tiposervicioSelect.value;
+    servicioSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+
+    if (tiposervicio) {
+      fetch(`http://localhost/fix360/app/controllers/servicio.controller.php?task=getServicioBySubcategoria&idsubcategoria=${encodeURIComponent(tiposervicio)}`)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.idservicio;
+            option.textContent = item.servicio;
+            servicioSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error("Error al cargar los servicios:", error));
+    }
   }
   tiposervicioSelect.addEventListener("change", cargarServicio);
 
   // Función para cargar los vehículos asociados al cliente
   function cargarVehiculos() {
-      const idcliente = hiddenIdCliente.value;
-      vehiculoSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+    const idcliente = hiddenIdCliente.value;
+    vehiculoSelect.innerHTML = '<option value="">Seleccione una opción</option>';
 
-      if (idcliente) {
-          fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(idcliente)}`)
-              .then(response => response.json())
-              .then(data => {
-                  data.forEach(item => {
-                      const option = document.createElement("option");
-                      option.value = item.idvehiculo;
-                      option.textContent = item.vehiculo;
-                      vehiculoSelect.appendChild(option);
-                  });
-              })
-              .catch(error => console.error("Error al cargar los vehiculos:", error));
-      }
+    if (idcliente) {
+      fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(idcliente)}`)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.idvehiculo;
+            option.textContent = item.vehiculo;
+            vehiculoSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error("Error al cargar los vehiculos:", error));
+    }
   }
   // Escuchar el evento 'change' en el input oculto
   hiddenIdCliente.addEventListener("change", cargarVehiculos);
@@ -185,38 +198,38 @@ document.addEventListener("DOMContentLoaded", function () {
   // Función para confirmar la selección del propietario en el modal.
   // Se asume que en la tabla del modal existe un botón con la clase .btn-confirmar
   document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
-      if (e.target.closest(".btn-confirmar")) {
-          const btn = e.target.closest(".btn-confirmar");
-          const idcliente = btn.getAttribute("data-id");
+    if (e.target.closest(".btn-confirmar")) {
+      const btn = e.target.closest(".btn-confirmar");
+      const idcliente = btn.getAttribute("data-id");
 
-          // Obtener el nombre desde la fila (segunda columna)
-          const fila = btn.closest("tr");
-          const nombre = fila.cells[1].textContent;
+      // Obtener el nombre desde la fila (segunda columna)
+      const fila = btn.closest("tr");
+      const nombre = fila.cells[1].textContent;
 
-          // Actualizar el input oculto y el input visible de propietario
-          hiddenIdCliente.value = idcliente;
-          document.getElementById("propietario").value = nombre;
+      // Actualizar el input oculto y el input visible de propietario
+      hiddenIdCliente.value = idcliente;
+      document.getElementById("propietario").value = nombre;
 
-          // Disparar manualmente el evento 'change' para cargar los vehículos
-          hiddenIdCliente.dispatchEvent(new Event('change'));
+      // Disparar manualmente el evento 'change' para cargar los vehículos
+      hiddenIdCliente.dispatchEvent(new Event('change'));
 
-          // Cerrar el modal después de un pequeño delay
-          setTimeout(() => {
-              const modalEl = document.getElementById("miModal");
-              const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-              modal.hide();
-          }, 100);
-      }
+      // Cerrar el modal después de un pequeño delay
+      setTimeout(() => {
+        const modalEl = document.getElementById("miModal");
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.hide();
+      }, 100);
+    }
   });
 
   // Ejemplo de otras funciones o inicializaciones (por ejemplo, para el input de fecha)
   const today = new Date();
 
   function formatDate(date) {
-      const yyyy = date.getFullYear();
-      const mm = date.getMonth() + 1; // Los meses inician en 0
-      const dd = date.getDate();
-      return `${yyyy}-${mm < 10 ? '0' + mm : mm}-${dd < 10 ? '0' + dd : dd}`;
+    const yyyy = date.getFullYear();
+    const mm = date.getMonth() + 1; // Los meses inician en 0
+    const dd = date.getDate();
+    return `${yyyy}-${mm < 10 ? '0' + mm : mm}-${dd < 10 ? '0' + dd : dd}`;
   }
   const currentDate = formatDate(today);
   const twoDaysAgo = new Date();
@@ -228,59 +241,68 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Inicialización de opciones en el modal para búsqueda (opcional)
   function actualizarOpciones() {
-      const select = document.getElementById("selectMetodo");
-      const personaSeleccionada = document.getElementById("rbtnpersona").checked;
-      select.innerHTML = "";
-      if (personaSeleccionada) {
-          select.innerHTML += `<option value="dni">DNI</option>`;
-          select.innerHTML += `<option value="nombre">Nombre</option>`;
-      } else {
-          select.innerHTML += `<option value="ruc">RUC</option>`;
-          select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
-      }
+    const select = document.getElementById("selectMetodo");
+    const personaSeleccionada = document.getElementById("rbtnpersona").checked;
+    select.innerHTML = "";
+    if (personaSeleccionada) {
+      select.innerHTML += `<option value="dni">DNI</option>`;
+      select.innerHTML += `<option value="nombre">Nombre</option>`;
+    } else {
+      select.innerHTML += `<option value="ruc">RUC</option>`;
+      select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
+    }
   }
   document.addEventListener("DOMContentLoaded", actualizarOpciones);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const btnAgregar   = document.querySelector('#button-addon2.btn-success');
-  const btnAceptar   = document.querySelector('button.btn-success.text-end');
-  const tbody        = document.querySelector('#tabla-detalle tbody');
-  const detalleArr   = [];
-  const selectServ   = document.getElementById('servicio');
-  const selectMec    = document.getElementById('mecanico');
-  const selectVeh    = document.getElementById('vehiculo');
-  const kmInput      = document.getElementById('kilometraje');
-  const fechaIn      = document.getElementById('fechaIngreso');
-  const hidCliente   = document.getElementById('hiddenIdCliente');
-  const obsInput     = document.getElementById('observaciones'); // si lo agregas al form
-  const ingGruaChk   = document.getElementById('ingresogrua');   // idem
+  const btnAceptar = document.getElementById('btnAceptarOrden');
+  const btnAgregar = document.getElementById('btnAgregar');
+  const tbody = document.querySelector('#tabla-detalle tbody');
+  const detalleArr = [];
+  const selectServ = document.getElementById('servicio');
+  const selectMec = document.getElementById('mecanico');
+  const selectVeh = document.getElementById('vehiculo');
+  const precio = document.getElementById('precio');
+  const kmInput = document.getElementById('kilometraje');
+  const fechaIn = document.getElementById('fechaIngreso');
+  const hidCliente = document.getElementById('hiddenIdCliente');
+  const obsInput = document.getElementById('observaciones');
+  const ingGruaChk = document.getElementById('ingresogrua');
 
   function recalcular() {
-    let sub = detalleArr.reduce((s, i) => s + i.precio, 0);
-    let igv = sub - sub/1.18;
-    let net = sub/1.18;
-    document.getElementById('subtotal').value = sub.toFixed(2);
-    document.getElementById('igv').value      = igv.toFixed(2);
-    document.getElementById('neto').value     = net.toFixed(2);
+
+    const total = detalleArr.reduce((s, i) => s + i.precio, 0);
+
+
+    const igv = total * 0.18;
+
+
+    const subtotal = total - igv;
+
+    // 4. Volcar en los inputs
+    document.getElementById('subtotal').value = subtotal.toFixed(2);
+    document.getElementById('igv').value = igv.toFixed(2);
+    document.getElementById('neto').value = total.toFixed(2);
   }
 
   btnAgregar.addEventListener('click', () => {
     const idserv = +selectServ.value;
     const srvTxt = selectServ.selectedOptions[0].textContent;
-    const precio = parseFloat(selectServ.selectedOptions[0].dataset.precio || 0);
-    const mecId  = +selectMec.value;
+    const precioservicio = parseFloat(precio.value);
+    //const precio = parseFloat(selectServ.selectedOptions[0].dataset.precio || 0);
+    const mecId = +selectMec.value;
     const mecTxt = selectMec.selectedOptions[0].textContent;
 
     if (!idserv || !mecId) return alert('Selecciona servicio y mecánico');
 
-    detalleArr.push({ idservicio: idserv, precio });
+    detalleArr.push({ idservicio: idserv, idmecanico: mecId, precio: precioservicio });
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${tbody.children.length+1}</td>
+      <td>${tbody.children.length + 1}</td>
       <td>${srvTxt}</td>
       <td>${mecTxt}</td>
-      <td>${precio.toFixed(2)}</td>
+      <td>${precioservicio.toFixed(2)}</td>
       <td><button class="btn btn-sm btn-danger">X</button></td>
     `;
     tr.querySelector('button').onclick = () => {
@@ -299,31 +321,38 @@ document.addEventListener('DOMContentLoaded', () => {
       return alert('Agrega al menos un servicio');
     }
     const payload = {
-      idmecanico:    +selectMec.value,
-      idpropietario:+hidCliente.value,
-      idcliente:    +hidCliente.value,
-      idvehiculo:   +selectVeh.value,
-      kilometraje:  parseFloat(kmInput.value),
+      idmecanico: +selectMec.value,
+      idpropietario: +hidCliente.value,
+      idcliente: +hidCliente.value,
+      idvehiculo: +selectVeh.value,
+      kilometraje: parseFloat(kmInput.value),
       observaciones: obsInput?.value || '',
-      ingresogrua:  ingGruaChk?.checked || false,
+      ingresogrua: ingGruaChk?.checked || false,
       fechaingreso: fechaIn.value,
       fecharecordatorio: null,
-      detalle:      detalleArr
+      detalle: detalleArr
     };
-
+    console.log('datos de la orden de servicio a registrar:', payload);
     fetch("http://localhost/fix360/app/controllers/OrdenServicio.controller.php", {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
+      
     })
-    .then(r => r.json())
-    .then(js => {
-      if (js.status==='success') {
+      .then(r => r.json())
+      .then(js => {
+        if (js.status === 'success') {
           showToast('Orden registrada exitosamente', 'SUCCESS', 1000);
-      } else {
+        } else {
           showToast('Error al registrar el orden de servicio', 'ERROR', 1500);
-      }
-    });
+        }
+
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        showToast('Error de red o servidor', 'ERROR', 2000);
+      });
+
   });
 });
 

@@ -26,6 +26,23 @@
     <script src="<?= SERVERURL?>views/assets/vendors/daterangepicker/daterangepicker.js"></script>
     <script src="<?= SERVERURL?>views/assets/vendors/chartist/chartist.min.js"></script>
     <script src="<?= SERVERURL?>views/assets/vendors/progressbar.js/progressbar.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  // Inicialización de gráficos
+  try {
+    new Chartist.Line('#miChart', { /*…*/ });
+  } catch(err) {
+    console.warn('Chartist falló:', err);
+  }
+
+  try {
+    new ProgressBar.Circle('#circle-progress-1', { /*…*/ });
+  } catch(err) {
+    console.warn('ProgressBar falló:', err);
+  }
+});
+
+  </script>
     <script src="<?= SERVERURL?>views/assets/js/jquery.cookie.js"></script>
     <!-- End plugin js for this page -->
     <!-- inject:js -->
@@ -71,4 +88,6 @@
     });
 
   </script>
+
+
     <!-- End custom js for this page -->

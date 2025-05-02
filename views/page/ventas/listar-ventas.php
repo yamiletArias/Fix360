@@ -23,8 +23,7 @@ require_once "../../partials/header.php";
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <div class="col text-end"><a href="registrar-ventas.php" class="btn btn-success" disabled>Registrar
-                            Venta</a>
+                    <div class="col text-end"><a href="registrar-ventas.php" class="btn btn-success" disabled>Registrar</a>
                     </div>
                 </div>
             </div>
@@ -179,9 +178,6 @@ require_once "../../partials/header.php";
                     data: null,
                     render: function (data, type, row) { // Inicio de render de opciones
                         return `
-                        <a href="editar-ventas.php?id=${row.idventa}" class="btn btn-sm btn-warning" title="Editar">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </a>
                         <button title="Eliminar"
                                 class="btn btn-danger btn-sm btn-eliminar"
                                 data-id="${row.id}">

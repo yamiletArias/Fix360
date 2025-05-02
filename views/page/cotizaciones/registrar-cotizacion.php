@@ -140,30 +140,30 @@ require_once "../../partials/header.php";
                     </colgroup>
                     <tbody>
                         <tr>
-                            <td colspan="4" class="text-end">Importe</td>
+                            <td colspan="4" class="text-end">Neto</td>
                             <td>
-                                <input type="text" class="form-control input form-control-sm text-end" id="total"
+                                <input type="text" class="form-control input form-control-sm text-end" id="neto"
                                     readonly>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="4" class="text-end">Dsct</td>
+                            <td colspan="4" class="text-end">DSCT</td>
                             <td>
                                 <input type="text" class="form-control input form-control-sm text-end"
                                     id="totalDescuento" readonly>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="4" class="text-end">Igv</td>
+                            <td colspan="4" class="text-end">IGV</td>
                             <td>
                                 <input type="text" class="form-control input form-control-sm text-end" id="igv"
                                     readonly>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="4" class="text-end">Neto</td>
+                            <td colspan="4" class="text-end">Importe</td>
                             <td>
-                                <input type="text" class="form-control input form-control-sm text-end" id="neto"
+                                <input type="text" class="form-control input form-control-sm text-end" id="total"
                                     readonly>
                             </td>
                         </tr>

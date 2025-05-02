@@ -168,11 +168,12 @@ require_once "../../partials/header.php";
           </colgroup>
           <tbody>
             <tr>
-              <td colspan="4" class="text-end">Importe</td>
+              <td colspan="4" class="text-end">Neto</td>
               <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
               </td>
             </tr>
+            
             <tr>
               <td colspan="4" class="text-end">DSCT</td>
               <td>
@@ -186,9 +187,9 @@ require_once "../../partials/header.php";
               </td>
             </tr>
             <tr>
-              <td colspan="4" class="text-end">NETO</td>
+              <td colspan="4" class="text-end">Importe</td>
               <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
               </td>
             </tr>
           </tbody>

@@ -23,8 +23,7 @@ require_once "../../partials/header.php";
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <div class="col text-end"><a href="registrar-compras.php" class="btn btn-success" disabled>Registrar
-                            Compra</a>
+                    <div class="col text-end"><a href="registrar-compras.php" class="btn btn-success" disabled>Registrar</a>
                     </div>
                 </div>
             </div>

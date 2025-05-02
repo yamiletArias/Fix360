@@ -66,9 +66,9 @@ require_once "../../partials/header.php";
           </div>
 
           <div class="col-md-3 mb-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="ingresogrua">
-              <label class="input form-check-label" for="ingresogrua">Ingreso grúa</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="ingresogrua" style="margin-left:10px; transform: scale(1.4);"  >
+              <label class="input form-check-label" for="ingresogrua"  style="transform: scale(1.2);margin-left:80px" >Ingresó por grúa</label>
             </div>
           </div>
           <div class="col-md-3 mb-3">
@@ -111,10 +111,10 @@ require_once "../../partials/header.php";
           <div class="col-md-3 mb-3">
             <div class="input-group mb-3">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0">
+                <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0" id="precio">
                 <label for="precio">Precio</label>
               </div>
-              <button class="btn btn-sm btn-success" type="button" id="button-addon2">Agregar</button>
+              <button class="btn btn-sm btn-success" type="button" id="btnAgregar">Agregar</button>
             </div>
           </div>
         </div>
@@ -156,14 +156,14 @@ require_once "../../partials/header.php";
             <tr>
               <td colspan="4" class="text-end">Subtotal</td>
               <td>
-                <input type="text" class="form-control form-control-sm text-end" id="subtotal" readonly>
+                <input type="text" class="form-control form-control-sm text-end input" id="subtotal" readonly>
               </td>
               <td></td>
             </tr>
             <tr>
               <td colspan="4" class="text-end">IGV</td>
               <td>
-                <input type="text" class="form-control form-control-sm text-end" id="igv" readonly>
+                <input type="text" class="form-control form-control-sm text-end input" id="igv" readonly>
               </td>
               <td></td>
 
@@ -171,14 +171,14 @@ require_once "../../partials/header.php";
             <tr>
               <td colspan="4" class="text-end">Neto</td>
               <td>
-                <input type="text" class="form-control form-control-sm text-end" id="neto" readonly>
+                <input type="text" class="form-control form-control-sm text-end input" id="neto" readonly>
               </td>
               <td></td>
 
             </tr>
             <tr>
               <td colspan="4" class="text-end">
-                <button id="btnAceptarOrden" class="btn btn-success text-end">Aceptar</button>
+                <button id="btnAceptarOrden" type="button" class="btn btn-success text-end">Aceptar</button>
               </td>
               <td>
                 <a class="btn btn-secondary text-end" href="listar-ordenes.php">Cancelar</a>

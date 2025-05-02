@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'ingresogrua'       => boolval($data['ingresogrua'] ?? false),
         'fechaingreso'      => Helper::limpiarCadena($data['fechaingreso']),
         'fecharecordatorio' => Helper::limpiarCadena($data['fecharecordatorio'] ?? null),
-        'detalle'           => array_map(function($item) {
+        'servicios'           => array_map(function($item) {
             return [
                 'idservicio' => intval($item['idservicio']),
                 'idmecanico' => intval($item['idmecanico']),

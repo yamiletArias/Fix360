@@ -57,7 +57,7 @@ class OrdenServicio extends Conexion
                     break;
                 }
             } while($stmtOrden->nextRowset());
-            $stmtOrden->closeCursos();
+            $stmtOrden->closeCursor();
 
             $idorden = $result['idorden'] ?? 0;
 
