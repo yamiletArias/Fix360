@@ -1,5 +1,5 @@
 <?php
-const NAMEVIEW = "Registro de Ventas";
+const NAMEVIEW = "Ventas";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
@@ -63,9 +63,9 @@ require_once "../../partials/header.php";
           <div class="col-md-3 mb-3">
             <div class="form-floating">
               <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
-                <option selected>Eliga un vehículo</option>
+                <option selected>Sin vehiculo</option>
               </select>
-              <label for="vehiculo"><strong>Vehículo:</strong></label>
+              <label for="vehiculo"><strong>Eliga un vehículo</strong></label>
             </div>
           </div>
           <div class="col-md-2 mb-3">
@@ -106,7 +106,8 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-1">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="stock" id="stock" placeholder="Stock" required readonly/>
+              <input type="number" class="form-control input" name="stock" id="stock" placeholder="Stock" required
+                readonly />
               <label for="stock">Stock</label>
             </div>
           </div>
@@ -118,14 +119,16 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad" required />
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad"
+                required />
               <label for="cantidad"><strong>Cantidad</strong></label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="input-group">
               <div class="form-floating">
-                <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT" required />
+                <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT"
+                  required />
                 <label for="descuento">DSCT</label>
               </div>
               <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
@@ -284,6 +287,7 @@ require_once "../../partials/header.php";
 </div>
 <!-- Formulario Venta -->
 </body>
+
 </html>
 
 <script>
@@ -337,7 +341,7 @@ require_once "../../partials/header.php";
     // Variables y elementos
     /* const inputCliente = document.getElementById("cliente"); */
     const inputProductElement = document.getElementById("producto");
-    const inputStock          = document.getElementById("stock");
+    const inputStock = document.getElementById("stock");
     const inputPrecio = document.getElementById("precio");
     const inputCantidad = document.getElementById("cantidad");
     const inputDescuento = document.getElementById("descuento");
@@ -592,8 +596,8 @@ require_once "../../partials/header.php";
 
     // --- Guardar Venta ---
 
-    
-    btnFinalizarVenta.addEventListener("click", function (e) {
+
+    btnFinalizarVenta.addEventListener("click", async function (e) {
       e.preventDefault();
       btnFinalizarVenta.disabled = true;
       btnFinalizarVenta.textContent = "Guardando...";
@@ -605,15 +609,16 @@ require_once "../../partials/header.php";
         btnFinalizarVenta.textContent = "Guardar";
         return;
       }
-      // aquí ya existe vehiculoSelect
-      const idVehiculo = parseInt(vehiculoSelect.value);
+
+      const idVehiculo = vehiculoSelect.value ? parseInt(vehiculoSelect.value) : null;
+      /* const idVehiculo = parseInt(vehiculoSelect.value);
       if (!idVehiculo) {
         alert("Selecciona un vehículo.");
         btnFinalizarVenta.disabled = false;
         btnFinalizarVenta.textContent = "Guardar";
         return;
-      }
-      // toma el kilometraje directamente del input
+      } */
+
       const km = parseFloat(document.getElementById("kilometraje").value) || 0;
 
       const data = {
@@ -623,10 +628,18 @@ require_once "../../partials/header.php";
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
         idcliente: hiddenIdCliente.value,
-        idvehiculo: idVehiculo,
+        idvehiculo: idVehiculo, // Puede ser null
         kilometraje: km,
         productos: detalleVenta
       };
+
+      const confirmacion = await ask("¿Estás seguro de registrar esta venta?", "Confirmar Venta");
+      if (!confirmacion) {
+        showToast('Registro cancelado.', 'WARNING', 1500);
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
+        return;
+      }
 
       fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
         method: "POST",
