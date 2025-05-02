@@ -140,7 +140,8 @@ END $$
 
 -- ALTERAR ID COLABORADOR EN COMPRAS POR EL MOMENTO
 ALTER TABLE compras MODIFY idcolaborador INT NULL;
-DROP PROCEDURE IF EXISTS spRegisterProducto;
+
+-- Registrar producto
 DELIMITER $$
 CREATE PROCEDURE spRegisterProducto(
   IN _idsubcategoria INT,
@@ -154,46 +155,41 @@ CREATE PROCEDURE spRegisterProducto(
   OUT _idproducto INT
 )
 BEGIN
-  INSERT INTO productos (
-    idsubcategoria, idmarca, descripcion, precio,
-    presentacion, undmedida, cantidad, img
-  )
-  VALUES (
-    _idsubcategoria, _idmarca, _descripcion, _precio,
-    _presentacion, _undmedida, _cantidad, _img
-  );
+  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
+  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
   SET _idproducto = LAST_INSERT_ID();
 END$$
+DELIMITER $$
 
 -- 6) PROCEDIMIENTO PARA REGISTRAR COMPRAS
 DELIMITER $$
- CREATE PROCEDURE spuRegisterCompra (
-   IN _fechacompra DATE,
-   IN _tipocom VARCHAR(50),
-   IN _numserie VARCHAR(10),
-   IN _numcom VARCHAR(10),
-   IN _moneda VARCHAR(20),
-   IN _idproveedor INT
- )
- BEGIN
-   INSERT INTO compras (
-     idproveedor,
-     fechacompra,
-     tipocom,
-     numserie,
-     numcom,
-     moneda
-   )
-   VALUES (
-     _idproveedor,
-     _fechacompra,
-     _tipocom,
-     _numserie,
-     _numcom,
-     _moneda
-   );
-   SELECT LAST_INSERT_ID() AS idcompra;
- END $$
+CREATE PROCEDURE spuRegisterCompra (
+  IN _fechacompra DATE,
+  IN _tipocom VARCHAR(50),
+  IN _numserie VARCHAR(10),
+  IN _numcom VARCHAR(10),
+  IN _moneda VARCHAR(20),
+  IN _idproveedor INT
+)
+BEGIN
+  INSERT INTO compras (
+    idproveedor,
+    fechacompra,
+    tipocom,
+    numserie,
+    numcom,
+    moneda
+  )
+  VALUES (
+    _idproveedor,
+    _fechacompra,
+    _tipocom,
+    _numserie,
+    _numcom,
+    _moneda
+  );
+  SELECT LAST_INSERT_ID() AS idcompra;
+END $$
 
 -- 7) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COMPRA OBTENIENDO EL IDCOMPRA
 DELIMITER $$
@@ -248,7 +244,6 @@ BEGIN
     ON e.idempresa = p.idempresa
   ORDER BY e.nomcomercial;
 END $$
-DELIMITER ;
 
 -- 9) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA
 -- pasa a estado = false

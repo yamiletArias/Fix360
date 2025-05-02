@@ -592,6 +592,7 @@ require_once "../../partials/header.php";
 
     // --- Guardar Venta ---
 
+    
     btnFinalizarVenta.addEventListener("click", function (e) {
       e.preventDefault();
       btnFinalizarVenta.disabled = true;

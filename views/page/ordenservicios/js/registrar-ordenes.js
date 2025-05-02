@@ -7,7 +7,7 @@ function actualizarOpciones() {
   select.innerHTML = "";
   if (personaSeleccionada) {
       select.innerHTML += `<option value="dni">DNI</option>`;
-      select.innerHTML += `<option value="nombre">Nombre</option>`;
+      select.innerHTML += `<option value="nombre">Apellidos y nombres</option>`;
   } else {
       select.innerHTML += `<option value="ruc">RUC</option>`;
       select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
       select.innerHTML = "";
       if (personaSeleccionada) {
           select.innerHTML += `<option value="dni">DNI</option>`;
-          select.innerHTML += `<option value="nombre">Nombre</option>`;
+          select.innerHTML += `<option value="nombre">Apellidos y Nombres</option>`;
       } else {
           select.innerHTML += `<option value="ruc">RUC</option>`;
           select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
