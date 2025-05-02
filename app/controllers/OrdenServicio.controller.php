@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Preparar parámetros para el modelo
     $params = [
-        'idadmin'           => $_SESSION['user_id'] ?? 0,
+        'idadmin'           => $_SESSION['user_id'] ?? 1,
         'idpropietario'     => intval($data['idpropietario']),
         'idcliente'         => intval($data['idcliente']),
         'idvehiculo'        => intval($data['idvehiculo']),

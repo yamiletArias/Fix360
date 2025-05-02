@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Registro de Órdenes de servicio";
+const NAMEVIEW = "Órdenes de servicio | Registro";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";

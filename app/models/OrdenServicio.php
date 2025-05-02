@@ -35,7 +35,7 @@ class OrdenServicio extends Conexion
             $pdo->beginTransaction();
             error_log("Parametros para spRegisterOrdenServicio: ". print_r($params,true));
 
-            $stmtOrden = $pdo->prepare("CALL spRegisterOrdenServicio(?,?,?,?,?,?,?,?)");
+            $stmtOrden = $pdo->prepare("CALL spRegisterOrdenServicio(?,?,?,?,?,?,?,?,?)");
             $stmtOrden->execute([
                 $params["idadmin"],
                 $params["idpropietario"],
@@ -44,7 +44,8 @@ class OrdenServicio extends Conexion
                 $params["kilometraje"],
                 $params["observaciones"],
                 $params["ingresogrua"],
-                $params["fechaingreso"]
+                $params["fechaingreso"],
+                $params["fecharecordatorio"]
             ]);
             error_log("Sp SpRegisterOrdenServicio ejecutado");
 
@@ -65,11 +66,12 @@ class OrdenServicio extends Conexion
                 error_log("SP ejecutado pero no devolvio ID de orden");
                 throw new Exception("No se pudo obtener el id de orden");
             }
-            $stmtDetalle = $pdo->prepare("CALL spInsertDetalleOrden(?,?,?,?)");
+            $stmtDetalle = $pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
             $idorden = $result['idorden'] ?? 0;
 
             foreach ($params['servicios'] as $servicio){
                 $stmtDetalle->execute([
+                    error_log("Detalle insertado para orden $idorden, servicio {$servicio['idservicio']}"),
                     $idorden,
                     $servicio["idservicio"],
                     $servicio["idmecanico"],
