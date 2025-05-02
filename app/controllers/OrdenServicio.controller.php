@@ -18,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Preparar parámetros para el modelo
     $params = [
         'idadmin'           => $_SESSION['user_id'] ?? 0,
-        'idmecanico'        => intval($data['idmecanico']),
         'idpropietario'     => intval($data['idpropietario']),
         'idcliente'         => intval($data['idcliente']),
         'idvehiculo'        => intval($data['idvehiculo']),
@@ -30,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'detalle'           => array_map(function($item) {
             return [
                 'idservicio' => intval($item['idservicio']),
+                'idmecanico' => intval($item['idmecanico']),
                 'precio'     => floatval($item['precio'])
             ];
         }, $data['detalle'] ?? [])
