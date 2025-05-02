@@ -236,7 +236,6 @@ CREATE TABLE ordenservicios(
 
 idorden 				INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idadmin 				INT 				NOT NULL,
-idmecanico			INT 				NOT NULL,
 idpropietario  	INT 				NOT NULL,
 idcliente 			INT 				NOT NULL,
 idvehiculo 			INT 				NOT NULL,
@@ -251,7 +250,6 @@ notificado 			BOOLEAN     DEFAULT FALSE,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,		
 CONSTRAINT fk_idadmin FOREIGN KEY (idadmin) REFERENCES colaboradores (idcolaborador),
-CONSTRAINT fk_idmecanico FOREIGN KEY (idmecanico) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT fk_idcliente FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
 CONSTRAINT fk_idvehiculo FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo),
 CONSTRAINT fk_idpropietario FOREIGN KEY (idpropietario) REFERENCES propietarios (idpropietario)
@@ -295,10 +293,12 @@ CREATE TABLE detalleordenservicios(
 
 iddetorden 		INT 					PRIMARY KEY 	AUTO_INCREMENT,
 idorden 			INT 					NOT NULL,
+idmecanico			INT 				NOT NULL,
 idservicio 		INT 					NOT NULL,
 precio 			DECIMAL(10,2) 		NOT NULL,
 estado 			ENUM('A','D') 		DEFAULT 'A' NOT NULL, -- A = Activo : D = Desactivado
 CONSTRAINT fk_idorden_7 FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden),
+CONSTRAINT fk_idmecanico FOREIGN KEY (idmecanico) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT fk_idservicio_7 FOREIGN KEY (idservicio) REFERENCES servicios (idservicio)
 
 )ENGINE = INNODB;

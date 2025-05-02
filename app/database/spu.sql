@@ -470,7 +470,6 @@ DROP PROCEDURE IF EXISTS spRegisterOrdenServicio;
 DELIMITER $$
 CREATE PROCEDURE spRegisterOrdenServicio (
   IN _idadmin           INT,
-  IN _idmecanico        INT,
   IN _idpropietario     INT,
   IN _idcliente         INT,
   IN _idvehiculo        INT,
@@ -483,7 +482,6 @@ CREATE PROCEDURE spRegisterOrdenServicio (
 BEGIN
   INSERT INTO ordenservicios (
     idadmin,
-    idmecanico,
     idpropietario,
     idcliente,
     idvehiculo,
@@ -495,7 +493,6 @@ BEGIN
   )
   VALUES (
     _idadmin,
-    _idmecanico,
     _idpropietario,
     _idcliente,
     _idvehiculo,
@@ -517,17 +514,20 @@ DELIMITER $$
 CREATE PROCEDURE spInsertDetalleOrdenServicio (
   IN _idorden    INT,
   IN _idservicio INT,
+  IN _idmecanico        INT,
   IN _precio     DECIMAL(10,2)
 )
 BEGIN
   INSERT INTO detalleordenservicios (
     idorden,
     idservicio,
+    idmecanico,
     precio
   )
   VALUES (
     _idorden,
     _idservicio,
+    _idmecanico,
     _precio
   );
 END$$
