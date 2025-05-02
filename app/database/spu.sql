@@ -322,7 +322,7 @@ BEGIN
 SELECT
   CASE
     WHEN c.idpersona IS NULL THEN em.nomcomercial
-    ELSE CONCAT(pe.nombres, ' ', pe.apellidos)
+    ELSE CONCAT(pe.apellidos,  ' ' ,pe.nombres)
   END AS propietario
 FROM propietarios p
 LEFT JOIN vehiculos v

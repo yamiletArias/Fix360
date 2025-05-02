@@ -55,7 +55,8 @@ CREATE VIEW vista_detalle_venta AS
 SELECT 
   v.idventa,
   v.fechahora,
-  COALESCE(CONCAT(p.nombres,' ',p.apellidos), e.nomcomercial) AS cliente,
+  COALESCE(CONCAT(p.apellidos, ' ' , p.nombres), e.nomcomercial) AS cliente,
+  v.kilometraje,
   CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
   CONCAT(s.subcategoria,' ',pr.descripcion) AS producto,
   dv.precioventa AS precio,

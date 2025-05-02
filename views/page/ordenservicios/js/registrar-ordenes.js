@@ -7,8 +7,8 @@ function actualizarOpciones() {
   // Limpiar opciones actuales
   select.innerHTML = "";
   if (personaSeleccionada) {
-    select.innerHTML += `<option value="dni">DNI</option>`;
-    select.innerHTML += `<option value="nombre">Nombre</option>`;
+      select.innerHTML += `<option value="dni">DNI</option>`;
+      select.innerHTML += `<option value="nombre">Apellidos y nombres</option>`;
   } else {
     select.innerHTML += `<option value="ruc">RUC</option>`;
     select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
@@ -241,16 +241,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Inicialización de opciones en el modal para búsqueda (opcional)
   function actualizarOpciones() {
-    const select = document.getElementById("selectMetodo");
-    const personaSeleccionada = document.getElementById("rbtnpersona").checked;
-    select.innerHTML = "";
-    if (personaSeleccionada) {
-      select.innerHTML += `<option value="dni">DNI</option>`;
-      select.innerHTML += `<option value="nombre">Nombre</option>`;
-    } else {
-      select.innerHTML += `<option value="ruc">RUC</option>`;
-      select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
-    }
+      const select = document.getElementById("selectMetodo");
+      const personaSeleccionada = document.getElementById("rbtnpersona").checked;
+      select.innerHTML = "";
+      if (personaSeleccionada) {
+          select.innerHTML += `<option value="dni">DNI</option>`;
+          select.innerHTML += `<option value="nombre">Apellidos y Nombres</option>`;
+      } else {
+          select.innerHTML += `<option value="ruc">RUC</option>`;
+          select.innerHTML += `<option value="razonsocial">Razón Social</option>`;
+      }
   }
   document.addEventListener("DOMContentLoaded", actualizarOpciones);
 });
