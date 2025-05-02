@@ -465,6 +465,8 @@ BEGIN
 END$$
 */
 
+-- call spRegisterOrdenServicio(1,1,1,1,200,'nose',True,'2025/10/10',null)
+-- call insert
 -- SP para insertar la cabecera de la orden de servicio
 DROP PROCEDURE IF EXISTS spRegisterOrdenServicio;
 DELIMITER $$
@@ -507,7 +509,8 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idorden;
 END$$
 
-
+-- select * from ordenservicios where idorden = 33;
+-- call spInsertDetalleOrdenServicio(33,1,1,200)
 -- SP para insertar cada línea de detalle de la orden de servicio
 DROP PROCEDURE IF EXISTS spInsertDetalleOrdenServicio;
 DELIMITER $$
