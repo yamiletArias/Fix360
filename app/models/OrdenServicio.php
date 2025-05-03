@@ -67,11 +67,9 @@ class OrdenServicio extends Conexion
                 throw new Exception("No se pudo obtener el id de orden");
             }
             $stmtDetalle = $pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
-            $idorden = $result['idorden'] ?? 0;
 
-            foreach ($params['servicios'] as $servicio){
+            foreach ($params['servicios'] as $servicio){          
                 $stmtDetalle->execute([
-                    error_log("Detalle insertado para orden $idorden, servicio {$servicio['idservicio']}"),
                     $idorden,
                     $servicio["idservicio"],
                     $servicio["idmecanico"],
