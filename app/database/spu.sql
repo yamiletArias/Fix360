@@ -534,3 +534,75 @@ BEGIN
     _precio
   );
 END$$
+
+
+
+
+DROP PROCEDURE IF EXISTS spLisOrdenesPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListOrdenesPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    o.idorden,
+    o.fechaingreso,
+    o.fechasalida,
+    v.placa,
+
+    -- propietario: tabla de propietarios
+    CASE
+      WHEN prop_c.idpersona IS NOT NULL THEN CONCAT(prop_pe.nombres, ' ', prop_pe.apellidos)
+      ELSE prop_em.nomcomercial
+    END AS propietario,
+
+    -- cliente: tabla de clientes que hizo la orden
+    CASE
+      WHEN cli_c.idpersona IS NOT NULL THEN CONCAT(cli_pe.nombres, ' ', cli_pe.apellidos)
+      ELSE cli_em.nomcomercial
+    END AS cliente
+
+  FROM ordenservicios o
+    JOIN vehiculos v
+      ON o.idvehiculo = v.idvehiculo
+
+    -- JOIN para PROPIETARIO
+    JOIN propietarios prop
+      ON o.idpropietario = prop.idpropietario
+    JOIN clientes prop_c
+      ON prop.idcliente = prop_c.idcliente
+    LEFT JOIN personas prop_pe
+      ON prop_c.idpersona = prop_pe.idpersona
+    LEFT JOIN empresas prop_em
+      ON prop_c.idempresa = prop_em.idempresa
+
+    -- JOIN para CLIENTE que hace la orden
+    JOIN clientes cli_c
+      ON o.idcliente = cli_c.idcliente
+    LEFT JOIN personas cli_pe
+      ON cli_c.idpersona = cli_pe.idpersona
+    LEFT JOIN empresas cli_em
+      ON cli_c.idempresa = cli_em.idempresa
+
+  WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
+    AND o.estado = 'A'
+  ORDER BY o.fechaingreso;
+END$$
+DELIMITER ;
+
+-- select * from ordenservicios;
