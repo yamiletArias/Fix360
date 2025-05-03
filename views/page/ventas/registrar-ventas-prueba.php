@@ -628,8 +628,8 @@ require_once "../../partials/header.php";
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
         idcliente: hiddenIdCliente.value,
-        idvehiculo: idVehiculo, // Puede ser null
-        kilometraje: km,
+        idvehiculo: idVehiculo, // puede ser null
+        kilometraje: km,         // puede ser 0 o null
         productos: detalleVenta
       };
 

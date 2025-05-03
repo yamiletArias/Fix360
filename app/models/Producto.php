@@ -76,6 +76,7 @@ class Producto extends Conexion
         }
         return $idProducto;
     }
+
     /**
      * Actualiza un producto
      * @param array $params

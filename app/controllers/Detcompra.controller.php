@@ -7,9 +7,7 @@ if (isset($_GET['idcompra'])) {
     try {
         $db = Conexion::getConexion();
         $stmt = $db->prepare(
-            "SELECT producto, precio, descuento
-             FROM vista_detalle_compra
-            WHERE idcompra = ?"
+            "SELECT * FROM vista_detalle_compra WHERE idcompra = ?;"
         );
         $stmt->execute([$idcompra]);
         $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);

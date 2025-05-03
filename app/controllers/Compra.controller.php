@@ -36,7 +36,6 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             break;
 
         case 'POST':
-
             // Anulación de compra (soft-delete) con justificación
             if (isset($_POST['action'], $_POST['idcompra']) && $_POST['action'] === 'eliminar') {
                 $id = intval($_POST['idcompra']);
@@ -54,7 +53,6 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 exit;
             }
 
-            // Registro de nueva compra
             $input = file_get_contents('php://input');
             error_log("Entrada POST (compras): " . $input);
 

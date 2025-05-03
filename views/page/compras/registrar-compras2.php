@@ -388,8 +388,8 @@ require_once "../../partials/header.php";
   });
 </script>
 
-
 <script>
+
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     const proveedorSelect = document.getElementById('proveedor');
@@ -402,6 +402,11 @@ require_once "../../partials/header.php";
     const agregarProductoBtn = document.querySelector("#agregarProducto");
     const tabla = document.querySelector("#tabla-detalle-compra tbody");
     const btnFinalizarCompra = document.getElementById('btnFinalizarCompra');
+
+    // Nuevos elementos de input para los detalles del producto
+    const inputPrecio = document.getElementById("precio");
+    const inputCantidad = document.getElementById("cantidad");
+    const inputDescuento = document.getElementById("descuento");
 
     function calcularTotales() {
       let totalImporte = 0;
@@ -439,30 +444,25 @@ require_once "../../partials/header.php";
     // Manejador del botón "Agregar" para añadir producto al detalle de compra
     agregarProductoBtn.addEventListener("click", function () {
       const nomProducto = inputProductElement.value;
-      const precioProducto = parseFloat(document.getElementById('precio').value);
-      const cantidadProducto = parseFloat(document.getElementById('cantidad').value);
-      const descuentoProducto = parseFloat(document.getElementById('descuento').value);
+      const precioProducto = parseFloat(inputPrecio.value);
+      const cantidadProducto = parseFloat(inputCantidad.value);
+      const descuentoProducto = parseFloat(inputDescuento.value);
 
       if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
         alert("Por favor, complete todos los campos correctamente.");
         return;
       }
 
-      if (!selectedProduct.idproducto) {
-        alert("Primero selecciona o registra un producto");
-        return;
-      }
-
       const importe = (precioProducto * cantidadProducto) - descuentoProducto;
       const nuevaFila = document.createElement("tr");
       nuevaFila.innerHTML = `
-      <td>${tabla.rows.length + 1}</td>
-      <td>${nomProducto}</td>
-      <td>${precioProducto.toFixed(2)}</td>
-      <td>${cantidadProducto}</td>
-      <td>${descuentoProducto.toFixed(2)}</td>
-      <td>${importe.toFixed(2)}</td>
-      <td><button class="btn btn-danger btn-sm">X</button></td>
+        <td>${tabla.rows.length + 1}</td>
+        <td>${nomProducto}</td>
+        <td>${precioProducto.toFixed(2)}</td>
+        <td>${cantidadProducto}</td>
+        <td>${descuentoProducto.toFixed(2)}</td>
+        <td>${importe.toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm">X</button></td>
       `;
       nuevaFila.querySelector("button").addEventListener("click", function () {
         nuevaFila.remove();
@@ -471,18 +471,20 @@ require_once "../../partials/header.php";
       });
       tabla.appendChild(nuevaFila);
 
-      detalleCompra.push({
+      const detalle = {
         idproducto: selectedProduct.idproducto,
-        producto: selectedProduct.subcategoria_producto,
-        precio: parseFloat(document.getElementById('precio').value),
-        cantidad: parseFloat(document.getElementById('cantidad').value),
-        descuento: parseFloat(document.getElementById('descuento').value)
-      });
+        producto: nomProducto,
+        precio: precioProducto,
+        cantidad: cantidadProducto,
+        descuento: descuentoProducto,
+        importe: importe.toFixed(2)
+      };
+      detalleCompra.push(detalle);
 
       inputProductElement.value = "";
-      document.getElementById('precio').value = "";
-      document.getElementById('cantidad').value = 1;
-      document.getElementById('descuento').value = 0;
+      inputPrecio.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
 
       calcularTotales();
     });
@@ -491,6 +493,49 @@ require_once "../../partials/header.php";
       const filas = tabla.getElementsByTagName("tr");
       for (let i = 0; i < filas.length; i++) {
         filas[i].children[0].textContent = i + 1;
+      }
+    }
+
+    // Función de debounce para evitar demasiadas llamadas en tiempo real
+    function debounce(func, delay) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    // Función de navegación con el teclado para autocompletar
+    function agregaNavegacion(input, itemsDiv) {
+      let currentFocus = -1;
+      input.addEventListener("keydown", function (e) {
+        const items = itemsDiv.getElementsByTagName("div");
+        if (e.key === "ArrowDown") {
+          currentFocus++;
+          addActive(items);
+        } else if (e.key === "ArrowUp") {
+          currentFocus--;
+          addActive(items);
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          if (currentFocus > -1 && items[currentFocus]) {
+            items[currentFocus].click();
+          }
+        }
+      });
+
+      function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        items[currentFocus].classList.add("autocomplete-active");
+      }
+
+      function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+          items[i].classList.remove("autocomplete-active");
+        }
       }
     }
 
@@ -517,10 +562,9 @@ require_once "../../partials/header.php";
             optionDiv.textContent = producto.subcategoria_producto;
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
-              document.getElementById('precio').value = producto.precio;
-              // Se establece cantidad 1 y descuento 0
-              document.getElementById('cantidad').value = 1;
-              document.getElementById('descuento').value = 0;
+              inputPrecio.value = producto.precio;
+              inputCantidad.value = 1;
+              inputDescuento.value = 0;
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
@@ -530,18 +574,13 @@ require_once "../../partials/header.php";
             });
             itemsDiv.appendChild(optionDiv);
           });
+          // Habilitar navegación por teclado en la lista de productos
+          agregaNavegacion(input, itemsDiv);
         })
         .catch(err => console.error('Error al obtener los productos: ', err));
     }
-    inputProductElement.addEventListener("input", function () {
-      mostrarOpcionesProducto(this);
-    });
-    inputProductElement.addEventListener("click", function () {
-      mostrarOpcionesProducto(this);
-    });
-    document.addEventListener("click", function (e) {
-      cerrarListas(e.target);
-    });
+
+    // Función para cerrar las listas de autocompletado
     function cerrarListas(elemento) {
       const items = document.getElementsByClassName("autocomplete-items");
       for (let i = 0; i < items.length; i++) {
@@ -550,6 +589,19 @@ require_once "../../partials/header.php";
         }
       }
     }
+
+    // Listeners para el autocompletado de productos usando debounce
+    const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+    inputProductElement.addEventListener("input", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+    inputProductElement.addEventListener("click", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+    document.addEventListener("click", function (e) {
+      cerrarListas(e.target);
+    });
+
     // Funciones para generar número de serie y de comprobante
     function generateNumber(type) {
       const randomNumber = Math.floor(Math.random() * 100);
@@ -600,16 +652,45 @@ require_once "../../partials/header.php";
       })
       .catch(error => console.error('Error al cargar los proveedores:', error));
 
+    // Navegación con Enter para ir de campo en campo (productos, precio, cantidad y descuento)
+    inputProductElement.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputPrecio.focus();
+      }
+    });
+
+    inputPrecio.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputCantidad.focus();
+      }
+    });
+
+    inputCantidad.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputDescuento.focus();
+      }
+    });
+
+    inputDescuento.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        // Opcional: puedes mover el foco al botón de agregar o ejecutar su acción directamente
+        agregarProductoBtn.focus();
+        // agregarProductoBtn.click();  // Si prefieres ejecutar la acción
+      }
+    });
+
     // Evento del botón "Guardar" para enviar la compra
     btnFinalizarCompra.addEventListener("click", function (e) {
       e.preventDefault();
       btnFinalizarCompra.disabled = true;
       btnFinalizarCompra.textContent = "Guardando...";
-      // Habilitar los inputs de num. serie y comprobante para enviar sus valores
       numSerieInput.disabled = false;
       numComInput.disabled = false;
 
-      // Validar que se haya seleccionado un proveedor y agregado productos
       if (proveedorSelect.value === "" || proveedorSelect.value === "Selecciona proveedor") {
         alert("Por favor, selecciona un proveedor.");
         btnFinalizarCompra.disabled = false;
@@ -622,7 +703,6 @@ require_once "../../partials/header.php";
         btnFinalizarCompra.textContent = "Guardar";
         return;
       }
-      // Armar el objeto de datos a enviar
       const dataCompra = {
         tipocom: document.querySelector('input[name="tipo"]:checked').value,
         fechacompra: fechaInput.value.trim(),
@@ -633,7 +713,6 @@ require_once "../../partials/header.php";
         productos: detalleCompra
       };
 
-      // Enviar datos al servidor mediante fetch
       fetch("http://localhost/Fix360/app/controllers/Compra.controller.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -676,9 +755,9 @@ require_once "../../partials/header.php";
     });
   });
 </script>
-
+<!-- <script src="<?= SERVERURL ?>views/page/compras/js/registrar-compras.js"></script> -->
 <!-- js de carga moneda -->
-<script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <?php
 require_once "../../partials/_footer.php";
 ?>

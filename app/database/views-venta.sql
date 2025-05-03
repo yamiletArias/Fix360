@@ -1,3 +1,4 @@
+-- VISTAS
 
 -- 1) VISTA DE VENTAS PARA LISTAR-VENTAS
 DROP VIEW IF EXISTS vs_ventas;
@@ -57,23 +58,24 @@ SELECT
   v.fechahora,
   COALESCE(CONCAT(p.apellidos, ' ' , p.nombres), e.nomcomercial) AS cliente,
   v.kilometraje,
+  -- Vehículo: muestra NULL si no hay vehículo
   CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
   CONCAT(s.subcategoria,' ',pr.descripcion) AS producto,
   dv.precioventa AS precio,
   dv.descuento
 FROM ventas v
-JOIN clientes c    ON v.idcliente   = c.idcliente
-LEFT JOIN personas p ON c.idpersona   = p.idpersona
-LEFT JOIN empresas e ON c.idempresa   = e.idempresa
--- Joins para obtener datos del vehículo
-JOIN vehiculos vh     ON v.idvehiculo  = vh.idvehiculo
-JOIN modelos m        ON vh.idmodelo   = m.idmodelo
-JOIN tipovehiculos tv ON m.idtipov     = tv.idtipov
-JOIN marcas ma        ON m.idmarca     = ma.idmarca
+JOIN clientes c        ON v.idcliente      = c.idcliente
+LEFT JOIN personas p   ON c.idpersona      = p.idpersona
+LEFT JOIN empresas e   ON c.idempresa      = e.idempresa
+-- Cambios importantes aquí:
+LEFT JOIN vehiculos vh ON v.idvehiculo     = vh.idvehiculo
+LEFT JOIN modelos m    ON vh.idmodelo      = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov    = tv.idtipov
+LEFT JOIN marcas ma    ON m.idmarca        = ma.idmarca
 -- Joins para detalle de venta
-JOIN detalleventa dv  ON v.idventa      = dv.idventa
-JOIN productos pr     ON dv.idproducto  = pr.idproducto
-JOIN subcategorias s  ON pr.idsubcategoria = s.idsubcategoria
+JOIN detalleventa dv   ON v.idventa        = dv.idventa
+JOIN productos pr      ON dv.idproducto    = pr.idproducto
+JOIN subcategorias s   ON pr.idsubcategoria = s.idsubcategoria
 WHERE v.estado = TRUE;
 
 -- 5) VISTA PARA EL DETALLE DE COMPRA PARA EL MODAL POR CADA IDCOMPRA
@@ -135,14 +137,12 @@ JOIN modelos      AS m   ON vh.idmodelo    = m.idmodelo
 JOIN tipovehiculos AS tv ON m.idtipov      = tv.idtipov
 JOIN marcas       AS ma  ON m.idmarca      = ma.idmarca;
 
-
 SELECT * 
 FROM vs_ventas_detalle_all;
-
 SELECT producto, precio, descuento 
 FROM vista_detalle_compra 
 WHERE idcompra= 10;
-SELECT * FROM vista_detalle_venta WHERE idventa = 2;
+SELECT * FROM vista_detalle_venta WHERE idventa = 4;
 SELECT producto, precio, descuento 
 FROM vista_detalle_venta 
 WHERE idventa = 1;

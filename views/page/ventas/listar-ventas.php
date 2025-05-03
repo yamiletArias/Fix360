@@ -5,30 +5,36 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
 <div class="container-main mt-5">
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="btnDia" type="button" class="btn btn-primary">
-                    Día
-                </button>
-                <button id="btnSemana" type="button" class="btn btn-primary">
-                    Semana
-                </button>
-                <button id="btnMes" type="button" class="btn btn-primary">
-                    Mes
-                </button>
-                <button type="button" class="btn btn-danger text-white">
-                    <i class="fa-solid fa-file-pdf"></i>
-                </button>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="col text-end"><a href="registrar-ventas.php" class="btn btn-success" disabled>Registrar</a>
-                    </div>
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <button data-modo="dia" id="btnDia" type="button" class="btn btn-primary">
+                Día
+            </button>
+            <button data-modo="semana" id="btnSemana" type="button" class="btn btn-primary">
+                Semana
+            </button>
+            <button data-modo="mes" id="btnMes" type="button" class="btn btn-primary">
+                Mes
+            </button>
+            <button type="button" class="btn btn-danger text-white">
+                <i class="fa-solid fa-file-pdf"></i>
+            </button>
+            <!-- Nuevo botón para ver eliminados -->
+            <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                <i class="fa-solid fa-eye-slash"></i>
+            </button>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="input-group">
+                    <input type="date" class="form-control input" aria-label="Fecha" aria-describedby="button-addon2" id="Fecha">
+                    <a href="registrar-ventas.php" class="btn btn-success text-center" type="button" id="button-addon2">Registrar</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
     <div class="row">
         <div id="tableDia" class="col-12">
             <table class="table table-striped display" id="tablaventasdia">
@@ -60,13 +66,15 @@ require_once "../../partials/header.php";
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input type="text" disabled class="form-control input" id="modeloInput" placeholder="Cliente">
+                            <input type="text" disabled class="form-control input" id="modeloInput"
+                                placeholder="Cliente">
                             <label for="modeloInput">Cliente: </label>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input type="text" disabled class="form-control input" id="fechaHora" placeholder="Fecha & Hora">
+                            <input type="text" disabled class="form-control input" id="fechaHora"
+                                placeholder="Fecha & Hora">
                             <label for="fechaHora">Fecha & Hora: </label>
                         </div>
                     </div>
@@ -80,7 +88,8 @@ require_once "../../partials/header.php";
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input type="text" disabled class="form-control input" id="kilometraje" placeholder="Kilometraje">
+                            <input type="text" disabled class="form-control input" id="kilometraje"
+                                placeholder="Kilometraje">
                             <label for="kilometraje">Kilometraje: </label>
                         </div>
                     </div>
@@ -95,7 +104,6 @@ require_once "../../partials/header.php";
                         <label for="fechaHora">Fecha & Hora:</label>
                     </div>
                 </div> -->
-
                 <div class="table-container">
                     <table class="table table-striped table-bordered">
                         <thead>
@@ -218,46 +226,50 @@ require_once "../../partials/header.php";
     });
 </script>
 <script>
-function verDetalleVenta(idventa) {
-  $("#miModal").modal("show");
-  // limpia cualquier contenido previo
-  $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
-  $("#miModal tbody").empty();
+    function verDetalleVenta(idventa) {
+        $("#miModal").modal("show");
+        // limpia cualquier contenido previo
+        $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
+        $("#miModal tbody").empty();
 
-  $.ajax({
-    url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
-    method: "GET",
-    data: { idventa },
-    dataType: "json",
-    success(response) {
-      if (response.length === 0) {
-        return $("#miModal tbody").append(
-          `<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`
-        );
-      }
-      // pinta cabecera (todos los datos vienen de la misma fila 0)
-      $("#modeloInput").val(response[0].cliente);
-      $("#fechaHora").val(response[0].fechahora);
-      $("#vehiculo").val(response[0].vehiculo);
-      $("#kilometraje").val(response[0].kilometraje);
+        $.ajax({
+            url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
+            method: "GET",
+            data: { idventa },
+            dataType: "json",
+            success(response) {
+                if (response.length === 0) {
+                    return $("#miModal tbody").append(
+                        `<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`
+                    );
+                }
+                // pinta cabecera (todos los datos vienen de la misma fila 0)
+                $("#modeloInput").val(response[0].cliente);
+                $("#fechaHora").val(response[0].fechahora);
+                // si es null o undefined, muestra la cadena "null"
+                const vehiculoVal    = response[0].vehiculo    ?? 'null';
+                const kilometrajeVal = response[0].kilometraje ?? 'null';
 
-      // pinta cada producto
-      response.forEach((item, i) => {
-        $("#miModal tbody").append(`
-          <tr>
-            <td>${i+1}</td>
-            <td>${item.producto}</td>
-            <td>${item.precio}</td>
-            <td>${item.descuento}%</td>
-          </tr>
-        `);
-      });
-    },
-    error() {
-      alert("Ocurrió un error al cargar el detalle.");
+                $("#vehiculo").val(vehiculoVal);
+                $("#kilometraje").val(kilometrajeVal);
+
+                // pinta cada producto
+                response.forEach((item, i) => {
+                    $("#miModal tbody").append(`
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${item.producto}</td>
+                        <td>${item.precio}</td>
+                        <td>${item.descuento}%</td>
+                    </tr>
+                    `);
+                });
+            },
+            error() {
+                alert("Ocurrió un error al cargar el detalle.");
+            }
+        });
     }
-  });
-}
 </script>
 <script>
     // reemplaza el handler existente por éste
@@ -304,7 +316,134 @@ function verDetalleVenta(idventa) {
             });
     });
 </script>
+<!-- <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const fechaInput       = document.getElementById('Fecha');
+  const tablaBody        = document.querySelector('#tablaventasdia tbody');
+  const btnDia           = document.querySelector('button[data-modo="dia"]');
+  const btnSemana        = document.querySelector('button[data-modo="semana"]');
+  const btnMes           = document.querySelector('button[data-modo="mes"]');
+  const btnVerEliminados = document.getElementById('btnVerEliminados');
+  const filtros          = [btnDia, btnSemana, btnMes];
+  let currentModo        = 'dia';
+  let mostrarEliminados  = false;
+  const API              = '<?= SERVERURL ?>app/controllers/Venta.controller.php';
+
+  // Helper para formatear fecha/hora
+  const fmt = iso => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const p = v => String(v).padStart(2,'0');
+    return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+
+  // Pinta las filas en el <tbody>
+  const pintar = data => {
+    tablaBody.innerHTML = '';
+    data.forEach((v, i) => {
+      tablaBody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td class="text-center">${i+1}</td>
+          <td>${v.cliente||''}</td>
+          <td class="text-center">${v.tipocom||''}</td>
+          <td class="text-center">${v.numcom||''}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-info" data-id="${v.idventa}" data-action="detalle">
+              <i class="fa-solid fa-circle-info"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" data-id="${v.idventa}" data-action="eliminar">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>`);
+    });
+  };
+
+  // Llama al backend pasando modo, fecha y eliminados
+  const cargar = async (modo, fecha) => {
+    try {
+      const res  = await fetch(`${API}?modo=${modo}&fecha=${fecha}&eliminados=${mostrarEliminados}`);
+      const json = await res.json();
+      if (json.status==='success') pintar(json.data);
+      else console.error('Error:', json.message);
+    } catch(e) {
+      console.error('Fetch error', e);
+    }
+  };
+
+  // Marca el botón activo
+  const marcaActivo = btn => {
+    filtros.forEach(b => b.classList.toggle('active', b===btn));
+  };
+
+  // Eventos Día/Semana/Mes
+  filtros.forEach(btn=>{
+    btn.addEventListener('click', () => {
+      currentModo = btn.dataset.modo;
+      marcaActivo(btn);
+      cargar(currentModo, fechaInput.value);
+    });
+  });
+
+  // Cambio de fecha → modo 'dia'
+  fechaInput.addEventListener('change', () => {
+    currentModo = 'dia';
+    marcaActivo(null);
+    cargar(currentModo, fechaInput.value);
+  });
+
+  // Toggle ver eliminados
+  btnVerEliminados.addEventListener('click', () => {
+    mostrarEliminados = !mostrarEliminados;
+    btnVerEliminados.classList.toggle('active', mostrarEliminados);
+    cargar(currentModo, fechaInput.value);
+  });
+
+  // Delegación para botones detalle y eliminar
+  tablaBody.addEventListener('click', async ev => {
+    const btn = ev.target.closest('button[data-action]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action==='detalle') {
+      try {
+        const res  = await fetch(`${API}?accion=detalle&id=${id}`);
+        const json = await res.json();
+        if (json.status==='success') {
+          const v = json.data;
+          document.getElementById('modeloInput').value   = v.cliente||'';
+          document.getElementById('fechaHora').value     = fmt(v.fechahora);
+          document.getElementById('vehiculo').value      = v.vehiculo ?? 'null';
+          document.getElementById('kilometraje').value   = v.kilometraje ?? 'null';
+          new bootstrap.Modal(document.getElementById('miModal')).show();
+        }
+      } catch(e) { console.error(e); }
+    }
+    if (btn.dataset.action==='eliminar') {
+      const just = prompt('Justificación de eliminación:');
+      if (!just) return alert('Se requiere justificación.');
+      if (await ask('¿Confirma eliminar esta venta?','Eliminar')) {
+        const res = await fetch(API, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'eliminar', idventa:id, justificacion:just })
+        });
+        const json = await res.json();
+        if (json.status==='success') showToast('Venta eliminada','SUCCESS');
+        else showToast(json.message,'ERROR');
+        cargar(currentModo, fechaInput.value);
+      }
+    }
+  });
+
+  // Inicialización
+  const hoy = new Date().toISOString().slice(0,10);
+  fechaInput.value = hoy;
+  marcaActivo(btnDia);
+  cargar('dia', hoy);
+});
+</script> -->
 </body>
+
 </html>
 <?php
 require_once "../../partials/_footer.php";

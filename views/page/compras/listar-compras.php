@@ -105,7 +105,7 @@ require_once "../../partials/header.php";
                             </button>
                             <button title="Detalle" type="button" class="btn btn-primary btn-sm"
                             data-bs-toggle="modal" data-bs-target="#miModal"
-                            onclick="verDetalleCompra('${row.id}', '${row.proveedores}')">
+                            onclick="verDetalleCompra('${row.id}')">
                             <i class="fa-solid fa-circle-info"></i>
                             </button>
 
@@ -187,9 +187,11 @@ require_once "../../partials/header.php";
   });
 </script>
 <script>
-    function verDetalleCompra(idcompra, proveedor) {
+    function verDetalleCompra(idcompra) {
         $("#miModal").modal("show");
-        $("#miModal label[for='proveedor']").text(proveedor);
+        /* $("#miModal label[for='proveedor']").text(proveedor); */
+        $("#proveedor").val('');
+        $("#miModal tbody").empty();
 
         $.ajax({
             url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
@@ -199,15 +201,18 @@ require_once "../../partials/header.php";
             success: function (response) {
                 const tbody = $("#miModal tbody").empty();
                 if (response.length > 0) {
+
+                    $("#proveedor").val(response[0].proveedor);
+
                     response.forEach((item, i) => {
                         tbody.append(`
-            <tr>
-              <td>${i + 1}</td>
-              <td>${item.producto}</td>
-              <td>${item.precio}</td>
-              <td>${item.descuento}%</td>
-            </tr>
-          `);
+                        <tr>
+                        <td>${i + 1}</td>
+                        <td>${item.producto}</td>
+                        <td>${item.precio}</td>
+                        <td>${item.descuento}%</td>
+                        </tr>
+                    `);
                     });
                 } else {
                     tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
@@ -250,7 +255,14 @@ require_once "../../partials/header.php";
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Proveedor:</strong> <label for="proveedor"></label></p>
+                <div class="row g-3 mb-3">
+                    <div class="form-floating">
+                        <input type="text" disabled class="form-control input" id="proveedor" placeholder="Proveedor">
+                        <label for="proveedor">Proveedor: </label>
+                    </div>
+                </div>
+                
+                <!-- <p><strong>Proveedor:</strong> <label for="proveedor"></label></p> -->
                 <div class="table-container">
                     <table class="table table-striped table-bordered">
                         <thead>

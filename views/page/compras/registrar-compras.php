@@ -22,13 +22,11 @@ require_once "../../partials/header.php";
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input class="form-check-input text-start" type="radio" name="tipo" value="factura"
-                onclick="inicializarCampos()" checked>
+              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
               Factura
             </label>
-            <label style="padding-left: 10px;">
-              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta"
-                onclick="inicializarCampos()">
+            <label>
+              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
               Boleta
             </label>
           </div>
@@ -62,9 +60,8 @@ require_once "../../partials/header.php";
           <div class="col-md-3">
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
-                <!-- “Soles” siempre estático y seleccionado -->
-                <option value="Soles" selected>Soles</option>
-                <!-- Aquí sólo meteremos el resto -->
+                <option value="soles" selected>Soles</option>
+                <!-- Aquí se insertan dinámicamente el resto de monedas -->
               </select>
               <label for="moneda">Moneda:</label>
             </div>
@@ -86,23 +83,30 @@ require_once "../../partials/header.php";
               </button>
             </div>
           </div>
+          <div class="col-md-1">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="stock" id="stock" placeholder="Stock" required
+                readonly />
+              <label for="stock">Stock</label>
+            </div>
+          </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="precio" id="precio" required />
+              <input type="number" class="form-control input" name="precio" id="precio" placeholder="Precio" required />
               <label for="precio">Precio</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad" required />
               <label for="cantidad">Cantidad</label>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <div class="input-group">
               <div class="form-floating">
-                <input type="number" class="form-control input" name="descuento" id="descuento" required />
-                <label for="descuento">Descuento</label>
+                <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT" required />
+                <label for="descuento">DSCT</label>
               </div>
               <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
             </div>
@@ -182,7 +186,6 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
-
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-md" style="margin-top: 60px;">
@@ -275,13 +278,14 @@ require_once "../../partials/header.php";
 </div>
 </div>
 </body>
-
 </html>
+
 <script>
   // 1) Declárala UNA sola vez, arriba de todo:
   let selectedProduct = {};
   const detalleCompra = [];
 </script>
+
 <script>
   document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
     e.preventDefault();
@@ -306,18 +310,11 @@ require_once "../../partials/header.php";
           if (inputBusqueda) {
             inputBusqueda.value = `${subcategoriaText} ${descripcion}`;
           }
-
           // **** Actualización clave: asignar el id retornado al objeto global selectedProduct ****
           // Se asume que la respuesta JSON ahora incluye la propiedad "idproducto" obtenida en PHP.
           selectedProduct.idproducto = resp.idproducto;
           selectedProduct.subcategoria_producto = `${subcategoriaText} ${descripcion}`;
           selectedProduct.precio = document.getElementById("precioModal").value;
-
-          /* selectedProduct = {
-            idproducto: resp.idproducto,  // Asigna el id obtenido por lastInsertId o parámetro OUT
-            subcategoria_producto: `${subcategoriaText} ${descripcion}`,
-            precio: document.getElementById("precio").value
-          }; */
 
           // Cerrar el modal correctamente.
           const modalEl = document.getElementById('miModal');
@@ -346,8 +343,8 @@ require_once "../../partials/header.php";
         showToast('Error de conexión al registrar.', 'ERROR', 1500);
       });
   });
-
 </script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const marcaSelect = document.getElementById("marca");
@@ -397,6 +394,7 @@ require_once "../../partials/header.php";
     categoriaSelect.addEventListener("change", cargarSubcategorias);
   });
 </script>
+
 <script>
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -413,6 +411,7 @@ require_once "../../partials/header.php";
     const btnFinalizarCompra = document.getElementById('btnFinalizarCompra');
 
     // Nuevos elementos de input para los detalles del producto
+    const inputStock = document.getElementById("stock");
     const inputPrecio = document.getElementById("precio");
     const inputCantidad = document.getElementById("cantidad");
     const inputDescuento = document.getElementById("descuento");
@@ -492,6 +491,7 @@ require_once "../../partials/header.php";
 
       inputProductElement.value = "";
       inputPrecio.value = "";
+      inputStock.value = "";
       inputCantidad.value = 1;
       inputDescuento.value = 0;
 
@@ -572,6 +572,7 @@ require_once "../../partials/header.php";
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
               inputPrecio.value = producto.precio;
+              inputStock.value = producto.stock;
               inputCantidad.value = 1;
               inputDescuento.value = 0;
               selectedProduct = {
