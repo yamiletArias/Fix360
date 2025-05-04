@@ -141,7 +141,9 @@ BEGIN
   SELECT * FROM marcas
   WHERE tipo != 'vehiculo';
 END$$
-
+-- cliente 11
+-- select * from ordenservicios;
+-- select * from clientes;
 -- 9) Obtener todas las marcas de vehículo
 DROP PROCEDURE IF EXISTS spGetAllMarcaVehiculo;
 DELIMITER $$
@@ -418,7 +420,7 @@ BEGIN
   SELECT _idorden AS nuevoidorden;
 END$$
 */
-
+-- select * from o;
 -- call spRegisterOrdenServicio(1,1,1,1,200,'nose',True,'2025/10/10',null)
 -- call insert
 -- SP para insertar la cabecera de la orden de servicio
@@ -490,9 +492,13 @@ BEGIN
 END$$
 
 
+-- select * from ordenservicios;
+-- call spListOrdenesPorPeriodo('dia', '2025-04-04');
+
+-- select * from ordenservicios;
 
 
-DROP PROCEDURE IF EXISTS spLisOrdenesPorPeriodo;
+DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListOrdenesPorPeriodo(
   IN _modo   ENUM('semana','mes','dia'),
@@ -519,44 +525,43 @@ BEGIN
     o.fechasalida,
     v.placa,
 
-    -- propietario: tabla de propietarios
+    -- propietario: ahora enlazamos correctamente desde clientes
     CASE
-      WHEN prop_c.idpersona IS NOT NULL THEN CONCAT(prop_pe.nombres, ' ', prop_pe.apellidos)
-      ELSE prop_em.nomcomercial
+      WHEN cli_prop.idpersona IS NOT NULL
+        THEN CONCAT(cli_prop_pe.nombres, ' ', cli_prop_pe.apellidos)
+      ELSE cli_prop_em.nomcomercial
     END AS propietario,
 
-    -- cliente: tabla de clientes que hizo la orden
+    -- cliente que hace la orden
     CASE
-      WHEN cli_c.idpersona IS NOT NULL THEN CONCAT(cli_pe.nombres, ' ', cli_pe.apellidos)
-      ELSE cli_em.nomcomercial
+      WHEN cli_c.idpersona IS NOT NULL
+        THEN CONCAT(cli_c_pe.nombres, ' ', cli_c_pe.apellidos)
+      ELSE cli_c_em.nomcomercial
     END AS cliente
 
   FROM ordenservicios o
     JOIN vehiculos v
       ON o.idvehiculo = v.idvehiculo
 
-    -- JOIN para PROPIETARIO
-    JOIN propietarios prop
-      ON o.idpropietario = prop.idpropietario
-    JOIN clientes prop_c
-      ON prop.idcliente = prop_c.idcliente
-    LEFT JOIN personas prop_pe
-      ON prop_c.idpersona = prop_pe.idpersona
-    LEFT JOIN empresas prop_em
-      ON prop_c.idempresa = prop_em.idempresa
+    -- ← CORRECCIÓN: idpropietario → clientes directamente
+    JOIN clientes cli_prop
+      ON o.idpropietario = cli_prop.idcliente
+    LEFT JOIN personas cli_prop_pe
+      ON cli_prop.idpersona = cli_prop_pe.idpersona
+    LEFT JOIN empresas cli_prop_em
+      ON cli_prop.idempresa = cli_prop_em.idempresa
 
-    -- JOIN para CLIENTE que hace la orden
+    -- cliente que hace la orden
     JOIN clientes cli_c
       ON o.idcliente = cli_c.idcliente
-    LEFT JOIN personas cli_pe
-      ON cli_c.idpersona = cli_pe.idpersona
-    LEFT JOIN empresas cli_em
-      ON cli_c.idempresa = cli_em.idempresa
+    LEFT JOIN personas cli_c_pe
+      ON cli_c.idpersona = cli_c_pe.idpersona
+    LEFT JOIN empresas cli_c_em
+      ON cli_c.idempresa = cli_c_em.idempresa
 
   WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
     AND o.estado = 'A'
   ORDER BY o.fechaingreso;
+
 END$$
 DELIMITER ;
-
--- select * from ordenservicios;
