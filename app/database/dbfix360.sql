@@ -252,9 +252,9 @@ modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idadmin FOREIGN KEY (idadmin) REFERENCES colaboradores (idcolaborador),
 CONSTRAINT fk_idcliente FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
 CONSTRAINT fk_idvehiculo FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo),
-CONSTRAINT fk_idpropietario FOREIGN KEY (idpropietario) REFERENCES propietarios (idpropietario)
+CONSTRAINT fk_idpropietario FOREIGN KEY (idpropietario) REFERENCES clientes (idcliente)
 )ENGINE = INNODB;
-
+-- select * from propietarios;
 DROP TABLE IF EXISTS agendas;
 CREATE TABLE agendas(
 idagenda 			INT 				PRIMARY KEY 	AUTO_INCREMENT,

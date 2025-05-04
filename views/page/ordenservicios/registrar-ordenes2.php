@@ -74,6 +74,7 @@ require_once "../../partials/header.php";
           <div class="col-md-3 mb-3">
             <div class="form-floating">
               <input type="date" class="form-control input" id="fechaIngreso">
+              <input id="horaIngreso"    name="horaIngreso"    type="hidden">
               <label for="fechaIngreso">Fecha de ingreso:</label>
             </div>
           </div>

@@ -267,7 +267,7 @@ BEGIN
     WHERE nomcomercial LIKE CONCAT('%', _criterio, '%');
   END IF;
 END$$
-
+-- select * from vwclientespersona;
 -- 18) Obtener vehículos por cliente
 DROP PROCEDURE IF EXISTS spGetVehiculoByCliente;
 DELIMITER $$
@@ -352,52 +352,6 @@ END $$
 -- Día concreto
 -- CALL spListOrdenesPorPeriodo('dia',   '2025-04-08');
 
-DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo;
-DELIMITER $$
-CREATE PROCEDURE spListOrdenesPorPeriodo(
-  IN _modo   ENUM('semana','mes','dia'),
-  IN _fecha  DATE
-)
-BEGIN
-  DECLARE start_date DATE;
-  DECLARE end_date   DATE;
-
-  IF _modo = 'semana' THEN
-    -- lunes de la semana de _fecha
-    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
-    -- domingo siguiente
-    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
-
-  ELSEIF _modo = 'mes' THEN
-    -- primer día del mes
-    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
-    -- último día del mes
-    SET end_date   = LAST_DAY(_fecha);
-
-  ELSE  -- 'dia'
-    SET start_date = _fecha;
-    SET end_date   = _fecha;
-  END IF;
-
-  SELECT
-    o.idorden,
-    o.fechaingreso,
-    o.fechasalida,
-    v.placa,
-    CASE
-      WHEN c.idpersona IS NOT NULL THEN CONCAT(pe.nombres,' ',pe.apellidos)
-      ELSE em.nomcomercial
-    END AS propietario
-  FROM ordenservicios o
-  JOIN vehiculos   v  ON o.idvehiculo    = v.idvehiculo
-  JOIN propietarios p  ON o.idpropietario = p.idpropietario
-  JOIN clientes    c  ON p.idcliente      = c.idcliente
-  LEFT JOIN personas pe ON c.idpersona    = pe.idpersona
-  LEFT JOIN empresas em ON c.idempresa    = em.idempresa
-  WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
-    AND o.estado = 'A'
-  ORDER BY o.fechaingreso;
-END$$
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ --
 /*

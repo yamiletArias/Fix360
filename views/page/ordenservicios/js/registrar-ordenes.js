@@ -93,14 +93,27 @@ document.getElementById("rbtnempresa").addEventListener("click", function () {
 // Inicializar las opciones del select al cargar el modal
 document.addEventListener("DOMContentLoaded", actualizarOpciones);
 const fechaInput = document.getElementById('fechaIngreso');
+const horaInput  = document.getElementById('horaIngreso');
+
 const setFechaDefault = () => {
-  const today = new Date();
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
+  const now = new Date();
+  const pad = num => String(num).padStart(2,'0');
+
+  // fecha
+  const year  = now.getFullYear();
+  const month = pad(now.getMonth() + 1);
+  const day   = pad(now.getDate());
   fechaInput.value = `${year}-${month}-${day}`;
+
+  // hora (hh:mm:ss)
+  const hours   = pad(now.getHours());
+  const minutes = pad(now.getMinutes());
+  const seconds = pad(now.getSeconds());
+  horaInput.value = `${hours}:${minutes}:${seconds}`;
 };
+
 setFechaDefault();
+
 
 // Ejecutar la función al cargar la página para establecer las opciones iniciales
 actualizarOpciones();
