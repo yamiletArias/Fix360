@@ -1,5 +1,5 @@
 <?php
-const NAMEVIEW = "Registro de Ventas";
+const NAMEVIEW = "Ventas";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
@@ -54,13 +54,18 @@ require_once "../../partials/header.php";
                 ...
               </button>
             </div>
+            <!-- <div class="form-floating">
+              <input name="cliente" id="cliente" type="text" class=" form-control input" placeholder="Producto"
+                required />
+              <label for="cliente">Cliente</label>
+            </div> -->
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-floating">
               <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
-                <option selected>Eliga un vehículo</option>
+                <option selected>Sin vehiculo</option>
               </select>
-              <label for="vehiculo"><strong>Vehículo:</strong></label>
+              <label for="vehiculo"><strong>Eliga un vehículo</strong></label>
             </div>
           </div>
           <div class="col-md-2 mb-3">
@@ -87,7 +92,7 @@ require_once "../../partials/header.php";
           </div>
         </div>
 
-        <!-- Sección Producto, Stock, Precio, Cantidad y Descuento -->
+        <!-- Sección Producto, Precio, Cantidad y Descuento -->
         <div class="row g-2 mt-3">
           <div class="col-md-5">
             <div class="autocomplete">
@@ -591,7 +596,8 @@ require_once "../../partials/header.php";
 
     // --- Guardar Venta ---
 
-    btnFinalizarVenta.addEventListener("click", function (e) {
+
+    btnFinalizarVenta.addEventListener("click", async function (e) {
       e.preventDefault();
       btnFinalizarVenta.disabled = true;
       btnFinalizarVenta.textContent = "Guardando...";
@@ -603,15 +609,16 @@ require_once "../../partials/header.php";
         btnFinalizarVenta.textContent = "Guardar";
         return;
       }
-      // aquí ya existe vehiculoSelect
-      const idVehiculo = parseInt(vehiculoSelect.value);
+
+      const idVehiculo = vehiculoSelect.value ? parseInt(vehiculoSelect.value) : null;
+      /* const idVehiculo = parseInt(vehiculoSelect.value);
       if (!idVehiculo) {
         alert("Selecciona un vehículo.");
         btnFinalizarVenta.disabled = false;
         btnFinalizarVenta.textContent = "Guardar";
         return;
-      }
-      // toma el kilometraje directamente del input
+      } */
+
       const km = parseFloat(document.getElementById("kilometraje").value) || 0;
 
       const data = {
@@ -621,10 +628,18 @@ require_once "../../partials/header.php";
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
         idcliente: hiddenIdCliente.value,
-        idvehiculo: idVehiculo,
-        kilometraje: km,
+        idvehiculo: idVehiculo, // puede ser null
+        kilometraje: km,         // puede ser 0 o null
         productos: detalleVenta
       };
+
+      const confirmacion = await ask("¿Estás seguro de registrar esta venta?", "Confirmar Venta");
+      if (!confirmacion) {
+        showToast('Registro cancelado.', 'WARNING', 1500);
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
+        return;
+      }
 
       fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
         method: "POST",
@@ -660,6 +675,7 @@ require_once "../../partials/header.php";
     });
   });
 </script>
+<!-- <script src="<?= SERVERURL ?>views/page/ventas/js/registrar-ventas.js"></script> -->
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>

@@ -1,9 +1,12 @@
+-- PROCEDIMIENTO ALMACENADOS DE VENTAS
+
 -- ALTERAR POR AHORA (IDORDEN, IDPROMOCION, IDCOLABORADOR, IDVEHICULO) EN VENTAS
 ALTER TABLE detalleventa
 MODIFY COLUMN idorden INT NULL,
 MODIFY COLUMN idpromocion INT NULL;
 ALTER TABLE ventas MODIFY idcolaborador INT NULL;
 ALTER TABLE ventas MODIFY idvehiculo INT NULL;
+ALTER TABLE ventas MODIFY kilometraje DECIMAL(10,2) NULL;
 
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
@@ -31,18 +34,19 @@ BEGIN
   )
   VALUES (
     _idcliente,
-    _idvehiculo,
+    NULLIF(_idvehiculo, 0),  -- convierte 0 en NULL si viene así
     _tipocom,
     _fechahora,
     _numserie,
     _numcom,
     _moneda,
-    _kilometraje
+    NULLIF(_kilometraje, 0)  -- opcional también
   );
   SELECT LAST_INSERT_ID() AS idventa;
-END $$
+END$$
 
 -- 2) PROCEDIMIENTO DE REGISTRO DETALLE DE VENTA OBTENIENDO EL IDVENTA
+DROP PROCEDURE IF EXISTS spuInsertDetalleVenta;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleVenta (
   IN _idventa INT,
@@ -75,6 +79,7 @@ BEGIN
 END $$
 
 -- 3) PROCEDIMINETO PARA OBTENER MONEDAS (soles & dolares)
+DROP PROCEDURE IF EXISTS spuGetMonedasVentas;
 DELIMITER $$
 CREATE PROCEDURE spuGetMonedasVentas()
 BEGIN
@@ -95,6 +100,7 @@ BEGIN
 END $$
 
 -- 4) PROCEDIMIENTO PARA BUSCAR CLIENTES
+DROP PROCEDURE IF EXISTS buscar_cliente;
 DELIMITER $$
 CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
 BEGIN
@@ -141,27 +147,8 @@ END $$
 -- ALTERAR ID COLABORADOR EN COMPRAS POR EL MOMENTO
 ALTER TABLE compras MODIFY idcolaborador INT NULL;
 
--- Registrar producto
-DELIMITER $$
-CREATE PROCEDURE spRegisterProducto(
-  IN _idsubcategoria INT,
-  IN _idmarca INT,
-  IN _descripcion VARCHAR(50),
-  IN _precio DECIMAL(7,2),
-  IN _presentacion VARCHAR(40),
-  IN _undmedida VARCHAR(40),
-  IN _cantidad DECIMAL(10,2),
-  IN _img VARCHAR(255),
-  OUT _idproducto INT
-)
-BEGIN
-  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
-  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
-  SET _idproducto = LAST_INSERT_ID();
-END$$
-DELIMITER $$
-
 -- 6) PROCEDIMIENTO PARA REGISTRAR COMPRAS
+DROP PROCEDURE IF EXISTS spuRegisterCompra;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCompra (
   IN _fechacompra DATE,
@@ -192,6 +179,7 @@ BEGIN
 END $$
 
 -- 7) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COMPRA OBTENIENDO EL IDCOMPRA
+DROP PROCEDURE IF EXISTS spuInsertDetalleCompra;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCompra (
   IN _idcompra INT,
@@ -211,11 +199,32 @@ BEGIN
   VALUES (
     _idproducto,
     _idcompra,
-    _cantspRegisterProductospRegisterProductoidad,
+    _cantidad,
     _preciocompra,
     _descuento
   );
 END $$
+
+-- PROCEDIMIENTO PARA REGISTRAR PRODUCTO Y OBTENER EL ID COMO SALIDA
+DROP PROCEDURE IF EXISTS spRegisterProducto;
+DELIMITER $$
+CREATE PROCEDURE spRegisterProducto(
+  IN _idsubcategoria INT,
+  IN _idmarca INT,
+  IN _descripcion VARCHAR(50),
+  IN _precio DECIMAL(7,2),
+  IN _presentacion VARCHAR(40),
+  IN _undmedida VARCHAR(40),
+  IN _cantidad DECIMAL(10,2),
+  IN _img VARCHAR(255),
+  OUT _idproducto INT
+)
+BEGIN
+  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
+  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
+  SET _idproducto = LAST_INSERT_ID();
+END$$
+DELIMITER $$
 
 -- 8) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
 DROP PROCEDURE IF EXISTS spuGetProveedores;
@@ -230,7 +239,7 @@ BEGIN
   LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
 END $$
 
--- PRUEBA (OBTENER LOS PROVEEDORES AUN EXISTENTE ANTES DEL REGSITRO)
+-- PRUEBA (OBTENER LOS PROVEEDORES AUN EXISTENTE ANTES DEL REGSITRO) PERO CON EL REGISTRO AUN NO FUNCION
 DROP PROCEDURE IF EXISTS spuGetProveedores;
 DELIMITER $$
 CREATE PROCEDURE spuGetProveedores()
@@ -244,9 +253,11 @@ BEGIN
     ON e.idempresa = p.idempresa
   ORDER BY e.nomcomercial;
 END $$
+DELIMITER ;
 
 -- 9) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA
 -- pasa a estado = false
+DROP PROCEDURE IF EXISTS spuDeleteCompra;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteCompra (
   IN _idcompra      INT,
@@ -271,6 +282,7 @@ END$$
 
 -- 10) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA
 -- pasa a estado = false
+DROP PROCEDURE IF EXISTS spuDeleteVenta;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteVenta (
   IN _idventa      INT,
@@ -294,6 +306,7 @@ BEGIN
 END$$
 
 -- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES)
+DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
 DELIMITER $$
 CREATE PROCEDURE spRegisterClienteEmpresa (
   IN _ruc CHAR(11),
@@ -338,6 +351,7 @@ END $$
 ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
 
 -- 11) PROCEDIMIENTO PARA REGISTRAR COTIZACION
+DROP PROCEDURE IF EXISTS spuRegisterCotizaciones;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCotizaciones (
   IN _fechahora TIMESTAMP,
@@ -362,6 +376,7 @@ BEGIN
 END $$
 
 -- 12) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
+DROP PROCEDURE IF EXISTS spuInsertDetalleCotizacion;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCotizacion (
   IN _idcotizacion INT,
@@ -386,6 +401,46 @@ BEGIN
     _descuento
   );
 END $$
+
+-- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
+DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListVentasPorPeriodo(
+  IN _modo   ENUM('dia','semana','mes'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+
+  ELSE  -- 'dia'
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    V.id        AS idventa,
+    V.cliente,
+    V.tipocom,
+    V.numcom,
+    -- si quieres el vehículo y kilometraje desde la tabla ventas original:
+    v2.vehiculo,
+    v2.kilometraje
+  FROM vs_ventas AS V
+  LEFT JOIN ventas AS v2 ON V.id = v2.idventa
+  WHERE DATE(v2.fechahora) BETWEEN start_date AND end_date
+    AND v2.estado = TRUE
+  ORDER BY v2.fechahora;
+END$$
+
 
 -- PROBAR 
 -- PRUEBA PARA OBTENER LAS MONEDAS
