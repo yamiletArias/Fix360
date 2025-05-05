@@ -87,25 +87,51 @@ require_once "../../partials/_footer.php";
 
     // pinta el resultado
     const pintar = data => {
-      tablaBody.innerHTML = '';
-      data.forEach((o, i) => {
-        tablaBody.insertAdjacentHTML('beforeend', `
-        <tr>
-          <td class="text-center">${i+1}</td>
-          <td>${o.propietario||''}</td>
-          <td>${o.cliente    ||''}</td>
-          <td>${fmt(o.fechaingreso)}</td>
-          <td>${ o.fechasalida ? fmt(o.fechasalida) : '<span class="text-muted">Servicios en desarrollo</span>'}</td>
-          <td>${o.placa ||''}</td>
-          <td>
-            <button class="btn btn-sm btn-danger"       title="Eliminar orden"  data-id="${o.idorden}" data-action="eliminar"><i class="fa-solid fa-trash"></i></button>
-            <button class="btn btn-sm btn-info"         title="Ver detalle de orden"  data-id="${o.idorden}" data-action="detalle"><i class="fa-solid fa-clipboard-list"></i></button>
-            <button class="btn btn-sm btn-primary"      title="Observaciones de la orden" data-id="${o.idorden}" data-action="ver"><i class="fa-solid fa-eye"></i></button>
-            <button class="btn btn-sm btn-outline-dark" title="Asignar fecha de salida"  data-id="${o.idorden}" data-action="salida"><i class="fa-solid fa-calendar-days"></i></button>
-          </td>
-        </tr>`);
-      });
-    };
+  tablaBody.innerHTML = '';
+  data.forEach((o, i) => {
+    // botones que siempre quieres mostrar
+    const btnDetalle = `<button class="btn btn-sm btn-info" data-id="${o.idorden}" data-action="detalle">
+                          <i class="fa-solid fa-clipboard-list"></i>
+                        </button>`;
+    const btnVer     = `<a class="btn btn-sm btn-primary" href="listar-observacion-orden.php?idorden=${o.idorden}" data-id="${o.idorden}" data-action="ver">
+                          <i class="fa-solid fa-eye"></i>
+                        </a>`;
+
+    // botones condicionales: sólo si no hay fecha de salida
+    let btnEliminar = '', btnSalida = '';
+    if (!o.fechasalida) {
+      btnEliminar = `<button class="btn btn-sm btn-danger" data-id="${o.idorden}" data-action="eliminar">
+                       <i class="fa-solid fa-trash"></i>
+                    </button>`;
+      btnSalida    = `<button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida">
+                       <i class="fa-solid fa-calendar-days"></i>
+                    </button>`;
+    }
+
+    tablaBody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td class="text-center">${i+1}</td>
+        <td>${o.propietario||''}</td>
+        <td>${o.cliente    ||''}</td>
+        <td>${fmt(o.fechaingreso)}</td>
+        <td>
+          ${ o.fechasalida 
+              ? fmt(o.fechasalida) 
+              : '<span class="text-muted">Servicios en desarrollo</span>' }
+        </td>
+        <td>${o.placa||''}</td>
+        <td>
+        <div class="d-flex justify-content-center align-items-center gap-1">
+          ${btnEliminar}
+          ${btnDetalle}
+          ${btnVer}
+          ${btnSalida}
+          </div>
+        </td>
+      </tr>`);
+  });
+};
+
 
     // Llama al endpoint y pinta
     const cargar = async (modo, fecha) => {

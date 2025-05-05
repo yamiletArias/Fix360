@@ -56,6 +56,10 @@
       margin: 50px ;
       width: 80%;
     }
+
+    #miTabla tbody td {
+    vertical-align: middle;
+    }
     #selectMetodo {
       background-color: white !important;
       cursor: pointer;

@@ -451,7 +451,6 @@ BEGIN
     o.fechaingreso,
     o.fechasalida,
     v.placa,
-
     -- propietario: ahora enlazamos correctamente desde clientes
     CASE
       WHEN cli_prop.idpersona IS NOT NULL
@@ -503,6 +502,46 @@ fechasalida = NOW()
 WHERE idorden = _idorden;
 END $$
 
+DROP PROCEDURE IF EXISTS spGetObservacionByOrden;
+DELIMITER $$
+CREATE PROCEDURE spGetObservacionByOrden(
+  IN _idorden INT
+)
+BEGIN
+  SELECT
+    o.idobservacion,
+    o.idcomponente,
+    co.componente,
+    o.idorden,
+    o.estado,
+    o.foto,
+    os.observaciones AS observacion_orden
+  FROM observaciones o
+  LEFT JOIN componentes co
+    ON o.idcomponente = co.idcomponente 
+  LEFT JOIN ordenservicios os
+    ON o.idorden = os.idorden
+  WHERE o.idorden = _idorden;
+END $$
+DELIMITER ;
+
+
+-- call spGetObservacionByOrden(39)
 -- call spInsertFechaSalida(3)
 -- select * from ordenservicios where idorden = 3;
+-- select * from ordenservicios;
+-- select * from productos;
 
+-- select * from observaciones;
+-- update observaciones set foto = 'images/c7b8f85b187f6a74f7f2eb78aa600722.png' where idorden = 41;
+DROP PROCEDURE f EXISTS spRegisterObservacion;
+DELIMITER $$
+CREATE PROCEDURE spRegisterObservacion(
+IN _idcomponente INT,
+IN _idorden 	  INT,
+IN _estado 			INT,
+IN _foto			VARCHAR(255)
+)
+BEGIN
+INSERT INTO observaciones (idcomponente,idorden,estado,foto) VALUES (_idcomponente,_idorden,_estado,_foto);
+END $$

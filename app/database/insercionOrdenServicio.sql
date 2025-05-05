@@ -208,3 +208,96 @@ INSERT INTO detalleordenservicios (idorden, idservicio, idmecanico, precio, esta
 (30, 1, 2, 191.00, 'A'),
 (30, 2, 2, 268.00, 'A'),
 (31, 1, 2, 191.50, 'A');
+
+-- select * from componentes;
+
+-- Observaciones para idorden = 27
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 27, TRUE,  NULL),
+  (2, 27, TRUE,  NULL),
+  (3, 27, TRUE,  NULL),
+  (4, 27, TRUE,  NULL);
+
+-- Observaciones para idorden = 28
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 28, TRUE,  NULL),
+  (2, 28, TRUE,  NULL),
+  (3, 28, TRUE,  NULL),
+  (4, 28, TRUE,  NULL);
+
+-- Observaciones para idorden = 29
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 29, TRUE,  NULL),
+  (2, 29, TRUE,  NULL),
+  (3, 29, TRUE,  NULL),
+  (4, 29, TRUE,  NULL);
+
+-- Observaciones para idorden = 30
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 30, TRUE,  NULL),
+  (2, 30, TRUE,  NULL),
+  (3, 30, TRUE,  NULL),
+  (4, 30, TRUE,  NULL);
+
+-- Observaciones para idorden = 31
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 31, TRUE,  NULL),
+  (2, 31, TRUE,  NULL),
+  (3, 31, TRUE,  NULL),
+  (4, 31, TRUE,  NULL);
+
+-- Observaciones para idorden = 32
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 32, TRUE,  NULL),
+  (2, 32, TRUE,  NULL),
+  (3, 32, TRUE,  NULL),
+  (4, 32, TRUE,  NULL);
+
+-- Observaciones para idorden = 35
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 35, TRUE,  NULL),
+  (2, 35, TRUE,  NULL),
+  (3, 35, TRUE,  NULL),
+  (4, 35, TRUE,  NULL);
+
+-- Observaciones para idorden = 36
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 36, TRUE,  NULL),
+  (2, 36, TRUE,  NULL),
+  (3, 36, TRUE,  NULL),
+  (4, 36, TRUE,  NULL);
+
+-- Observaciones para idorden = 37
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 37, TRUE,  NULL),
+  (2, 37, TRUE,  NULL),
+  (3, 37, TRUE,  NULL),
+  (4, 37, TRUE,  NULL);
+
+-- Observaciones para idorden = 38
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 38, TRUE,  NULL),
+  (2, 38, TRUE,  NULL),
+  (3, 38, TRUE,  NULL),
+  (4, 38, TRUE,  NULL);
+
+-- Observaciones para idorden = 39
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 39, TRUE,  NULL),
+  (2, 39, TRUE,  NULL),
+  (3, 39, TRUE,  NULL),
+  (4, 39, TRUE,  NULL);
+
+-- Observaciones para idorden = 40
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 40, TRUE,  NULL),
+  (2, 40, TRUE,  NULL),
+  (3, 40, TRUE,  NULL),
+  (4, 40, TRUE,  NULL);
+
+-- Observaciones para idorden = 41
+INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
+  (1, 41, TRUE,  NULL),
+  (2, 41, TRUE,  NULL),
+  (3, 41, TRUE,  NULL),
+  (4, 41, TRUE,  NULL);

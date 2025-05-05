@@ -1,137 +1,40 @@
 <?php
 
-CONST NAMEVIEW = "Lista de observaciones";
-
+const NAMEVIEW = "Lista de observaciones";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
-
+require_once "../../../app/models/Observacion.php";
+$obsModel  = new Observacion();
+$idorden   = intval($_GET['idorden'] ?? 0);
+$observes  = $obsModel->getObservacionByOrden($idorden);
 ?>
-<div class="container-main ">
-  <div class="form-group">
-    <label>Observaciones:</label>
-    <textarea style="margin-right: 500px; padding-right: 100px;" disabled rows="10" cols="50" name=""
-      id="">Observaciones del auto</textarea>
-    <button style="margin-top: 130px; margin-left: 350px;"
-      onclick="window.location.href='registrar-observacion-ordenes.php'"
-      class=" btn btn-success">Registrar</button>
-  </div>
-  <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-    <div class="card" style="width: 18rem; position: relative;">
-      <div class="form-floating">
-        <label style="display: flex;">
-          <strong>Espejos delanteros:</strong>
-        </label>
-        <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXzvt_A5UQ3xFzsAKD-ufZy0jSFQjUcEmb5w&s"
-          class="card-img-top" alt="...">
+<style>
+  img{
+    width:  1500px;
+    height: 150px;
+  }
+</style>
 
-        <!-- Switch en la esquina inferior derecha de la imagen -->
-        <div class="switch-container form-switch" style="position: absolute; bottom: 10px; right: 10px;">
-          <label for="swtestado" class="form-check-label"
-            style="color: white; font-weight: bold;margin-right:50px;">Estado:</label>
-          <input class="form-check-input" type="checkbox" role="switch" id="swtestado" disabled
-            style="transform: scale(1.2);">
-        </div>
-      </div>
-      <div class="card-footer">
-        <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        <button id="btnEliminar" class="btn btn-danger btn-sm">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
+<div class="container-main">
+  <!-- textarea + botón en un flex container -->
+  <div class="mb-4 d-flex align-items-start gap-2">
+    <div class="flex-grow-1">
+      <label for="obs-general" class="form-label"><strong>Observación de la orden:</strong></label>
+      <textarea id="obs-general"
+                class="form-control"
+                rows="2"
+                disabled><?= htmlspecialchars($observes[0]['observacion_orden'] ?? '') ?></textarea>
     </div>
-
-    <div class="card" style="width: 18rem; position: relative;">
-      <div class="form-floating">
-        <label style="display: flex; color:white">
-          <strong>Motor:</strong>
-        </label>
-        <img
-          src="https://cdn.autobild.es/sites/navi.axelspringer.es/public/media/image/2017/09/mejores-motores-cuatro-cilindros_6.jpg?tf=3840x"
-          class="card-img-top" alt="...">
-
-        <!-- Switch en la esquina inferior derecha de la imagen -->
-        <div class="switch-container form-switch" style="position: absolute; bottom: 10px; right: 10px;">
-          <label for="swtestado" class="form-check-label"
-            style="color: white; font-weight: bold;margin-right:50px;">Estado:</label>
-          <input class="form-check-input" type="checkbox" role="switch" id="swtestado"
-            style="transform: scale(1.2);" checked disabled>
-        </div>
-      </div>
-      <div class="card-footer">
-        <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        <button id="btnEliminar" class="btn btn-danger btn-sm">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    <div class="card" style="width: 18rem; position: relative;">
-      <div class="form-floating">
-        <label style="display: flex; color: white;">
-          <strong>Luces delanteras:</strong>
-        </label>
-        <img
-          src="https://www.championautoparts.com/content/dam/marketing/emea/champion/news/align-headligths-header-thumb.jpg"
-          class="card-img-top" alt="...">
-
-        <!-- Switch en la esquina inferior derecha de la imagen -->
-        <div class="switch-container form-switch" style="position: absolute; bottom: 10px; right: 10px;">
-          <label for="swtestado" class="form-check-label"
-            style="color: white; font-weight: bold;margin-right:50px;">Estado:</label>
-          <input class="form-check-input" type="checkbox" role="switch" id="swtestado" disabled
-            style="transform: scale(1.2);">
-        </div>
-      </div>
-      <div class="card-footer">
-        <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        <button id="btnEliminar" class="btn btn-danger btn-sm">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    <div class="card" style="width: 18rem; position: relative;">
-      <div class="form-floating">
-        <label style="display: flex;">
-          <strong>Parte trasera:</strong>
-        </label>
-        <img
-          src="https://f.fcdn.app/imgs/c320e0/www.cymaco.com.uy/cym/9d51/original/wysiwyg/1/1280x0/70916208-2715878311764014-869032.jpg"
-          class="card-img-top" alt="...">
-
-        <!-- Switch en la esquina inferior derecha de la imagen -->
-        <div class="switch-container form-switch" style="position: absolute; bottom: 10px; right: 10px;">
-          <label for="swtestado" class="form-check-label"
-            style="color: white; font-weight: bold;margin-right:50px;">Estado:</label>
-          <input class="form-check-input" type="checkbox" role="switch" id="swtestado"
-            style="transform: scale(1.2);" checked disabled>
-        </div>
-      </div>
-      <div class="card-footer">
-        <h4>Opciones:</h4>
-        <button class="btn btn-warning btn-sm" onclick="window.location.href='editar-observacion-ordenes.php'">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        <button id="btnEliminar" class="btn btn-danger btn-sm">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </div>
-
+    <a class="btn btn-success align-self-end" href="registrar-observacion-ordenes.php">
+      Registrar
+    </a>
   </div>
 
+  <div id="obs-container" class="d-flex flex-wrap gap-4">
+  </div>
   <div>
-    <button onclick="window.location.href='listar-ordenes.php'" style="margin-top: 20px; "
-      class=" btn btn-secondary">Volver</button>
+    <a href="listar-ordenes.php" class="btn btn-secondary">Volver</a>
   </div>
 </div>
 
@@ -146,18 +49,63 @@ require_once "../../partials/_footer.php";
 ?>
 
 <script>
-  document
-    .querySelector("#btnEliminar")
-    .addEventListener("click", async () => {
-      if (
-        await ask("¿Estás seguro de eliminar este registro?", "Usuarios")
-      ) {
-        showToast("Registro eliminado", "SUCCESS", 2000);
-      } else {
-        showToast("Eliminación cancelada", "WARNING", 2000);
+document.addEventListener('DOMContentLoaded', () => {
+  const cont = document.getElementById('obs-container');
+  const params = new URLSearchParams(location.search);
+  const idorden = params.get('idorden'); 
+  if (!idorden) {
+    cont.innerHTML = '<p class="text-danger">No se indicó ningún ID de orden.</p>';
+    return;
+  }
+
+  fetch(`http://localhost/fix360/app/controllers/observacion.controller.php?task=getObservacionByOrden&idorden=${idorden}`)
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then(data => {
+      cont.innerHTML = '';  
+      if (data.length === 0) {
+        cont.innerHTML = `
+        <div class="alert alert-warning" role="alert">
+  No hay observaciones por mostrar
+</div>`;
+        return;
       }
+      data.forEach(o => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style = 'width:18rem;position:relative;margin:10px';
+        card.innerHTML = `
+          <div class="card-header"><strong>${o.componente}</strong></div>
+          <img src="<?= SERVERURL ?>${o.foto || 'ruta/por/defecto.jpg'}"  alt="Foto no proporcionada" class="card-img-top" />
+
+          
+            <div class="form-check form-switch" style=";position:absolute;bottom:10px;right:10px;">
+              <input class="form-check-input" type="checkbox" ${o.estado?'checked':''} disabled>
+              <label class="form-check-label">Estado</label>
+            
+          </div>
+          <div class="card-footer d-flex justify-content-between">
+            <button class="btn btn-warning btn-sm"
+                    onclick="location.href='editar-observacion-ordenes.php?idobs=${o.idobservacion}&idorden=${idorden}'">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="btn btn-danger btn-sm"
+                    onclick="if(confirm('¿Borrar esta observación?')) location.href='eliminar-observacion.php?idobs=${o.idobservacion}&idorden=${idorden}'">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>`;
+        cont.appendChild(card);
+      });
+    })
+    .catch(err => {
+      console.error('Error cargando observaciones:', err);
+      cont.innerHTML = '<p class="text-danger">Error al cargar las observaciones.</p>';
     });
+});
 </script>
+
 
 
 

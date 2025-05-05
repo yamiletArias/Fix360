@@ -130,22 +130,7 @@ for(let pair of formData.entries()){
   console.log(pair[0]+ ': ' + pair[1]);
 }
 
-/*
-const data ={
-idmarca: document.getElementById("marca").value,
-idsubcategoria: document.getElementById("subcategoria").value,
-descripcion: document.getElementById("descripcion").value,
-precio: document.getElementById("precio").value,
-presentacion: document.getElementById("presentacion").value,
-undmedida: document.getElementById("undmedida").value,
-cantidad: document.getElementById("cantidad").value,
-img: document.getElementById("img").value
-};
-if(!data.idmarca || !data.idsubcategoria || !data.descripcion || !data.precio || !data.presentacion || !data.undmedida || !data.cantidad){
-  alert("Por favor, comlete todos los campos obligatorios");
-  return;
-}
-*/
+
 fetch("http://localhost/fix360/app/controllers/producto.controller.php",{
 method: "POST",
 //headers: {"Content-Type": "application/json"},
