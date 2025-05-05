@@ -353,73 +353,7 @@ END $$
 
 -- Día concreto
 -- CALL spListOrdenesPorPeriodo('dia',   '2025-04-08');
-
-
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ --
-/*
--- call spRegistrarOrdenServicio( )
-DROP PROCEDURE IF EXISTS spRegistrarOrdenServicio;
-DELIMITER $$
-CREATE PROCEDURE spRegistrarOrdenServicio (
-  IN  _idvehiculo     INT,
-  IN  _idpropietario  INT,
-  IN  _fechaIngreso   DATETIME,
-  IN  _fechaSalida    DATETIME,
-  IN  _detalles       JSON
-)
-BEGIN
-  DECLARE _idorden   INT;
-  DECLARE _i         INT DEFAULT 0;
-  DECLARE _n         INT;
-  DECLARE _iditem    INT;
-  DECLARE _cantidad  DECIMAL(10,2);
-  DECLARE _precio    DECIMAL(12,2);
-  DECLARE _subtotal  DECIMAL(14,2);
-
-  -- Manejador de errores: si algo falla, hace ROLLBACK y relanza
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
-  BEGIN
-    ROLLBACK;
-    RESIGNAL;
-  END;
-
-  START TRANSACTION;
-
-    -- 1) Inserta cabecera
-    INSERT INTO ordenservicios
-      (idvehiculo, idpropietario, fechaingreso, fechasalida, estado)
-    VALUES
-      (_idvehiculo, _idpropietario, _fechaIngreso, _fechaSalida, 'A');
-
-    SET _idorden = LAST_INSERT_ID();
-
-    -- 2) Recorre el array JSON de detalles
-    SET _n = JSON_LENGTH(_detalles);
-    WHILE _i < _n DO
-      SET _iditem   = JSON_UNQUOTE(JSON_EXTRACT(_detalles, CONCAT('$[', _i, '].idItem')));
-      SET _cantidad = JSON_EXTRACT(_detalles,   CONCAT('$[', _i, '].cantidad'));
-      SET _precio   = JSON_EXTRACT(_detalles,   CONCAT('$[', _i, '].precio'));
-      SET _subtotal = _cantidad * _precio;
-
-      INSERT INTO detalleordenservicio
-        (idorden, iditem, cantidad, precio_unitario, subtotal)
-      VALUES
-        (_idOrden, _idItem, _cantidad, _precio, _subtotal);
-
-      -- (Opcional) actualizar stock de repuestos
-      -- UPDATE productos
-      --   SET stock = stock - v_cantidad
-      --   WHERE idproducto = v_idItem;
-
-      SET _i = _i + 1;
-    END WHILE;
-
-  COMMIT;
--- select * from vwvehiculos;
-  -- Devuelve el ID generado por si lo quieres capturar en la aplicación
-  SELECT _idorden AS nuevoidorden;
-END$$
-*/
 -- select * from o;
 -- call spRegisterOrdenServicio(1,1,1,1,200,'nose',True,'2025/10/10',null)
 -- call insert
@@ -491,13 +425,6 @@ BEGIN
   );
 END$$
 
-
--- select * from ordenservicios;
--- call spListOrdenesPorPeriodo('dia', '2025-04-04');
-
--- select * from ordenservicios;
-
-
 DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListOrdenesPorPeriodo(
@@ -564,3 +491,18 @@ BEGIN
   ORDER BY o.fechaingreso;
 
 END$$
+
+DROP PROCEDURE IF EXISTS spInsertFechaSalida;
+DELIMITER $$
+CREATE PROCEDURE spInsertFechaSalida(
+IN _idorden 	INT
+)
+BEGIN
+UPDATE ordenservicios SET
+fechasalida = NOW()
+WHERE idorden = _idorden;
+END $$
+
+-- call spInsertFechaSalida(3)
+-- select * from ordenservicios where idorden = 3;
+

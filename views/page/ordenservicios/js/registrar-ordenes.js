@@ -45,6 +45,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
+  // Después de inicializar tu código en DOMContentLoaded…
+const miModalEl = document.getElementById('miModal');
+miModalEl.addEventListener('shown.bs.modal', () => {
+  // Al mostrarse el modal, ponemos foco en el input
+  document.getElementById('vbuscado').focus();
+});
+
+// Y lo mismo para el modal de cliente…
+const modalClienteEl = document.getElementById('ModalCliente');
+modalClienteEl.addEventListener('shown.bs.modal', () => {
+  document.getElementById('vbuscadoCliente').focus();
+});
+
+
   // Inputs del modal propietario
   document.getElementById("rbtnpersona").addEventListener("click", () => { actualizarOpciones(); buscarPropietario(); });
   document.getElementById("rbtnempresa").addEventListener("click", () => { actualizarOpciones(); buscarPropietario(); });
@@ -207,7 +221,6 @@ function onAgregarDetalle() {
   const precio = parseFloat(document.getElementById('precio').value);
   const idServ = +serv.value;
 
-  // 1) Validaciones
   if (!idServ || !+mec.value) {
     return alert('Selecciona servicio y mecánico');
   }
@@ -215,14 +228,11 @@ function onAgregarDetalle() {
     return alert('Este servicio ya está en la lista');
   }
 
-  // 2) Agregar al array
   detalleArr.push({ idservicio: idServ, idmecanico: +mec.value, precio });
 
-  // 3) Deshabilitar la opción en el select
   const option = serv.querySelector(`option[value="${idServ}"]`);
   if (option) option.disabled = true;
 
-  // 4) Insertar fila en la tabla
   const tbody = document.querySelector('#tabla-detalle tbody');
   const idx   = tbody.children.length + 1;
   const tr    = document.createElement('tr');
@@ -234,25 +244,15 @@ function onAgregarDetalle() {
     <td><button class="btn btn-sm btn-danger">X</button></td>
   `;
 
-  // 5) Configurar botón de eliminar
   tr.querySelector('button').onclick = () => {
-    // a) Quitar del array
     const removeIndex = detalleArr.findIndex(d => d.idservicio === idServ);
     if (removeIndex > -1) detalleArr.splice(removeIndex, 1);
-
-    // b) Quitar la fila
     tr.remove();
-
-    // c) Habilitar de nuevo la opción
     if (option) option.disabled = false;
-
-    // d) Recalcular totales
     recalcular();
   };
 
   tbody.appendChild(tr);
-
-  // 6) Recalcular totales
   recalcular();
 }
 
@@ -265,7 +265,14 @@ function recalcular() {
 }
 
 function onAceptarOrden(e) {
+  
   e.preventDefault();
+  
+  const confirmar = window.confirm('¿Estás seguro de que quieres registrar esta orden de servicio?');
+  if (!confirmar) return; // si pulsa Cancelar, no hace nada
+
+  // 1) Validar que haya al menos un servicio
+
   if (detalleArr.length===0) return alert('Agrega al menos un servicio');
   const payload = {
     idmecanico: +document.getElementById('mecanico').value,
@@ -281,9 +288,24 @@ function onAceptarOrden(e) {
   };
   console.log('payload:', payload);
   fetch('http://localhost/fix360/app/controllers/OrdenServicio.controller.php', {
-    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
   })
-  .then(r=>r.json())
-  .then(js=> showToast(js.status==='success'? 'Orden registrada exitosamente':'Error al registrar la orden', js.status.toUpperCase(), 1500))
-  .catch(err=> showToast('Error de red o servidor','ERROR',2000));
-}
+    .then(r => r.json())
+    .then(js => {
+      if (js.status === 'success') {
+        showToast('Orden registrada exitosamente', 'SUCCESS', 1500);
+        // Después de 1 segundo (una vez visible el toast) redirige:
+        setTimeout(() => {
+          window.location.href = 'listar-ordenes.php';
+        }, 1000);
+      } else {
+        showToast('Error al registrar la orden de servicio', 'ERROR', 1500);
+      }
+    })
+    .catch(err => {
+      console.error('Fetch error:', err);
+      showToast('Error de red o servidor','ERROR',2000);
+    });
+}  

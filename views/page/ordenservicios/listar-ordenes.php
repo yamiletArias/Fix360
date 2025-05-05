@@ -95,13 +95,13 @@ require_once "../../partials/_footer.php";
           <td>${o.propietario||''}</td>
           <td>${o.cliente    ||''}</td>
           <td>${fmt(o.fechaingreso)}</td>
-          <td>${fmt(o.fechasalida)}</td>
-          <td>${o.placa      ||''}</td>
+          <td>${ o.fechasalida ? fmt(o.fechasalida) : '<span class="text-muted">Servicios en desarrollo</span>'}</td>
+          <td>${o.placa ||''}</td>
           <td>
-            <button class="btn btn-sm btn-danger"    data-id="${o.idorden}" data-action="eliminar"><i class="fa-solid fa-trash"></i></button>
-            <button class="btn btn-sm btn-info"      data-id="${o.idorden}" data-action="detalle"><i class="fa-solid fa-clipboard-list"></i></button>
-            <button class="btn btn-sm btn-primary"   data-id="${o.idorden}" data-action="ver"><i class="fa-solid fa-eye"></i></button>
-            <button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida"><i class="fa-solid fa-calendar-days"></i></button>
+            <button class="btn btn-sm btn-danger"       title="Eliminar orden"  data-id="${o.idorden}" data-action="eliminar"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn btn-sm btn-info"         title="Ver detalle de orden"  data-id="${o.idorden}" data-action="detalle"><i class="fa-solid fa-clipboard-list"></i></button>
+            <button class="btn btn-sm btn-primary"      title="Observaciones de la orden" data-id="${o.idorden}" data-action="ver"><i class="fa-solid fa-eye"></i></button>
+            <button class="btn btn-sm btn-outline-dark" title="Asignar fecha de salida"  data-id="${o.idorden}" data-action="salida"><i class="fa-solid fa-calendar-days"></i></button>
           </td>
         </tr>`);
       });
@@ -137,11 +137,33 @@ require_once "../../partials/_footer.php";
         showToast('Orden eliminada', 'SUCCESS');
         cargar(currentModo, fechaInput.value);
       }
-      if (btn.dataset.action === 'salida' && await ask('¿Confirma fecha de salida?', 'Orden')) {
-        // ...
-        showToast('Salida registrada', 'SUCCESS');
-        cargar(currentModo, fechaInput.value);
-      }
+      // … dentro de tu tablaBody.addEventListener('click', async ev => { … })
+if (btn.dataset.action === 'salida' && await ask('¿Confirma fecha de salida?', 'Orden')) {
+  try {
+    // Llamada al controlador para setFechaSalida
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'setSalida',
+        idorden: id
+      })
+    });
+    const json = await res.json();
+
+    if (json.status === 'success' && json.updated > 0) {
+      showToast('Fecha de salida registrada', 'SUCCESS');
+    } else {
+      showToast('No se pudo registrar la salida: ' + (json.message || 'error desconocido'), 'ERROR');
+    }
+  } catch (e) {
+    console.error('Error al asignar fecha de salida:', e);
+    showToast('Error de red al asignar salida', 'ERROR');
+  }
+  // Refrescar la tabla
+  cargar(currentModo, fechaInput.value);
+}
+
       // etc.
     });
 

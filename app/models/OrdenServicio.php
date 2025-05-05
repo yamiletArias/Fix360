@@ -113,4 +113,23 @@ class OrdenServicio extends Conexion
             return [];
         }
     }
+
+    public function setFechaSalida(int $idorden): int {
+    try {
+        $pdo = $this->pdo;
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare("CALL spInsertFechaSalida(:idorden)");
+        $stmt->execute([':idorden' => $idorden]);
+        $affected = $stmt->rowCount();
+        $stmt->closeCursor();
+        $pdo->commit();
+        return $affected;  
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        error_log("OrdenServicio::setFechaSalida error: " . $e->getMessage());
+        return 0;
+    }
+}
+
+
 }

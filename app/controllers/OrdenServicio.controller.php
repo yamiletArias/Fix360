@@ -15,7 +15,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Preparar parámetros para el modelo
+    // Ruta para “setFechaSalida”
+    if (isset($data['action']) && $data['action'] === 'setSalida') {
+        $idorden = intval($data['idorden'] ?? 0);
+        if ($idorden <= 0) {
+            echo json_encode(['status' => 'error', 'message' => 'ID de orden inválido']);
+            exit;
+        }
+        $affected = $ordenModel->setFechaSalida($idorden);
+        if ($affected > 0) {
+            echo json_encode(['status' => 'success', 'updated' => $affected]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'No se actualizó fecha de salida']);
+        }
+        exit;
+    }
+
+    // Ruta para registrar nueva orden
     $params = [
         'idadmin'           => $_SESSION['user_id'] ?? 1,
         'idpropietario'     => intval($data['idpropietario']),
@@ -26,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'ingresogrua'       => boolval($data['ingresogrua'] ?? false),
         'fechaingreso'      => Helper::limpiarCadena($data['fechaingreso']),
         'fecharecordatorio' => Helper::limpiarCadena($data['fecharecordatorio'] ?? null),
-        'servicios'           => array_map(function($item) {
+        'servicios'         => array_map(function($item) {
             return [
                 'idservicio' => intval($item['idservicio']),
                 'idmecanico' => intval($item['idmecanico']),
@@ -35,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }, $data['detalle'] ?? [])
     ];
 
-    // Llamada al modelo para insertar cabecera y detalle
     $idorden = $ordenModel->registerOrdenServicio($params);
 
     if ($idorden > 0) {
@@ -43,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         echo json_encode(['status' => 'error', 'message' => 'No se pudo registrar la orden']);
     }
+    exit;
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Listado de órdenes por periodo
