@@ -3,6 +3,7 @@
 if (isset($_SERVER['REQUEST_METHOD'])) {
 
     header('Content-Type: application/json; charset=utf-8');
+    date_default_timezone_set("America/Lima");
 
     require_once '../models/Venta.php';
     require_once "../helpers/helper.php";
@@ -10,20 +11,43 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? "");
+            // Listado de ventas por periodo
+            if (isset($_GET['modo']) && isset($_GET['fecha'])) {
+                $modo = $_GET['modo'] ?? 'dia';
+                $fecha = $_GET['fecha'] ?? date('Y-m-d');
+
+                if (!in_array($modo, ['dia', 'semana', 'mes'], true)) {
+                    $modo = 'dia'; // fallback
+                }
+
+                $ventas = $venta->listarPorPeriodoVentas($modo, $fecha);
+                echo json_encode(['status' => 'success', 'data' => $ventas]);
+                exit;
+            }
+
+            // Obtener ventas eliminadas
+            if (isset($_GET['action']) && $_GET['action'] === 'ventas_eliminadas') {
+                $ventasEliminadas = $venta->getVentasEliminadas();
+                echo json_encode(['status' => 'success', 'data' => $ventasEliminadas]);
+                exit;
+            }
+
+            // Monedas
             if (isset($_GET['type']) && $_GET['type'] == 'moneda') {
                 echo json_encode($venta->getMonedasVentas());
-            } else if (isset($_GET['q']) && !empty($_GET['q'])) {
+            }
+            
+            // Búsqueda
+            else if (isset($_GET['q']) && !empty($_GET['q'])) {
+                $termino = $_GET['q'];
                 if (isset($_GET['type']) && $_GET['type'] == 'producto') {
-                    // Buscar productos
-                    $termino = $_GET['q'];
                     echo json_encode($venta->buscarProducto($termino));
                 } else {
-                    // Buscar clientes
-                    $termino = $_GET['q'];
                     echo json_encode($venta->buscarCliente($termino));
                 }
-            } else {
+            }
+            // Todas las ventas
+            else {
                 echo json_encode($venta->getAll());
             }
             break;
@@ -34,14 +58,14 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             if (isset($_POST['action'], $_POST['idventa']) && $_POST['action'] === 'eliminar') {
                 $id = intval($_POST['idventa']);
                 $justificacion = trim($_POST['justificacion'] ?? "");
-        
+
                 error_log("Intentando anular compra #$id. Justificación: $justificacion");
-        
+
                 $ok = $venta->deleteVenta($id, $justificacion);
                 error_log("Resultado deleteVenta: " . ($ok ? 'OK' : 'FAIL'));
-        
+
                 echo json_encode([
-                    'status'  => $ok ? 'success' : 'error',
+                    'status' => $ok ? 'success' : 'error',
                     'message' => $ok ? 'Compra anulada.' : 'No se pudo anular la compra.'
                 ]);
                 exit;
@@ -63,15 +87,17 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
             if (empty($fechahora)) {
                 $fechahora = date("Y-m-d H:i:s");
-            } elseif (strpos($fechahora, ' ') === false) {
-                $fechahora .= " " . date("H:i:s");
+            } else {
+                $fecha = explode(" ", $fechahora)[0];
+                $fechahora = $fecha . " " . date("H:i:s");
             }
+
             $numserie = Helper::limpiarCadena($dataJSON['numserie'] ?? "");
             $numcom = Helper::limpiarCadena($dataJSON['numcom'] ?? "");
             $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
             $idcliente = $dataJSON['idcliente'] ?? 0;
             $kilometraje = $dataJSON['kilometraje'] ?? 0;
-            $idvehiculo = intval($dataJSON['idvehiculo'] ?? 0); 
+            $idvehiculo = intval($dataJSON['idvehiculo'] ?? 0);
             $productos = $dataJSON['productos'] ?? [];
 
             if (empty($productos)) {
@@ -89,7 +115,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "numcom" => $numcom,
                 "moneda" => $moneda,
                 "idcliente" => $idcliente,
-                "idvehiculo"=> $idvehiculo,
+                "idvehiculo" => $idvehiculo,
                 "kilometraje" => $kilometraje,
                 "productos" => $productos
             ]);

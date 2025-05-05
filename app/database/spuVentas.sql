@@ -281,7 +281,7 @@ BEGIN
 END$$
 
 -- 10) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA
--- pasa a estado = false
+-- SIN ELIMINAR LOS PRODUCTOS SOLO PASA A ESTADO ANULADA
 DROP PROCEDURE IF EXISTS spuDeleteVenta;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteVenta (
@@ -295,9 +295,7 @@ BEGIN
     RESIGNAL;
   END;
   START TRANSACTION;
-    -- Eliminar detalles
-    DELETE FROM detalleventa WHERE idventa = _idventa;
-    -- Marcar como anulada + guardar justificación
+    -- Solo marca como anulada y guarda justificación
     UPDATE ventas
     SET estado = FALSE,
         justificacion = _justificacion
@@ -406,39 +404,38 @@ END $$
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListVentasPorPeriodo(
-  IN _modo   ENUM('dia','semana','mes'),
+  IN _modo   ENUM('semana','mes','dia'),
   IN _fecha  DATE
 )
 BEGIN
   DECLARE start_date DATE;
   DECLARE end_date   DATE;
 
+  -- Calcular rango según modo
   IF _modo = 'semana' THEN
     SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
     SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
-
   ELSEIF _modo = 'mes' THEN
     SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
     SET end_date   = LAST_DAY(_fecha);
-
-  ELSE  -- 'dia'
+  ELSE
     SET start_date = _fecha;
     SET end_date   = _fecha;
   END IF;
 
+  -- Sólo los campos que tu script usa en la lista
   SELECT
-    V.id        AS idventa,
-    V.cliente,
-    V.tipocom,
-    V.numcom,
-    -- si quieres el vehículo y kilometraje desde la tabla ventas original:
-    v2.vehiculo,
-    v2.kilometraje
-  FROM vs_ventas AS V
-  LEFT JOIN ventas AS v2 ON V.id = v2.idventa
-  WHERE DATE(v2.fechahora) BETWEEN start_date AND end_date
-    AND v2.estado = TRUE
-  ORDER BY v2.fechahora;
+    v.idventa    AS id,
+    COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+    v.tipocom    AS tipocom,
+    v.numcom     AS numcom
+  FROM ventas v
+    JOIN clientes c      ON v.idcliente  = c.idcliente
+    LEFT JOIN personas p ON c.idpersona  = p.idpersona
+    LEFT JOIN empresas e ON c.idempresa  = e.idempresa
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado = TRUE
+  ORDER BY v.fechahora;
 END$$
 
 
@@ -450,9 +447,9 @@ CALL buscar_producto('moto');
 -- PRUEBA PARA VER PROVEEDORE
 CALL spuGetProveedores();
 -- PRUEBA PARA VER LA JUSTIFICACION
-SELECT idcompra, justificacion, estado
-FROM compras
-WHERE idcompra = 3;
+SELECT idventa, justificacion, estado
+FROM ventas
+WHERE idventa = 3;
 
 -- PRUEBA DE VENTAS
 SELECT * FROM detalleventa;
