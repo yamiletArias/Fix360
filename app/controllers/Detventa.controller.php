@@ -1,3 +1,4 @@
+
 <?php
 require_once '../models/Conexion.php';
 
@@ -7,32 +8,20 @@ if (isset($_GET['idventa'])) {
         $conexion = new Conexion();
         $db = Conexion::getConexion();
 
-        $detalle = [];
-        $justificacion = null;
-
-        // 1. Intentar obtener detalle de venta activa
+        // 1. Intentar primero en la vista de ventas activas
         $stmt = $db->prepare("SELECT * FROM vista_detalle_venta WHERE idventa = ?");
         $stmt->execute([$idventa]);
-        $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // 2. Si no hay resultados, buscar en vista de eliminadas + obtener justificación
-        if (empty($detalle)) {
+        // 2. Si no hay resultados, buscar en la vista de eliminadas
+        if (empty($detalles)) {
             $stmt = $db->prepare("SELECT * FROM vista_detalle_venta_eliminada WHERE idventa = ?");
             $stmt->execute([$idventa]);
-            $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Obtener justificación de la venta eliminada
-            $stmt = $db->prepare("SELECT justificacion FROM vista_justificacion_venta WHERE idventa = ?");
-            $stmt->execute([$idventa]);
-            $justificacionData = $stmt->fetch(PDO::FETCH_ASSOC);
-            $justificacion = $justificacionData['justificacion'] ?? null;
+            $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         header('Content-Type: application/json');
-        echo json_encode([
-            'detalle' => $detalle,
-            'justificacion' => $justificacion
-        ]);
+        echo json_encode($detalles);
     } catch (PDOException $e) {
         echo json_encode(['error' => $e->getMessage()]);
     }
