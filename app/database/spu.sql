@@ -564,4 +564,3 @@ BEGIN
   ORDER BY o.fechaingreso;
 
 END$$
-DELIMITER ;

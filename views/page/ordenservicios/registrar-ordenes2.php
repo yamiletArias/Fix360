@@ -29,7 +29,8 @@ require_once "../../partials/header.php";
               <input type="text" disabled class="form-control input" id="propietario"
                 placeholder="Propietario" />
               <label for="propietario">Propietario</label>
-              <input type="hidden" id="hiddenIdCliente" />
+              <!-- En tu formulario principal -->
+              <input type="hidden" id="hiddenIdPropietario" name="idpropietario">
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                 data-bs-target="#miModal">
                 ...
@@ -39,6 +40,7 @@ require_once "../../partials/header.php";
           <div class="col-md-4 mb-3">
             <div class="form-floating input-group mb-3">
               <input type="text" disabled class="form-control input" id="cliente" placeholder="Cliente">
+              <input type="hidden" id="hiddenIdCliente" name="idcliente">
               <label for="cliente">Cliente</label>
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ModalCliente">…</button>
             </div>
@@ -73,8 +75,7 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-floating">
-              <input type="date" class="form-control input" id="fechaIngreso">
-              <input id="horaIngreso"    name="horaIngreso"    type="hidden">
+            <input type="datetime-local" class="form-control input" id="fechaIngreso">
               <label for="fechaIngreso">Fecha de ingreso:</label>
             </div>
           </div>
