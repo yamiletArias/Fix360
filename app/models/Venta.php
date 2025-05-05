@@ -27,20 +27,20 @@ class Venta extends Conexion
     //ELIMINAR VENTA
     public function deleteVenta(int $idventa, string $justificacion = null): bool
     {
-      try {
-        $sql = "CALL spuDeleteVenta(:idventa, :justificacion)";
-        $stmt = $this->pdo->prepare($sql);
-        $res = $stmt->execute([
-          ':idventa' => $idventa,
-          ':justificacion' => $justificacion
-        ]);
-    
-        error_log("Procedimiento spuDeleteVenta ejecutado.");
-        return $res;
-      } catch (PDOException $e) {
-        error_log("Error al ejecutar spuDeleteVenta para compra #{$idventa}: " . $e->getMessage());
-        return false;
-      }
+        try {
+            $sql = "CALL spuDeleteVenta(:idventa, :justificacion)";
+            $stmt = $this->pdo->prepare($sql);
+            $res = $stmt->execute([
+                ':idventa' => $idventa,
+                ':justificacion' => $justificacion
+            ]);
+
+            error_log("Procedimiento spuDeleteVenta ejecutado.");
+            return $res;
+        } catch (PDOException $e) {
+            error_log("Error al ejecutar spuDeleteVenta para compra #{$idventa}: " . $e->getMessage());
+            return false;
+        }
     }
 
     // Buscar clientes
@@ -154,5 +154,46 @@ class Venta extends Conexion
             return 0;
         }
     }
+
+    /**
+     * Lista ventas por periodo: dia, semana, mes
+     * 
+     * @param string $modo dia - semana - mes
+     * @param string $fecha Fecha en formato YYYY-MM-DD
+     * @return array
+     */
+    public function listarPorPeriodoVentas(string $modo, string $fecha): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("CALL spListVentasPorPeriodo(:modo, :fecha)");
+            $stmt->execute([
+                ':modo' => $modo,
+                ':fecha' => $fecha,
+            ]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $result;
+        } catch (Exception $e) {
+            error_log("Ventas::listarPorPeriodoVentas error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getVentasEliminadas(): array
+    {
+        $result = [];
+        try {
+            // Consulta la vista vs_ventas_eliminadas
+            $sql = "SELECT id, cliente, tipocom, numcom FROM vs_ventas_eliminadas";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            // Obtiene todos los resultados de la consulta
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Error al obtener las ventas eliminadas: " . $e->getMessage());
+        }
+        return $result;
+    }
+
 }
 ?>

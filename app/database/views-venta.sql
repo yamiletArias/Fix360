@@ -109,6 +109,64 @@ JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
 INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
 
+-- PRUEBA PARA VER LOS ESTADOS FALSE:
+-- 1) VISTA DE VENTAS ELIMINADAS (estado = FALSE)
+DROP VIEW IF EXISTS vs_ventas_eliminadas;
+CREATE VIEW vs_ventas_eliminadas AS
+SELECT 
+    V.idventa AS id,
+    CASE
+        WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
+        WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
+    END AS cliente,
+    V.tipocom,
+    V.numcom
+FROM ventas V
+INNER JOIN clientes C ON V.idcliente = C.idcliente
+LEFT JOIN empresas E ON C.idempresa = E.idempresa
+LEFT JOIN personas P ON C.idpersona = P.idpersona
+WHERE V.estado = FALSE;
+
+-- VISTA DE LOS DETALLES DE VENTA ELIMINADOS
+DROP VIEW IF EXISTS vista_detalle_venta_eliminada;
+CREATE VIEW vista_detalle_venta_eliminada AS
+SELECT 
+  v.idventa,
+  v.fechahora,
+  COALESCE(CONCAT(p.apellidos, ' ', p.nombres), e.nomcomercial) AS cliente,
+  v.kilometraje,
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.precioventa AS precio,
+  dv.descuento
+FROM ventas v
+JOIN clientes c        ON v.idcliente      = c.idcliente
+LEFT JOIN personas p   ON c.idpersona      = p.idpersona
+LEFT JOIN empresas e   ON c.idempresa      = e.idempresa
+LEFT JOIN vehiculos vh ON v.idvehiculo     = vh.idvehiculo
+LEFT JOIN modelos m    ON vh.idmodelo      = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov    = tv.idtipov
+LEFT JOIN marcas ma    ON m.idmarca        = ma.idmarca
+JOIN detalleventa dv   ON v.idventa        = dv.idventa
+JOIN productos pr      ON dv.idproducto    = pr.idproducto
+JOIN subcategorias s   ON pr.idsubcategoria = s.idsubcategoria
+WHERE v.estado = FALSE;
+
+-- VISTA PARA VER LA JUSTIFICACION POR ID
+DROP VIEW IF EXISTS vista_justificacion_venta;
+CREATE VIEW vista_justificacion_venta AS
+SELECT 
+    idventa,
+    justificacion
+FROM ventas
+WHERE estado = FALSE;
+
+SELECT * 
+FROM vista_justificacion_venta
+WHERE idventa = 1;
+
+SELECT justificacion FROM vista_justificacion_venta WHERE idventa = 1;
+
 -- PRUEBA PARA VER LAS VENTAS REGISTRADAS:
 DROP VIEW IF EXISTS vs_ventas_cabecera;
 CREATE VIEW vs_ventas_cabecera AS

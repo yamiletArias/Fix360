@@ -1,12 +1,12 @@
 <?php
-const NAMEVIEW = "Ventas";
+const NAMEVIEW = "Ventas | Registro";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
 <div class="container-main mt-5">
   <div class="card border">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <!--     <div class="card-header d-flex justify-content-between align-items-center">
       <div>
         <h3 class="mb-0">Complete los datos</h3>
       </div>
@@ -15,7 +15,7 @@ require_once "../../partials/header.php";
           Mostrar Lista
         </a>
       </div>
-    </div>
+    </div> -->
 
     <div class="card-body">
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
@@ -131,7 +131,7 @@ require_once "../../partials/header.php";
                   required />
                 <label for="descuento">DSCT</label>
               </div>
-              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+              <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
             </div>
           </div>
         </div>
@@ -140,75 +140,78 @@ require_once "../../partials/header.php";
   </div>
 
   <!-- Sección de Detalles de la Venta -->
-  <div class="container-main-2 mt-4">
-    <div class="card border">
-
-      <div class="card-body p-3">
-        <table class="table table-striped table-sm mb-0" id="tabla-detalle">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>Precio</th>
-              <th>Cantidad</th>
-              <th>Dsct</th>
-              <th>Importe</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Aquí se agregarán los detalles de los productos -->
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer text-end">
-        <table class="tabla table-sm">
-          <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 60%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 5%;">
-          </colgroup>
-          <tbody>
-            <tr>
-              <td colspan="4" class="text-end">Importe</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">DSCT</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">IGV</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">NETO</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="mt-4">
-          <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
-            Guardar
-          </a>
-          <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarVenta">
-            Cancelar
-          </a>
-        </div>
+  <div class="card mt-2 border">
+    <!-- <div class="card border"> -->
+    <div class="card-body">
+      <table class="table table-striped table-sm" id="tabla-detalle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Dsct</th>
+            <th>Importe</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se agregarán los detalles de los productos -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="card mt-2 border">
+    <div class="card-footer text-end">
+      <table class="tabla table-sm">
+        <colgroup>
+          <col style="width: 10%;">
+          <col style="width: 60%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 5%;">
+        </colgroup>
+        <tbody>
+          <tr>
+            <td colspan="4" class="text-end">NETO</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">DSCT</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">IGV</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">Importe</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-4">
+        <!-- <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
+            Aceptar
+          </a> -->
+        <button id="btnFinalizarVenta" type="button" class="btn btn-success text-end">Aceptar</button>
+        <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
+          Cancelar
+        </a>
       </div>
     </div>
   </div>
+</div>
 </div>
 </div>
 
@@ -354,6 +357,7 @@ require_once "../../partials/header.php";
     const detalleVenta = [];
     const vehiculoSelect = document.getElementById("vehiculo");
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
+    
     function initDateField(id) {
       const el = document.getElementById(id);
       if (!el) return;               // si no existe, no hace nada
@@ -365,6 +369,7 @@ require_once "../../partials/header.php";
       el.min = fmt(twoAgo);
       el.max = fmt(today);
     }
+
     initDateField('fechaIngreso');
     const fechaInput = document.getElementById("fechaIngreso");
     const monedaSelect = document.getElementById('moneda');
@@ -391,7 +396,6 @@ require_once "../../partials/header.php";
     function estaDuplicado(idproducto = 0) {
       return detalleVenta.some(d => d.idproducto == idproducto);
     }
-
 
     // --- Agregar Producto al Detalle ---
 
