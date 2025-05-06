@@ -179,6 +179,9 @@ class Venta extends Conexion
         }
     }
 
+    /**
+     * VISTA DE ESTASO = FALSE
+    */
     public function getVentasEliminadas(): array
     {
         $result = [];
@@ -193,6 +196,18 @@ class Venta extends Conexion
             throw new Exception("Error al obtener las ventas eliminadas: " . $e->getMessage());
         }
         return $result;
+    }
+
+    /**  
+     * Devuelve la justificación de eliminación para una venta  
+     */
+    public function getJustificacion(int $idventa): ?string
+    {
+        $sql = "SELECT justificacion FROM vista_justificacion_venta WHERE idventa = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idventa]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['justificacion'] : null;
     }
 
 }

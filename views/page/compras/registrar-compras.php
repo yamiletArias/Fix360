@@ -1,5 +1,5 @@
 <?php
-const NAMEVIEW = "Registro de Compras";
+const NAMEVIEW = "Compras | Registro";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
@@ -45,7 +45,7 @@ require_once "../../partials/header.php";
           <div class="col-md-5">
             <div class="form-floating">
               <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
-                <option selected>Selecciona proveedor</option>
+                <option value="" selected>Selecciona proveedor</option>
                 <!-- Se llenará dinámicamente vía AJAX -->
               </select>
               <label for="proveedor">Proveedor</label>
@@ -60,7 +60,6 @@ require_once "../../partials/header.php";
           <div class="col-md-3">
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
-                <option value="soles" selected>Soles</option>
                 <!-- Aquí se insertan dinámicamente el resto de monedas -->
               </select>
               <label for="moneda">Moneda:</label>
@@ -98,17 +97,19 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad" required />
+              <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad"
+                required />
               <label for="cantidad">Cantidad</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="input-group">
               <div class="form-floating">
-                <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT" required />
+                <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT"
+                  required />
                 <label for="descuento">DSCT</label>
               </div>
-              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+              <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
             </div>
           </div>
         </div>
@@ -310,6 +311,10 @@ require_once "../../partials/header.php";
           if (inputBusqueda) {
             inputBusqueda.value = `${subcategoriaText} ${descripcion}`;
           }
+          // ← aquí las dos líneas nuevas:
+          document.getElementById("cantidad").value = 1;
+          document.getElementById("descuento").value = 0;
+
           // **** Actualización clave: asignar el id retornado al objeto global selectedProduct ****
           // Se asume que la respuesta JSON ahora incluye la propiedad "idproducto" obtenida en PHP.
           selectedProduct.idproducto = resp.idproducto;
@@ -396,7 +401,6 @@ require_once "../../partials/header.php";
 </script>
 
 <script>
-
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     const proveedorSelect = document.getElementById('proveedor');
@@ -694,74 +698,97 @@ require_once "../../partials/header.php";
     });
 
     // Evento del botón "Guardar" para enviar la compra
-    btnFinalizarCompra.addEventListener("click", function (e) {
+    btnFinalizarCompra.addEventListener('click', function (e) {
       e.preventDefault();
-      btnFinalizarCompra.disabled = true;
-      btnFinalizarCompra.textContent = "Guardando...";
-      numSerieInput.disabled = false;
-      numComInput.disabled = false;
 
-      if (proveedorSelect.value === "" || proveedorSelect.value === "Selecciona proveedor") {
-        alert("Por favor, selecciona un proveedor.");
-        btnFinalizarCompra.disabled = false;
-        btnFinalizarCompra.textContent = "Guardar";
-        return;
-      }
-      if (detalleCompra.length === 0) {
-        alert("Por favor, agrega al menos un producto.");
-        btnFinalizarCompra.disabled = false;
-        btnFinalizarCompra.textContent = "Guardar";
-        return;
-      }
-      const dataCompra = {
-        tipocom: document.querySelector('input[name="tipo"]:checked').value,
-        fechacompra: fechaInput.value.trim(),
-        numserie: numSerieInput.value.trim(),
-        numcom: numComInput.value.trim(),
-        moneda: monedaSelect.value,
-        idproveedor: proveedorSelect.value,
-        productos: detalleCompra
-      };
-
-      fetch("http://localhost/Fix360/app/controllers/Compra.controller.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataCompra)
-      })
-        .then(response => response.text())
-        .then(text => {
-          console.log("Respuesta del servidor:", text);
-          try {
-            const json = JSON.parse(text);
-            if (json && json.status === "success") {
-              Swal.fire({
-                icon: 'success',
-                title: '¡Compra registrada con éxito!',
-                showConfirmButton: false,
-                timer: 1800
-              }).then(() => {
-                window.location.href = 'listar-compras.php';
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error al registrar la venta',
-                text: 'Inténtalo nuevamente.',
-              });
-            }
-          } catch (e) {
-            console.error("No se pudo parsear JSON:", e);
-            Swal.fire({
-              icon: 'error',
-              title: 'Respuesta inesperada',
-              text: 'El servidor no devolvió una respuesta válida.',
-            });
-          }
-        })
-        .finally(() => {
-          btnFinalizarCompra.disabled = false;
-          btnFinalizarCompra.textContent = "Guardar";
+      if (
+        !proveedorSelect.value ||
+        proveedorSelect.value === 'Selecciona proveedor'
+      ) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error', // ← cambia 'success' por 'error' para que sea rojo
+          title: 'Por favor selecciona un proveedor',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
         });
+        return;
+      }
+
+      // toast si no hay productos
+      if (detalleCompra.length === 0) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Agrega al menos un producto',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
+        return;
+      }
+
+      // Confirmación SweetAlert
+      Swal.fire({
+        title: '¿Deseas guardar la compra?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#28a745',    // verde
+        cancelButtonColor: '#d33'
+      }).then(result => {
+        if (result.isConfirmed) {
+          // Si confirma, envía y redirige directamente
+          btnFinalizarCompra.disabled = true;
+          btnFinalizarCompra.textContent = 'Guardando...';
+
+          fetch('http://localhost/Fix360/app/controllers/Compra.controller.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tipocom: document.querySelector('input[name="tipo"]:checked').value,
+              fechacompra: fechaInput.value,
+              numserie: numSerieInput.value,
+              numcom: numComInput.value,
+              moneda: monedaSelect.value,
+              idproveedor: proveedorSelect.value,
+              productos: detalleCompra
+            })
+          })
+            .then(res => res.json())
+            .then(json => {
+              if (json.status === 'success') {
+                // Mostrar el toast verde
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'success',
+                  title: 'Compra registrada',
+                  showConfirmButton: false,
+                  timer: 2000,
+                  timerProgressBar: true
+                });
+
+                // Espera 2 segundos antes de redirigir
+                setTimeout(() => {
+                  window.location.href = 'listar-compras.php';
+                }, 2000);
+              } else {
+                Swal.fire('Error', 'No se pudo registrar la compra.', 'error');
+              }
+            })
+            .catch(() => Swal.fire('Error', 'Fallo de conexión.', 'error'))
+            .finally(() => {
+              btnFinalizarCompra.disabled = false;
+              btnFinalizarCompra.textContent = 'Guardar';
+            });
+        }
+        // si cancela, no hace nada
+      });
     });
   });
 </script>

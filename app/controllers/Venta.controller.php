@@ -11,47 +11,67 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            // Listado de ventas por periodo
-            if (isset($_GET['modo']) && isset($_GET['fecha'])) {
-                $modo = $_GET['modo'] ?? 'dia';
-                $fecha = $_GET['fecha'] ?? date('Y-m-d');
-
-                if (!in_array($modo, ['dia', 'semana', 'mes'], true)) {
-                    $modo = 'dia'; // fallback
+            $tipo = Helper::limpiarCadena($_GET['type'] ?? "");
+    
+            // 1) Monedas
+            if ($tipo == 'moneda') {
+                echo json_encode($venta->getMonedasVentas());
+                exit;
+            }
+    
+            // 2) Productos o Clientes
+            if (isset($_GET['q']) && !empty($_GET['q'])) {
+                $termino = $_GET['q'];
+                if ($tipo == 'producto') {
+                    echo json_encode($venta->buscarProducto($termino));
+                    exit;
+                } else {
+                    echo json_encode($venta->buscarCliente($termino));
+                    exit;
                 }
-
+            }
+    
+            // 3) Listado de ventas por periodo
+            if (isset($_GET['modo'], $_GET['fecha'])) {
+                $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true)
+                    ? $_GET['modo']
+                    : 'dia';
+                $fecha = $_GET['fecha'] ?: date('Y-m-d');
+    
                 $ventas = $venta->listarPorPeriodoVentas($modo, $fecha);
                 echo json_encode(['status' => 'success', 'data' => $ventas]);
                 exit;
             }
-
-            // Obtener ventas eliminadas
+    
+            // 4) Ventas eliminadas
             if (isset($_GET['action']) && $_GET['action'] === 'ventas_eliminadas') {
-                $ventasEliminadas = $venta->getVentasEliminadas();
-                echo json_encode(['status' => 'success', 'data' => $ventasEliminadas]);
+                $eliminadas = $venta->getVentasEliminadas();
+                echo json_encode(['status' => 'success', 'data' => $eliminadas]);
                 exit;
             }
-
-            // Monedas
-            if (isset($_GET['type']) && $_GET['type'] == 'moneda') {
-                echo json_encode($venta->getMonedasVentas());
-            }
-            
-            // Búsqueda
-            else if (isset($_GET['q']) && !empty($_GET['q'])) {
-                $termino = $_GET['q'];
-                if (isset($_GET['type']) && $_GET['type'] == 'producto') {
-                    echo json_encode($venta->buscarProducto($termino));
-                } else {
-                    echo json_encode($venta->buscarCliente($termino));
+    
+            // 5) Justificación de eliminación
+            if (
+                isset($_GET['action'], $_GET['idventa'])
+                && $_GET['action'] === 'justificacion'
+            ) {
+                $id = (int) $_GET['idventa'];
+                try {
+                    $just = $venta->getJustificacion($id);
+                    if ($just !== null) {
+                        echo json_encode(['status' => 'success', 'justificacion' => $just]);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'No existe justificación']);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
+                exit;
             }
-            // Todas las ventas
-            else {
-                echo json_encode($venta->getAll());
-            }
-            break;
-
+    
+            // 6) Listar todas las ventas si no se especifica nada
+            echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);
+            exit;
         case 'POST':
 
             // Anulación de venta (soft-delete) con justificación

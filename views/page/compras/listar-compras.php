@@ -8,16 +8,13 @@ require_once "../../partials/header.php";
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="btnDia" type="button" class="btn btn-primary">
-                    Día
+                <button  button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
+                <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
+                <!-- Nuevo botón para ver eliminados -->
+                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                    <i class="fa-solid fa-eye-slash"></i>
                 </button>
-                <button id="btnSemana" type="button" class="btn btn-primary">
-                    Semana
-                </button>
-                <button id="btnMes" type="button" class="btn btn-primary">
-                    Mes
-                </button>
-                <button type="button" class="btn btn-outline-danger">
+                <button type="button" class="btn btn-danger text-white">
                     <i class="fa-solid fa-file-pdf"></i>
                 </button>
             </div>

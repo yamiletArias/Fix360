@@ -10,12 +10,12 @@ require_once "../../partials/header.php";
             <div class="btn-group" role="group" aria-label="Basic example">
                 <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
                 <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
-                <button type="button" class="btn btn-danger text-white">
-                    <i class="fa-solid fa-file-pdf"></i>
-                </button>
                 <!-- Nuevo botón para ver eliminados -->
                 <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
                     <i class="fa-solid fa-eye-slash"></i>
+                </button>
+                <button type="button" class="btn btn-danger text-white">
+                    <i class="fa-solid fa-file-pdf"></i>
                 </button>
             </div>
             <div class="row mt-3">
@@ -221,10 +221,10 @@ require_once "../../partials/_footer.php";
                     render: function (data, type, row) {
                         return `
                             <button class="btn btn-info btn-sm btn-ver-justificacion" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalVerJustificacion"
-                                    data-justificacion="${row.id}">
-                                <i class="fa-solid fa-eye"></i>
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#modalVerJustificacion"
+                                    data-id="${row.id}">
+                               <i class="fa-solid fa-eye"></i>
                             </button>
                             <button class="btn btn-primary btn-sm"
                                 data-bs-toggle="modal" data-bs-target="#miModal"
@@ -251,20 +251,28 @@ require_once "../../partials/_footer.php";
     document.addEventListener("DOMContentLoaded", function () {
         cargarTablaVentas();
     });
-
-    // Puedes capturar eventos de restauración aquí
-    $(document).on('click', '.btn-restaurar', function () {
-        const idVenta = $(this).data('id');
-        console.log("Restaurar venta con ID:", idVenta);
-        // Aquí puedes agregar lógica para restaurar la venta, usando fetch o Ajax
-    });
 </script>
+<!-- Logica para obetner la justificacion en el modal -->
 <script>
-    $(document).on('click', '.btn-ver-justificacion', function () {
-        const justificacion = $(this).data('id') || 'Sin justificación';
-        $('#contenidoJustificacion').text(justificacion);
+    $(document).on('click', '.btn-ver-justificacion', async function () {
+        const id = $(this).data('id');
+        console.log('voy a pedir justificación para id=', id);
+        $('#contenidoJustificacion').text('Cargando…');
+        try {
+            const res = await fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=justificacion&idventa=${id}`);
+            const json = await res.json();
+            if (json.status === 'success') {
+                $('#contenidoJustificacion').text(json.justificacion);
+            } else {
+                $('#contenidoJustificacion').text('No hay justificación');
+            }
+        } catch (e) {
+            $('#contenidoJustificacion').text('Error al cargar justificación');
+        }
+        $('#modalVerJustificacion').modal('show');
     });
 </script>
+<!-- Vista principal -->
 <script>
     function cargarTablaVentas() {
         if ($.fn.DataTable.isDataTable("#tablaventasdia")) {
@@ -339,6 +347,7 @@ require_once "../../partials/_footer.php";
         $('#modalJustificacion').modal('show');
     });
 </script>
+<!-- Vista en el modal de detalle de venta para visualizar informacion de esa venta -->
 <script>
     function verDetalleVenta(idventa) {
         $("#miModal").modal("show");
@@ -360,7 +369,6 @@ require_once "../../partials/_footer.php";
                 // pinta cabecera (todos los datos vienen de la misma fila 0)
                 $("#modeloInput").val(response[0].cliente);
                 $("#fechaHora").val(response[0].fechahora);
-                // si es null o undefined, muestra la cadena "null"
                 const vehiculoVal = response[0].vehiculo ?? 'null';
                 const kilometrajeVal = response[0].kilometraje ?? 'null';
 
@@ -385,51 +393,7 @@ require_once "../../partials/_footer.php";
         });
     }
 </script>
-<!-- <script>
-    // reemplaza el handler existente por éste
-    $(document).off('click', '#btnEliminarVenta');  // quita cualquier handler previo
-    $(document).on('click', '#btnEliminarVenta', async function () {
-        const justificacion = $('#justificacion').val().trim();
-        const idventa = $(this).data('id');
-
-        if (!justificacion) {
-            alert('Escribe la justificación.');
-            return;
-        }
-
-        // 1) pregunto con tu helper ask()
-        const confirmado = await ask(
-            "¿Estás seguro de eliminar esta venta?",
-            "Confirmar eliminación"
-        );
-        if (!confirmado) {
-            showToast('Eliminación cancelada.', 'WARNING', 1500);
-            return;
-        }
-
-        // 2) feedback de “eliminando…”
-        showToast('Eliminando Venta…', 'INFO', 1000);
-
-        // 3) envío la petición de eliminación
-        $.post("<?= SERVERURL ?>app/controllers/Venta.controller.php", {
-            action: 'eliminar',
-            idventa: idventa,
-            justificacion: justificacion
-        }, function (res) {
-            // 4) tras respuesta muestro éxito o error
-            if (res.status === 'success') {
-                showToast('Venta eliminada.', 'SUCCESS', 1500);
-                $('#modalJustificacion').modal('hide');
-                setTimeout(cargarTablaVentas, 500);
-            } else {
-                showToast(res.message || 'Error al eliminar.', 'ERROR', 1500);
-            }
-        }, 'json')
-            .fail(function () {
-                showToast('Error de conexión.', 'ERROR', 1500);
-            });
-    });
-</script> -->
+<!-- Vistar la lista de ventas por periodo (YYYY-MM-DD) -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const fechaInput = document.getElementById('Fecha');
@@ -448,30 +412,56 @@ require_once "../../partials/_footer.php";
                 `${pad(d.getHours())}:${pad(d.getMinutes())}`;
         };
 
-        // pinta filas
+        // pinta filas y mensaje cuando está vacío
         const pintar = data => {
             tablaBody.innerHTML = '';
+            if (data.length === 0) {
+                tablaBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-muted">
+                No hay datos disponibles en la tabla
+                </td>
+            </tr>`;
+                return;
+            }
             data.forEach((v, i) => {
                 tablaBody.insertAdjacentHTML('beforeend', `
-          <tr>
-            <td>${i + 1}</td>
-            <td class="text-start">${v.cliente || ''}</td>
-            <td class="text-center">${v.tipocom || ''}</td>
-            <td class="text-center">${v.numcom || ''}</td>
-            <td class="text-center">
-              <button class="btn btn-danger btn-sm" data-id="${v.id}" data-action="eliminar">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-              <button class="btn btn-primary btn-sm" data-action="detalle" data-id="${v.id}">
-                <i class="fa-solid fa-circle-info"></i>
-              </button>
-            </td>
-          </tr>`);
+            <tr>
+                <td>${i + 1}</td>
+                <td class="text-start">${v.cliente || ''}</td>
+                <td class="text-center">${v.tipocom || ''}</td>
+                <td class="text-center">${v.numcom || ''}</td>
+                <td class="text-center">
+                <button class="btn btn-danger btn-sm" data-id="${v.id}" data-action="eliminar">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="btn btn-primary btn-sm" data-action="detalle" data-id="${v.id}">
+                    <i class="fa-solid fa-circle-info"></i>
+                </button>
+                </td>
+            </tr>`);
             });
         };
 
         // Llama al endpoint y pinta
         const cargar = async (modo, fecha) => {
+            try {
+                const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}`);
+                const json = await res.json();
+                if (json.status === 'success') {
+                    pintar(json.data);
+                } else {
+                    // en error no caigas a getAll()
+                    pintar([]);
+                    console.error('Error listando:', json.message);
+                }
+            } catch (e) {
+                // si falla la red, tampoco llames a getAll()
+                pintar([]);
+                console.error('Fetch error:', e);
+            }
+        };
+        /* const cargar = async (modo, fecha) => {
             console.log(`> cargando modo=${modo} fecha=${fecha}`);
             try {
                 const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}`);
@@ -483,7 +473,7 @@ require_once "../../partials/_footer.php";
             } catch (e) {
                 console.error('Fetch error:', e);
             }
-        };
+        }; */
 
         const marcaActivo = btn => {
             filtros.forEach(b => b.classList.toggle('active', b === btn));
@@ -553,3 +543,48 @@ require_once "../../partials/_footer.php";
 </body>
 
 </html>
+<!-- <script>
+    // reemplaza el handler existente por éste
+    $(document).off('click', '#btnEliminarVenta');  // quita cualquier handler previo
+    $(document).on('click', '#btnEliminarVenta', async function () {
+        const justificacion = $('#justificacion').val().trim();
+        const idventa = $(this).data('id');
+
+        if (!justificacion) {
+            alert('Escribe la justificación.');
+            return;
+        }
+
+        // 1) pregunto con tu helper ask()
+        const confirmado = await ask(
+            "¿Estás seguro de eliminar esta venta?",
+            "Confirmar eliminación"
+        );
+        if (!confirmado) {
+            showToast('Eliminación cancelada.', 'WARNING', 1500);
+            return;
+        }
+
+        // 2) feedback de “eliminando…”
+        showToast('Eliminando Venta…', 'INFO', 1000);
+
+        // 3) envío la petición de eliminación
+        $.post("<?= SERVERURL ?>app/controllers/Venta.controller.php", {
+            action: 'eliminar',
+            idventa: idventa,
+            justificacion: justificacion
+        }, function (res) {
+            // 4) tras respuesta muestro éxito o error
+            if (res.status === 'success') {
+                showToast('Venta eliminada.', 'SUCCESS', 1500);
+                $('#modalJustificacion').modal('hide');
+                setTimeout(cargarTablaVentas, 500);
+            } else {
+                showToast(res.message || 'Error al eliminar.', 'ERROR', 1500);
+            }
+        }, 'json')
+            .fail(function () {
+                showToast('Error de conexión.', 'ERROR', 1500);
+            });
+    });
+</script> -->

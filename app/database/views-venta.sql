@@ -109,8 +109,10 @@ JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
 INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
 
--- PRUEBA PARA VER LOS ESTADOS FALSE:
--- 1) VISTA DE VENTAS ELIMINADAS (estado = FALSE)
+
+-- VISTAS PARA ESTADO FALSE = "ANULADAS"
+
+-- 1) VISTA DE VENTAS ELIMINADAS 
 DROP VIEW IF EXISTS vs_ventas_eliminadas;
 CREATE VIEW vs_ventas_eliminadas AS
 SELECT 

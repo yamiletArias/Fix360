@@ -7,6 +7,12 @@ MODIFY COLUMN idpromocion INT NULL;
 ALTER TABLE ventas MODIFY idcolaborador INT NULL;
 ALTER TABLE ventas MODIFY idvehiculo INT NULL;
 ALTER TABLE ventas MODIFY kilometraje DECIMAL(10,2) NULL;
+-- ALTERAR ID COLABORADOR EN COMPRAS POR EL MOMENTO
+ALTER TABLE compras MODIFY idcolaborador INT NULL;
+-- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
+ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
+
+-- ****************************************************
 
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
@@ -34,13 +40,13 @@ BEGIN
   )
   VALUES (
     _idcliente,
-    NULLIF(_idvehiculo, 0),  -- convierte 0 en NULL si viene así
+    NULLIF(_idvehiculo, 0),
     _tipocom,
     _fechahora,
     _numserie,
     _numcom,
     _moneda,
-    NULLIF(_kilometraje, 0)  -- opcional también
+    NULLIF(_kilometraje, 0)
   );
   SELECT LAST_INSERT_ID() AS idventa;
 END$$
@@ -83,12 +89,10 @@ DROP PROCEDURE IF EXISTS spuGetMonedasVentas;
 DELIMITER $$
 CREATE PROCEDURE spuGetMonedasVentas()
 BEGIN
-  -- Devolver "Soles" y "Dólares" incluso si no están registrados en la tabla
   SELECT 'Soles' AS moneda
   UNION
   SELECT 'Dólares' AS moneda
   UNION
-  -- Ahora también verificamos las monedas registradas
   SELECT DISTINCT
     CASE
       WHEN UPPER(TRIM(moneda)) = 'SOLES' THEN 'Soles'
@@ -143,9 +147,6 @@ BEGIN
      OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
     LIMIT 10;
 END $$
-
--- ALTERAR ID COLABORADOR EN COMPRAS POR EL MOMENTO
-ALTER TABLE compras MODIFY idcolaborador INT NULL;
 
 -- 6) PROCEDIMIENTO PARA REGISTRAR COMPRAS
 DROP PROCEDURE IF EXISTS spuRegisterCompra;
@@ -205,7 +206,7 @@ BEGIN
   );
 END $$
 
--- PROCEDIMIENTO PARA REGISTRAR PRODUCTO Y OBTENER EL ID COMO SALIDA
+-- 8) PROCEDIMIENTO PARA REGISTRAR PRODUCTO Y OBTENER EL ID COMO SALIDA
 DROP PROCEDURE IF EXISTS spRegisterProducto;
 DELIMITER $$
 CREATE PROCEDURE spRegisterProducto(
@@ -226,7 +227,7 @@ BEGIN
 END$$
 DELIMITER $$
 
--- 8) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
+-- 9) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
 DROP PROCEDURE IF EXISTS spuGetProveedores;
 DELIMITER $$
 CREATE PROCEDURE spuGetProveedores()
@@ -253,10 +254,8 @@ BEGIN
     ON e.idempresa = p.idempresa
   ORDER BY e.nomcomercial;
 END $$
-DELIMITER ;
 
--- 9) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA
--- pasa a estado = false
+-- 10) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA = COMPRA ANULADA
 DROP PROCEDURE IF EXISTS spuDeleteCompra;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteCompra (
@@ -270,9 +269,6 @@ BEGIN
     RESIGNAL;
   END;
   START TRANSACTION;
-    -- Eliminar detalles
-    DELETE FROM detallecompra WHERE idcompra = _idcompra;
-    -- Marcar como anulada + guardar justificación
     UPDATE compras
     SET estado = FALSE,
         justificacion = _justificacion
@@ -280,8 +276,7 @@ BEGIN
   COMMIT;
 END$$
 
--- 10) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA
--- SIN ELIMINAR LOS PRODUCTOS SOLO PASA A ESTADO ANULADA
+-- 11) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA = VENTA ANULADA
 DROP PROCEDURE IF EXISTS spuDeleteVenta;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteVenta (
@@ -295,7 +290,6 @@ BEGIN
     RESIGNAL;
   END;
   START TRANSACTION;
-    -- Solo marca como anulada y guarda justificación
     UPDATE ventas
     SET estado = FALSE,
         justificacion = _justificacion
@@ -303,7 +297,7 @@ BEGIN
   COMMIT;
 END$$
 
--- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES)
+-- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES AL REGISTRAR)
 DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
 DELIMITER $$
 CREATE PROCEDURE spRegisterClienteEmpresa (
@@ -345,10 +339,7 @@ BEGIN
   END IF;
 END $$
 
--- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
-ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
-
--- 11) PROCEDIMIENTO PARA REGISTRAR COTIZACION
+-- 12) PROCEDIMIENTO PARA REGISTRAR COTIZACION
 DROP PROCEDURE IF EXISTS spuRegisterCotizaciones;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCotizaciones (
@@ -373,7 +364,7 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idcotizacion;
 END $$
 
--- 12) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
+-- 13) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
 DROP PROCEDURE IF EXISTS spuInsertDetalleCotizacion;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCotizacion (
@@ -400,7 +391,7 @@ BEGIN
   );
 END $$
 
--- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
+-- 14) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListVentasPorPeriodo(
@@ -436,6 +427,39 @@ BEGIN
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
     AND v.estado = TRUE
   ORDER BY v.fechahora;
+END$$
+
+-- 15) PROCEDIMIENTO PARA DATOS DE COMPRA (DIA, SEMANA Y MES)
+DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListComprasPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+  
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    id                      AS id,
+    proveedores             AS proveedor,
+    tipocom                 AS tipocom,
+    numcom                  AS numcom,
+    preciocompra            AS total
+  FROM vs_compras
+  WHERE DATE(fechacompra) BETWEEN start_date AND end_date
+  ORDER BY fechacompra;
 END$$
 
 
