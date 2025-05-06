@@ -533,7 +533,7 @@ DELIMITER ;
 -- select * from productos;
 -- select * from componentes;
 -- select * from observaciones;
--- update observaciones set estado = FALSE where idorden = 41;
+-- update observaciones set estado = TRUE where idobservacion = 52;
 DROP PROCEDURE IF EXISTS spRegisterObservacion;
 DELIMITER $$
 CREATE PROCEDURE spRegisterObservacion(
