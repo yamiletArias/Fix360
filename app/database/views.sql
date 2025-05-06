@@ -209,6 +209,6 @@ WHERE r.rol = 'mecanico';
 -- 12) Componentes (lista completa)
 DROP VIEW IF EXISTS vwComponentes;
 CREATE OR REPLACE VIEW vwComponentes AS
-SELECT * FROM componentes;
+SELECT idcomponente,componente FROM componentes;
 
--- select * from ordenservicios;
+-- select * from vwcomponentes;

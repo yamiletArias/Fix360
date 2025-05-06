@@ -531,10 +531,10 @@ DELIMITER ;
 -- select * from ordenservicios where idorden = 3;
 -- select * from ordenservicios;
 -- select * from productos;
-
+-- select * from componentes;
 -- select * from observaciones;
--- update observaciones set foto = 'images/c7b8f85b187f6a74f7f2eb78aa600722.png' where idorden = 41;
-DROP PROCEDURE f EXISTS spRegisterObservacion;
+-- update observaciones set estado = FALSE where idorden = 41;
+DROP PROCEDURE IF EXISTS spRegisterObservacion;
 DELIMITER $$
 CREATE PROCEDURE spRegisterObservacion(
 IN _idcomponente INT,
@@ -544,4 +544,14 @@ IN _foto			VARCHAR(255)
 )
 BEGIN
 INSERT INTO observaciones (idcomponente,idorden,estado,foto) VALUES (_idcomponente,_idorden,_estado,_foto);
+END $$
+
+
+DROP PROCEDURE IF EXISTS spRegisterComponente;
+DELIMITER $$
+CREATE PROCEDURE spRegisterComponente(
+IN _componente VARCHAR(50)
+)
+BEGIN
+INSERT INTO componentes (componente) VALUES (_componente);
 END $$

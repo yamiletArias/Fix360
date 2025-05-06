@@ -8,11 +8,12 @@ require_once "../../partials/header.php";
 
 ?>
 <div class="container-main">
+  <div class="card border">
+    <div class="card-header"></div>
+    <div class="card-body"></div>
+    <div class="card-footer"></div>
+  </div>
   <div>
-    <div>
-      <p>Observaciones:</p>
-      <textarea style="padding-right: 10px;" rows="10" cols="50" name="" id=""></textarea>
-    </div>
     <div>
       <p>Componente:</p>
       <select id="estado" name="estado">
@@ -30,7 +31,7 @@ require_once "../../partials/header.php";
     <input style="padding:20px;" type="file" id="archivo" name="archivo">
   </div>
   <div style="margin-top:40px;">
-    <button class="btn btn-danger" onclick="window.location.href='listar-observacion-orden.php'">Cancelar</button>
+    <button class="btn btn-secondary" onclick="window.location.href='listar-observacion-orden.php'">Cancelar</button>
     <button class="btn btn-success" onclick="window.location.href='listar-observacion-orden.php'">Aceptar</button>
   </div>
 </div>

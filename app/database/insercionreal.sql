@@ -412,3 +412,9 @@ INSERT INTO componentes (componente) VALUES
 ('Carrocería'),
 ('Sistema de cierre y seguridad'),
 ('Radiador');
+
+INSERT INTO formapagos (formapago) VALUES 
+('Yape'),
+('Plin'),
+('Efectivo'),
+('Deposito');

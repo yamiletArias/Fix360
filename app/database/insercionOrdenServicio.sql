@@ -301,3 +301,4 @@ INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
   (2, 41, TRUE,  NULL),
   (3, 41, TRUE,  NULL),
   (4, 41, TRUE,  NULL);
+  

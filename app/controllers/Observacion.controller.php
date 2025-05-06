@@ -11,6 +11,32 @@ if(isset($_SERVER['REQUEST_METHOD'])){
       }
       break;
     
+
+    case 'POST':
+      $input = file_get_contents('php://input');
+
+      $dataJSON = json_decode($input, true);
+
+      if ($dataJSON === null) {
+        echo json_encode(["error" => "JSON invalido"]);
+        error_log("JSON Recibido: " . $input);
+        exit;
+      }
+
+      $registro =[
+        "idcomponente" => Helper::limpiarCadena($dataJSON["idcomponente"]),
+        "idorden"      => Helper::limpiarCadena($dataJSON["idorden"]),
+        "estado"       => Helper::limpiarCadena($dataJSON["estado"]),
+        "foto"         => Helper::limpiarCadena($dataJSON["foto"]),
+      ];
+      $n = $observacion->add($registro);
+      if ($n === 0) {
+        echo json_encode(["error" => "No se pudo registrar la observacion"]);
+        error_log("JSON Recibido: " . $input);
+      } else {
+        echo json_encode(["success" => "Observacion registrado", "rows" => $n]);
+    }
+    break;
     default:
       
       break;
