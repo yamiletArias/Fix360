@@ -14,13 +14,13 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
         case 'GET':
             $tipo = Helper::limpiarCadena($_GET['type'] ?? "");
 
-            // Obtener proveedores
+            // 1) Obtener proveedores
             if ($tipo === 'proveedor') {
                 echo json_encode($compra->getProveedoresCompra());
             }
 
-            // Buscar productos por término
-            elseif (isset($_GET['q']) && !empty($_GET['q'])) {
+            // 2) Buscar productos por término
+            if (isset($_GET['q']) && !empty($_GET['q'])) {
                 $termino = Helper::limpiarCadena($_GET['q']);
                 if ($tipo === 'producto') {
                     echo json_encode($compra->buscarProductoCompra($termino));
@@ -29,11 +29,53 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 }
             }
 
+            // 3) Listado de compra por periodo
+            if (isset($_GET['modo'], $_GET['fecha'])) {
+                $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true)
+                    ? $_GET['modo']
+                    : 'dia';
+                $fecha = $_GET['fecha'] ?: date('Y-m-d');
+    
+                $compras = $compra->listarPorPeriodoCompras($modo, $fecha);
+                echo json_encode(['status' => 'success', 'data' => $compras]);
+                exit;
+            }
+
+            // 4) Compras eliminadas
+            if (isset($_GET['action']) && $_GET['action'] === 'compras_eliminadas') {
+                $eliminadas = $compra->getComprasEliminadas();
+                echo json_encode(['status' => 'success', 'data' => $eliminadas]);
+                exit;
+            }
+
+            // 5) Justificación de eliminación
+            if (
+                isset($_GET['action'], $_GET['idcompra'])
+                && $_GET['action'] === 'justificacion'
+            ) {
+                $id = (int) $_GET['idcompra'];
+                try {
+                    $just = $compra->getJustificacion($id);
+                    if ($just !== null) {
+                        echo json_encode(['status' => 'success', 'justificacion' => $just]);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'No existe justificación']);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+                exit;
+            }
+
+            // 6) Listar todas las ventas si no se especifica nada
+            echo json_encode(['status' => 'success', 'data' => $compra->getAll()]);
+            exit;
+
             // Obtener todas las compras
-            else {
+            /* else {
                 echo json_encode($compra->getAll());
             }
-            break;
+            break; */
 
         case 'POST':
             // Anulación de compra (soft-delete) con justificación

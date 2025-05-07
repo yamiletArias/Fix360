@@ -145,6 +145,59 @@ class Compra extends Conexion
     }
   }
 
+  /**
+   * Lista compras por periodo: dia, semana, mes
+   * 
+   * @param string $modo = dia - semana -mes
+   * @param string $fecha Fecha en formato YYYY-MM-DD
+   * @return array
+   */
+  public function listarPorPeriodoCompras(string $modo, string $fecha): array
+  {
+    try {
+      $stmt = $this->pdo->prepare("CALL spListComprasPorPeriodo(:modo, :fecha)");
+      $stmt->execute([
+        ':modo' => $modo,
+        ':fecha' => $fecha,
+      ]);
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $stmt->closeCursor();
+      return $result;
+    } catch (Exception $e) {
+      error_log("Ventas::listarPorPeriodoVentas error: " . $e->getMessage());
+      return [];
+    }
+  }
 
+  /**
+   * VISTA DE COMPRAS ELIMINADAS (estado = FALSE)
+   */
+  public function getComprasEliminadas(): array
+  {
+    $result = [];
+    try {
+      // Consulta la vista vs_compras_eliminadas
+      $sql = "SELECT id, proveedor, tipocom, numcom, fechacompra FROM vs_compras_eliminadas";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute();
+      // Obtiene todos los resultados de la consulta
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception("Error al obtener las compras eliminadas: " . $e->getMessage());
+    }
+    return $result;
+  }
+
+  /**  
+   * Devuelve la justificación de eliminación para una venta  
+   */
+  public function getJustificacion(int $idcompra): ?string
+  {
+    $sql = "SELECT justificacion FROM vista_justificacion_compra WHERE idcompra = ?";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$idcompra]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? $row['justificacion'] : null;
+  }
 
 }

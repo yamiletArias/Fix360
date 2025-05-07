@@ -180,7 +180,7 @@ class Venta extends Conexion
     }
 
     /**
-     * VISTA DE ESTASO = FALSE
+     * VISTA DE VENTAS ELIMINADAS (estado = FALSE)
     */
     public function getVentasEliminadas(): array
     {

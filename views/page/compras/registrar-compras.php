@@ -279,6 +279,7 @@ require_once "../../partials/header.php";
 </div>
 </div>
 </body>
+
 </html>
 
 <script>

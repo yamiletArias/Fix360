@@ -430,6 +430,41 @@ BEGIN
 END$$
 
 -- 15) PROCEDIMIENTO PARA DATOS DE COMPRA (DIA, SEMANA Y MES)
+
+DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListComprasPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+  
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    id,
+    proveedores  AS proveedor,
+    tipocom, 
+    numcom,
+    fechacompra,
+    preciocompra
+  FROM vs_compras
+  WHERE DATE(fechacompra) BETWEEN start_date AND end_date
+  ORDER BY fechacompra;
+END$$
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListComprasPorPeriodo(
