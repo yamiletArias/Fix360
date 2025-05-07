@@ -210,7 +210,7 @@ INSERT INTO detalleordenservicios (idorden, idservicio, idmecanico, precio, esta
 (31, 1, 2, 191.50, 'A');
 
 -- select * from componentes;
-
+-- select * from observaciones;
 -- Observaciones para idorden = 27
 INSERT INTO observaciones (idcomponente, idorden, estado, foto) VALUES
   (1, 27, TRUE,  NULL),

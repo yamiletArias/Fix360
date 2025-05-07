@@ -13,7 +13,7 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
-    <script src="<?= SERVERURL?>views/assets/vendors/js/vendor.bundle.base.js"></script>
+  
     <!-- endinject -->
     <!-- Plugin js for this page -->
     <script src="<?= SERVERURL?>views/assets/vendors/chart.js/chart.umd.js"></script>

@@ -2,7 +2,7 @@
 <html lang="en">
 
 <style>
-  
+
 </style>
 
 <head>
@@ -53,18 +53,20 @@
       padding: 0 15px;
       border-radius: 5px;
       box-shadow: none;
-      margin: 50px ;
+      margin: 50px;
       width: 80%;
     }
 
     #miTabla tbody td {
-    vertical-align: middle;
+      vertical-align: middle;
     }
+
     #selectMetodo {
       background-color: white !important;
       cursor: pointer;
     }
-    label{
+
+    label {
       padding: 0px;
     }
 
@@ -76,11 +78,11 @@
       align-items: flex-end;
 
     }
-    
 
-  .input{
-    font-size: 17px;
-  }
+
+    .input {
+      font-size: 17px;
+    }
 
 
     .form-field {
@@ -104,7 +106,7 @@
       font-size: 100%;
     }
 
-    
+
 
     .small-button {
       width: 40px;
@@ -185,40 +187,58 @@
         <h2 class="mb-0 font-weight-medium d-none d-lg-flex"><?= NAMEVIEW ?></h2>
         <ul class="navbar-nav navbar-nav-right">
           <li class="nav-item dropdown">
-            <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown"
+            <a class="nav-link dropdown-toggle count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown" title="Recordatorios de hoy"
               aria-expanded="false">
               <i class="icon-speech"></i>
-              <span class="count">2</span>
+              <span class="count"><?= $hoy_count ?></span>
             </a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
-              aria-labelledby="messageDropdown">
-              <a class="dropdown-item py-3">
-                <p class="mb-0 font-weight-medium float-start me-2">
-                  Tienes 2 Recordatorios
-                </p>
-              </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item preview-item">
-                <div class="preview-item-content flex-grow py-2">
-                  <p class="preview-subject ellipsis font-weight-medium text-dark">
-                    Jose Hernandez
-                  </p>
-                  <p class="font-weight-light small-text">
-                    Cambio de Frenos
-                  </p>
-                </div>
-              </a>
-              <a class="dropdown-item preview-item">
-                <div class="preview-item-content flex-grow py-2">
-                  <p class="preview-subject ellipsis font-weight-medium text-dark">
-                    Hernan Atuncar
-                  </p>
-                  <p class="font-weight-light small-text">
-                    Cambio de aceite
-                  </p>
-                </div>
-              </a>
-            </div>
+            <div
+    class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
+    aria-labelledby="messageDropdown"
+    style="min-width: 250px;"
+  >
+    <!-- Barra superior con los dos botones -->
+    <div class="d-flex justify-content-end p-2 border-bottom">
+      <a
+        class="btn btn-sm btn-light me-1"
+        href="<?= SERVERURL ?>views/page/agendas/crear-agenda.php"
+        title="Agregar recordatorio"
+      >
+        <i class="fa fa-plus-circle"></i>
+      </a>
+      <a
+        class="btn btn-sm btn-light"
+        href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
+        title="Ver todos los recordatorios"
+      >
+        <i class="fa fa-list-alt"></i>
+      </a>
+    </div>
+
+    <!-- Cabecera de “tienes X recordatorios” -->
+    <h6 class="dropdown-header mb-0 px-3 py-2">
+      Tienes <?= $hoy_count ?> recordatorio<?= $hoy_count > 1 ? 's' : '' ?>
+    </h6>
+    <div class="dropdown-divider"></div>
+
+    <!-- Luego la lista de recordatorios -->
+    <?php foreach($hoy as $r): ?>
+      <a class="dropdown-item preview-item" href="#">
+        <div class="preview-item-content">
+          <p class="preview-subject mb-1">
+            <?= htmlspecialchars($r['nombre_cliente']) ?>
+          </p>
+          <p class="small-text text-muted mb-0">
+            <?= htmlspecialchars($r['comentario']) ?>
+          </p>
+        </div>
+      </a>
+    <?php endforeach; ?>
+
+    <?php if($hoy_count === 0): ?>
+      <div class="px-3 py-2 text-center text-muted">No hay recordatorios hoy</div>
+    <?php endif; ?>
+  </div>
           </li>
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
             <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"

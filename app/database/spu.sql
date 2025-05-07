@@ -523,8 +523,6 @@ BEGIN
     ON o.idorden = os.idorden
   WHERE o.idorden = _idorden;
 END $$
-DELIMITER ;
-
 
 -- call spGetObservacionByOrden(39)
 -- call spInsertFechaSalida(3)
@@ -554,4 +552,13 @@ IN _componente VARCHAR(50)
 )
 BEGIN
 INSERT INTO componentes (componente) VALUES (_componente);
+END $$
+
+DROP PROCEDURE IF EXISTS spGetRecordatoriosHoy;
+DELIMITER $$
+CREATE PROCEDURE spGetRecordatoriosHoy(
+
+)
+BEGIN
+
 END $$
