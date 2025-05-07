@@ -559,6 +559,6 @@ DELIMITER $$
 CREATE PROCEDURE spGetRecordatoriosHoy(
 
 )
-BEGIN
+BEGIN                          
 
 END $$
