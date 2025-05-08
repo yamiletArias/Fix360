@@ -9,54 +9,54 @@ require_once "../../partials/header.php";
 ?>
 
 <div class="container-main">
-<div class="card mb-3 border">
-    <div class="card-header">
-        <h4>Registrar Nuevo Recordatorio</h4>
-    </div>
-    <div class="card-body">
-      <div class="row g-3 align-items-end">
-      <div class="col-md-4">
-            <div class="form-floating input-group">
-              <input type="text" disabled class="form-control input" id="cliente" placeholder="Cliente">
-              <input type="hidden" id="hiddenIdCliente" name="idcliente">
-              <label for="cliente">Cliente</label>
-              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ModalCliente">…</button>
-            </div>
-          </div>
-        <div class="col-md-4">
-            <div class="form-floating">
-                <input type="date" id="new-fecha" class="form-control input"/>
-                <label for="new-fecha" class="form-label">Próxima Visita</label>
+    <div class="card mb-3 border">
+        <div class="card-header">
+            <h4>Registrar Nuevo Recordatorio</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <div class="form-floating input-group">
+                        <input type="text" disabled class="form-control input" id="cliente" placeholder="Cliente">
+                        <input type="hidden" id="hiddenIdCliente" name="idcliente">
+                        <label for="cliente">Cliente</label>
+                        <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ModalCliente">…</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input type="date" id="new-fecha" class="form-control input" />
+                        <label for="new-fecha" class="form-label">Próxima Visita</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input type="text" id="new-comentario" class="form-control input" placeholder="Escribe un comentario…" />
+                        <label for="new-comentario" class="form-label">Comentario</label>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="form-floating">
-                <input type="text" id="new-comentario" class="form-control input" placeholder="Escribe un comentario…"/>
-                <label for="new-comentario" class="form-label">Comentario</label>
-            </div>
+        <div class="card-footer text-end">
+            <button id="btn-new-recordatorio" class="btn btn-sm btn-success">Registrar</button>
         </div>
-      </div>
     </div>
-    <div class="card-footer text-end">
-    <button id="btn-new-recordatorio"  class="btn btn-sm btn-success">Registrar</button>
-    </div>
-  </div>
 
     <div class="card border">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-9 mb-2 mb-md-0">
                     <!-- Botones de filtro: Semana, Mes -->
-                     <div class="d-flex align-items-center">
-                         <div class="btn-group me-2" role="group">
-                             <button type="button" data-modo="semana" class="btn btn-primary">Semana</button>
-                             <button type="button" data-modo="mes" class="btn btn-primary">Mes</button>
-                             <button type="button" class="btn btn-outline-danger">
-                                 <i class="fa-solid fa-file-pdf"></i>
-                                </button>
-                            </div>
-                        
-                    
+                    <div class="d-flex align-items-center">
+                        <div class="btn-group me-2" role="group">
+                            <button type="button" data-modo="semana" class="btn btn-primary">Semana</button>
+                            <button type="button" data-modo="mes" class="btn btn-primary">Mes</button>
+                            <button type="button" class="btn btn-outline-danger">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </button>
+                        </div>
+
+
                         <select id="estadoSelect" class="form-select ms-2 input w-auto" style="color:black; background-color:white;">
                             <option value="A">Activos</option>
                             <option value="P">Pendientes</option>
@@ -64,15 +64,15 @@ require_once "../../partials/header.php";
                             <option value="C">Cancelados</option>
                             <option value="H">Hechos</option>
                         </select>
-                    
+
+                    </div>
                 </div>
-                </div>
-                
+
                 <div class="col-md-3 text-md-end">
                     <!-- Fecha -->
                     <div class="input-group">
                         <input type="date" id="Fecha" class="form-control input" />
-                        
+
                     </div>
                 </div>
             </div>
@@ -100,73 +100,73 @@ require_once "../../partials/header.php";
 </div>
 
 <div class="modal fade" id="ModalCliente" tabindex="-1" aria-labelledby="ModalClienteLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
-      <!-- Header -->
-      <div class="modal-header">
-        <h2 class="modal-title" id="ModalClienteLabel">Seleccionar Cliente</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <!-- Forzamos tipo “persona” -->
-        <input type="hidden" id="tipoBusquedaCliente" value="persona">
-
-        <!-- Método de búsqueda -->
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-floating">
-              <select id="selectMetodoCliente" class="form-select" style="background-color: white;color:black;">
-                <option value="dni">DNI</option>
-                <option value="nombre">Nombre</option>
-              </select>
-              <label for="selectMetodoCliente">Método de búsqueda</label>
+            <!-- Header -->
+            <div class="modal-header">
+                <h2 class="modal-title" id="ModalClienteLabel">Seleccionar Cliente</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-          </div>
-        </div>
 
-        <!-- Valor buscado -->
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-floating">
-              <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;" placeholder="Valor buscado" autofocus>
-              <label for="vbuscadoCliente">Valor buscado</label>
+            <!-- Body -->
+            <div class="modal-body">
+                <!-- Forzamos tipo “persona” -->
+                <input type="hidden" id="tipoBusquedaCliente" value="persona">
+
+                <!-- Método de búsqueda -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <select id="selectMetodoCliente" class="form-select" style="background-color: white;color:black;">
+                                <option value="dni">DNI</option>
+                                <option value="nombre">Nombre</option>
+                            </select>
+                            <label for="selectMetodoCliente">Método de búsqueda</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valor buscado -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;" placeholder="Valor buscado" autofocus>
+                            <label for="vbuscadoCliente">Valor buscado</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Resultados -->
+                <p class="mt-3"><strong>Resultado:</strong></p>
+                <div class="table-responsive">
+                    <table
+                        id="tabla-resultado-cliente"
+                        class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Documento</th>
+                                <th>Confirmar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-          </div>
-        </div>
-        <!-- Resultados -->
-        <p class="mt-3"><strong>Resultado:</strong></p>
-        <div class="table-responsive">
-          <table
-            id="tabla-resultado-cliente"
-            class="table table-striped">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Nombre</th>
-                <th>Documento</th>
-                <th>Confirmar</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Se llena dinámicamente -->
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal">Cerrar</button>
-      </div>
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cerrar</button>
+            </div>
 
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Modal Detalle -->
@@ -222,64 +222,66 @@ require_once "../../partials/header.php";
 
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const API      = '<?= SERVERURL ?>app/controllers/Agenda.controller.php';
-  const fechaIn  = document.getElementById('new-fecha');
-  const comentIn = document.getElementById('new-comentario');
-  const btnNew   = document.getElementById('btn-new-recordatorio');
-  const hiddenCliente = document.getElementById('hiddenIdCliente');
+    document.addEventListener('DOMContentLoaded', () => {
+        const API = '<?= SERVERURL ?>app/controllers/Agenda.controller.php';
+        const fechaIn = document.getElementById('new-fecha');
+        const comentIn = document.getElementById('new-comentario');
+        const btnNew = document.getElementById('btn-new-recordatorio');
+        const hiddenCliente = document.getElementById('hiddenIdCliente');
 
-  // calcular mañana y fijar min/value
-  const hoy    = new Date();
-  const manana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1);
-  const pad    = n => String(n).padStart(2,'0');
-  const strM   = `${manana.getFullYear()}-${pad(manana.getMonth()+1)}-${pad(manana.getDate())}`;
-  fechaIn.min   = strM;
-  fechaIn.value = strM;
+        // calcular mañana y fijar min/value
+        const hoy = new Date();
+        const manana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1);
+        const pad = n => String(n).padStart(2, '0');
+        const strM = `${manana.getFullYear()}-${pad(manana.getMonth()+1)}-${pad(manana.getDate())}`;
+        fechaIn.min = strM;
+        fechaIn.value = strM;
 
-  btnNew.addEventListener('click', async () => {
-    const f = fechaIn.value;
-    const c = comentIn.value.trim();
-    const idc = hiddenCliente.value;
+        btnNew.addEventListener('click', async () => {
+            const f = fechaIn.value;
+            const c = comentIn.value.trim();
+            const idc = hiddenCliente.value;
 
-    if (!idc) {
-      return alert('Selecciona primero un cliente.');
-    }
-    if (!f || !c) {
-      return alert('Completa fecha y comentario.');
-    }
+            if (!idc) {
+                return alert('Selecciona primero un cliente.');
+            }
+            if (!f || !c) {
+                return alert('Completa fecha y comentario.');
+            }
 
-    // confirmación
-    if (!confirm('¿Seguro que quieres registrar este recordatorio?')) {
-      return;
-    }
+            // confirmación
+            if (!confirm('¿Seguro que quieres registrar este recordatorio?')) {
+                return;
+            }
 
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        action: 'register',
-        idpropietario: idc,
-        fchproxvisita: f,
-        comentario: c
-      })
+            const res = await fetch(API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'register',
+                    idpropietario: idc,
+                    fchproxvisita: f,
+                    comentario: c
+                })
+            });
+            const js = await res.json();
+            if (js.status === 'success') {
+                comentIn.value = '';
+                showToast('Orden registrada exitosamente', 'SUCCESS', 1500);
+                // Después de 1 segundo (una vez visible el toast) redirige:
+                setTimeout(() => {
+                    cargar();
+                }, 1000);
+                // recarga tu tabla
+            } else {
+                alert('No se pudo registrar: ' + js.message);
+            }
+        });
+
+        // ... aquí sigue el resto de tu JS (filtros, cargar(), etc.) ...
     });
-    const js = await res.json();
-    if (js.status === 'success') {
-      comentIn.value = '';
-      showToast('Orden registrada exitosamente', 'SUCCESS', 1500);
-        // Después de 1 segundo (una vez visible el toast) redirige:
-        setTimeout(() => {
-            cargar();
-        }, 1000);
-       // recarga tu tabla
-    } else {
-      alert('No se pudo registrar: ' + js.message);
-    }
-  });
-
-  // ... aquí sigue el resto de tu JS (filtros, cargar(), etc.) ...
-});
 </script>
 
 
@@ -339,7 +341,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const pintar = data => {
             window._agendaData = data;
             tablaBody.innerHTML = '';
+            const MAX_LEN = 50; // número de caracteres que quieras mostrar
+
             data.forEach((r, i) => {
+                const rawComment = r.comentario || '';
+                const comentario = rawComment.length > MAX_LEN ?
+                    rawComment.slice(0, MAX_LEN) + '…' :
+                    rawComment;
+
                 const btnDetail = `<button class="btn btn-sm btn-secondary" data-id="${r.idagenda}" data-action="detail"><i class="fa fa-phone"></i></button>`;
                 const btnReprog = (r.estado === 'C' || r.estado === 'H') ? '' : `<button class="btn btn-sm btn-primary" data-id="${r.idagenda}" data-action="reprog"><i class="fa fa-calendar"></i></button>`;
                 const btnEstado = estadoBtn(r.estado, r.idagenda);
@@ -348,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${i+1}</td>
           <td>${r.nomcliente}</td>
           <td>${fmtDate(r.fchproxvisita)}</td>
-          <td>${r.comentario}</td>
+          <td title="${rawComment}">${comentario}</td>
           <td>${btnEstado}</td>
           <td>${btnDetail} ${btnReprog}</td>
         </tr>
@@ -478,32 +487,32 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const API_CLIENTE = '<?= SERVERURL ?>app/controllers/propietario.controller.php';
-  
-  // Elementos del modal
-  const selectMetodo    = document.getElementById('selectMetodoCliente');
-  const vbuscado        = document.getElementById('vbuscadoCliente');
-  const tablaCuerpo     = document.querySelector('#tabla-resultado-cliente tbody');
-  const hiddenIdCliente = document.getElementById('hiddenIdCliente');
-  const inputCliente    = document.getElementById('cliente');
-  const modalClienteEl  = document.getElementById('ModalCliente');
-  
-  let clienteTimer = null;
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_CLIENTE = '<?= SERVERURL ?>app/controllers/propietario.controller.php';
 
-  // Función que consulta al backend y dibuja resultados
-  function buscarCliente() {
-    const tipo   = document.getElementById('tipoBusquedaCliente').value; // “persona”
-    const metodo = selectMetodo.value;
-    const valor  = vbuscado.value.trim();
-    if (!valor) {
-      tablaCuerpo.innerHTML = '';
-      return;
-    }
-    fetch(`${API_CLIENTE}?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`)
-      .then(res => res.json())
-      .then(data => {
-        tablaCuerpo.innerHTML = data.map((item,i) => `
+        // Elementos del modal
+        const selectMetodo = document.getElementById('selectMetodoCliente');
+        const vbuscado = document.getElementById('vbuscadoCliente');
+        const tablaCuerpo = document.querySelector('#tabla-resultado-cliente tbody');
+        const hiddenIdCliente = document.getElementById('hiddenIdCliente');
+        const inputCliente = document.getElementById('cliente');
+        const modalClienteEl = document.getElementById('ModalCliente');
+
+        let clienteTimer = null;
+
+        // Función que consulta al backend y dibuja resultados
+        function buscarCliente() {
+            const tipo = document.getElementById('tipoBusquedaCliente').value; // “persona”
+            const metodo = selectMetodo.value;
+            const valor = vbuscado.value.trim();
+            if (!valor) {
+                tablaCuerpo.innerHTML = '';
+                return;
+            }
+            fetch(`${API_CLIENTE}?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`)
+                .then(res => res.json())
+                .then(data => {
+                    tablaCuerpo.innerHTML = data.map((item, i) => `
           <tr>
             <td>${i+1}</td>
             <td>${item.nombre}</td>
@@ -515,40 +524,40 @@ document.addEventListener('DOMContentLoaded', () => {
             </td>
           </tr>
         `).join('');
-      })
-      .catch(console.error);
-  }
+                })
+                .catch(console.error);
+        }
 
-  // Al tipear o cambiar método, disparamos búsqueda con debounce
-  vbuscado.addEventListener('input', () => {
-    clearTimeout(clienteTimer);
-    clienteTimer = setTimeout(buscarCliente, 300);
-  });
-  selectMetodo.addEventListener('change', () => {
-    clearTimeout(clienteTimer);
-    clienteTimer = setTimeout(buscarCliente, 300);
-  });
+        // Al tipear o cambiar método, disparamos búsqueda con debounce
+        vbuscado.addEventListener('input', () => {
+            clearTimeout(clienteTimer);
+            clienteTimer = setTimeout(buscarCliente, 300);
+        });
+        selectMetodo.addEventListener('change', () => {
+            clearTimeout(clienteTimer);
+            clienteTimer = setTimeout(buscarCliente, 300);
+        });
 
-  // Cuando se haga clic en “Confirmar” dentro de la tabla de resultados
-  tablaCuerpo.addEventListener('click', e => {
-    const btn = e.target.closest('button[data-id]');
-    if (!btn) return;
-    const id     = btn.dataset.id;
-    const nombre = btn.closest('tr').cells[1].textContent;
+        // Cuando se haga clic en “Confirmar” dentro de la tabla de resultados
+        tablaCuerpo.addEventListener('click', e => {
+            const btn = e.target.closest('button[data-id]');
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const nombre = btn.closest('tr').cells[1].textContent;
 
-    // Seteamos el campo oculto y el input visible
-    hiddenIdCliente.value = id;
-    inputCliente.value    = nombre;
+            // Seteamos el campo oculto y el input visible
+            hiddenIdCliente.value = id;
+            inputCliente.value = nombre;
 
-    // Cerramos el modal tras un pequeño delay
-    setTimeout(() => {
-      bootstrap.Modal.getOrCreateInstance(modalClienteEl).hide();
-    }, 100);
-  });
+            // Cerramos el modal tras un pequeño delay
+            setTimeout(() => {
+                bootstrap.Modal.getOrCreateInstance(modalClienteEl).hide();
+            }, 100);
+        });
 
-  // Opcional: poner foco en el input al mostrarse el modal
-  modalClienteEl.addEventListener('shown.bs.modal', () => {
-    vbuscado.focus();
-  });
-});
+        // Opcional: poner foco en el input al mostrarse el modal
+        modalClienteEl.addEventListener('shown.bs.modal', () => {
+            vbuscado.focus();
+        });
+    });
 </script>
