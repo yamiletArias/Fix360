@@ -6,17 +6,6 @@ require_once "../../partials/header.php";
 ?>
 <div class="container-main mt-5">
   <div class="card border">
-    <!--     <div class="card-header d-flex justify-content-between align-items-center">
-      <div>
-        <h3 class="mb-0">Complete los datos</h3>
-      </div>
-      <div>
-        <a href="listar-ventas.php" class="btn input btn-success">
-          Mostrar Lista
-        </a>
-      </div>
-    </div> -->
-
     <div class="card-body">
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
@@ -54,11 +43,6 @@ require_once "../../partials/header.php";
                 ...
               </button>
             </div>
-            <!-- <div class="form-floating">
-              <input name="cliente" id="cliente" type="text" class=" form-control input" placeholder="Producto"
-                required />
-              <label for="cliente">Cliente</label>
-            </div> -->
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-floating">
@@ -395,7 +379,6 @@ require_once "../../partials/header.php";
   });
 </script>
 
-
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
@@ -455,57 +438,60 @@ require_once "../../partials/header.php";
     }
 
     // --- Agregar Producto al Detalle ---
-
     agregarProductoBtn.addEventListener("click", () => {
+      const idp = selectedProduct.idproducto;
       const nombre = inputProductElement.value;
       const precio = parseFloat(inputPrecio.value);
       const cantidad = parseFloat(inputCantidad.value);
       const descuento = parseFloat(inputDescuento.value);
+
       if (!nombre || isNaN(precio) || isNaN(cantidad)) {
         return alert("Completa todos los campos correctamente.");
       }
-      if (estaDuplicado(selectedProduct.idproducto)) {
+      if (detalleVenta.some(d => d.idproducto === idp)) {
         alert("Este producto ya ha sido agregado.");
-        inputProductElement.value = "";
-        inputPrecio.value = "";
-        inputCantidad.value = 1;
-        inputDescuento.value = 0;
-        return;
+        return resetCamposProducto();
       }
+
       const importe = (precio * cantidad) - descuento;
       const fila = document.createElement("tr");
+      // le pongo data-idproducto a la fila
+      fila.dataset.idproducto = idp;
       fila.innerHTML = `
-            <td>${tabla.rows.length + 1}</td>
-            <td>${nombre}</td>
-            <td>${precio.toFixed(2)}</td>
-            <td>${cantidad}</td>
-            <td>${descuento.toFixed(2)}</td>
-            <td>${importe.toFixed(2)}</td>
-            <td><button class="btn btn-danger btn-sm">X</button></td>
-        `;
-      fila.querySelector("button").addEventListener("click", () => {
+    <td>${tabla.rows.length + 1}</td>
+    <td>${nombre}</td>
+    <td>${precio.toFixed(2)}</td>
+    <td>${cantidad}</td>
+    <td>${descuento.toFixed(2)}</td>
+    <td>${importe.toFixed(2)}</td>
+    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+  `;
+      // al crear el botón de quitar…
+      fila.querySelector(".btn-quitar").addEventListener("click", () => {
+        // 1) quito la fila del DOM
         fila.remove();
+        // 2) quito del array usando el idproducto guardado en la fila
+        const idElim = parseInt(fila.dataset.idproducto, 10);
+        const idx = detalleVenta.findIndex(d => d.idproducto === idElim);
+        if (idx >= 0) detalleVenta.splice(idx, 1);
+        // 3) renumero y recalculo
         actualizarNumeros();
         calcularTotales();
       });
+
       tabla.appendChild(fila);
 
-      detalleVenta.push({
-        idproducto: selectedProduct.idproducto,
-        producto: nombre,
-        precio, cantidad, descuento,
-        importe: importe.toFixed(2)
-      });
-
-      // Reset campos
-      inputProductElement.value = "";
-      inputPrecio.value = "";
-      inputStock.value = "";
-      inputCantidad.value = 1;
-      inputDescuento.value = 0;
-
+      detalleVenta.push({ idproducto: idp, producto: nombre, precio, cantidad, descuento, importe: importe.toFixed(2) });
+      resetCamposProducto();
       calcularTotales();
     });
+
+    function resetCamposProducto() {
+      inputProductElement.value = "";
+      inputPrecio.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
+    }
 
     function actualizarNumeros() {
       const filas = tabla.getElementsByTagName("tr");
@@ -528,6 +514,7 @@ require_once "../../partials/header.php";
       let currentFocus = -1;
       input.addEventListener("keydown", function (e) {
         const items = itemsDiv.getElementsByTagName("div");
+        if (!items.length) return;
         if (e.key === "ArrowDown") {
           currentFocus++;
           addActive(items);
@@ -536,24 +523,22 @@ require_once "../../partials/header.php";
           addActive(items);
         } else if (e.key === "Enter") {
           e.preventDefault();
-          if (currentFocus > -1 && items[currentFocus]) {
-            items[currentFocus].click();
-          }
+          if (currentFocus > -1) items[currentFocus].click();
         }
       });
 
       function addActive(items) {
-        if (!items) return false;
         removeActive(items);
         if (currentFocus >= items.length) currentFocus = 0;
         if (currentFocus < 0) currentFocus = items.length - 1;
-        items[currentFocus].classList.add("autocomplete-active");
+        const el = items[currentFocus];
+        el.classList.add("autocomplete-active");
+        // esto hará que el elemento activo se vea
+        el.scrollIntoView({ block: "nearest" });
       }
 
       function removeActive(items) {
-        for (let i = 0; i < items.length; i++) {
-          items[i].classList.remove("autocomplete-active");
-        }
+        Array.from(items).forEach(i => i.classList.remove("autocomplete-active"));
       }
     }
 
@@ -562,7 +547,7 @@ require_once "../../partials/header.php";
       cerrarListas();
       if (!input.value) return;
       const searchTerm = input.value;
-      fetch(`http://localhost/Fix360/app/controllers/Compra.controller.php?q=${searchTerm}&type=producto`)
+      fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`)
         .then(response => response.json())
         .then(data => {
           const itemsDiv = document.createElement("div");
@@ -622,7 +607,6 @@ require_once "../../partials/header.php";
     });
 
     // --- Generación de Serie y Comprobante ---
-
     function generateNumber(type) {
       return `${type}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
     }
@@ -643,7 +627,6 @@ require_once "../../partials/header.php";
     inicializarCampos();
 
     // --- Navegación con Enter entre campos de producto ---
-
     inputProductElement.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); inputPrecio.focus(); } });
     inputPrecio.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); inputCantidad.focus(); } });
     inputCantidad.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); inputDescuento.focus(); } });
@@ -651,12 +634,11 @@ require_once "../../partials/header.php";
       if (e.key === "Enter") {
         e.preventDefault();
         agregarProductoBtn.focus();
-        // o bien: agregarProductoBtn.click();
+        // o : agregarProductoBtn.click();
       }
     });
 
     // --- Guardar Venta ---
-
     btnFinalizarVenta.addEventListener('click', function (e) {
       e.preventDefault();
 
@@ -719,6 +701,8 @@ require_once "../../partials/header.php";
     });
   });
 </script>
+
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>

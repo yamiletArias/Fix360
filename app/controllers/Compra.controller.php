@@ -3,6 +3,7 @@
 if (isset($_SERVER['REQUEST_METHOD'])) {
 
     header('Content-Type: application/json; charset=utf-8');
+    date_default_timezone_set("America/Lima");
 
     require_once '../models/Compra.php';
     require_once "../helpers/helper.php";
@@ -17,13 +18,15 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             // 1) Obtener proveedores
             if ($tipo === 'proveedor') {
                 echo json_encode($compra->getProveedoresCompra());
+                exit;        // ← aquí detienes la ejecución para que no añada el JSON de más
             }
 
-            // 2) Buscar productos por término
+            // 2) Productos o Clientes
             if (isset($_GET['q']) && !empty($_GET['q'])) {
-                $termino = Helper::limpiarCadena($_GET['q']);
-                if ($tipo === 'producto') {
-                    echo json_encode($compra->buscarProductoCompra($termino));
+                $termino = $_GET['q'];
+                if ($tipo == 'producto') {
+                    echo json_encode($compra->buscarProducto($termino));
+                    exit;
                 } else {
                     echo json_encode(["error" => "Tipo no válido para búsqueda"]);
                 }

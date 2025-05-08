@@ -7,7 +7,7 @@ require_once "../../partials/header.php";
 
 <div class="container-main mt-5">
   <div class="card border">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <!-- <div class="card-header d-flex justify-content-between align-items-center">
       <div>
         <h3 class="mb-0">Complete los datos</h3>
       </div>
@@ -16,17 +16,19 @@ require_once "../../partials/header.php";
           Mostrar Lista
         </a>
       </div>
-    </div>
+    </div> -->
     <div class="card-body">
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
+              <input class="form-check-input text-start" type="radio" name="tipo" value="factura"
+                onclick="inicializarCampos()" checked>
               Factura
             </label>
-            <label>
-              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
+            <label style="padding-left: 10px;">
+              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta"
+                onclick="inicializarCampos()">
               Boleta
             </label>
           </div>
@@ -45,16 +47,16 @@ require_once "../../partials/header.php";
           <div class="col-md-5">
             <div class="form-floating">
               <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
-                <option value="" selected>Selecciona proveedor</option>
+                <option selected>Selecciona proveedor</option>
                 <!-- Se llenará dinámicamente vía AJAX -->
               </select>
-              <label for="proveedor">Proveedor</label>
+              <label for="proveedor"><strong>Proveedor</strong></label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="date" class="form-control input" name="fecha" id="fecha" required />
-              <label for="fecha">Fecha de venta:</label>
+              <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
+              <label for="fechaIngreso">Fecha de Compra:</label>
             </div>
           </div>
           <div class="col-md-3">
@@ -66,7 +68,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
         <!-- Sección Producto, Precio, Cantidad y Descuento -->
         <div class="row g-2 mt-3">
           <div class="col-md-5">
@@ -74,7 +75,7 @@ require_once "../../partials/header.php";
               <!-- Campo de búsqueda de Producto -->
               <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
                 placeholder="Buscar Producto" required>
-              <label for="producto">Buscar Producto: </label>
+              <label for="producto"><strong>Buscar Producto:</strong></label>
               <input type="hidden" id="hiddenIdCliente" />
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                 data-bs-target="#miModal">
@@ -91,15 +92,16 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="precio" id="precio" placeholder="Precio" required />
-              <label for="precio">Precio</label>
+              <input type="number" class="form-control input" name="preciocompra" id="preciocompra" placeholder="Precio"
+                required />
+              <label for="preciocompra"><strong>Precio</strong></label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="cantidad" id="cantidad" placeholder="Cantidad"
-                required />
-              <label for="cantidad">Cantidad</label>
+              <input type="number" class="form-control input" name="cantidadcompra" id="cantidadcompra"
+                placeholder="Cantidad" required />
+              <label for="cantidadcompra"><strong>Cantidad</strong></label>
             </div>
           </div>
           <div class="col-md-2">
@@ -115,9 +117,11 @@ require_once "../../partials/header.php";
         </div>
       </form>
     </div>
+
   </div>
 
   <!-- seccion de detalles de la compra -->
+
   <div class="container-main-2 mt-4">
     <div class="card border">
       <div class="card-body p-3">
@@ -255,9 +259,9 @@ require_once "../../partials/header.php";
             </div>
             <div class="col-12">
               <div class="form-floating">
-                <input type="number" class="form-control" id="precioModal" name="precioModal" placeholder="Precio"
+                <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
                   style="background-color: white; color: black;" />
-                <label for="precioModal">Precio:</label>
+                <label for="precio">Precio:</label>
               </div>
             </div>
             <div class="col-12">
@@ -313,14 +317,23 @@ require_once "../../partials/header.php";
             inputBusqueda.value = `${subcategoriaText} ${descripcion}`;
           }
           // ← aquí las dos líneas nuevas:
-          document.getElementById("cantidad").value = 1;
+          document.getElementById("cantidadcompra").value = 1;
           document.getElementById("descuento").value = 0;
 
           // **** Actualización clave: asignar el id retornado al objeto global selectedProduct ****
           // Se asume que la respuesta JSON ahora incluye la propiedad "idproducto" obtenida en PHP.
           selectedProduct.idproducto = resp.idproducto;
           selectedProduct.subcategoria_producto = `${subcategoriaText} ${descripcion}`;
-          selectedProduct.precio = document.getElementById("precioModal").value;
+          selectedProduct.precio = document.getElementById("precio").value;
+
+          // nueva línea para jalarlo al formulario de compra:
+          document.getElementById("preciocompra").value = selectedProduct.precio;
+
+          // 1) captura la cantidad ingresada en el modal:
+          const modalCantidad = document.getElementById("cantidad").value;
+
+          // 2) asígnala al campo stock del formulario principal:
+          document.getElementById("stock").value = modalCantidad;
 
           // Cerrar el modal correctamente.
           const modalEl = document.getElementById('miModal');
@@ -402,13 +415,14 @@ require_once "../../partials/header.php";
 </script>
 
 <script>
+
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     const proveedorSelect = document.getElementById('proveedor');
     const inputProductElement = document.getElementById("producto");
     const numSerieInput = document.getElementById("numserie");
     const numComInput = document.getElementById("numcom");
-    const fechaInput = document.getElementById('fecha');
+    /* const fechaInput = document.getElementById('fecha'); */
     const monedaSelect = document.getElementById('moneda');
     const tipoInputs = document.querySelectorAll('input[name="tipo"]');
     const agregarProductoBtn = document.querySelector("#agregarProducto");
@@ -417,9 +431,24 @@ require_once "../../partials/header.php";
 
     // Nuevos elementos de input para los detalles del producto
     const inputStock = document.getElementById("stock");
-    const inputPrecio = document.getElementById("precio");
-    const inputCantidad = document.getElementById("cantidad");
+    const inputPrecio = document.getElementById("preciocompra");
+    const inputCantidad = document.getElementById("cantidadcompra");
     const inputDescuento = document.getElementById("descuento");
+
+    function initDateField(id) {
+      const el = document.getElementById(id);
+      if (!el) return;               // si no existe, no hace nada
+      const today = new Date();
+      const twoAgo = new Date();
+      twoAgo.setDate(today.getDate() - 2);
+      const fmt = d => d.toISOString().split('T')[0];
+      el.value = fmt(today);
+      el.min = fmt(twoAgo);
+      el.max = fmt(today);
+    }
+
+    initDateField('fechaIngreso');
+    const fechaInput = document.getElementById("fechaIngreso");
 
     function calcularTotales() {
       let totalImporte = 0;
@@ -524,6 +553,7 @@ require_once "../../partials/header.php";
       let currentFocus = -1;
       input.addEventListener("keydown", function (e) {
         const items = itemsDiv.getElementsByTagName("div");
+        if (!items.length) return;
         if (e.key === "ArrowDown") {
           currentFocus++;
           addActive(items);
@@ -532,24 +562,22 @@ require_once "../../partials/header.php";
           addActive(items);
         } else if (e.key === "Enter") {
           e.preventDefault();
-          if (currentFocus > -1 && items[currentFocus]) {
-            items[currentFocus].click();
-          }
+          if (currentFocus > -1) items[currentFocus].click();
         }
       });
 
       function addActive(items) {
-        if (!items) return false;
         removeActive(items);
         if (currentFocus >= items.length) currentFocus = 0;
         if (currentFocus < 0) currentFocus = items.length - 1;
-        items[currentFocus].classList.add("autocomplete-active");
+        const el = items[currentFocus];
+        el.classList.add("autocomplete-active");
+        // esto hará que el elemento activo se vea
+        el.scrollIntoView({ block: "nearest" });
       }
 
       function removeActive(items) {
-        for (let i = 0; i < items.length; i++) {
-          items[i].classList.remove("autocomplete-active");
-        }
+        Array.from(items).forEach(i => i.classList.remove("autocomplete-active"));
       }
     }
 
@@ -649,6 +677,7 @@ require_once "../../partials/header.php";
       fechaInput.value = `${year}-${month}-${day}`;
     };
     setFechaDefault();
+
     // Carga de proveedores vía AJAX
     fetch('http://localhost/Fix360/app/controllers/Compra.controller.php?type=proveedor')
       .then(response => response.json())
@@ -793,9 +822,13 @@ require_once "../../partials/header.php";
     });
   });
 </script>
-<!-- <script src="<?= SERVERURL ?>views/page/compras/js/registrar-compras.js"></script> -->
+
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+
 <!-- js de carga moneda -->
+
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+
 <?php
 require_once "../../partials/_footer.php";
 ?>

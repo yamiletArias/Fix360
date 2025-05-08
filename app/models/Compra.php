@@ -58,8 +58,8 @@ class Compra extends Conexion
     }
   }
 
-  //buscar producto
-  public function buscarProductoCompra(string $termino): array
+  // Buscar productos
+  public function buscarProducto(string $termino): array
   {
     $result = [];
     try {
@@ -69,7 +69,7 @@ class Compra extends Conexion
       $stmt->execute();
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-      throw new Exception("Error al buscar productos en compra: " . $e->getMessage());
+      throw new Exception("Error al buscar productos: " . $e->getMessage());
     }
     return $result;
   }
@@ -177,7 +177,7 @@ class Compra extends Conexion
     $result = [];
     try {
       // Consulta la vista vs_compras_eliminadas
-      $sql = "SELECT id, proveedor, tipocom, numcom, fechacompra FROM vs_compras_eliminadas";
+      $sql = "SELECT id, proveedor, tipocom, numcom FROM vs_compras_eliminadas";
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute();
       // Obtiene todos los resultados de la consulta

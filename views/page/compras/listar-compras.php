@@ -1,5 +1,5 @@
 <?php
-const NAMEVIEW = "Lista de compras";
+const NAMEVIEW = "compras";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
@@ -39,8 +39,6 @@ require_once "../../partials/header.php";
                         <th class="text-left">Proveedor</th>
                         <th class="text-center">T. Comprobante</th>
                         <th class="text-center">N° Comprobante</th>
-                        <th>Fecha Compra</th>
-                        <th>Precio</th>
                         <th class="text-center">Opciones</th>
                     </tr>
                 </thead>
@@ -60,8 +58,6 @@ require_once "../../partials/header.php";
                     <th class="text-left">Proveedor</th>
                     <th class="text-center">T. Comprobante</th>
                     <th class="text-center">N° Comprobante</th>
-                    <th>Fecha Compra</th>
-                    <th>Precio</th>
                     <th class="text-center">Opciones</th>
                 </tr>
             </thead>
@@ -188,10 +184,6 @@ require_once "../../partials/_footer.php";
                 { data: "tipocom", class: 'text-center', defaultContent: "" }, // 3) T. Comprobante
                 { data: "numcom", class: 'text-center', defaultContent: "" }, // 4) N° Comprobante
 
-                // ← insertar estas dos:
-                { data: "fechacompra", defaultContent: "No disponible" },        // 5) Fecha Compra
-                { data: "preciocompra", defaultContent: "No disponible" },       // 6) Precio
-
                 { // 7) Opciones
                     data: null,
                     class: 'text-center',
@@ -207,8 +199,7 @@ require_once "../../partials/_footer.php";
             language: {
                 lengthMenu: "Mostrar _MENU_ registros por página",
                 zeroRecords: "No se encontraron resultados",
-                emptyTable: "No hay datos disponibles en la tabla",
-                /* …resto de tu idioma… */
+                emptyTable: "No hay datos disponibles en la tabla"
             }
         });
 
@@ -245,14 +236,6 @@ require_once "../../partials/_footer.php";
                     defaultContent: "No disponible",
                     class: 'text-center'
                 }, // Cierra columna 3
-                { // Columna 5: fecha de la compra
-                    data: "fechacompra",
-                    defaultContent: "No disponible"
-                }, // Cierra columna 5
-                { // Columna 6: precio
-                    data: "preciocompra",
-                    defaultContent: "No disponible"
-                }, // Cierra columna 6
                 { // Columna 7: Opciones (botones: editar, ver detalle, y otro para ver más)
                     data: null,
                     render: function (data, type, row) { // Inicio de render de opciones
@@ -335,8 +318,6 @@ require_once "../../partials/_footer.php";
           <td class="text-start">${c.proveedor}</td>
           <td class="text-center">${c.tipocom}</td>
           <td class="text-center">${c.numcom}</td>
-          <td>${new Date(c.fechacompra).toLocaleDateString()}</td>
-          <td>${c.preciocompra}</td>
           <td class="text-center">
             <button class="btn btn-danger btn-sm" data-id="${c.id}" data-action="eliminar">
               <i class="fa-solid fa-trash"></i>
@@ -422,7 +403,26 @@ require_once "../../partials/_footer.php";
         cargar(currentModo, hoy);
     });
 </script>
-
+<!-- Logica para obetner la justificacion en el modal -->
+<script>
+    $(document).on('click', '.btn-ver-justificacion', async function () {
+        const id = $(this).data('id');
+        console.log('voy a pedir justificación para id=', id);
+        $('#contenidoJustificacion').text('Cargando…');
+        try {
+            const res = await fetch(`<?= SERVERURL ?>app/controllers/Compra.controller.php?action=justificacion&idcompra=${id}`);
+            const json = await res.json();
+            if (json.status === 'success') {
+                $('#contenidoJustificacion').text(json.justificacion);
+            } else {
+                $('#contenidoJustificacion').text('No hay justificación');
+            }
+        } catch (e) {
+            $('#contenidoJustificacion').text('Error al cargar justificación');
+        }
+        $('#modalVerJustificacion').modal('show');
+    });
+</script>
 <script>
     function verDetalleCompra(idcompra) {
         $("#miModal").modal("show");
@@ -446,7 +446,7 @@ require_once "../../partials/_footer.php";
                         <tr>
                         <td>${i + 1}</td>
                         <td>${item.producto}</td>
-                        <td>${item.precio}</td>
+                        <td>${item.precio}</td>s
                         <td>${item.descuento}%</td>
                         </tr>
                     `);
@@ -461,12 +461,10 @@ require_once "../../partials/_footer.php";
         });
     }
 </script>
-
-<!--FIN VENTAS-->
+<!--FIN COMPRAS-->
 </body>
 
 </html>
-
 
 <!-- <script>
     // reemplaza el handler existente por éste
