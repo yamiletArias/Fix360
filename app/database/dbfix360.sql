@@ -262,10 +262,12 @@ DROP TABLE IF EXISTS agendas;
 CREATE TABLE agendas(
 idagenda 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idpropietario		INT 				NOT NULL,
-fchproxvisita 		DATETIME 		NOT NULL,
+fchproxvisita 		DATE 		NOT NULL,
 comentario 			VARCHAR(255)	NOT NULL,
-estado 				BOOLEAN 			NOT NULL,
-CONSTRAINT fk_idpropietario_8 FOREIGN KEY (idpropietario) REFERENCES propietarios (idpropietario)
+estado 		ENUM('P','R','C','H')		NOT NULL DEFAULT 'P', -- P: pendiente, R:reprogramado, C:cancelado,H:hecho
+creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+CONSTRAINT fk_idpropietario_5 FOREIGN KEY (idpropietario) REFERENCES clientes (idcliente)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS observaciones;

@@ -56,7 +56,7 @@ class Vehiculo extends Conexion
         $params["color"],
         $params["vin"],
         $params["numchasis"],
-        $params["idcliente"] // Agregar este campo
+        $params["idcliente"]
       ]);
 
       $numRows = $stmt->rowCount();

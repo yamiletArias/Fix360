@@ -1,3 +1,16 @@
+<?php
+// header.php (o partials/header.php)
+
+session_start();
+require_once dirname(__DIR__, 2) . '/app/models/Agenda.php';
+require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
+
+$agendaModel  = new Agenda();
+$hoy          = $agendaModel->getRecordatoriosHoy();
+$hoy_count    = count($hoy);
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,6 +95,7 @@
 
     .input {
       font-size: 17px;
+      color:black;
     }
 
 
@@ -193,52 +207,42 @@
               <span class="count"><?= $hoy_count ?></span>
             </a>
             <div
-    class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
-    aria-labelledby="messageDropdown"
-    style="min-width: 250px;"
-  >
-    <!-- Barra superior con los dos botones -->
-    <div class="d-flex justify-content-end p-2 border-bottom">
-      <a
-        class="btn btn-sm btn-light me-1"
-        href="<?= SERVERURL ?>views/page/agendas/crear-agenda.php"
-        title="Agregar recordatorio"
-      >
-        <i class="fa fa-plus-circle"></i>
-      </a>
-      <a
-        class="btn btn-sm btn-light"
-        href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
-        title="Ver todos los recordatorios"
-      >
-        <i class="fa fa-list-alt"></i>
-      </a>
-    </div>
+              class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
+              aria-labelledby="messageDropdown"
+              style="min-width: 250px;">
+              <!-- Barra superior con los dos botones -->
 
-    <!-- Cabecera de “tienes X recordatorios” -->
-    <h6 class="dropdown-header mb-0 px-3 py-2">
-      Tienes <?= $hoy_count ?> recordatorio<?= $hoy_count > 1 ? 's' : '' ?>
-    </h6>
-    <div class="dropdown-divider"></div>
+              <!-- Cabecera de “tienes X recordatorios” -->
+               <div class="dropdown-header mb-0 px-3 py-2">
 
-    <!-- Luego la lista de recordatorios -->
-    <?php foreach($hoy as $r): ?>
-      <a class="dropdown-item preview-item" href="#">
-        <div class="preview-item-content">
-          <p class="preview-subject mb-1">
-            <?= htmlspecialchars($r['nombre_cliente']) ?>
-          </p>
-          <p class="small-text text-muted mb-0">
-            <?= htmlspecialchars($r['comentario']) ?>
-          </p>
-        </div>
-      </a>
-    <?php endforeach; ?>
+                 <h7 ><strong> <?= $hoy_count ?> recordatorio<?= $hoy_count !== 1 ? 's' : '' ?> </strong> </h7>
+                   <a
+                  class="btn btn-sm btn-primary text-end"
+                  href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
+                  title="Ver todos los recordatorios">
+                  <i class="fa fa-list-alt"></i>
+                </a>
+                </div>
+              <div class="dropdown-divider"></div>
 
-    <?php if($hoy_count === 0): ?>
-      <div class="px-3 py-2 text-center text-muted">No hay recordatorios hoy</div>
-    <?php endif; ?>
-  </div>
+              <?php if ($hoy_count): ?>
+                <?php foreach ($hoy as $r): ?>
+                  <a class="dropdown-item preview-item" href="#">
+                    <div class="preview-item-content">
+                      <p class="preview-subject mb-1">
+                        <?= htmlspecialchars($r['nomcliente']) ?>
+                      </p>
+                      <p class="small-text text-muted mb-0">
+                        <?= htmlspecialchars($r['comentario']) ?>
+                      </p>
+                    </div>
+                  </a>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <div class="px-3 py-2 text-center text-muted">No hay recordatorios hoy</div>
+              <?php endif; ?>
+
+            </div>
           </li>
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
             <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"

@@ -554,11 +554,97 @@ BEGIN
 INSERT INTO componentes (componente) VALUES (_componente);
 END $$
 
-DROP PROCEDURE IF EXISTS spGetRecordatoriosHoy;
+DROP PROCEDURE IF EXISTS spRegisterRecordatorio;
 DELIMITER $$
-CREATE PROCEDURE spGetRecordatoriosHoy(
-
+CREATE PROCEDURE spRegisterRecordatorio(
+IN _idpropietario INT,
+IN _fchproxvisita DATE,
+IN _comentario 	  VARCHAR(255)
 )
-BEGIN                          
-
+BEGIN
+INSERT INTO agendas (idpropietario,fchproxvisita,comentario) VALUES 
+(_idpropietario,_fchproxvisita,_comentario);
 END $$
+
+-- call spListAgendasPorPeriodo('dia','2025-05-10','A')
+
+DROP PROCEDURE IF EXISTS spListAgendasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListAgendasPorPeriodo(
+  IN _modo    ENUM('semana','mes','dia'),
+  IN _fecha   DATE,
+  IN _estado  ENUM('P','R','C','H','A')  -- 'A' = Activos (P o R)
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  -- 1. Calcular el rango según modo
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE  -- 'dia'
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  -- 2. Selección con lógica de “Activos”
+  SELECT
+    a.idagenda,
+    a.idpropietario,
+    a.fchproxvisita,
+    a.comentario,
+    a.estado,
+    CONCAT(p.nombres, ' ', p.apellidos) AS nomcliente,
+    p.telprincipal,
+    p.telalternativo,
+    p.correo
+  FROM agendas AS a
+    JOIN clientes AS c
+      ON a.idpropietario = c.idcliente
+    JOIN personas AS p
+      ON c.idpersona = p.idpersona
+  WHERE
+    a.fchproxvisita BETWEEN start_date AND end_date
+    AND (
+      -- Si piden “Activos” (A), mostrar P y R
+      (_estado = 'A' AND a.estado IN ('P','R'))
+      -- Sino, filtrar por el estado exacto
+      OR (_estado <> 'A' AND a.estado = _estado)
+    )
+  ORDER BY a.fchproxvisita;
+END$$
+
+DROP PROCEDURE IF EXISTS spUpdateEstado;
+DELIMITER $$
+CREATE PROCEDURE spUpdateEstado(
+IN _idagenda INT,
+IN _estado ENUM('P','R','C','H')
+)
+BEGIN 
+UPDATE agendas SET
+estado = _estado
+WHERE idagenda = _idagenda;
+END $$
+
+DROP PROCEDURE IF EXISTS spReprogramarRecordatorio;
+DELIMITER $$
+CREATE PROCEDURE spReprogramarRecordatorio(
+  IN _idagenda        INT,
+  IN _nueva_fecha     DATE
+)
+BEGIN
+  UPDATE agendas
+  SET
+    fchproxvisita = _nueva_fecha,
+    estado        = 'R'
+  WHERE
+    idagenda = _idagenda;
+END$$
+
+-- call spReprogramarRecordatorio(5,'2025-05-10')
+-- select * from vwRecordatoriosHoy
+-- select * from agendas;

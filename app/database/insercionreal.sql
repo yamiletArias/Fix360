@@ -418,3 +418,11 @@ INSERT INTO formapagos (formapago) VALUES
 ('Plin'),
 ('Efectivo'),
 ('Deposito');
+-- select * from agendas;
+
+INSERT INTO agendas (idpropietario,fchproxvisita,comentario,estado) VALUES
+(5,NOW(),'cambio de aceite','P'),
+(4,NOW(),'cambio de llanta','P'),
+(2,NOW(),'nivelacion','P'),
+(4,NOW(),'lavado','P'),
+(5,NOW(),'ajuste de bujias','P');

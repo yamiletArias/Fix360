@@ -212,3 +212,23 @@ CREATE OR REPLACE VIEW vwComponentes AS
 SELECT idcomponente,componente FROM componentes;
 
 -- select * from vwcomponentes;
+DROP VIEW IF EXISTS vwRecordatoriosHoy;
+CREATE OR REPLACE VIEW vwRecordatoriosHoy AS
+SELECT
+  a.idagenda,
+  a.idpropietario,
+  a.fchproxvisita,
+  a.comentario,
+  a.estado,
+   CONCAT(p.nombres, ' ', p.apellidos) AS nomcliente ,
+  p.telprincipal,
+  p.telalternativo,
+  p.correo
+FROM agendas AS a
+JOIN clientes AS c
+  ON a.idpropietario = c.idcliente
+JOIN personas AS p
+  ON c.idpersona = p.idpersona
+WHERE DATE(a.fchproxvisita) = CURDATE() AND a.estado IN ('P','R'); 
+
+
