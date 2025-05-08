@@ -405,20 +405,21 @@ require_once "../../partials/header.php";
                     new bootstrap.Modal(document.getElementById('modalDetalle')).show();
                     break;
                 case 'reprog':
-                    // 1) calculamos “mañana”
-                    const hoy = new Date();
-                    const manana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1);
-                    const yyyy = manana.getFullYear();
-                    const mm = String(manana.getMonth() + 1).padStart(2, '0');
-                    const dd = String(manana.getDate()).padStart(2, '0');
-                    const strManana = `${yyyy}-${mm}-${dd}`;
+                    const orig = new Date(selectedRec.fchproxvisita);
+                    const next = new Date(orig); // Copiamos la fecha original
+                    next.setDate(next.getDate() + 1); // Sumamos un día correctamente
 
-                    // 2) fijamos el mínimo y el valor por defecto
-                    inputReprog.min = strManana;
-                    inputReprog.value = strManana;
+                    const pad = n => String(n).padStart(2, '0');
+                    const yyyy = next.getFullYear();
+                    const mm = pad(next.getMonth() + 1);
+                    const dd = pad(next.getDate());
+                    const strNext = `${yyyy}-${mm}-${dd}`;
 
-                    // 3) abrimos el modal
+                    inputReprog.min = strNext;
+                    inputReprog.value = strNext;
+
                     new bootstrap.Modal(document.getElementById('modalReprog')).show();
+
                     break;
 
                 case 'estado':
