@@ -537,7 +537,7 @@ DELIMITER $$
 CREATE PROCEDURE spRegisterObservacion(
 IN _idcomponente INT,
 IN _idorden 	  INT,
-IN _estado 			INT,
+IN _estado 			BOOLEAN,
 IN _foto			VARCHAR(255)
 )
 BEGIN
