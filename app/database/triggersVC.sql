@@ -60,3 +60,21 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- AMORTIZACIONES
+
+DELIMITER $$
+
+DROP TRIGGER IF EXISTS tr_actualizar_saldo_amortizacion$$
+CREATE TRIGGER tr_actualizar_saldo_amortizacion
+BEFORE INSERT ON amortizaciones
+FOR EACH ROW
+BEGIN
+  DECLARE totalventa DECIMAL(10,2);
+
+  SELECT total INTO totalventa FROM ventas WHERE idventa = NEW.idventa;
+
+  SET NEW.saldo = totalventa - NEW.amortizacion;
+END$$
+
+DELIMITER ;

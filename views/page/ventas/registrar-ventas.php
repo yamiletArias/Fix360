@@ -458,14 +458,14 @@ require_once "../../partials/header.php";
       // le pongo data-idproducto a la fila
       fila.dataset.idproducto = idp;
       fila.innerHTML = `
-    <td>${tabla.rows.length + 1}</td>
-    <td>${nombre}</td>
-    <td>${precio.toFixed(2)}</td>
-    <td>${cantidad}</td>
-    <td>${descuento.toFixed(2)}</td>
-    <td>${importe.toFixed(2)}</td>
-    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
-  `;
+        <td>${tabla.rows.length + 1}</td>
+        <td>${nombre}</td>
+        <td>${precio.toFixed(2)}</td>
+        <td>${cantidad}</td>
+        <td>${descuento.toFixed(2)}</td>
+        <td>${importe.toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+      `;
       // al crear el botón de quitar…
       fila.querySelector(".btn-quitar").addEventListener("click", () => {
         // 1) quito la fila del DOM
@@ -488,6 +488,7 @@ require_once "../../partials/header.php";
 
     function resetCamposProducto() {
       inputProductElement.value = "";
+      inputStock.value = "";
       inputPrecio.value = "";
       inputCantidad.value = 1;
       inputDescuento.value = 0;
@@ -643,23 +644,21 @@ require_once "../../partials/header.php";
       e.preventDefault();
 
       if (detalleVenta.length === 0) {
-        alert("Agrega al menos un producto.");
+        showToast("Agrega al menos un producto.", "WARNING", 2000);
         return;
       }
 
-      // diálogo de confirmación con botón verde
       Swal.fire({
         title: '¿Deseas guardar la venta?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Aceptar',
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#28a745',  // verde
-        cancelButtonColor: '#d33'       // rojo
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33'
       }).then(result => {
         if (!result.isConfirmed) return;
 
-        // si confirmó, enviamos y redirigimos sin segundo OK
         btnFinalizarVenta.disabled = true;
         btnFinalizarVenta.textContent = 'Guardando...';
         numSerieInput.disabled = numComInput.disabled = false;
@@ -687,7 +686,10 @@ require_once "../../partials/header.php";
           .then(res => res.json())
           .then(json => {
             if (json.status === "success") {
-              window.location.href = 'listar-ventas.php';
+              showToast('Venta registrada exitosamente.', 'SUCCESS', 1500);
+              setTimeout(() => {
+                window.location.href = 'listar-ventas.php';
+              }, 1500);
             } else {
               Swal.fire('Error', 'No se pudo registrar la venta.', 'error');
             }

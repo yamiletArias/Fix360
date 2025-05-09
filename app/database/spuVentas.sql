@@ -1,4 +1,4 @@
--- PROCEDIMIENTO ALMACENADOS DE VENTAS
+-- PROCEDIMIENTO ALMACENADOS DE VENTAS REAL
 
 -- ALTERAR POR AHORA (IDORDEN, IDPROMOCION, IDCOLABORADOR, IDVEHICULO) EN VENTAS
 ALTER TABLE detalleventa
@@ -11,8 +11,6 @@ ALTER TABLE ventas MODIFY kilometraje DECIMAL(10,2) NULL;
 ALTER TABLE compras MODIFY idcolaborador INT NULL;
 -- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
 ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
-
--- ****************************************************
 
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
@@ -127,6 +125,7 @@ BEGIN
     LIMIT 10;
 END$$
 
+
 -- 5) PROCEDIMIENTO PARA BUSCAR PRODUCTO (producto, stock, precio)
 DROP PROCEDURE IF EXISTS buscar_producto;
 DELIMITER $$
@@ -240,63 +239,6 @@ BEGIN
   LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
 END $$
 
--- PRUEBA (OBTENER LOS PROVEEDORES AUN EXISTENTE ANTES DEL REGSITRO) PERO CON EL REGISTRO AUN NO FUNCION
-DROP PROCEDURE IF EXISTS spuGetProveedores;
-DELIMITER $$
-CREATE PROCEDURE spuGetProveedores()
-BEGIN
-  SELECT 
-    e.idempresa      AS idempresa,
-    e.nomcomercial   AS nombre_empresa,
-    p.idproveedor    AS idproveedor
-  FROM empresas e
-  LEFT JOIN proveedores p 
-    ON e.idempresa = p.idempresa
-  ORDER BY e.nomcomercial;
-END $$
-
--- 10) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA = COMPRA ANULADA
-DROP PROCEDURE IF EXISTS spuDeleteCompra;
-DELIMITER $$
-CREATE PROCEDURE spuDeleteCompra (
-  IN _idcompra      INT,
-  IN _justificacion VARCHAR(255)
-)
-BEGIN
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
-  BEGIN
-    ROLLBACK;
-    RESIGNAL;
-  END;
-  START TRANSACTION;
-    UPDATE compras
-    SET estado = FALSE,
-        justificacion = _justificacion
-    WHERE idcompra = _idcompra;
-  COMMIT;
-END$$
-
--- 11) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA = VENTA ANULADA
-DROP PROCEDURE IF EXISTS spuDeleteVenta;
-DELIMITER $$
-CREATE PROCEDURE spuDeleteVenta (
-  IN _idventa      INT,
-  IN _justificacion VARCHAR(255)
-)
-BEGIN
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
-  BEGIN
-    ROLLBACK;
-    RESIGNAL;
-  END;
-  START TRANSACTION;
-    UPDATE ventas
-    SET estado = FALSE,
-        justificacion = _justificacion
-    WHERE idventa = _idventa;
-  COMMIT;
-END$$
-
 -- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES AL REGISTRAR)
 DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
 DELIMITER $$
@@ -339,7 +281,7 @@ BEGIN
   END IF;
 END $$
 
--- 12) PROCEDIMIENTO PARA REGISTRAR COTIZACION
+-- 10) PROCEDIMIENTO PARA REGISTRAR COTIZACION
 DROP PROCEDURE IF EXISTS spuRegisterCotizaciones;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCotizaciones (
@@ -364,7 +306,7 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idcotizacion;
 END $$
 
--- 13) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
+-- 11) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
 DROP PROCEDURE IF EXISTS spuInsertDetalleCotizacion;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCotizacion (
@@ -390,6 +332,48 @@ BEGIN
     _descuento
   );
 END $$
+
+-- 12) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA = COMPRA ANULADA
+DROP PROCEDURE IF EXISTS spuDeleteCompra;
+DELIMITER $$
+CREATE PROCEDURE spuDeleteCompra (
+  IN _idcompra      INT,
+  IN _justificacion VARCHAR(255)
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+  START TRANSACTION;
+    UPDATE compras
+    SET estado = FALSE,
+        justificacion = _justificacion
+    WHERE idcompra = _idcompra;
+  COMMIT;
+END$$
+
+-- 13) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA = VENTA ANULADA
+DROP PROCEDURE IF EXISTS spuDeleteVenta;
+DELIMITER $$
+CREATE PROCEDURE spuDeleteVenta (
+  IN _idventa      INT,
+  IN _justificacion VARCHAR(255)
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+  START TRANSACTION;
+    UPDATE ventas
+    SET estado = FALSE,
+        justificacion = _justificacion
+    WHERE idventa = _idventa;
+  COMMIT;
+END$$
 
 -- 14) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
@@ -427,20 +411,20 @@ BEGIN
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
     AND v.estado = TRUE
   ORDER BY v.fechahora;
-END$$
+END$$spListComprasPorPeriodo
 
 -- 15) PROCEDIMIENTO PARA DATOS DE COMPRA (DIA, SEMANA Y MES)
-
 DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListComprasPorPeriodo(
-  IN _modo   ENUM('semana','mes','dia'),
-  IN _fecha  DATE
+  IN _modo  ENUM('semana','mes','dia'),
+  IN _fecha DATE
 )
 BEGIN
   DECLARE start_date DATE;
   DECLARE end_date   DATE;
-  
+
+  -- Calcular rango según modo
   IF _modo = 'semana' THEN
     SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
     SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
@@ -452,53 +436,36 @@ BEGIN
     SET end_date   = _fecha;
   END IF;
 
-  SELECT
-    id,
-    proveedores  AS proveedor,
-    tipocom, 
-    numcom,
-    fechacompra,
-    preciocompra
-  FROM vs_compras
-  WHERE DATE(fechacompra) BETWEEN start_date AND end_date
-  ORDER BY fechacompra;
-END$$
-DELIMITER ;
-
-DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
-DELIMITER $$
-CREATE PROCEDURE spListComprasPorPeriodo(
-  IN _modo   ENUM('semana','mes','dia'),
-  IN _fecha  DATE
-)
-BEGIN
-  DECLARE start_date DATE;
-  DECLARE end_date   DATE;
-  
-  IF _modo = 'semana' THEN
-    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
-    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
-  ELSEIF _modo = 'mes' THEN
-    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
-    SET end_date   = LAST_DAY(_fecha);
-  ELSE
-    SET start_date = _fecha;
-    SET end_date   = _fecha;
-  END IF;
-
-  SELECT
-    id                      AS id,
-    proveedores             AS proveedor,
-    tipocom                 AS tipocom,
-    numcom                  AS numcom,
-    preciocompra            AS total
-  FROM vs_compras
-  WHERE DATE(fechacompra) BETWEEN start_date AND end_date
-  ORDER BY fechacompra;
+  -- Listar compras en el rango sin mostrar fechacompra
+  SELECT 
+    C.idcompra AS id,
+    E.nomcomercial AS proveedor,
+    C.tipocom, 
+    C.numcom
+  FROM compras C
+  JOIN proveedores P ON C.idproveedor = P.idproveedor
+  JOIN empresas E ON P.idempresa = E.idempresa
+  WHERE DATE(C.fechacompra) BETWEEN start_date AND end_date
+    AND C.estado = TRUE
+  ORDER BY C.fechacompra;
 END$$
 
 
 -- PROBAR 
+-- PRUEBA (OBTENER LOS PROVEEDORES AUN EXISTENTE ANTES DEL REGSITRO) PERO CON EL REGISTRO AUN NO FUNCION
+DROP PROCEDURE IF EXISTS spuGetProveedores;
+DELIMITER $$
+CREATE PROCEDURE spuGetProveedores()
+BEGIN
+  SELECT 
+    e.idempresa      AS idempresa,
+    e.nomcomercial   AS nombre_empresa,
+    p.idproveedor    AS idproveedor
+  FROM empresas e
+  LEFT JOIN proveedores p 
+    ON e.idempresa = p.idempresa
+  ORDER BY e.nomcomercial;
+END $$
 -- PRUEBA PARA OBTENER LAS MONEDAS
 CALL spuGetMonedasVentas();
 -- PRUEBA PARA BUSCAR PRODUCTO
@@ -509,7 +476,6 @@ CALL spuGetProveedores();
 SELECT idventa, justificacion, estado
 FROM ventas
 WHERE idventa = 3;
-
 -- PRUEBA DE VENTAS
 SELECT * FROM detalleventa;
 SELECT * FROM ventas;

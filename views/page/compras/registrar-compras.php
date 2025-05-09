@@ -731,48 +731,26 @@ require_once "../../partials/header.php";
     btnFinalizarCompra.addEventListener('click', function (e) {
       e.preventDefault();
 
-      if (
-        !proveedorSelect.value ||
-        proveedorSelect.value === 'Selecciona proveedor'
-      ) {
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'error', // ← cambia 'success' por 'error' para que sea rojo
-          title: 'Por favor selecciona un proveedor',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        });
+      if (!proveedorSelect.value || proveedorSelect.value === 'Selecciona proveedor') {
+        showToast('Por favor selecciona un proveedor', 'ERROR', 2000);
         return;
       }
 
-      // toast si no hay productos
       if (detalleCompra.length === 0) {
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'warning',
-          title: 'Agrega al menos un producto',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        });
+        showToast('Agrega al menos un producto', 'WARNING', 2000);
         return;
       }
 
-      // Confirmación SweetAlert
       Swal.fire({
         title: '¿Deseas guardar la compra?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Aceptar',
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#28a745',    // verde
+        confirmButtonColor: '#28a745',
         cancelButtonColor: '#d33'
       }).then(result => {
         if (result.isConfirmed) {
-          // Si confirma, envía y redirige directamente
           btnFinalizarCompra.disabled = true;
           btnFinalizarCompra.textContent = 'Guardando...';
 
@@ -792,21 +770,10 @@ require_once "../../partials/header.php";
             .then(res => res.json())
             .then(json => {
               if (json.status === 'success') {
-                // Mostrar el toast verde
-                Swal.fire({
-                  toast: true,
-                  position: 'top-end',
-                  icon: 'success',
-                  title: 'Compra registrada',
-                  showConfirmButton: false,
-                  timer: 2000,
-                  timerProgressBar: true
-                });
-
-                // Espera 2 segundos antes de redirigir
+                showToast('Compra registrada exitosamente.', 'SUCCESS', 1500);
                 setTimeout(() => {
                   window.location.href = 'listar-compras.php';
-                }, 2000);
+                }, 1500);
               } else {
                 Swal.fire('Error', 'No se pudo registrar la compra.', 'error');
               }
@@ -817,7 +784,6 @@ require_once "../../partials/header.php";
               btnFinalizarCompra.textContent = 'Guardar';
             });
         }
-        // si cancela, no hace nada
       });
     });
   });

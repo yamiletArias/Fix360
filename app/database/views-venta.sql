@@ -24,9 +24,7 @@ SELECT
     C.idcompra AS id,
     C.tipocom,
     C.numcom,
-    E.nomcomercial AS proveedores,
-    C.fechacompra,
-    SUM(DC.preciocompra) AS preciocompra
+    E.nomcomercial AS proveedores
 FROM compras C
 JOIN proveedores P ON C.idproveedor = P.idproveedor
 JOIN empresas E ON P.idempresa = E.idempresa
@@ -109,7 +107,10 @@ JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
 INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
 
+
 -- PRUEBA PARA VER LOS ESTADOS FALSE:
+
+
 -- 1) VISTA DE VENTAS ELIMINADAS (estado = FALSE)
 DROP VIEW IF EXISTS vs_ventas_eliminadas;
 CREATE VIEW vs_ventas_eliminadas AS
@@ -161,41 +162,49 @@ SELECT
 FROM ventas
 WHERE estado = FALSE;
 
+-- VISTA PARA VER COMPRAS ELIMINADAS
+DROP VIEW IF EXISTS vs_compras_eliminadas;
+CREATE VIEW vs_compras_eliminadas AS
+SELECT 
+    C.idcompra AS id,
+    E.nomcomercial AS proveedor,
+    C.tipocom,
+    C.numcom
+FROM compras C
+JOIN proveedores P ON C.idproveedor = P.idproveedor
+JOIN empresas E ON P.idempresa = E.idempresa
+WHERE C.estado = FALSE;
+
+-- VISTA PARA VER LA JUSTIFICACION POR ID
+DROP VIEW IF EXISTS vista_justificacion_compra;
+CREATE VIEW vista_justificacion_compra AS
+SELECT 
+    idcompra,
+    justificacion
+FROM compras
+WHERE estado = FALSE;
+
+DROP VIEW IF EXISTS vista_detalle_compra_eliminada;
+CREATE VIEW vista_detalle_compra_eliminada AS
+SELECT 
+  c.idcompra,
+  e.nomcomercial AS proveedor,
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.preciocompra AS precio,
+  dc.descuento
+FROM compras c
+JOIN proveedores prov ON c.idproveedor = prov.idproveedor
+JOIN empresas e ON prov.idempresa = e.idempresa
+JOIN detallecompra dc ON c.idcompra = dc.idcompra
+JOIN productos pr ON dc.idproducto = pr.idproducto
+JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
+WHERE c.estado = FALSE;
+
+-- PRUEBAS
 SELECT * 
 FROM vista_justificacion_venta
 WHERE idventa = 1;
-
 SELECT justificacion FROM vista_justificacion_venta WHERE idventa = 1;
-
-
--- PRUEBA PARA VER LAS VENTAS REGISTRADAS:
-DROP VIEW IF EXISTS vs_ventas_cabecera;
-CREATE VIEW vs_ventas_cabecera AS
-SELECT
-  vt.idventa,
-  -- Cliente: empresa o persona
-  CASE
-    WHEN cl.idempresa IS NOT NULL THEN em.nomcomercial
-    WHEN cl.idpersona IS NOT NULL THEN CONCAT(pe.nombres, ' ', pe.apellidos)
-    ELSE 'Sin cliente'
-  END AS cliente,
-  vt.tipocom,
-  vt.fechahora,
-  vt.numserie,
-  vt.numcom,
-  vt.moneda,
-  vt.kilometraje,
-  -- Vehículo concatenado: tipo, marca, color y placa
-  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo
-FROM ventas       AS vt
-JOIN clientes     AS cl  ON vt.idcliente   = cl.idcliente
-LEFT JOIN empresas AS em ON cl.idempresa   = em.idempresa
-LEFT JOIN personas AS pe ON cl.idpersona   = pe.idpersona
-JOIN vehiculos    AS vh  ON vt.idvehiculo  = vh.idvehiculo
-JOIN modelos      AS m   ON vh.idmodelo    = m.idmodelo
-JOIN tipovehiculos AS tv ON m.idtipov      = tv.idtipov
-JOIN marcas       AS ma  ON m.idmarca      = ma.idmarca;
-
 SELECT * 
 FROM vs_ventas_detalle_all;
 SELECT producto, precio, descuento 
@@ -205,5 +214,3 @@ SELECT * FROM vista_detalle_venta WHERE idventa = 4;
 SELECT producto, precio, descuento 
 FROM vista_detalle_venta 
 WHERE idventa = 1;
-
--- PRUEBAS Y VISTAS ******************
