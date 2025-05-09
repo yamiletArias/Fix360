@@ -200,6 +200,33 @@ JOIN productos pr ON dc.idproducto = pr.idproducto
 JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
 WHERE c.estado = FALSE;
 
+-- **************************** AMORTIZACION ******************************
+-- 1) Primero, vista auxiliar que suma el neto de cada detalle
+DROP VIEW IF EXISTS vista_total_por_venta;
+CREATE VIEW vista_total_por_venta AS
+SELECT
+  idventa,
+  SUM(precioventa * (1 - descuento/100)) AS total
+FROM detalleventa
+GROUP BY idventa;
+
+SELECT total 
+FROM vista_total_por_venta 
+WHERE idventa = 17;
+
+-- 2) Ahora una vista final que combina los datos de la venta con ese total
+DROP VIEW IF EXISTS vs_ventas_con_total;
+CREATE VIEW vs_ventas_con_total AS
+SELECT
+  v.id       AS idventa,
+  v.cliente,
+  v.tipocom,
+  v.numcom,
+  t.total_calculado AS total
+FROM vs_ventas v
+LEFT JOIN vista_total_por_venta t
+  ON v.id = t.idventa;
+
 -- PRUEBAS
 SELECT * 
 FROM vista_justificacion_venta

@@ -61,8 +61,52 @@ END$$
 
 DELIMITER ;
 
--- AMORTIZACIONES
 
+-- POR EL MOMENTO
+INSERT INTO formapagos (formapago) VALUES 
+  ('Efectivo'),
+  ('Tarjeta'),
+  ('Transferencia');
+-- PRUEBA PARA EL MODAL DE AMORTIZACION
+ALTER TABLE ventas
+  ADD COLUMN total DECIMAL(10,2) NOT NULL DEFAULT 0,
+  ADD COLUMN pagado BOOLEAN NOT NULL DEFAULT FALSE;
+
+DELIMITER $$
+
+CREATE TRIGGER actualiza_pagado_after_ins
+AFTER INSERT ON amortizaciones
+FOR EACH ROW
+BEGIN
+  DECLARE suma DECIMAL(10,2);
+  SELECT COALESCE(SUM(amortizacion),0)
+    INTO suma
+    FROM amortizaciones
+   WHERE idventa = NEW.idventa;
+  UPDATE ventas
+     SET pagado = (suma >= total)
+   WHERE idventa = NEW.idventa;
+END$$
+
+CREATE TRIGGER actualiza_pagado_after_upd
+AFTER UPDATE ON amortizaciones
+FOR EACH ROW
+BEGIN
+  DECLARE suma DECIMAL(10,2);
+  SELECT COALESCE(SUM(amortizacion),0)
+    INTO suma
+    FROM amortizaciones
+   WHERE idventa = NEW.idventa;
+  UPDATE ventas
+     SET pagado = (suma >= total)
+   WHERE idventa = NEW.idventa;
+END$$
+
+DELIMITER ;
+-- FIN PRUEBA AMORTIZACIONES
+
+
+-- AMORTIZACIONES 
 DELIMITER $$
 
 DROP TRIGGER IF EXISTS tr_actualizar_saldo_amortizacion$$
