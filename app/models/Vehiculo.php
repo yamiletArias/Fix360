@@ -82,4 +82,55 @@ class Vehiculo extends Conexion
 
     return $result;
   }
+
+  /**
+   * Obtiene todas las órdenes de servicio de un vehículo
+   *
+   * @param int $idvehiculo
+   * @return array
+   */
+  public function getOrdenesByVehiculo(int $idvehiculo): array
+  {
+    try {
+      $sql  = "CALL spGetOrdenesByVehiculo(?)";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute([$idvehiculo]);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception("Error al obtener órdenes: " . $e->getMessage());
+    }
+  }
+
+  /**
+   * Obtiene todas las ventas de un vehículo
+   *
+   * @param int $idvehiculo
+   * @return array
+   */
+  public function getVentasByVehiculo(int $idvehiculo): array
+  {
+    try {
+      $sql  = "CALL spGetVentasByVehiculo(?)";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute([$idvehiculo]);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception("Error al obtener ventas: " . $e->getMessage());
+    }
+  }
+
+  public function getJustificacionByOrden(int $idorden): array
+  {
+    $stmt = $this->pdo->prepare("CALL spGetJustificacionByOrden(?)");
+    $stmt->execute([$idorden]);
+    // devuelve un array con ['justificacion' => '...']
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getDetalleOrdenServicio(int $idorden): array
+  {
+    $stmt = $this->pdo->prepare("CALL spGetDetalleOrdenServicio(?)");
+    $stmt->execute([$idorden]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
 }

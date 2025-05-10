@@ -167,7 +167,7 @@ require_once "../../partials/_footer.php";
               <button class="btn btn-sm btn-info" title="Detalle" onclick="verDetalle('${row.modelo}', '${row.anio}', '${row.numserie}', '${row.tcombustible}','${row.modificado}','${row.vin}','${row.numchasis}')">
                 <i class="fa-solid fa-clipboard-list"></i>
               </button>
-              <a href="editar-vehiculo.php?id=${row.idvehiculo}" class="btn btn-sm btn-outline-primary" title="Ver más">
+              <a href="historial-vehiculos.php?id=${row.idvehiculo}" class="btn btn-sm btn-outline-primary" title="Ver más">
                 <i class="fa-solid fa-list"></i>
               </a>
             `;

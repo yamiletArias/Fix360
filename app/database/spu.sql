@@ -648,3 +648,165 @@ END$$
 -- call spReprogramarRecordatorio(5,'2025-05-10')
 -- select * from vwRecordatoriosHoy
 -- select * from agendas;
+
+-- call spGetVentasByVehiculo(1)
+
+DROP PROCEDURE IF EXISTS spGetVentasByVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spGetVentasByVehiculo(
+  IN _idvehiculo INT
+)
+BEGIN
+  SELECT
+    v.idventa,
+    
+    -- Quién registró la venta
+    v.idcolaborador                               AS idregistrador,
+    CONCAT(pe_reg.nombres, ' ', pe_reg.apellidos) AS registrador,
+    
+    -- Propietario en ese momento
+    prop.idcliente                                 AS idpropietario,
+    CASE
+      WHEN cli_prop.idpersona IS NOT NULL
+        THEN CONCAT(pe_prop.nombres, ' ', pe_prop.apellidos)
+      ELSE COALESCE(em_prop.nomcomercial, em_prop.razonsocial)
+    END                                             AS propietario,
+    
+    -- Cliente de la venta
+    v.idcliente                                    AS idcliente,
+    CASE
+      WHEN cli_c.idpersona IS NOT NULL
+        THEN CONCAT(pe_c.nombres, ' ', pe_c.apellidos)
+      ELSE COALESCE(em_c.nomcomercial, em_c.razonsocial)
+    END                                             AS cliente,
+    
+    -- Detalles de la venta
+    v.tipocom                                 AS tipo_comprobante,
+    v.fechahora,
+    CONCAT(v.numserie, '-', v.numcom)         AS comprobante,
+    v.kilometraje,
+    v.estado
+  FROM ventas v
+    -- Datos de quien registra
+    JOIN colaboradores col_reg ON v.idcolaborador = col_reg.idcolaborador
+    JOIN contratos     ctr_reg ON col_reg.idcontrato   = ctr_reg.idcontrato
+    JOIN personas      pe_reg  ON ctr_reg.idpersona    = pe_reg.idpersona
+
+    -- Buscamos el propietario vigente usando fecha de venta
+    LEFT JOIN propietarios prop 
+      ON prop.idvehiculo = v.idvehiculo
+     AND prop.fechainicio <= v.fechahora
+     AND (prop.fechafinal   IS NULL OR prop.fechafinal   >= v.fechahora)
+    LEFT JOIN clientes    cli_prop ON prop.idcliente = cli_prop.idcliente
+    LEFT JOIN personas    pe_prop  ON cli_prop.idpersona = pe_prop.idpersona
+    LEFT JOIN empresas    em_prop  ON cli_prop.idempresa = em_prop.idempresa
+
+    -- Cliente que hace la compra
+    LEFT JOIN clientes    cli_c ON v.idcliente = cli_c.idcliente
+    LEFT JOIN personas    pe_c  ON cli_c.idpersona = pe_c.idpersona
+    LEFT JOIN empresas    em_c  ON cli_c.idempresa = em_c.idempresa
+
+  WHERE v.idvehiculo = _idvehiculo
+  ORDER BY v.fechahora;
+END$$
+DELIMITER ;
+
+
+-- call spGetOrdenesByVehiculo(1)
+
+DROP PROCEDURE IF EXISTS spGetOrdenesByVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spGetOrdenesByVehiculo(
+  IN _idvehiculo INT
+)
+BEGIN
+  SELECT
+    o.idorden,
+
+    -- Quién registró la orden
+    o.idadmin                                     AS idadmin,
+    CONCAT(pe_reg.nombres, ' ', pe_reg.apellidos) AS Administrador,
+
+    -- Propietario en ese momento
+    o.idpropietario                               AS idpropietario,
+    CASE
+      WHEN cli_prop.idpersona IS NOT NULL
+        THEN CONCAT(pe_prop.nombres, ' ', pe_prop.apellidos)
+      ELSE COALESCE(em_prop.nomcomercial, em_prop.razonsocial)
+    END                                           AS propietario,
+
+    -- Cliente que encargó la orden
+    o.idcliente                                   AS idcliente,
+    CASE
+      WHEN cli_c.idpersona IS NOT NULL
+        THEN CONCAT(pe_c.nombres, ' ', pe_c.apellidos)
+      ELSE COALESCE(em_c.nomcomercial, em_c.razonsocial)
+    END                                           AS cliente,
+
+    -- Kilometraje y estado
+    o.kilometraje                                 AS kilometraje,
+    o.estado                                      AS estado,
+
+    o.fechaingreso,
+    o.fechasalida
+  FROM ordenservicios o
+
+    -- Datos del registrador (colaborador → contrato → persona)
+    JOIN colaboradores col    ON o.idadmin    = col.idcolaborador
+    JOIN contratos    ctr     ON col.idcontrato = ctr.idcontrato
+    JOIN personas     pe_reg  ON ctr.idpersona = pe_reg.idpersona
+
+    -- Datos del propietario al momento
+    LEFT JOIN clientes  cli_prop ON o.idpropietario = cli_prop.idcliente
+    LEFT JOIN personas  pe_prop  ON cli_prop.idpersona   = pe_prop.idpersona
+    LEFT JOIN empresas  em_prop  ON cli_prop.idempresa   = em_prop.idempresa
+
+    -- Datos del cliente que generó la orden
+    LEFT JOIN clientes  cli_c    ON o.idcliente    = cli_c.idcliente
+    LEFT JOIN personas  pe_c     ON cli_c.idpersona = pe_c.idpersona
+    LEFT JOIN empresas  em_c     ON cli_c.idempresa = em_c.idempresa
+
+  WHERE o.idvehiculo = _idvehiculo
+  ORDER BY o.fechaingreso;
+END$$
+DELIMITER ;
+
+-- call spGetDetalleOrdenServicio(2)
+DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio;
+DELIMITER $$
+CREATE PROCEDURE spGetDetalleOrdenServicio(
+  IN _idorden INT
+)
+BEGIN
+  SELECT
+    dos.iddetorden                           AS iddetorden,
+    dos.idservicio,
+    s.servicio,
+    
+    dos.idmecanico,
+    CONCAT(pe_me.nombres, ' ', pe_me.apellidos) AS mecanico,
+    
+    dos.precio
+  FROM detalleordenservicios dos
+    JOIN servicios     s     ON dos.idservicio = s.idservicio
+    JOIN colaboradores col   ON dos.idmecanico = col.idcolaborador
+    JOIN contratos     ctr   ON col.idcontrato = ctr.idcontrato
+    JOIN personas      pe_me ON ctr.idpersona = pe_me.idpersona
+  WHERE dos.idorden = _idorden
+  ORDER BY dos.iddetorden;
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS spGetJustificacionByOrden;
+DELIMITER $$
+CREATE PROCEDURE spGetJustificacionByOrden(
+  IN _idorden INT
+)
+BEGIN
+  SELECT justificacion
+    FROM ordenservicios
+   WHERE idorden = _idorden;
+END$$
+DELIMITER ;
+

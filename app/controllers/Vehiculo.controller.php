@@ -10,12 +10,38 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            if($_GET['task'] == 'getAll') {echo json_encode($vehiculo->getAll());}
+    if ($_GET['task'] === 'getAll') {
+        echo json_encode($vehiculo->getAll());
+    }
 
-            if($_GET['task'] == 'getVehiculoByCliente'){
-                echo json_encode($vehiculo->getVehiculoByCliente($_GET['idcliente']));
-            }
-            break;
+    if ($_GET['task'] === 'getVehiculoByCliente') {
+        echo json_encode($vehiculo->getVehiculoByCliente($_GET['idcliente']));
+    }
+
+    
+    if ($_GET['task'] === 'getOrdenesByVehiculo' && isset($_GET['idvehiculo'])) {
+        echo json_encode($vehiculo->getOrdenesByVehiculo((int)$_GET['idvehiculo']));
+    }
+
+    if ($_GET['task'] === 'getVentasByVehiculo' && isset($_GET['idvehiculo'])) {
+        echo json_encode($vehiculo->getVentasByVehiculo((int)$_GET['idvehiculo']));
+    }
+
+    if ($_GET['task'] === 'getDetalleOrdenServicio' && isset($_GET['idorden'])) {
+    echo json_encode(
+      (new Vehiculo())->getDetalleOrdenServicio((int)$_GET['idorden'])
+    );
+    exit;
+}
+    
+    if ($_GET['task'] === 'getJustificacionByOrden' && isset($_GET['idorden'])) {
+    echo json_encode(
+      (new Vehiculo())->getJustificacionByOrden((int)$_GET['idorden'])
+    );
+    exit;
+}
+    break;
+
 
             case 'POST':
                 $input = file_get_contents('php://input');
