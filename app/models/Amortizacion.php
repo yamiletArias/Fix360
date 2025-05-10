@@ -1,4 +1,5 @@
 <?php
+// models/Amortizacion.php
 require_once __DIR__ . '/Conexion.php';
 
 class Amortizacion extends Conexion
@@ -10,67 +11,72 @@ class Amortizacion extends Conexion
         $this->pdo = parent::getConexion();
     }
 
-    /**
-     * Inserta una nueva amortización y calcula el saldo.
-     */
-    public function create(int $idventa, int $idformapago, float $monto): bool
+    // Obtener info de saldo y total de una venta
+    public function obtenerInfoVenta($idventa)
     {
-        // Suma de amortizaciones previas
-        $stmt = $this->pdo->prepare(
-            "SELECT COALESCE(SUM(amortizacion), 0) 
-               FROM amortizaciones 
-              WHERE idventa = ?"
-        );
+        $sql = "
+            SELECT
+              total_venta,
+              total_pagado,
+              saldo_restante
+            FROM vista_saldos_por_venta
+            WHERE idventa = ?
+        ";
+        $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$idventa]);
-        $pagado = (float) $stmt->fetchColumn();
-
-        // Calcular nuevo saldo
-        $stmt = $this->pdo->prepare(
-            "SELECT total 
-               FROM vista_total_por_venta 
-              WHERE idventa = ?"
-        );
-        $stmt->execute([$idventa]);
-        $totalVenta = (float) $stmt->fetchColumn();
-
-        $nuevoSaldo = max(0, $totalVenta - ($pagado + $monto));
-
-        // Insertar amortización
-        $ins = $this->pdo->prepare(
-            "INSERT INTO amortizaciones
-                (idventa, idformapago, amortizacion, saldo)
-             VALUES (?, ?, ?, ?)"
-        );
-        return $ins->execute([$idventa, $idformapago, $monto, $nuevoSaldo]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['total_venta' => 0, 'total_pagado' => 0, 'saldo_restante' => 0];
     }
 
-    /**
-     * Lista todas las amortizaciones de una venta.
-     */
-    public function listByVenta(int $idventa): array
+    // Consulta de amortizaciones por ID de venta
+    public function listByVenta($idventa)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT a.idamortizacion, a.creado, f.formapago, a.amortizacion, a.saldo
-               FROM amortizaciones a
-               JOIN formapagos f USING(idformapago)
-              WHERE a.idventa = ?
-              ORDER BY a.creado DESC"
-        );
+        $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idventa = ? ORDER BY idamortizacion;";
+        $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$idventa]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Obtiene el total neto de la venta desde la vista `vista_total_por_venta`.
+     * Inserta una amortización y devuelve el registro creado.
      */
-    public function getTotalPorVenta(int $idventa): float
+    public function create($idventa, $idformapago, $monto)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT total 
-               FROM vista_total_por_venta 
-              WHERE idventa = ?"
-        );
-        $stmt->execute([$idventa]);
-        return (float) $stmt->fetchColumn() ?: 0.0;
+        // 1) obtiene el saldo actual desde la vista
+        $info = $this->obtenerInfoVenta($idventa);
+        $saldoPrevio = (float) $info['saldo_restante'];
+
+        if ($monto > $saldoPrevio) {
+            throw new Exception("El monto de amortización no puede exceder el saldo restante");
+        }
+        $nuevoSaldo = $saldoPrevio - $monto;
+
+        // 2) genera un número de transacción (por ejemplo con uniqid)
+        $numTrans = uniqid();
+
+        // 3) inserta
+        $sql = "INSERT INTO amortizaciones
+                  (idventa, idformapago, amortizacion, saldo, numtransaccion)
+                VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            $idventa,
+            $idformapago,
+            $monto,
+            $nuevoSaldo,
+            $numTrans
+        ]);
+
+        // 4) devuelve el registro recien creado
+        $id = $this->pdo->lastInsertId();
+        return [
+            'idamortizacion' => $id,
+            'idventa' => $idventa,
+            'idformapago' => $idformapago,
+            'amortizacion' => number_format($monto, 2, '.', ''),
+            'saldo' => number_format($nuevoSaldo, 2, '.', ''),
+            'numtransaccion' => $numTrans,
+            'creado' => date('Y-m-d H:i:s')
+        ];
     }
+
 }

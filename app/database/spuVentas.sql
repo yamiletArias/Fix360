@@ -411,7 +411,7 @@ BEGIN
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
     AND v.estado = TRUE
   ORDER BY v.fechahora;
-END$$spListComprasPorPeriodo
+END$$
 
 -- 15) PROCEDIMIENTO PARA DATOS DE COMPRA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
