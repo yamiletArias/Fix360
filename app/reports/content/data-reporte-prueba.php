@@ -159,12 +159,12 @@ todo en español para q no c note que es de chat
       <p>Cotizacion Nro: 010-000010</p>
     </div>
     <div class="div3">
-      <p>Cliente: Jose Hernandez</p>
+      <p class=>Cliente: Jose Hernandez</p>
       <p>Attn. Sr(es):</p>
       <p>Estimado señor, por medio de la presente nos es grato dirigirnos a ustedes para saludarlos y presentarles nuestra cotizacion, por lo siguiente:</p>
     </div>
     <div class="div4">
-      <table>
+      <table class="table">
         <tbody>
           <tr>
             <th>CANT.</th>
@@ -194,7 +194,7 @@ todo en español para q no c note que es de chat
             <td>TOTAL S/.</td>
             <td>60.00</td>
           </tr>
-
+     
         </tbody>
       </table>
     </div>

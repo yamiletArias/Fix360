@@ -18,8 +18,13 @@ use Spipu\Html2Pdf\Exception\ExceptionFormatter;
 try {
 
     ob_start();
-    
-    require_once './content/data-reporte-prueba.php';
+?>
+
+<style>
+  <?= file_get_contents(__DIR__.'/../css/estilos.html') ?>
+</style>
+<?php   
+    require_once './css/estilos.html';
     
     $content = ob_get_clean();
 
