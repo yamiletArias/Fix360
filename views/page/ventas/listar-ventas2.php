@@ -518,6 +518,41 @@ require_once "../../partials/_footer.php";
             cargar(currentModo, fechaInput.value);
         });
 
+        $(document).on('click', '#btnGuardarAmortizacion', async function () {
+            const idventa = +$('#am_idventa').val();
+            const monto = parseFloat($('#am_monto').val());
+            const formapago = +$('#am_formapago').val();
+
+            if (!monto || monto <= 0) {
+                return alert('Ingresa un monto válido');
+            }
+
+            try {
+                const form = new FormData();
+                form.append('idventa', idventa);
+                form.append('monto', monto);
+                form.append('idformapago', formapago);
+
+                const res = await fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php`, {
+                    method: 'POST',
+                    body: form
+                });
+                const json = await res.json();
+
+                if (json.status === 'success') {
+                    showToast(json.message, 'SUCCESS', 1500);
+                    $('#modalAmortizar').modal('hide');
+                    verDetalleVenta(idventa);
+                    cargar(currentModo, $('#Fecha').val());
+                } else {
+                    throw new Error(json.message || 'Error desconocido');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast(e.message, 'ERROR', 2000);
+            }
+        });
+
         // event‑delegation para eliminar y detalle
         tablaBody.addEventListener('click', async ev => {
             const btn = ev.target.closest('button[data-action]');
@@ -558,40 +593,7 @@ require_once "../../partials/_footer.php";
     });
 </script>
 <script>
-    $(document).on('click', '#btnGuardarAmortizacion', async function () {
-        const idventa = +$('#am_idventa').val();
-        const monto = parseFloat($('#am_monto').val());
-        const formapago = +$('#am_formapago').val();
 
-        if (!monto || monto <= 0) {
-            return alert('Ingresa un monto válido');
-        }
-
-        try {
-            const form = new FormData();
-            form.append('idventa', idventa);
-            form.append('monto', monto);
-            form.append('idformapago', formapago);
-
-            const res = await fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php`, {
-                method: 'POST',
-                body: form
-            });
-            const json = await res.json();
-
-            if (json.status === 'success') {
-                showToast(json.message, 'SUCCESS', 1500);
-                $('#modalAmortizar').modal('hide');
-                verDetalleVenta(idventa);
-                cargar(currentModo, $('#Fecha').val());
-            } else {
-                throw new Error(json.message || 'Error desconocido');
-            }
-        } catch (e) {
-            console.error(e);
-            showToast(e.message, 'ERROR', 2000);
-        }
-    });
 </script>
 
 <!-- Modal Amortización -->
