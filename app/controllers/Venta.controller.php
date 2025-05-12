@@ -12,13 +12,13 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
             $tipo = Helper::limpiarCadena($_GET['type'] ?? "");
-    
+
             // 1) Monedas
             if ($tipo == 'moneda') {
                 echo json_encode($venta->getMonedasVentas());
                 exit;
             }
-    
+
             // 2) Productos o Clientes
             if (isset($_GET['q']) && !empty($_GET['q'])) {
                 $termino = $_GET['q'];
@@ -30,26 +30,49 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                     exit;
                 }
             }
-    
-            // 3) Listado de ventas por periodo
+
+            // 3) Listado por periodo (dia/semana/mes) usando vs_ventas
             if (isset($_GET['modo'], $_GET['fecha'])) {
-                $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true)
-                    ? $_GET['modo']
-                    : 'dia';
+                $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true) ? $_GET['modo'] : 'dia';
                 $fecha = $_GET['fecha'] ?: date('Y-m-d');
-    
-                $ventas = $venta->listarPorPeriodoVentas($modo, $fecha);
-                echo json_encode(['status' => 'success', 'data' => $ventas]);
+
+                // construimos WHERE dinámico
+                switch ($modo) {
+                    case 'semana':
+                        $where = "v.fechahora BETWEEN DATE_SUB(:fecha, INTERVAL 7 DAY) AND :fecha";
+                        break;
+                    case 'mes':
+                        $where = "v.fechahora BETWEEN DATE_SUB(:fecha, INTERVAL 1 MONTH) AND :fecha";
+                        break;
+                    case 'dia':
+                    default:
+                        $where = "DATE(v.fechahora) = :fecha";
+                }
+
+                $sql = "SELECT 
+                        v.id       AS idventa,
+                        v.cliente,
+                        v.tipocom,
+                        v.numcom,
+                        v.estado_pago
+                     FROM vs_ventas v
+                     WHERE $where
+                     ORDER BY v.fechahora DESC";
+                $stmt = $venta->getPdo()->prepare($sql);
+                $stmt->execute([':fecha' => $fecha]);
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                echo json_encode(['status' => 'success', 'data' => $data]);
                 exit;
             }
-    
+
             // 4) Ventas eliminadas
             if (isset($_GET['action']) && $_GET['action'] === 'ventas_eliminadas') {
                 $eliminadas = $venta->getVentasEliminadas();
                 echo json_encode(['status' => 'success', 'data' => $eliminadas]);
                 exit;
             }
-    
+
             // 5) Justificación de eliminación
             if (
                 isset($_GET['action'], $_GET['idventa'])
@@ -68,7 +91,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 }
                 exit;
             }
-    
+
             // 6) Listar todas las ventas si no se especifica nada
             echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);
             exit;

@@ -76,7 +76,6 @@ require_once "../../partials/header.php";
     </div>
 </div>
 
-
 </div>
 </div>
 <!--FIN VENTAS-->
@@ -208,27 +207,35 @@ require_once "../../partials/_footer.php";
                 }, // Cierra columna 4
                 {
                     data: null,
+                    class: 'text-center',
                     render: function (data, type, row) {
-                        const cls = row.pagado ? 'btn-success' : 'btn-warning';
+                        // row.estado_pago === 'pendiente' → botón amarillo; 'pagado' → check verde
+                        let btnAmortizar;
+                        if (row.estado_pago === 'pendiente') {
+                            btnAmortizar = `
+                            <button class="btn btn-warning btn-sm btn-amortizar"
+                                    data-id="${row.idventa || row.id}"
+                                    data-bs-toggle="modal" data-bs-target="#modalAmortizar"
+                                    title="Amortizar">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            </button>`;
+                        } else {
+                            btnAmortizar = `
+                            <button class="btn btn-success btn-sm" disabled title="Pago completo">
+                            <i class="fa-solid fa-check"></i>
+                            </button>`;
+                        }
                         return `
-                            <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                            <button class="btn ${cls} btn-sm btn-amortizar"
-                                data-id="${row.id}"
-                                data-total="${row.total}"
-                                data-bs-toggle="modal" data-bs-target="#modalAmortizar"
-                                title="Amortizar">
-                                <i class="fa-solid fa-dollar-sign"></i>
-                            </button>
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal"
-                                    onclick="verDetalleVenta('${row.id}')">
-                                <i class="fa-solid fa-circle-info"></i>
-                            </button>
-                            `;
-                    },
-                    class: 'text-center'
-                }// Cierra columna 7
+                        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.idventa || row.id}">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        ${btnAmortizar}
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal"
+                                onclick="verDetalleVenta('${row.idventa || row.id}')">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>`;
+                    }
+                }
             ], // Cierra columns
             language: {
                 lengthMenu: "Mostrar _MENU_ registros por página",
@@ -259,14 +266,17 @@ require_once "../../partials/_footer.php";
 <script>
     $(document).on('click', '.btn-amortizar', async function () {
         const id = $(this).data('id');
+        const monto = parseFloat($(this).data('total')) || 0;
 
         // ── 1) Primero, obtenemos total_venta desde el API ──
-        let totalVenta = 0;
+        let totalPendiente = 0;
         try {
             const resTotal = await fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idventa=${id}`);
             const jsTotal = await resTotal.json();
+            /* console.log("RESPUESTA AMORTIZACION.API:", jsTotal); */
             if (jsTotal.status === 'success') {
-                totalVenta = parseFloat(jsTotal.total_venta);
+                totalPendiente = parseFloat(jsTotal.total_pendiente) || 0;
+                window.currentVentaPagada = jsTotal.pagado;
             }
         } catch (e) {
             console.error('No se pudo obtener total_venta:', e);
@@ -274,7 +284,7 @@ require_once "../../partials/_footer.php";
 
         // ── 2) precarga campos del modal usando el total obtenido ──
         $('#am_idventa').val(id);
-        $('#am_monto').val(totalVenta.toFixed(2));
+        $('#am_monto').val(totalPendiente.toFixed(2));
 
         // ── resto de tu código intacto ──
 
@@ -515,6 +525,41 @@ require_once "../../partials/_footer.php";
             cargar(currentModo, fechaInput.value);
         });
 
+        $(document).on('click', '#btnGuardarAmortizacion', async function () {
+            const idventa = +$('#am_idventa').val();
+            const monto = parseFloat($('#am_monto').val());
+            const formapago = +$('#am_formapago').val();
+
+            if (!monto || monto <= 0) {
+                return alert('Ingresa un monto válido');
+            }
+
+            try {
+                const form = new FormData();
+                form.append('idventa', idventa);
+                form.append('monto', monto);
+                form.append('idformapago', formapago);
+
+                const res = await fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php`, {
+                    method: 'POST',
+                    body: form
+                });
+                const json = await res.json();
+
+                if (json.status === 'success') {
+                    showToast(json.message, 'SUCCESS', 1500);
+                    $('#modalAmortizar').modal('hide');
+                    verDetalleVenta(idventa);
+                    cargar(currentModo, $('#Fecha').val());
+                } else {
+                    throw new Error(json.message || 'Error desconocido');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast(e.message, 'ERROR', 2000);
+            }
+        });
+
         // event‑delegation para eliminar y detalle
         tablaBody.addEventListener('click', async ev => {
             const btn = ev.target.closest('button[data-action]');
@@ -552,42 +597,6 @@ require_once "../../partials/_footer.php";
                 }
             }, 'json').fail(() => showToast('Error de conexión.', 'ERROR', 1500));
         });
-    });
-</script>
-<script>
-    $(document).on('click', '#btnGuardarAmortizacion', async function () {
-        const idventa = +$('#am_idventa').val();
-        const monto = parseFloat($('#am_monto').val());
-        const formapago = +$('#am_formapago').val();
-
-        if (!monto || monto <= 0) {
-            return alert('Ingresa un monto válido');
-        }
-
-        try {
-            const form = new FormData();
-            form.append('idventa', idventa);
-            form.append('monto', monto);
-            form.append('idformapago', formapago);
-
-            const res = await fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php`, {
-                method: 'POST',
-                body: form
-            });
-            const json = await res.json();
-
-            if (json.status === 'success') {
-                showToast(json.message, 'SUCCESS', 1500);
-                $('#modalAmortizar').modal('hide');
-                verDetalleVenta(idventa);
-                cargar(currentModo, $('#Fecha').val());
-            } else {
-                throw new Error(json.message || 'Error desconocido');
-            }
-        } catch (e) {
-            console.error(e);
-            showToast(e.message, 'ERROR', 2000);
-        }
     });
 </script>
 

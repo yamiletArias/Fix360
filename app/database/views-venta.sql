@@ -17,6 +17,28 @@ LEFT JOIN empresas E ON C.idempresa = E.idempresa
 LEFT JOIN personas P ON C.idpersona = P.idpersona
 WHERE V.estado = TRUE;
 
+-- prueba de vista de ventas con pagado
+DROP VIEW IF EXISTS vs_ventas;
+CREATE VIEW vs_ventas AS
+SELECT 
+    V.idventa AS id,
+    CASE
+        WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
+        WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
+    END AS cliente,
+    V.tipocom,
+    V.numcom,
+    CASE
+        WHEN COALESCE(S.total_pendiente, 0) = 0 THEN 'pagado'
+        ELSE 'pendiente'
+    END AS estado_pago
+FROM ventas V
+INNER JOIN clientes C ON V.idcliente = C.idcliente
+LEFT JOIN empresas E ON C.idempresa = E.idempresa
+LEFT JOIN personas P ON C.idpersona = P.idpersona
+LEFT JOIN vista_saldos_por_venta S ON V.idventa = S.idventa
+WHERE V.estado = TRUE;
+
 -- 2) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA IDVENTA 
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
@@ -214,28 +236,6 @@ SELECT
 FROM detalleventa
 GROUP BY idventa;
 
-DROP VIEW IF EXISTS vista_total_por_venta;
-CREATE VIEW vista_total_por_venta AS
-SELECT
-  v.idventa,
-  -- Aquí calculamos el saldo restante directamente en esta vista
-  vt.total - COALESCE(a.total_amortizado, 0) AS total_venta -- Esto es el saldo restante
-FROM ventas AS v
-JOIN (
-  SELECT
-    idventa,
-    SUM(precioventa * (1 - descuento/100)) AS total
-  FROM detalleventa
-  GROUP BY idventa
-) AS vt ON v.idventa = vt.idventa
-LEFT JOIN (
-  SELECT
-    idventa,
-    SUM(amortizacion) AS total_amortizado
-  FROM amortizaciones
-  GROUP BY idventa
-) AS a ON v.idventa = a.idventa;
-
 -- 2) VISTA PARA VER LAS AMORTIZACIONES DE CADA VENTA (ID)
 DROP VIEW IF EXISTS vista_amortizaciones_por_venta;
 CREATE VIEW vista_amortizaciones_por_venta AS
@@ -251,9 +251,9 @@ CREATE VIEW vista_saldos_por_venta AS
 SELECT
   v.idventa,
   COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  vt.total AS total_venta,
+  vt.total AS total_original,
   COALESCE(a.total_amortizado, 0) AS total_pagado,
-  vt.total - COALESCE(a.total_amortizado, 0) AS saldo_restante
+  vt.total - COALESCE(a.total_amortizado, 0) AS total_pendiente -- <-- este es el nuevo "total"
 FROM ventas AS v
 JOIN clientes AS c ON v.idcliente = c.idcliente
 LEFT JOIN personas AS p ON c.idpersona = p.idpersona
@@ -261,6 +261,7 @@ LEFT JOIN empresas AS e ON c.idempresa = e.idempresa
 JOIN vista_total_por_venta AS vt ON v.idventa = vt.idventa
 LEFT JOIN vista_amortizaciones_por_venta AS a ON v.idventa = a.idventa;
 
+-- 4) VISTA PARA OBTENER FORMA DE PAGO
 DROP VIEW IF EXISTS vista_amortizaciones_con_formapago;
 CREATE VIEW vista_amortizaciones_con_formapago AS
 SELECT
