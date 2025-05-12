@@ -29,7 +29,7 @@ try {
     ]);
     exit;
   }
-  
+
   if ($_SERVER['REQUEST_METHOD'] !== 'GET' || !isset($_GET['idventa'])) {
     throw new Exception('Método no permitido o idventa faltante', 405);
   }
@@ -46,9 +46,9 @@ try {
 
   echo json_encode([
     'status' => 'success',
-    'total_venta' => (float) $info['total_venta'],
+    'total_original' => (float) $info['total_original'],
     'total_pagado' => (float) $info['total_pagado'],
-    'saldo_restante' => (float) $info['saldo_restante'],
+    'total_pendiente' => (float) $info['total_pendiente'],
     'data' => $data
   ]);
 } catch (PDOException $e) {

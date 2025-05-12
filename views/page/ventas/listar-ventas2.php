@@ -216,9 +216,10 @@ require_once "../../partials/_footer.php";
                             </button>
                             <button class="btn ${cls} btn-sm btn-amortizar"
                                 data-id="${row.id}"
-                                data-total="${row.total}"
+                                data-total="${parseFloat(row.saldo_restante).toFixed(2)}"
                                 data-bs-toggle="modal" data-bs-target="#modalAmortizar"
-                                title="Amortizar">
+                                title="Amortizar"
+                            >
                                 <i class="fa-solid fa-dollar-sign"></i>
                             </button>
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal"
@@ -259,14 +260,16 @@ require_once "../../partials/_footer.php";
 <script>
     $(document).on('click', '.btn-amortizar', async function () {
         const id = $(this).data('id');
+        const monto = parseFloat($(this).data('total')) || 0;
 
         // ── 1) Primero, obtenemos total_venta desde el API ──
-        let totalVenta = 0;
+        let totalPendiente = 0;
         try {
             const resTotal = await fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idventa=${id}`);
             const jsTotal = await resTotal.json();
+            /* console.log("RESPUESTA AMORTIZACION.API:", jsTotal); */
             if (jsTotal.status === 'success') {
-                totalVenta = parseFloat(jsTotal.total_venta);
+                totalPendiente = parseFloat(jsTotal.total_pendiente) || 0;
             }
         } catch (e) {
             console.error('No se pudo obtener total_venta:', e);
@@ -274,7 +277,7 @@ require_once "../../partials/_footer.php";
 
         // ── 2) precarga campos del modal usando el total obtenido ──
         $('#am_idventa').val(id);
-        $('#am_monto').val(totalVenta.toFixed(2));
+        $('#am_monto').val(totalPendiente.toFixed(2));
 
         // ── resto de tu código intacto ──
 

@@ -15,16 +15,20 @@ class Amortizacion extends Conexion
     public function obtenerInfoVenta($idventa)
     {
         $sql = "
-            SELECT
-              total_venta,
-              total_pagado,
-              saldo_restante
-            FROM vista_saldos_por_venta
-            WHERE idventa = ?
-        ";
+        SELECT
+          total_original,
+          total_pagado,
+          total_pendiente
+        FROM vista_saldos_por_venta
+        WHERE idventa = ?
+    ";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$idventa]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['total_venta' => 0, 'total_pagado' => 0, 'saldo_restante' => 0];
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [
+            'total_original' => 0,
+            'total_pagado' => 0,
+            'total_pendiente' => 0
+        ];
     }
 
     // Consulta de amortizaciones por ID de venta
@@ -43,7 +47,7 @@ class Amortizacion extends Conexion
     {
         // 1) obtiene el saldo actual desde la vista
         $info = $this->obtenerInfoVenta($idventa);
-        $saldoPrevio = (float) $info['saldo_restante'];
+        $saldoPrevio = (float) $info['total_pendiente'];
 
         if ($monto > $saldoPrevio) {
             throw new Exception("El monto de amortización no puede exceder el saldo restante");
