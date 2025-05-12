@@ -76,7 +76,6 @@ require_once "../../partials/header.php";
     </div>
 </div>
 
-
 </div>
 </div>
 <!--FIN VENTAS-->
@@ -208,28 +207,35 @@ require_once "../../partials/_footer.php";
                 }, // Cierra columna 4
                 {
                     data: null,
+                    class: 'text-center',
                     render: function (data, type, row) {
-                        const cls = row.pagado ? 'btn-success' : 'btn-warning';
+                        // row.estado_pago === 'pendiente' → botón amarillo; 'pagado' → check verde
+                        let btnAmortizar;
+                        if (row.estado_pago === 'pendiente') {
+                            btnAmortizar = `
+                            <button class="btn btn-warning btn-sm btn-amortizar"
+                                    data-id="${row.idventa || row.id}"
+                                    data-bs-toggle="modal" data-bs-target="#modalAmortizar"
+                                    title="Amortizar">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            </button>`;
+                        } else {
+                            btnAmortizar = `
+                            <button class="btn btn-success btn-sm" disabled title="Pago completo">
+                            <i class="fa-solid fa-check"></i>
+                            </button>`;
+                        }
                         return `
-                            <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                            <button class="btn ${cls} btn-sm btn-amortizar"
-                                data-id="${row.id}"
-                                data-total="${parseFloat(row.saldo_restante).toFixed(2)}"
-                                data-bs-toggle="modal" data-bs-target="#modalAmortizar"
-                                title="Amortizar"
-                            >
-                                <i class="fa-solid fa-dollar-sign"></i>
-                            </button>
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal"
-                                    onclick="verDetalleVenta('${row.id}')">
-                                <i class="fa-solid fa-circle-info"></i>
-                            </button>
-                            `;
-                    },
-                    class: 'text-center'
-                }// Cierra columna 7
+                        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.idventa || row.id}">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        ${btnAmortizar}
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal"
+                                onclick="verDetalleVenta('${row.idventa || row.id}')">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>`;
+                    }
+                }
             ], // Cierra columns
             language: {
                 lengthMenu: "Mostrar _MENU_ registros por página",
@@ -270,6 +276,7 @@ require_once "../../partials/_footer.php";
             /* console.log("RESPUESTA AMORTIZACION.API:", jsTotal); */
             if (jsTotal.status === 'success') {
                 totalPendiente = parseFloat(jsTotal.total_pendiente) || 0;
+                window.currentVentaPagada = jsTotal.pagado;
             }
         } catch (e) {
             console.error('No se pudo obtener total_venta:', e);
@@ -591,9 +598,6 @@ require_once "../../partials/_footer.php";
             }, 'json').fail(() => showToast('Error de conexión.', 'ERROR', 1500));
         });
     });
-</script>
-<script>
-
 </script>
 
 <!-- Modal Amortización -->

@@ -10,6 +10,11 @@ class Venta extends Conexion
         $this->pdo = parent::getConexion();
     }
 
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
+
     public function getAll(): array
     {
         $result = [];
@@ -181,7 +186,7 @@ class Venta extends Conexion
 
     /**
      * VISTA DE VENTAS ELIMINADAS (estado = FALSE)
-    */
+     */
     public function getVentasEliminadas(): array
     {
         $result = [];

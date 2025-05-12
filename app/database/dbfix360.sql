@@ -422,17 +422,17 @@ DROP TABLE IF EXISTS ventas;
 CREATE TABLE ventas (
 
 idventa 			INT 		PRIMARY KEY 	AUTO_INCREMENT,
-idcliente 		INT 			NOT NULL,
-idcolaborador 	INT 			NOT NULL,
+idcliente 			INT 			NOT NULL,
+idcolaborador 		INT 			NOT NULL,
 idvehiculo 			INT 				NOT NULL,
-tipocom 		ENUM('boleta', 'factura') 		NOT NULL,
-fechahora 		DATETIME 		DEFAULT 		CURRENT_TIMESTAMP,
-numserie 		VARCHAR(10) 	NOT NULL,
-numcom 			VARCHAR(10) 	NOT NULL,
-moneda 			VARCHAR(20)		NOT NULL,
+tipocom 			ENUM('boleta', 'factura') 		NOT NULL,
+fechahora 			DATETIME 		DEFAULT 		CURRENT_TIMESTAMP,
+numserie 			VARCHAR(10) 	NOT NULL,
+numcom 				VARCHAR(10) 	NOT NULL,
+moneda 				VARCHAR(20)		NOT NULL,
 kilometraje 		DECIMAL(10,2)	NOT NULL,
-justificacion 	VARCHAR(255)	,
-estado 			BOOLEAN 			DEFAULT TRUE,
+justificacion 		VARCHAR(255)	,
+estado 				BOOLEAN 			DEFAULT TRUE,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idcliente_6 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
@@ -501,16 +501,17 @@ CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100)
 
 
 DROP TABLE IF EXISTS amortizaciones;
-CREATE TABLE amortizaciones(
+CREATE TABLE amortizaciones (
+  idamortizacion     INT             PRIMARY KEY AUTO_INCREMENT,
+  idventa            INT             NOT NULL,
+  idformapago        INT             NOT NULL,
+  amortizacion       DECIMAL(10,2)   NOT NULL,
+  saldo              DECIMAL(10,2)   NOT NULL DEFAULT 0,
+  creado             DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  estado             ENUM('P','C')   NOT NULL DEFAULT 'P',  -- P: pendiente, C: cancelado
+  numtransaccion     VARCHAR(20)     NULL,
+  CONSTRAINT fk_idventa_1 FOREIGN KEY (idventa) REFERENCES ventas(idventa),
+  CONSTRAINT fk_idformapago FOREIGN KEY (idformapago) REFERENCES formapagos(idformapago),
+  CONSTRAINT chk_amortizacion CHECK (amortizacion > 0)
+) ENGINE = INNODB;
 
-idamortizacion 	INT 				PRIMARY KEY AUTO_INCREMENT,
-idventa				INT,
-idformapago			INT 				NOT NULL,
-amortizacion		DECIMAL(10,2)	NOT NULL,
-saldo 				DECIMAL(10,2) 	NOT NULL DEFAULT 0,
-numtransaccion 	VARCHAR(20)		NULL,
-CONSTRAINT fk_idventa_1 FOREIGN KEY (idventa) REFERENCES ventas (idventa),
-CONSTRAINT fk_idformapago FOREIGN KEY (idformapago) REFERENCES formapagos (idformapago),
-CONSTRAINT chk_amortizacion CHECK (amortizacion > 0)
-
-)ENGINE = INNODB;

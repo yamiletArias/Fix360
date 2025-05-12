@@ -17,6 +17,28 @@ LEFT JOIN empresas E ON C.idempresa = E.idempresa
 LEFT JOIN personas P ON C.idpersona = P.idpersona
 WHERE V.estado = TRUE;
 
+-- prueba de vista de ventas con pagado
+DROP VIEW IF EXISTS vs_ventas;
+CREATE VIEW vs_ventas AS
+SELECT 
+    V.idventa AS id,
+    CASE
+        WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
+        WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
+    END AS cliente,
+    V.tipocom,
+    V.numcom,
+    CASE
+        WHEN COALESCE(S.total_pendiente, 0) = 0 THEN 'pagado'
+        ELSE 'pendiente'
+    END AS estado_pago
+FROM ventas V
+INNER JOIN clientes C ON V.idcliente = C.idcliente
+LEFT JOIN empresas E ON C.idempresa = E.idempresa
+LEFT JOIN personas P ON C.idpersona = P.idpersona
+LEFT JOIN vista_saldos_por_venta S ON V.idventa = S.idventa
+WHERE V.estado = TRUE;
+
 -- 2) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA IDVENTA 
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
@@ -239,7 +261,7 @@ LEFT JOIN empresas AS e ON c.idempresa = e.idempresa
 JOIN vista_total_por_venta AS vt ON v.idventa = vt.idventa
 LEFT JOIN vista_amortizaciones_por_venta AS a ON v.idventa = a.idventa;
 
--- VISTA PARA OBTENER FORMA DE PAGO
+-- 4) VISTA PARA OBTENER FORMA DE PAGO
 DROP VIEW IF EXISTS vista_amortizaciones_con_formapago;
 CREATE VIEW vista_amortizaciones_con_formapago AS
 SELECT
