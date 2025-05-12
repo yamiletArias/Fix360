@@ -87,9 +87,5 @@ public function find(int $idobservacion): array
         error_log("Error en find(): " . $e->getMessage());
         return [];
     }
-}
-
-  
-
-  
+} 
 }

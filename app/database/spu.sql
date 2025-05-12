@@ -900,3 +900,69 @@ estado = _estado,
 foto = _foto
 WHERE idobservacion = _idobservacion;
 END $$
+
+
+DROP PROCEDURE spDeleteOrdenServicio;
+DELIMITER $$
+CREATE PROCEDURE spDeleteOrdenServicio(
+IN _idorden INT,
+IN _justificacion VARCHAR(255)
+)
+BEGIN
+UPDATE ordenservicios SET 
+estado = 'D',
+justificacion = _justificacion
+WHERE idorden = _idorden;
+END $$
+
+
+DROP PROCEDURE spGetDetOrden;
+DELIMITER $$
+CREATE PROCEDURE spGetDetOrden(
+IN _idorden INT
+)
+BEGIN
+
+END $$
+
+-- select * from vehiculos
+-- call spGetUltimoKilometraje(9)
+-- explicacion: junta tanto ordenes de servicio como ventas, se lista de manera descendente, para traer el mas reciente, le ponemos limit 1 para solo recibir el 1ero 
+DROP PROCEDURE spGetUltimoKilometraje;
+DELIMITER $$
+CREATE PROCEDURE spGetUltimoKilometraje(
+  IN  p_idvehiculo INT
+)
+BEGIN
+  -- Obtenemos de forma unificada todos los registros de kilometraje
+  -- (de ordenservicios y de ventas), luego tomamos el más reciente.
+  SELECT
+    k.kilometraje AS ultimo_kilometraje,
+    k.fecha_registro AS fecha
+  FROM (
+    -- Kilometraje registrado en orden de servicio
+    SELECT
+      kilometraje,
+      fechaingreso AS fecha_registro
+    FROM ordenservicios
+    WHERE idvehiculo = p_idvehiculo
+
+    UNION ALL
+
+    -- Kilometraje registrado en venta
+    SELECT
+      kilometraje,
+      fechahora AS fecha_registro
+    FROM ventas
+    WHERE idvehiculo = p_idvehiculo
+  ) AS k
+
+  ORDER BY k.fecha_registro DESC
+  LIMIT 1;
+END$$
+
+
+
+-- call spDeleteOrdenServicio(1)
+-- CALL spGetUltimoKilometraje(8);
+-- select * from ordenservicios

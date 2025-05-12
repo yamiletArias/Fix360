@@ -52,14 +52,19 @@ $hoy_count    = count($hoy);
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-    /* .container-main {
-      background: transparent;
-      padding: 0px;
-      border-radius: 5px;
-      box-shadow: none;
-      width: 80%;
-      margin:50px;
-    } */
+   
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.swal2-modal .swal2-icon,
+.swal2-modal .swal2-success-ring {
+  margin-top: 0;
+  margin-bottom: 0px;
+}
+
 
     .container-main {
       background: transparent;
@@ -79,6 +84,7 @@ $hoy_count    = count($hoy);
       cursor: pointer;
     }
 
+   
     label {
       padding: 0px;
     }

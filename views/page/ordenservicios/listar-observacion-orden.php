@@ -17,6 +17,7 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
   .form-check-input {
     transform: scale(1.5);
   }
+
 </style>
 
 <div class="container-main">
@@ -56,7 +57,7 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
                 name="foto"
                 id="foto"
                 accept="image/png, image/jpeg"
-                required>
+                >
             </div>
           </div>
           <!-- Checkbox estado -->
@@ -129,8 +130,8 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
       </div>
     </form>
   </div>
@@ -208,7 +209,9 @@ console.log('Dataset:', cont.querySelector('.card').dataset);
       })
       .catch(err => {
         console.error(err);
-        cont.innerHTML = '<p class="text-danger">Error al cargar las observaciones.</p>';
+        cont.innerHTML = `<div class="alert alert-warning" role="alert">
+  No hay observaciones por cargar
+</div>`;
       });
   }
 
@@ -232,6 +235,7 @@ console.log('Dataset:', cont.querySelector('.card').dataset);
     if (!btn) return;
     const idobs = btn.closest('.card').dataset.idobservacion;
     Swal.fire({
+      position: 'center',
       title: '¿Eliminar observación?',
       text: 'Esta acción no se puede deshacer',
       icon: 'warning',
@@ -278,6 +282,7 @@ console.log('Dataset:', cont.querySelector('.card').dataset);
   formEdit.addEventListener('submit', e => {
     e.preventDefault();
     Swal.fire({
+      position: 'center',
       title: '¿Confirmar cambios?',
       text: '¿Estás seguro de que quieres guardar los cambios?',
       icon: 'question',

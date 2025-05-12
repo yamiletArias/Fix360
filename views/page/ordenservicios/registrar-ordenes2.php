@@ -55,9 +55,9 @@ require_once "../../partials/header.php";
           <div class="col-md-3 mb-3">
             <div class="form-floating">
               <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
-                <option selected>Eliga un vehículo</option>
+                <option value="" selected>Eliga un vehículo</option>
               </select>
-              <label for="vehiculo">Vehículo:</label>
+              <label  for="vehiculo">Vehículo:</label>
             </div>
           </div>
           <div class="col-md-3 mb-3">
@@ -421,8 +421,18 @@ require_once "../../partials/_footer.php";
     </div>
   </div>
 </div>
+<script>
+  // Ahora esto sí se evaluará en el HTML
+  window.SERVERURL = '<?= SERVERURL ?>';
+</script>
 
-<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+<!--Hace de que siempre se pida la ultima version del js (por esto no me cargaba lo ultimo q le agregue al js y me quede viendo xq no cargaba el kilometraje cuando ya lo estaba haciendo
+(siempre revisar sources y ver si el archivo que esta ahi tiene el mismo n° de lineas que el que tiene en vscode)) -->
+
+<script
+  src="<?= rtrim(SERVERURL, '/') ?>/views/page/ordenservicios/js/registrar-ordenes.js?v=<?= time() ?>"
+  defer
+></script>
 <script>
   let clienteTimer;
 
@@ -487,6 +497,9 @@ require_once "../../partials/_footer.php";
     document.querySelector("#ModalCliente .btn-close").click();
   }
 </script>
+
+
+
 
 </body>
 

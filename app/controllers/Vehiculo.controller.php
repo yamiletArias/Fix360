@@ -27,6 +27,10 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
         echo json_encode($vehiculo->getVentasByVehiculo((int)$_GET['idvehiculo']));
     }
 
+    if ($_GET['task'] === 'getUltimoKilometraje' && isset($_GET['idvehiculo'])){
+        echo json_encode($vehiculo->getUltimoKilometraje((int)$_GET['idvehiculo']));
+    }
+
     if ($_GET['task'] === 'getDetalleOrdenServicio' && isset($_GET['idorden'])) {
     echo json_encode(
       (new Vehiculo())->getDetalleOrdenServicio((int)$_GET['idorden'])

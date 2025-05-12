@@ -133,4 +133,23 @@ class Vehiculo extends Conexion
     $stmt->execute([$idorden]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+
+  public function getUltimoKilometraje(int $idvehiculo): array {
+    $cmd = null;
+    try {
+        $sql = "CALL spGetUltimoKilometraje(?)";
+        $cmd = $this->pdo->prepare($sql);
+        $cmd->execute([$idvehiculo]);
+        $row = $cmd->fetch(PDO::FETCH_ASSOC);
+        return $row ?: [];
+    } catch (PDOException $e) {
+        error_log("Error en getUltimoKilometraje(): " . $e->getMessage());
+        return [];
+    } finally {
+        if ($cmd !== null) {
+            $cmd->closeCursor();
+        }
+    }
+}
+
 }
