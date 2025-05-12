@@ -426,3 +426,14 @@ INSERT INTO agendas (idpropietario,fchproxvisita,comentario,estado) VALUES
 (2,NOW(),'nivelacion','P'),
 (4,NOW(),'lavado','P'),
 (5,NOW(),'ajuste de bujias','P');
+
+SELECT * FROM personas;
+SELECT * FROM clientes;
+SELECT * FROM propietarios;
+
+/*
+insert into agendas (idpropietario,fchproxvisita,comentario,estado) values
+ (11,now(),'ejemplo','P')
+*/
+
+-- select * from agendas;

@@ -29,7 +29,6 @@ BEGIN
   INSERT INTO clientes (idpersona, idcontactabilidad)
   VALUES (_idpersona, _idcontactabilidad);
 END$$
-DELIMITER ;
 
 -- 2) Registrar cliente (empresa)
 DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
@@ -55,7 +54,6 @@ BEGIN
   INSERT INTO clientes (idempresa, idcontactabilidad)
   VALUES (_idempresa, _idcontactabilidad);
 END$$
-DELIMITER ;
 
 -- 3) Registrar vehículo y propietario
 DROP PROCEDURE IF EXISTS spRegisterVehiculo;
@@ -87,7 +85,6 @@ BEGIN
   INSERT INTO propietarios (idcliente, idvehiculo)
   VALUES (_idcliente, _idvehiculo);
 END$$
-DELIMITER ;
 
 -- 4) Registrar producto
 DROP PROCEDURE IF EXISTS spRegisterProducto;
@@ -113,7 +110,6 @@ BEGIN
     _cantidad, NULLIF(_img, '')
   );
 END$$
-DELIMITER ;
 
 -- 5) Registrar servicio
 DROP PROCEDURE IF EXISTS spRegisterServicio;
@@ -719,7 +715,6 @@ BEGIN
   WHERE v.idvehiculo = _idvehiculo
   ORDER BY v.fechahora;
 END$$
-DELIMITER ;
 
 
 -- call spGetOrdenesByVehiculo(1)
@@ -779,7 +774,6 @@ BEGIN
   WHERE o.idvehiculo = _idvehiculo
   ORDER BY o.fechaingreso;
 END$$
-DELIMITER ;
 
 -- call spGetDetalleOrdenServicio(2)
 DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio;
@@ -805,8 +799,6 @@ BEGIN
   WHERE dos.idorden = _idorden
   ORDER BY dos.iddetorden;
 END$$
-DELIMITER ;
-
 
 DROP PROCEDURE IF EXISTS spGetJustificacionByOrden;
 DELIMITER $$
@@ -818,7 +810,6 @@ BEGIN
     FROM ordenservicios
    WHERE idorden = _idorden;
 END$$
-DELIMITER ;
 
 DROP PROCEDURE IF EXISTS spUpdateVehiculoConHistorico;
 DELIMITER $$
@@ -883,4 +874,29 @@ BEGIN
 
   COMMIT;
 END$$
-DELIMITER ;
+
+DROP PROCEDURE IF EXISTS spDeleteObservacion;
+DELIMITER $$
+CREATE PROCEDURE spDeleteObservacion(
+IN _idobservacion INT
+)
+BEGIN
+DELETE FROM observaciones WHERE idobservacion = _idobservacion;
+END $$
+
+DROP PROCEDURE IF EXISTS spUpdateObservacion;
+DELIMITER $$
+CREATE PROCEDURE spUpdateObservacion(
+IN _idobservacion INT,
+IN _idcomponente INT,
+IN _estado BOOLEAN,
+IN _foto VARCHAR(255)
+
+)
+BEGIN
+UPDATE observaciones SET
+idcomponente = _idcomponente,
+estado = _estado,
+foto = _foto
+WHERE idobservacion = _idobservacion;
+END $$

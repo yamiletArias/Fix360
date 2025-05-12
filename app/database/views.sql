@@ -9,7 +9,7 @@ SELECT
 FROM subcategorias s
 INNER JOIN categorias c
   ON s.idcategoria = c.idcategoria;
-
+-- select * from vwvehiculos;
 -- 2) Información de cliente (persona o empresa, con contactabilidad)
 DROP VIEW IF EXISTS vw_clientes;
 CREATE OR REPLACE VIEW vw_clientes AS

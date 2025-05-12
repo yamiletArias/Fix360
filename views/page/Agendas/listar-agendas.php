@@ -49,13 +49,10 @@ require_once "../../partials/header.php";
                     <!-- Botones de filtro: Semana, Mes -->
                     <div class="d-flex align-items-center">
                         <div class="btn-group me-2" role="group">
-                            <button type="button" data-modo="semana" class="btn btn-primary">Semana</button>
-                            <button type="button" data-modo="mes" class="btn btn-primary">Mes</button>
-                            <button type="button" class="btn btn-outline-danger">
-                                <i class="fa-solid fa-file-pdf"></i>
-                            </button>
+                            <button type="button" id="btndia" data-modo="dia" class="btn btn-primary">Dia</button>
+                            <button type="button" id="btnsemana" data-modo="semana" class="btn btn-primary">Semana</button>
+                            <button type="button" id="btnmes" data-modo="mes" class="btn btn-primary">Mes</button>
                         </div>
-
 
                         <select id="estadoSelect" class="form-select ms-2 input w-auto" style="color:black; background-color:white;">
                             <option value="A">Activos</option>
@@ -194,9 +191,9 @@ require_once "../../partials/header.php";
                 <h5 class="modal-title">Reprogramar Recordatorio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <input type="date" id="reprog-fecha" class="form-control mb-3" style="color:black; background-color:white;" />
-                <button id="btnReprogSave" class="btn btn-primary">Guardar fecha</button>
+            <div class="modal-body text-end">
+                <input type="date" id="reprog-fecha" class="form-control mb-3 input" style="color:black; background-color:white;" />
+                <button id="btnReprogSave" class="btn btn-primary text-end">Guardar</button>
             </div>
         </div>
     </div>
@@ -210,9 +207,9 @@ require_once "../../partials/header.php";
                 <h5 class="modal-title">Cambiar Estado</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-end">
                 <select id="estado-nuevo" class="form-select mb-3" style="color:black; background-color:white;"></select>
-                <button id="btnEstadoSave" class="btn btn-primary">Guardar estado</button>
+                <button id="btnEstadoSave" class="btn btn-primary text-end">Guardar</button>
             </div>
         </div>
     </div>
@@ -291,9 +288,10 @@ require_once "../../partials/header.php";
     document.addEventListener('DOMContentLoaded', () => {
         const API = '<?= SERVERURL ?>app/controllers/agenda.controller.php';
         const tablaBody = document.querySelector('#miTabla tbody');
-        const btnSemana = document.querySelector('button[data-modo="semana"]');
-        const btnMes = document.querySelector('button[data-modo="mes"]');
-        const filtros = [btnSemana, btnMes];
+        const btnDia = document.getElementById('btndia');
+        const btnSemana = document.getElementById('btnsemana');
+        const btnMes = document.getElementById('btnmes');
+        const filtros = [btnDia, btnSemana, btnMes];
         const selectEstado = document.getElementById('estadoSelect');
         const fechaInput = document.getElementById('Fecha');
         const selectNuevo = document.getElementById('estado-nuevo');
@@ -306,10 +304,10 @@ require_once "../../partials/header.php";
 
         const fmtDate = iso => {
             if (!iso) return '';
-            const d = new Date(iso);
-            const pad = v => String(v).padStart(2, '0');
-            return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+            const [year, month, day] = iso.split('T')[0].split('-');
+            return `${day}/${month}/${year}`;
         };
+
 
         // Definir botones según estado
         const estadoBtn = (est, id) => {
@@ -388,6 +386,19 @@ require_once "../../partials/header.php";
             currentEstado = selectEstado.value;
             cargar();
         });
+
+        btnDia.addEventListener('click', () => {
+    const hoy = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+    fechaInput.value = hoy;
+    currentModo = 'dia';
+
+    // Actualiza el estado visual de los botones
+    filtros.forEach(x => x.classList.remove('active'));
+    btnDia.classList.add('active');
+
+    cargar();
+});
+
 
         // Delegación de acciones
         tablaBody.addEventListener('click', ev => {

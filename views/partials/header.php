@@ -215,11 +215,8 @@ $hoy_count    = count($hoy);
               <!-- Cabecera de “tienes X recordatorios” -->
                <div class="dropdown-header mb-0 px-3 py-2">
 
-                 <h7 ><strong> <?= $hoy_count ?> recordatorio<?= $hoy_count !== 1 ? 's' : '' ?> </strong> </h7>
-                   <a
-                  class="btn btn-sm btn-primary text-end"
-                  href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
-                  title="Ver todos los recordatorios">
+                 <h7 ><strong> <?= $hoy_count ?> recordatorio<?= $hoy_count !== 1 ? 's' : '' ?> </strong></h7>
+                   <a class="btn btn-sm btn-primary text-end" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php" title="Ver todos los recordatorios">
                   <i class="fa fa-list-alt"></i>
                 </a>
                 </div>

@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const columnas = {
   orden: [
     { data: 'idorden',        title: '#'           },
-    { data: 'registrador',    title: 'Registró'    }, // antes: Administrador
+    { data: 'Administrador',    title: 'Registró'    }, // antes: Administrador
     { data: 'propietario',    title: 'Propietario' },
     { data: 'cliente',        title: 'Cliente'     },
     { data: 'kilometraje',    title: 'Kilometraje' },
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   ],
   venta: [
     { data: 'idventa',           title: '#'              },
-    { data: 'registrador',       title: 'Registró'       },
+    { data: 'Administrador',       title: 'Registró'       },
     { data: 'propietario',       title: 'Propietario'    },
     { data: 'cliente',           title: 'Cliente'        },
     { data: 'tipo_comprobante',  title: 'Comprobante'    },

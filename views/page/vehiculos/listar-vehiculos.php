@@ -89,76 +89,6 @@ require_once "../../partials/_footer.php";
 
 ?>
 
-<!--script>
-  // Selección de la tabla
-  const tabla = document.querySelector("#tablaVehiculos tbody");
-
-  // Inicialización del contador
-  let i = 1;
-
-  // Función para obtener los datos
-  function obtenerDatos() {
-
-    if($.fn.DataTable.isDataTable("#tablaVehiculos")){
-      $("#tablaVehiculos").DataTable().destroy();
-    } 
-    fetch(`<?= SERVERURL ?>app/controllers/vehiculo.controller.php?task=getAll`, {
-        method: 'GET'
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Borrar contenido previo
-        tabla.innerHTML = '';
-
-        // Iterar sobre los datos y agregar las filas a la tabla
-        data.forEach(element => {
-          tabla.innerHTML += `
-            <tr>
-              <td>${i++}</td>
-              <td>${element.propietario || 'No disponible'}</td>
-              <td>${element.tipov || 'No disponible'}</td>
-              <td>${element.nombre || 'No disponible'}</td>
-              <td>${element.placa || 'No disponible'}</td>
-              <td>${element.color || 'No disponible'}</td>
-              <td> 
-                <a href='editar-vehiculos.php?id=${element.idvehiculo}' class='btn btn-sm btn-warning'>
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </a>  
-                <button class='btn btn-sm btn-info' onclick="verDetalle('${element.modelo}', '${element.anio}', '${element.numserie}', '${element.tipocombustible}')">
-                  <i class='fa-solid fa-clipboard-list'></i>
-                </button>
-                <a href='editar-vehiculos.php?id=${element.idvehiculo}' class='btn btn-sm btn-outline-primary'>
-                  <i class="fa-solid fa-list"></i>
-                </a>
-              </td>
-            </tr>
-          `;
-        });
-      })
-      .catch(error => {
-        console.error('Error al obtener los datos:', error);
-      });
-  }
-
-  // Esperar que el DOM se cargue
-  
-
-  // Función para ver los detalles del vehículo en el modal
-  function verDetalle(modelo, anio, serie, combustible) {
-    document.querySelector("#modeloInput").value = modelo || 'No proporcionado';
-    document.querySelector("#anioInput").value = anio || 'No proporcionado';
-    document.querySelector("#serieInput").value = serie || 'No proporcionado';
-    document.querySelector("#combustibleInput").value = combustible || 'No proporcionado';
-
-    // Mostrar el modal de Bootstrap
-    let modal = new bootstrap.Modal(document.getElementById("miModal"));
-    modal.show();
-  }
-
-  document.addEventListener("DOMContentLoaded", function() {
-    obtenerDatos(); // Llamar la función para obtener datos
-  });
-</script-->
 
 <script>
   function cargarTablaVehiculos() { // Inicio de cargarTablaVehiculos()
@@ -202,10 +132,10 @@ require_once "../../partials/_footer.php";
               <a href="editar-vehiculos.php?id=${row.idvehiculo}" class="btn btn-sm btn-warning" title="Editar">
                 <i class="fa-solid fa-pen-to-square"></i>
               </a>
-              <button class="btn btn-sm btn-info" title="Detalle" onclick="verDetalle('${row.modelo}', '${row.anio}', '${row.numserie}', '${row.tipocombustible}')">
+              <button class="btn btn-sm btn-info" title="Detalle" onclick="verDetalle('${row.modelo}', '${row.anio}', '${row.numserie}', '${row.tcombustible}')">
                 <i class="fa-solid fa-clipboard-list"></i>
               </button>
-              <a href="editar-vehiculo.php?id=${row.idvehiculo}" class="btn btn-sm btn-outline-primary" title="Ver más">
+              <a href="historial-vehiculos.php?id=${row.idvehiculo}" class="btn btn-sm btn-outline-primary" title="Ver más">
                 <i class="fa-solid fa-list"></i>
               </a>
             `;
@@ -231,11 +161,11 @@ require_once "../../partials/_footer.php";
   });
 
   // Función para ver los detalles del vehículo en el modal
-  function verDetalle(modelo, anio, serie, combustible) { // Inicio de verDetalle()
+  function verDetalle(modelo, anio, serie, tcombustible) { // Inicio de verDetalle()
     document.querySelector("#modeloInput").value = modelo || 'No proporcionado';
     document.querySelector("#anioInput").value = anio || 'No proporcionado';
     document.querySelector("#serieInput").value = serie || 'No proporcionado';
-    document.querySelector("#combustibleInput").value = combustible || 'No proporcionado';
+    document.querySelector("#combustibleInput").value = tcombustible || 'No proporcionado';
     let modal = new bootstrap.Modal(document.getElementById("miModal"));
     modal.show();
   } // Cierra verDetalle()
