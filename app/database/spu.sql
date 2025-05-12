@@ -552,9 +552,8 @@ IN _estado 			BOOLEAN,
 IN _foto			VARCHAR(255)
 )
 BEGIN
-INSERT INTO observaciones (idcomponente,idorden,estado,foto) VALUES (_idcomponente,_idorden,_estado,NULLIF(_foto, '');
+INSERT INTO observaciones (idcomponente,idorden,estado,foto) VALUES (_idcomponente,_idorden,_estado,NULLIF(_foto, ''));
 END $$
-
 
 DROP PROCEDURE IF EXISTS spRegisterComponente;
 DELIMITER $$
@@ -574,7 +573,7 @@ IN _comentario 	  VARCHAR(255)
 )
 BEGIN
 INSERT INTO agendas (idpropietario,fchproxvisita,comentario) VALUES 
-(_idpropietario,_fchproxvisita,NULLIF(_comentario, ''));
+(_idpropietario,_fchproxvisita,_comentario);
 END $$
 
 -- call spListAgendasPorPeriodo('dia','2025-05-10','A')
@@ -821,3 +820,67 @@ BEGIN
 END$$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS spUpdateVehiculoConHistorico;
+DELIMITER $$
+CREATE PROCEDURE spUpdateVehiculoConHistorico(
+  IN p_idvehiculo       INT,
+  IN p_idmodelo         INT,
+  IN p_idtcombustible   INT,
+  IN p_placa            CHAR(6),
+  IN p_anio             CHAR(4),
+  IN p_numserie         VARCHAR(50),
+  IN p_color            VARCHAR(20),
+  IN p_vin              CHAR(17),
+  IN p_numchasis        CHAR(17),
+  IN p_idcliente_nuevo  INT
+)
+BEGIN
+  DECLARE v_idcliente_actual INT;
+
+  START TRANSACTION;
+
+    -- 1) Actualizamos el vehículo
+    UPDATE vehiculos
+    SET
+      idmodelo       = p_idmodelo,
+      idtcombustible = p_idtcombustible,
+      placa          = p_placa,
+      anio           = NULLIF(p_anio,   ''),
+      numserie       = NULLIF(p_numserie, ''),
+      color          = p_color,
+      vin            = NULLIF(p_vin,    ''),
+      numchasis      = NULLIF(p_numchasis, '')
+    WHERE idvehiculo = p_idvehiculo;
+
+    -- 2) Obtenemos el propietario actual (el que no tiene fechafinal)
+    SELECT idcliente
+      INTO v_idcliente_actual
+    FROM propietarios
+    WHERE idvehiculo  = p_idvehiculo
+      AND fechafinal IS NULL
+    LIMIT 1;
+
+    -- 3) Si cambió de propietario, cerramos el antiguo e insertamos el nuevo
+    IF v_idcliente_actual IS NULL
+       OR v_idcliente_actual <> p_idcliente_nuevo
+    THEN
+      -- 3a) cerramos la relación anterior
+      UPDATE propietarios
+      SET fechafinal = CURDATE()
+      WHERE idvehiculo  = p_idvehiculo
+        AND fechafinal IS NULL;
+
+      -- 3b) insertamos la nueva relación
+      INSERT INTO propietarios (
+        idcliente, idvehiculo, fechainicio, fechafinal
+      ) VALUES (
+        p_idcliente_nuevo,
+        p_idvehiculo,
+        CURDATE(),
+        NULL
+      );
+    END IF;
+
+  COMMIT;
+END$$
+DELIMITER ;
