@@ -56,13 +56,17 @@ SELECT
     C.idcompra AS id,
     C.tipocom,
     C.numcom,
-    E.nomcomercial AS proveedores
+    E.nomcomercial AS proveedores,
+    VSPC.total_pendiente,
+    CASE
+        WHEN VSPC.total_pendiente = 0 THEN 'pagado'
+        ELSE 'pendiente'
+    END AS estado_pago
 FROM compras C
 JOIN proveedores P ON C.idproveedor = P.idproveedor
 JOIN empresas E ON P.idempresa = E.idempresa
-LEFT JOIN detallecompra DC ON C.idcompra = DC.idcompra
-WHERE C.estado = TRUE
-GROUP BY C.idcompra, C.tipocom, C.numcom, E.nomcomercial, C.fechacompra;
+LEFT JOIN vista_saldos_por_compra VSPC ON C.idcompra = VSPC.idcompra
+WHERE C.estado = TRUE;
 
 -- 4) VISTA PARA EL DETALLE DE COMPRA PARA EL MODAL POR CADA IDCOMPRA
 CREATE VIEW vista_detalle_compra AS
@@ -218,6 +222,15 @@ SELECT
 FROM detalleventa
 GROUP BY idventa;
 
+-- 1) VISTA PARA VER EL TOTAL DE LAS COMPRAS (ID)
+DROP VIEW IF EXISTS vista_total_por_compra;
+CREATE VIEW vista_total_por_compra AS
+SELECT
+	idcompra,
+	SUM(preciocompra * (1 - descuento / 100)) AS total
+FROM detallecompra
+GROUP BY idcompra;
+
 -- 2) VISTA PARA VER LAS AMORTIZACIONES DE CADA VENTA (ID)
 DROP VIEW IF EXISTS vista_amortizaciones_por_venta;
 CREATE VIEW vista_amortizaciones_por_venta AS
@@ -227,7 +240,17 @@ SELECT
 FROM amortizaciones
 GROUP BY idventa;
 
--- 3) VISTA PARA TRAER: (TOTAL VENTA) - (TOTAL PAGADO) - (SALDO RESTANTE)
+-- 2) VISTA PARA VER LAS AMORTIZACIONES DE CADA COMPRA (ID)
+DROP VIEW IF EXISTS vista_amortizaciones_por_compra;
+CREATE VIEW vista_amortizaciones_por_compra AS
+SELECT
+idcompra,
+SUM(amortizacion) AS total_amortizado
+FROM amortizaciones
+WHERE idcompra IS NOT NULL
+GROUP BY idcompra;
+
+-- 3) VISTA PARA TRAER: (TOTAL VENTA) - (TOTAL PAGADO) - (PENDIENTE)
 DROP VIEW IF EXISTS vista_saldos_por_venta;
 CREATE VIEW vista_saldos_por_venta AS
 SELECT
@@ -243,7 +266,53 @@ LEFT JOIN empresas AS e ON c.idempresa = e.idempresa
 JOIN vista_total_por_venta AS vt ON v.idventa = vt.idventa
 LEFT JOIN vista_amortizaciones_por_venta AS a ON v.idventa = a.idventa;
 
--- 4) VISTA PARA OBTENER FORMA DE PAGO
+-- 3) VISTA PARA TRAER: (TOTAL COMPRA) - (TOTAL PAGADO) - (PENDIENTE)
+DROP VIEW IF EXISTS vista_saldos_por_compra;
+CREATE VIEW vista_saldos_por_compra AS
+SELECT
+  c.idcompra,
+  e.nomcomercial AS proveedor,
+  tc.total AS total_original,
+  COALESCE(a.total_amortizado, 0) AS total_pagado,
+  tc.total - COALESCE(a.total_amortizado, 0) AS total_pendiente
+FROM compras AS c
+JOIN proveedores AS pr ON c.idproveedor = pr.idproveedor
+JOIN empresas AS e ON pr.idempresa = e.idempresa
+JOIN vista_total_por_compra AS tc ON c.idcompra = tc.idcompra
+LEFT JOIN vista_amortizaciones_por_compra AS a ON c.idcompra = a.idcompra;
+
+-- 4) VISTA PARA OBTENER FORMA DE PAGO (idventa - idcompra)
+DROP VIEW IF EXISTS vista_amortizaciones_con_formapago;
+CREATE VIEW vista_amortizaciones_con_formapago AS
+SELECT
+a.idamortizacion,
+a.idventa,
+a.idcompra,
+a.numtransaccion,
+a.amortizacion,
+a.saldo,
+a.creado,
+f.formapago
+FROM amortizaciones AS a
+LEFT JOIN formapagos AS f ON a.idformapago = f.idformapago;
+
+
+-- NORMALES PRUEBAS
+-- VISTA NORMAL DE COMPRAS SIN PAGO
+DROP VIEW IF EXISTS vs_compras;
+CREATE VIEW vs_compras AS
+SELECT 
+    C.idcompra AS id,
+    C.tipocom,
+    C.numcom,
+    E.nomcomercial AS proveedores
+FROM compras C
+JOIN proveedores P ON C.idproveedor = P.idproveedor
+JOIN empresas E ON P.idempresa = E.idempresa
+LEFT JOIN detallecompra DC ON C.idcompra = DC.idcompra
+WHERE C.estado = TRUE
+GROUP BY C.idcompra, C.tipocom, C.numcom, E.nomcomercial, C.fechacompra;
+-- LOS ANTERIORES SIN IDCOMPRA
 DROP VIEW IF EXISTS vista_amortizaciones_con_formapago;
 CREATE VIEW vista_amortizaciones_con_formapago AS
 SELECT
@@ -257,9 +326,7 @@ SELECT
 FROM amortizaciones AS a
 LEFT JOIN formapagos AS f
   ON a.idformapago = f.idformapago;
-
-
--- prueba
+  
 DROP VIEW IF EXISTS vista_total_actualizada_por_venta;
 CREATE VIEW vista_total_actualizada_por_venta AS
 SELECT
@@ -273,7 +340,6 @@ LEFT JOIN empresas AS e ON c.idempresa = e.idempresa
 JOIN vista_total_por_venta AS vt ON v.idventa = vt.idventa
 LEFT JOIN vista_amortizaciones_por_venta AS a ON v.idventa = a.idventa;
 
--- PRUEBAS
 -- VISTA NORMAL
 DROP VIEW IF EXISTS vs_ventas;
 CREATE VIEW vs_ventas AS
@@ -291,23 +357,13 @@ LEFT JOIN empresas E ON C.idempresa = E.idempresa
 LEFT JOIN personas P ON C.idpersona = P.idpersona
 WHERE V.estado = TRUE;
 
-SELECT total 
-FROM vista_total_por_venta 
-WHERE idventa = 24;
-
-SELECT * 
-FROM vista_justificacion_venta
-WHERE idventa = 1;
+SELECT total FROM vista_total_por_venta WHERE idventa = 24;
+SELECT * FROM vista_justificacion_venta WHERE idventa = 1;
 SELECT justificacion FROM vista_justificacion_venta WHERE idventa = 1;
-SELECT * 
-FROM vs_ventas_detalle_all;
-SELECT producto, precio, descuento 
-FROM vista_detalle_compra 
-WHERE idcompra= 10;
+SELECT * FROM vs_ventas_detalle_all;
+SELECT producto, precio, descuento FROM vista_detalle_compra WHERE idcompra= 10;
 SELECT * FROM vista_detalle_venta WHERE idventa = 4;
-SELECT producto, precio, descuento 
-FROM vista_detalle_venta 
-WHERE idventa = 1;
+SELECT producto, precio, descuento FROM vista_detalle_venta WHERE idventa = 1;
 
 select * from ventas;
 select * from detalleventa;
