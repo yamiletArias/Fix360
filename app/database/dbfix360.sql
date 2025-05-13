@@ -106,6 +106,7 @@ promocion 		VARCHAR(100)	NOT NULL,
 fechainicio 	DATETIME 		NOT NULL,
 fechafin 		DATETIME 		NOT NULL,
 cantidadmax 	INT 				NOT NULL,
+imgpromocional INT 				NULL,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT uq_promocion UNIQUE(promocion)

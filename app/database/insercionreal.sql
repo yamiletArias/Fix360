@@ -427,9 +427,9 @@ INSERT INTO agendas (idpropietario,fchproxvisita,comentario,estado) VALUES
 (4,NOW(),'lavado','P'),
 (5,NOW(),'ajuste de bujias','P');
 
-SELECT * FROM personas;
-SELECT * FROM clientes;
-SELECT * FROM propietarios;
+-- SELECT * FROM personas;
+-- SELECT * FROM clientes;
+-- SELECT * FROM propietarios;
 
 /*
 insert into agendas (idpropietario,fchproxvisita,comentario,estado) values
