@@ -84,7 +84,7 @@ require_once "../../partials/_footer.php";
 ?>
 
 <!-- Logica para ver los registro eliminados -->
-<script>
+<!-- <script>
     document.addEventListener("DOMContentLoaded", function () {
         cargarTablaVentas();
 
@@ -152,7 +152,7 @@ require_once "../../partials/_footer.php";
             });
         });
     });
-</script>
+</script> -->
 <!-- Logica para obetner la justificacion en el modal -->
 <script>
     $(document).on('click', '.btn-ver-justificacion', async function () {
@@ -171,95 +171,6 @@ require_once "../../partials/_footer.php";
             $('#contenidoJustificacion').text('Error al cargar justificación');
         }
         $('#modalVerJustificacion').modal('show');
-    });
-</script>
-<!-- Vista principal -->
-<script>
-    let tablaVentas;
-    function cargarTablaVentas() {
-        if (tablaVentas) {
-            tablaVentas.destroy();
-            $("#tablaventasdia").empty(); // elimina el HTML residual
-        }
-
-        tablaVentas = $("#tablaventasdia").DataTable({
-            ajax: {
-                url: "<?= SERVERURL ?>app/controllers/Venta.controller.php",
-                dataSrc: "data"
-            },
-            columns: [
-                { // Columna 1: Número de fila
-                    data: null,
-                    render: (data, type, row, meta) => meta.row + 1
-                }, // Cierra columna 1
-                { // Columna 2: cliente
-                    data: "cliente",
-                    defaultContent: "No disponible",
-                    class: 'text-start'
-                }, // Cierra columna 2
-                { // Columna 3: tipo de comprobante
-                    data: "tipocom",
-                    defaultContent: "No disponible",
-                    class: 'text-center' // Centrado de la columna numcom
-                }, // Cierra columna 3
-                { // Columna 4: numero de comprobante
-                    data: "numcom",
-                    defaultContent: "No disponible",
-                    class: 'text-center' // Centrado de la columna numcom
-                }, // Cierra columna 4
-                {
-                    data: null,
-                    class: "text-center",
-                    render: (data, type, row) => {
-
-                        // El botón de amortizar: verde (pagado) o amarillo (pendiente)
-                        const btnAmort = row.estado_pago === 'pagado'
-                            ? `<button class="btn btn-success btn-sm" disabled title="Pago completo">
-       <i class="fa-solid fa-check"></i>
-     </button>`
-                            : `<button class="btn btn-warning btn-sm btn-amortizar"
-             data-id="${row.id}"
-             data-bs-toggle="modal" data-bs-target="#modalAmortizar"
-             title="Amortizar">
-       <i class="fa-solid fa-dollar-sign"></i>
-     </button>`;
-
-                        return `
-        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-        ${btnAmort}
-        <button class="btn btn-primary btn-sm" 
-                data-bs-toggle="modal" data-bs-target="#miModal"
-                onclick="verDetalleVenta('${row.id}')">
-          <i class="fa-solid fa-circle-info"></i>
-        </button>`;
-                    }
-                }
-            ], // Cierra columns
-            language: {
-                lengthMenu: "Mostrar _MENU_ registros por página",
-                zeroRecords: "No se encontraron resultados",
-                info: "Mostrando página _PAGE_ de _PAGES_",
-                infoEmpty: "No hay registros disponibles",
-                infoFiltered: "(filtrado de _MAX_ registros totales)",
-                search: "Buscar:",
-                loadingRecords: "Cargando...",
-                processing: "Procesando...",
-                emptyTable: "No hay datos disponibles en la tabla"
-            }
-        }); // Cierra DataTable inicialización
-    } // Cierra cargarTablaVehiculos()
-
-    document.addEventListener("DOMContentLoaded", function () {
-        cargarTablaVentas();
-    });
-    $(document).on('click', '.btn-eliminar', function () {
-        const idVenta = $(this).data('id');
-        console.log("ID recibido en el botón eliminar:", idVenta);
-        $('#justificacion').val('');
-        $('#btnEliminarVenta').data('id', idVenta);
-        $('#modalJustificacion').modal('show');
     });
 </script>
 <!-- Vista en el modal de detalle de venta para visualizar informacion de esa venta -->
@@ -287,7 +198,6 @@ require_once "../../partials/_footer.php";
         $('#am_monto').val(totalPendiente.toFixed(2));
 
         // ── resto de tu código intacto ──
-
         $('#modalAmortizar .resumen-amort').remove();
         $('#modalAmortizar .modal-body').prepend(
             '<div class="resumen-amort mb-3"><p class="small text-muted">Cargando resumen…</p></div>'
@@ -413,210 +323,236 @@ require_once "../../partials/_footer.php";
         });
     }
 </script>
-<!-- Vistar la lista de ventas por periodo (YYYY-MM-DD) -->
+
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const fechaInput = document.getElementById('Fecha');
-        const tablaBody = document.querySelector('#tablaventasdia tbody');
-        const btnDia = document.querySelector('button[data-modo="dia"]');
-        const btnSemana = document.querySelector('button[data-modo="semana"]');
-        const btnMes = document.querySelector('button[data-modo="mes"]');
-        const filtros = [btnDia, btnSemana, btnMes];
-        const API = "<?= SERVERURL ?>app/controllers/Venta.controller.php";
 
-        // utilitario para formatear
-        const fmt = iso => {
-            if (!iso) return '';
-            const d = new Date(iso);
-            const pad = v => String(v).padStart(2, '0');
-            return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ` +
-                `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-        };
+    let tablaVentas;
+    const API = "<?= SERVERURL ?>app/controllers/Venta.controller.php";
+    const fechaInput = document.getElementById('Fecha');
+    const btnDia = document.querySelector('button[data-modo="dia"]');
+    const btnSemana = document.querySelector('button[data-modo="semana"]');
+    const btnMes = document.querySelector('button[data-modo="mes"]');
+    const filtros = [btnDia, btnSemana, btnMes];
 
-        // pinta filas y mensaje cuando está vacío
-        // pinta filas y mensaje cuando está vacío
-        const pintar = data => {
-            tablaBody.innerHTML = '';
-            if (data.length === 0) {
-                tablaBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center text-muted">
-                    No hay datos disponibles en la tabla
-                    </td>
-                </tr>`;
-                return;
-            }
-            data.forEach((v, i) => {
-                // ── Lógica para el botón de amortizar ──
-                const btnAmort = v.estado_pago === 'pagado'
-                    ? `<button class="btn btn-success btn-sm" disabled title="Pago completo">
-                 <i class="fa-solid fa-check"></i>
-               </button>`
-                    : `<button class="btn btn-warning btn-sm btn-amortizar"
-                       data-id="${v.id}"
-                       data-bs-toggle="modal"
-                       data-bs-target="#modalAmortizar"
-                       title="Amortizar">
-                   <i class="fa-solid fa-dollar-sign"></i>
-               </button>`;
+    function marcarActivo(btn) {
+        filtros.forEach(b => b.classList.toggle('active', b === btn));
+    }
 
-                tablaBody.insertAdjacentHTML('beforeend', `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td class="text-start">${v.cliente || ''}</td>
-                    <td class="text-center">${v.tipocom || ''}</td>
-                    <td class="text-center">${v.numcom || ''}</td>
-                    <td class="text-center">
-                        <button class="btn btn-danger btn-sm"
-                                data-id="${v.id}"
-                                data-action="eliminar">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                        ${btnAmort}
-                        <button class="btn btn-primary btn-sm"
-                                data-action="detalle"
-                                data-id="${v.id}">
-                            <i class="fa-solid fa-circle-info"></i>
-                        </button>
-                    </td>
-                </tr>`);
-            });
-        };
-        // Llama al endpoint y pinta
-        const cargar = async (modo, fecha) => {
-            try {
-                const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}`);
-                const json = await res.json();
-                console.log("🔍 first row completo:", json.data[0]);
-                if (json.status === 'success') {
-                    pintar(json.data);
-                } else {
-                    // en error no caigas a getAll()
-                    pintar([]);
-                    console.error('Error listando:', json.message);
+    function cargarTablaVentas(modo, fecha) {
+        if (tablaVentas) {
+            tablaVentas.destroy();
+            $("#tablaventasdia tbody").empty();
+        }
+
+        tablaVentas = $("#tablaventasdia").DataTable({
+            ajax: {
+                url: "<?= SERVERURL ?>app/controllers/Venta.controller.php",
+                data: { modo, fecha },
+                dataSrc: "data"
+            },
+            columns: [
+                { // Columna 1: Número de fila
+                    data: null,
+                    render: (data, type, row, meta) => meta.row + 1
+                }, // Cierra columna 1
+                { // Columna 2: cliente
+                    data: "cliente",
+                    defaultContent: "No disponible",
+                    class: 'text-start'
+                }, // Cierra columna 2
+                { // Columna 3: tipo de comprobante
+                    data: "tipocom",
+                    defaultContent: "No disponible",
+                    class: 'text-center' // Centrado de la columna numcom
+                }, // Cierra columna 3
+                { // Columna 4: numero de comprobante
+                    data: "numcom",
+                    defaultContent: "No disponible",
+                    class: 'text-center' // Centrado de la columna numcom
+                }, // Cierra columna 4
+                {
+                    data: null,
+                    class: "text-center",
+                    render: renderOpciones
                 }
-            } catch (e) {
-                // si falla la red, tampoco llames a getAll()
-                pintar([]);
-                console.error('Fetch error:', e);
+            ], // Cierra columns
+            language: {
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron resultados",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                search: "Buscar:",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                emptyTable: "No hay datos disponibles en la tabla"
             }
-        };
-        /* const cargar = async (modo, fecha) => {
-            console.log(`> cargando modo=${modo} fecha=${fecha}`);
-            try {
-                const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}`);
-                console.log('HTTP status:', res.status);
-                const json = await res.json();
-                console.log('JSON recibido:', json);
-                if (json.status === 'success') pintar(json.data);
-                else console.error('Error listando:', json.message);
-            } catch (e) {
-                console.error('Fetch error:', e);
+        }); // Cierra DataTable inicialización
+    } // Cierra cargarTablaVehiculos()
+
+    // Carga la tabla de registros eliminados
+    function cargarVentasEliminadas() {
+        if ($.fn.DataTable.isDataTable("#tablaventaseliminadas")) {
+            $("#tablaventaseliminadas").DataTable().destroy();
+            $("#tablaventaseliminadas tbody").empty();
+        }
+        $("#tablaventaseliminadas").DataTable({
+            ajax: {
+                url: API + "?action=ventas_eliminadas",
+                dataSrc(json) {
+                    console.log("ventas_eliminadas response:", json);
+                    return json.status === 'success' ? json.data : [];
+                }
+            },
+            columns: [
+                { data: null, render: (d, t, r, m) => m.row + 1 },
+                { data: "cliente", class: "text-start", defaultContent: "—" },
+                { data: "tipocom", class: "text-center", defaultContent: "—" },
+                { data: "numcom", class: "text-center", defaultContent: "—" },
+                {
+                    data: null,
+                    class: "text-center",
+                    render: function (data, type, row) {
+                        return `
+              <button class="btn btn-info btn-sm btn-ver-justificacion"
+                      data-id="${row.id}"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modalVerJustificacion">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="btn btn-warning btn-sm btn-amortizar"
+                      data-id="${row.id}"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modalAmortizar">
+                <i class="fa-solid fa-dollar-sign"></i>
+              </button>
+              <button class="btn btn-primary btn-sm"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#miModal"
+                                onclick="verDetalleVenta('${row.id}')">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </button>`;
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron resultados",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                search: "Buscar:",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                emptyTable: "No hay datos disponibles en la tabla"
             }
-        }; */
+        });
+    }
 
-        const marcaActivo = btn => {
-            filtros.forEach(b => b.classList.toggle('active', b === btn));
-        };
+    function renderOpciones(data, type, row) {
+        const pagado = row.estado_pago === 'pagado';
+        const btnAmort = pagado
+            ? `<button class="btn btn-success btn-sm" disabled><i class="fa-solid fa-check"></i></button>`
+            : `<button class="btn btn-warning btn-sm btn-amortizar"
+         data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#modalAmortizar">
+         <i class="fa-solid fa-dollar-sign"></i>
+       </button>`;
 
-        // inicializo en día
-        const hoy = new Date().toISOString().split('T')[0];
+        return `
+    <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+    ${btnAmort}
+    <button class="btn btn-primary btn-sm btn-detalle"
+            data-action="detalle"
+            data-id="${row.id}"
+            data-bs-toggle="modal"
+            data-bs-target="#miModal">
+      <i class="fa-solid fa-circle-info"></i>
+    </button>`;
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        // inicializo fecha de hoy
+        const hoy = new Date().toISOString().slice(0, 10);
         fechaInput.value = hoy;
         let currentModo = 'dia';
-        cargar(currentModo, hoy);
+        marcarActivo(btnDia);
+        cargarTablaVentas(currentModo, hoy);
 
-        // clicks en Semana/Mes
+        // clicks en filtros
         filtros.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener("click", () => {
                 currentModo = btn.dataset.modo;
-                marcaActivo(btn);
-                cargar(currentModo, fechaInput.value);
+                marcarActivo(btn);
+                cargarTablaVentas(currentModo, fechaInput.value);
             });
         });
 
-        // cambio de fecha → Día
-        fechaInput.addEventListener('change', () => {
+        // cambio de fecha → día
+        fechaInput.addEventListener("change", () => {
             currentModo = 'dia';
-            marcaActivo(btnDia);
-            cargar(currentModo, fechaInput.value);
+            marcarActivo(btnDia);
+            cargarTablaVentas(currentModo, fechaInput.value);
         });
 
+        // Botón Ver Eliminados
+        document.getElementById("btnVerEliminados").addEventListener("click", function () {
+            document.getElementById("tableDia").style.display = "none";
+            document.getElementById("tableEliminados").style.display = "block";
+            cargarVentasEliminadas();
+        });
+
+        // eliminación con justificación
+        $(document).on('click', '.btn-eliminar', function () {
+            const idv = $(this).data('id');
+            $('#justificacion').val('');
+            $('#btnEliminarVenta').data('id', idv);
+            $('#modalJustificacion').modal('show');
+        });
+
+        // confirmar eliminación
+        $(document).on('click', '#btnEliminarVenta', async function () {
+            const just = $('#justificacion').val().trim();
+            const idv = $(this).data('id');
+            if (!just) return alert('Escribe la justificación.');
+            if (!await ask('¿Confirmar eliminación?', 'Eliminar')) return;
+            $.post(API, { action: 'eliminar', idventa: idv, justificacion: just }, res => {
+                if (res.status === 'success') {
+                    showToast('Venta eliminada', 'SUCCESS', 1500);
+                    $('#modalJustificacion').modal('hide');
+                    cargarTablaVentas(currentModo, fechaInput.value);
+                } else {
+                    showToast(res.message || 'Error', 'ERROR', 1500);
+                }
+            }, 'json');
+        });
+
+        // guardar amortización
         $(document).on('click', '#btnGuardarAmortizacion', async function () {
             const idventa = +$('#am_idventa').val();
             const monto = parseFloat($('#am_monto').val());
             const formapago = +$('#am_formapago').val();
-
-            if (!monto || monto <= 0) {
-                return alert('Ingresa un monto válido');
-            }
-
-            try {
-                const form = new FormData();
-                form.append('idventa', idventa);
-                form.append('monto', monto);
-                form.append('idformapago', formapago);
-
-                const res = await fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php`, {
-                    method: 'POST',
-                    body: form
-                });
-                const json = await res.json();
-
-                // 1) Log en consola de la respuesta completa:
-                /* console.log(" Respuesta POST amortizar:", json); */
-
-                if (json.status === 'success') {
-                    showToast(json.message, 'SUCCESS', 1500);
-                    $('#modalAmortizar').modal('hide');
-                    verDetalleVenta(idventa);
-                    /* cargar(currentModo, $('#Fecha').val()); */
-                    cargarTablaVentas();
-                } else {
-                    // 2) Usa json.detail si existe, sino json.message
-                    throw new Error(json.detail || json.message || 'Error desconocido');
-                }
-            } catch (e) {
-                console.error(e);
-                showToast(e.message, 'ERROR', 2000);
+            if (!monto || monto <= 0) return alert('Monto inválido');
+            const form = new FormData();
+            form.append('idventa', idventa);
+            form.append('monto', monto);
+            form.append('idformapago', formapago);
+            const res = await fetch("<?= SERVERURL ?>app/controllers/Amortizacion.controller.php", {
+                method: 'POST', body: form
+            }).then(r => r.json());
+            if (res.status === 'success') {
+                showToast(res.message, 'SUCCESS', 1500);
+                $('#modalAmortizar').modal('hide');
+                cargarTablaVentas(currentModo, fechaInput.value);
+                verDetalleVenta(idventa);
+            } else {
+                showToast(res.detail || res.message, 'ERROR', 2000);
             }
         });
-
-        // event‑delegation para eliminar y detalle
-        tablaBody.addEventListener('click', async ev => {
-            const btn = ev.target.closest('button[data-action]');
-            if (!btn) return;
-            const id = btn.dataset.id;
-            if (btn.dataset.action === 'eliminar') {
-                // abre modal
-                $('#justificacion').val('');
-                $('#btnEliminarVenta').data('id', id);
-                $('#modalJustificacion').modal('show');
-            }
-            if (btn.dataset.action === 'detalle') {
-                verDetalleVenta(id);
-            }
-        });
-
-        // handler del botón de confirmación en el modal
-        $(document).off('click', '#btnEliminarVenta');
-        $(document).on('click', '#btnEliminarVenta', async function () {
-            const just = $('#justificacion').val().trim();
-            const idv = $(this).data('id');
-            if (!just) { alert('Escribe la justificación.'); return; }
-            if (!await ask('¿Estás seguro de eliminar esta venta?', 'Confirmar eliminación')) {
-                showToast('Eliminación cancelada.', 'WARNING', 1500);
-                return;
-            }
-            showToast('Eliminando Venta…', 'INFO', 1000);
-            $.post(API, { action: 'eliminar', idventa: idv, justificacion: just }, res => {
-                if (res.status === 'success') {
-                    showToast('Venta eliminada.', 'SUCCESS', 1500);
-                    $('#modalJustificacion').modal('hide');
-                    cargar(currentModo, fechaInput.value);
-                } else {
-                    showToast(res.message || 'Error al eliminar.', 'ERROR', 1500);
-                }
-            }, 'json').fail(() => showToast('Error de conexión.', 'ERROR', 1500));
+        $(document).on('click', '.btn-detalle', function () {
+            const idventa = $(this).data('id');
+            verDetalleVenta(idventa);
+            $('#miModal').modal('show');
         });
     });
 </script>
@@ -760,8 +696,5 @@ require_once "../../partials/_footer.php";
         </div>
     </div>
 </div>
-
-
 </body>
-
 </html>

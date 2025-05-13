@@ -11,149 +11,90 @@ class Amortizacion extends Conexion
         $this->pdo = parent::getConexion();
     }
 
-    // Obtener info de saldo y total de una venta
-    public function obtenerInfoVenta($idventa)
+    /**
+     * Crea una amortización para venta o compra
+     * @param string $tipo 'venta' o 'compra'
+     */
+    public function create($tipo, $id, $idformapago, $monto)
     {
-        $sql = "
-            SELECT
-            total_original,
-            total_pagado,
-            total_pendiente
-            FROM vista_saldos_por_venta
-            WHERE idventa = ?
-        ";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idventa]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [
-            'total_original' => 0,
-            'total_pagado' => 0,
-            'total_pendiente' => 0
-        ];
-    }
-    // Obtener info de saldo de una compra
-    public function obtenerInfoCompra($idcompra)
-    {
-        $sql = "
-            SELECT
-            total_original,
-            total_pagado,
-            total_pendiente
-            FROM vista_saldos_por_compra
-            WHERE idcompra = ?
-            ";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idcompra]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [
-            'total_original' => 0,
-            'total_pagado' => 0,
-            'total_pendiente' => 0
-        ];
-    }
+        // obtener info previa
+        $info = $this->obtenerInfo($tipo, $id);
+        $saldoPrevio = (float) $info['total_pendiente'];
 
+        if ($monto > $saldoPrevio) {
+            throw new Exception("El monto de amortización no puede exceder el saldo restante");
+        }
 
-    // Consulta de amortizaciones por ID de venta
-    public function listByVenta($idventa)
-    {
-        $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idventa = ? ORDER BY idamortizacion;";
+        // calcular nuevo saldo y estado
+        $nuevoSaldo = $saldoPrevio - $monto;
+        $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
+
+        // generar numTrans
+        $numTrans = uniqid();
+
+        // insertar amortización
+        $sql = "INSERT INTO amortizaciones
+          (idventa, idcompra, idformapago, amortizacion, saldo, estado, numtransaccion)
+          VALUES (?, ?, ?, ?, ?, ?, ?)";
+        if ($tipo === 'venta') {
+            $params = [$id, null, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans];
+        } else {
+            $params = [null, $id, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans];
+        }
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idventa]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    // Listar amortizaciones por compra
-    public function listByCompra($idcompra)
-    {
-        $sql = "SELECT * FROM vista_amortizaciones_compra_con_formapago WHERE idcompra = ? ORDER BY idamortizacion;";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idcompra]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute($params);
+
+        // devolver registro
+        $lastId = $this->pdo->lastInsertId();
+        return [
+            'idamortizacion' => $lastId,
+            $tipo === 'venta' ? 'idventa' : 'idcompra' => $id,
+            'idformapago' => $idformapago,
+            'amortizacion' => number_format($monto, 2, '.', ''),
+            'saldo' => number_format($nuevoSaldo, 2, '.', ''),
+            'numtransaccion' => $numTrans,
+            'creado' => date('Y-m-d H:i:s')
+        ];
     }
 
     /**
-     * Inserta una amortización y devuelve el registro creado.
+     * Obtiene info de totales según tipo
      */
-    public function create($idventa, $idformapago, $monto)
+    public function obtenerInfo($tipo, $id)
     {
-        // 1) obtiene el saldo actual desde la vista
-        $info = $this->obtenerInfoVenta($idventa);
-        $saldoPrevio = (float) $info['total_pendiente'];
-
-        if ($monto > $saldoPrevio) {
-            throw new Exception("El monto de amortización no puede exceder el saldo restante");
+        if ($tipo === 'venta') {
+            $sql = "SELECT total_original, total_pagado, total_pendiente
+                      FROM vista_saldos_por_venta WHERE idventa = ?";
+        } else {
+            // totales de compra desde vistas
+            $sql = "SELECT
+                        tc.total AS total_original,
+                        COALESCE(ac.total_amortizado,0) AS total_pagado,
+                        (tc.total - COALESCE(ac.total_amortizado,0)) AS total_pendiente
+                      FROM vista_total_por_compra tc
+                      LEFT JOIN vista_amortizaciones_por_compra ac
+                        ON tc.idcompra = ac.idcompra
+                      WHERE tc.idcompra = ?";
         }
-
-        //calculamos el nuevo saldo
-        $nuevoSaldo = $saldoPrevio - $monto;
-
-        //calculamos el estado
-        $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
-
-        // 2) genera un número de transacción
-        $numTrans = uniqid();
-
-        // 3) ejecutamos el INSERT
-        $sql = "INSERT INTO amortizaciones
-        (idventa, idformapago, amortizacion, saldo, estado, numtransaccion)
-        VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $idventa,
-            $idformapago,
-            $monto,
-            $nuevoSaldo,
-            $estado,
-            $numTrans
-        ]);
-
-        // 4) devuelve el registro recien creado
-        $id = $this->pdo->lastInsertId();
-        return [
-            'idamortizacion' => $id,
-            'idventa' => $idventa,
-            'idformapago' => $idformapago,
-            'amortizacion' => number_format($monto, 2, '.', ''),
-            'saldo' => number_format($nuevoSaldo, 2, '.', ''),
-            'numtransaccion' => $numTrans,
-            'creado' => date('Y-m-d H:i:s')
-        ];
+        $stmt->execute([$id]);
+        $fila = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $fila ?: ['total_original' => 0, 'total_pagado' => 0, 'total_pendiente' => 0];
     }
 
-    // Crear amortización para compra
-    public function createCompra($idcompra, $idformapago, $monto)
+    /**
+     * Lista amortizaciones según tipo y id
+     */
+    public function listBy($tipo, $id)
     {
-        $info = $this->obtenerInfoCompra($idcompra);
-        $saldoPrevio = (float) $info['total_pendiente'];
-
-        if ($monto > $saldoPrevio) {
-            throw new Exception("El monto de amortización no puede exceder el saldo restante");
+        if ($tipo === 'venta') {
+            $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idventa = ? ORDER BY idamortizacion";
+        } else {
+            $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idcompra = ? ORDER BY idamortizacion";
         }
-
-        $nuevoSaldo = $saldoPrevio - $monto;
-        $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
-        $numTrans = uniqid();
-
-        $sql = "INSERT INTO amortizaciones_compra
-    (idcompra, idformapago, amortizacion, saldo, estado, numtransaccion)
-    VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $idcompra,
-            $idformapago,
-            $monto,
-            $nuevoSaldo,
-            $estado,
-            $numTrans
-        ]);
-
-        $id = $this->pdo->lastInsertId();
-        return [
-            'idamortizacion' => $id,
-            'idcompra' => $idcompra,
-            'idformapago' => $idformapago,
-            'amortizacion' => number_format($monto, 2, '.', ''),
-            'saldo' => number_format($nuevoSaldo, 2, '.', ''),
-            'numtransaccion' => $numTrans,
-            'creado' => date('Y-m-d H:i:s')
-        ];
+        $stmt->execute([$id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 }
