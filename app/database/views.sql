@@ -162,6 +162,8 @@ LEFT JOIN empresas em
   tcombustible
   FROM tipocombustibles;
 
+-- select * from vwproductos;
+
 -- 9) Productos con marca y subcategoría
 DROP VIEW IF EXISTS vwproductos;
 CREATE OR REPLACE VIEW vwproductos AS 

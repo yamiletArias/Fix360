@@ -32,7 +32,7 @@ require_once "../../partials/header.php";
         </tr>
       </thead>
       <tbody>
-        
+
       </tbody>
     </table>
   </div>
@@ -47,8 +47,25 @@ require_once "../../partials/_footer.php";
 ?>
 
 <script>
-  function cargarTablaProductos(){ // Inicio de cargarTablaProductos()
-    if($.fn.DataTable.isDataTable("#tablaProductos")){
+  // 1) Url base (PHP -> JS)
+  const SERVERURL = "<?= SERVERURL ?>";
+
+  // 2) Opciones de Lightbox (opcional)
+  lightbox.option({
+    'resizeDuration': 200,
+    'wrapAround': true
+  });
+
+  // 3) Inicialización de DataTable
+  $(document).ready(function() {
+    cargarTablaProductos();
+  });
+</script>
+
+
+<script>
+  function cargarTablaProductos() { // Inicio de cargarTablaProductos()
+    if ($.fn.DataTable.isDataTable("#tablaProductos")) {
       $("#tablaProductos").DataTable().destroy();
     } // Cierra if
 
@@ -57,8 +74,7 @@ require_once "../../partials/_footer.php";
         url: "http://localhost/fix360/app/controllers/producto.controller.php?task=getAll", // URL que retorna JSON con los productos
         dataSrc: ""
       }, // Cierra ajax
-      columns: [
-        { // Columna 1: Número de fila
+      columns: [{ // Columna 1: Número de fila
           data: null,
           render: (data, type, row, meta) => meta.row + 1
         }, // Cierra columna 1
@@ -82,7 +98,7 @@ require_once "../../partials/_footer.php";
           data: "presentacion",
           defaultContent: "Sin presentación"
         }, // Cierra columna 6
-         // Cierra columna 7
+        // Cierra columna 7
         { // Columna 8: Cantidad
           data: "cantidad",
           defaultContent: "0"
@@ -93,19 +109,34 @@ require_once "../../partials/_footer.php";
         }, // Cierra columna 8
         { // Columna 9: Imagen
           data: "img",
-          render: function(data, type, row) { // Inicio de render de imagen
-            if(data && data.trim() !== "") {
-              return `<img src="<?= SERVERURL ?>${data}" alt="s/n img" style="width:50px; border-radius:0%;">`;
-            } else {
-              return "Sin imagen";
+          render: function(data, type, row) {
+            if (data && data.trim() !== "") {
+              // Construyo la URL completa, usando la carpeta real 'images'
+             const imgUrl = data.startsWith('http')
+  ? data
+  : `${SERVERURL.replace(/\/$/, '')}/${data.replace(/^\/+/, '')}`;
+
+
+              return `
+        <a href="${imgUrl}"
+           data-lightbox="productos"
+           data-title="${row.descripcion}">
+          <img src="${imgUrl}"
+               alt="${row.descripcion}"
+               style="width:50px; border-radius:0%;" />
+        </a>
+      `;
             }
-          } // Cierra render de imagen
-        }, // Cierra columna 9
+            return "Sin imagen";
+
+          }
+        },
+        // Cierra columna 9
         { // Columna 10: Opciones (botones para editar y eliminar)
           data: null,
           render: function(data, type, row) { // Inicio de render de opciones
             return `
-              <a href="editar-productos.php?id=${row.idproducto}" class="btn btn-sm btn-warning" title="Editar">
+              <a href="editar-productos.php?id=${row.idproducto}"   class="btn btn-sm btn-warning" title="Editar">
                 <i class="fa-solid fa-pen-to-square"></i>
               </a>
               <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${row.idproducto})" title="Eliminar">
@@ -129,14 +160,10 @@ require_once "../../partials/_footer.php";
     }); // Cierra DataTable inicialización
   } // Cierra cargarTablaProductos()
 
-  // Llamar a la función cuando el DOM esté listo
-  document.addEventListener("DOMContentLoaded", function(){
-    cargarTablaProductos();
-  });
-  
+
   // Ejemplo de función para eliminar producto (debes implementar la lógica en el controlador)
   function eliminarProducto(idproducto) { // Inicio de eliminarProducto()
-    if(confirm("¿Estás seguro de eliminar el producto?")) {
+    if (confirm("¿Estás seguro de eliminar el producto?")) {
       // Lógica de eliminación vía fetch o redirección según tu implementación
       console.log("Eliminar producto con ID:", idproducto);
       // Aquí podrías hacer una solicitud AJAX al controlador para eliminar el producto
