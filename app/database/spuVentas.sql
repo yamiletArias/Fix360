@@ -386,7 +386,6 @@ BEGIN
   DECLARE start_date DATE;
   DECLARE end_date   DATE;
 
-  -- Calcular rango según modo
   IF _modo = 'semana' THEN
     SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
     SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
@@ -395,19 +394,21 @@ BEGIN
     SET end_date   = LAST_DAY(_fecha);
   ELSE
     SET start_date = _fecha;
-    SET end_date   = _fecha;	
+    SET end_date   = _fecha;  
   END IF;
 
-  -- Sólo los campos que tu script usa en la lista
   SELECT
     v.idventa    AS id,
     COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
-    v.tipocom    AS tipocom,
-    v.numcom     AS numcom
+    v.tipocom,
+    v.numcom,
+    vt.total_pendiente,
+    CASE WHEN vt.total_pendiente = 0 THEN 'pagado' ELSE 'pendiente' END AS estado_pago
   FROM ventas v
     JOIN clientes c      ON v.idcliente  = c.idcliente
     LEFT JOIN personas p ON c.idpersona  = p.idpersona
     LEFT JOIN empresas e ON c.idempresa  = e.idempresa
+    JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
     AND v.estado = TRUE
   ORDER BY v.fechahora;
@@ -451,7 +452,47 @@ BEGIN
 END$$
 
 
--- PROBAR 
+
+-- PRUEBAS
+
+-- PERIODO NORMAL
+DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListVentasPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  -- Calcular rango según modo
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;	
+  END IF;
+
+  -- Sólo los campos que tu script usa en la lista
+  SELECT
+    v.idventa    AS id,
+    COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+    v.tipocom    AS tipocom,
+    v.numcom     AS numcom
+  FROM ventas v
+    JOIN clientes c      ON v.idcliente  = c.idcliente
+    LEFT JOIN personas p ON c.idpersona  = p.idpersona
+    LEFT JOIN empresas e ON c.idempresa  = e.idempresa
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado = TRUE
+  ORDER BY v.fechahora;
+END$$
+
 -- PRUEBA (OBTENER LOS PROVEEDORES AUN EXISTENTE ANTES DEL REGSITRO) PERO CON EL REGISTRO AUN NO FUNCION
 DROP PROCEDURE IF EXISTS spuGetProveedores;
 DELIMITER $$

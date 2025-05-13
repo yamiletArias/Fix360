@@ -52,21 +52,27 @@ class Amortizacion extends Conexion
         if ($monto > $saldoPrevio) {
             throw new Exception("El monto de amortización no puede exceder el saldo restante");
         }
+
+        //calculamos el nuevo saldo
         $nuevoSaldo = $saldoPrevio - $monto;
 
-        // 2) genera un número de transacción (por ejemplo con uniqid)
+        //calculamos el estado
+        $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
+
+        // 2) genera un número de transacción
         $numTrans = uniqid();
 
-        // 3) inserta
+        // 3) ejecutamos el INSERT
         $sql = "INSERT INTO amortizaciones
-                  (idventa, idformapago, amortizacion, saldo, numtransaccion)
-                VALUES (?, ?, ?, ?, ?)";
+        (idventa, idformapago, amortizacion, saldo, estado, numtransaccion)
+        VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             $idventa,
             $idformapago,
             $monto,
             $nuevoSaldo,
+            $estado,
             $numTrans
         ]);
 

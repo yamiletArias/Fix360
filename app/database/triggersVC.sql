@@ -61,3 +61,19 @@ END$$
 
 DELIMITER ;
 
+-- PRUEBA NAMAS AMORTIZACION DE VENTA:
+DELIMITER $$
+CREATE TRIGGER trg_amortizacion_after_insert
+AFTER INSERT ON amortizaciones
+FOR EACH ROW
+BEGIN
+  IF NEW.saldo = 0 THEN
+    UPDATE amortizaciones
+      SET estado = 'C'
+    WHERE idamortizacion = NEW.idamortizacion;
+  END IF;
+END$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS trg_amortizacion_after_insert;
+
+SHOW TRIGGERS FROM dbfix360;

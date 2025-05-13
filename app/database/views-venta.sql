@@ -3,41 +3,25 @@
 -- 1) VISTA DE VENTAS PARA LISTAR-VENTAS
 DROP VIEW IF EXISTS vs_ventas;
 CREATE VIEW vs_ventas AS
-SELECT 
-    V.idventa AS id,
-    CASE
-        WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
-        WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
-    END AS cliente,
-    V.tipocom,
-    V.numcom
-FROM ventas V
-INNER JOIN clientes C ON V.idcliente = C.idcliente
-LEFT JOIN empresas E ON C.idempresa = E.idempresa
-LEFT JOIN personas P ON C.idpersona = P.idpersona
-WHERE V.estado = TRUE;
-
--- prueba de vista de ventas con pagado
-DROP VIEW IF EXISTS vs_ventas;
-CREATE VIEW vs_ventas AS
-SELECT 
-    V.idventa AS id,
-    CASE
-        WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
-        WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
-    END AS cliente,
-    V.tipocom,
-    V.numcom,
-    CASE
-        WHEN COALESCE(S.total_pendiente, 0) = 0 THEN 'pagado'
-        ELSE 'pendiente'
-    END AS estado_pago
-FROM ventas V
-INNER JOIN clientes C ON V.idcliente = C.idcliente
-LEFT JOIN empresas E ON C.idempresa = E.idempresa
-LEFT JOIN personas P ON C.idpersona = P.idpersona
-LEFT JOIN vista_saldos_por_venta S ON V.idventa = S.idventa
-WHERE V.estado = TRUE;
+SELECT
+  v.idventa   AS id,
+  CASE
+    WHEN c.idempresa IS NOT NULL THEN e.nomcomercial
+    WHEN c.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+  END AS cliente,
+  v.tipocom,
+  v.numcom,
+  vt.total_pendiente,
+  CASE
+    WHEN vt.total_pendiente = 0 THEN 'pagado'
+    ELSE 'pendiente'
+  END AS estado_pago
+FROM ventas v
+INNER JOIN clientes c      ON v.idcliente = c.idcliente
+LEFT  JOIN empresas e      ON c.idempresa  = e.idempresa
+LEFT  JOIN personas p      ON c.idpersona  = p.idpersona
+JOIN  vista_saldos_por_venta vt ON v.idventa   = vt.idventa
+WHERE v.estado = TRUE;
 
 -- 2) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA IDVENTA 
 DROP VIEW IF EXISTS vista_detalle_venta;
@@ -224,9 +208,7 @@ WHERE c.estado = FALSE;
 
 -- **************************** AMORTIZACION ******************************
 
-ALTER TABLE amortizaciones
-  ADD COLUMN creado DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
-  
+
 -- 1) VISTA PARA VER EL TOTAL DE LAS VENTAS (ID)
 DROP VIEW IF EXISTS vista_total_por_venta;
 CREATE VIEW vista_total_por_venta AS
@@ -278,7 +260,6 @@ LEFT JOIN formapagos AS f
 
 
 -- prueba
-
 DROP VIEW IF EXISTS vista_total_actualizada_por_venta;
 CREATE VIEW vista_total_actualizada_por_venta AS
 SELECT
@@ -292,8 +273,24 @@ LEFT JOIN empresas AS e ON c.idempresa = e.idempresa
 JOIN vista_total_por_venta AS vt ON v.idventa = vt.idventa
 LEFT JOIN vista_amortizaciones_por_venta AS a ON v.idventa = a.idventa;
 
-
 -- PRUEBAS
+-- VISTA NORMAL
+DROP VIEW IF EXISTS vs_ventas;
+CREATE VIEW vs_ventas AS
+SELECT 
+    V.idventa AS id,
+    CASE
+        WHEN C.idempresa IS NOT NULL THEN E.nomcomercial
+        WHEN C.idpersona IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
+    END AS cliente,
+    V.tipocom,
+    V.numcom
+FROM ventas V
+INNER JOIN clientes C ON V.idcliente = C.idcliente
+LEFT JOIN empresas E ON C.idempresa = E.idempresa
+LEFT JOIN personas P ON C.idpersona = P.idpersona
+WHERE V.estado = TRUE;
+
 SELECT total 
 FROM vista_total_por_venta 
 WHERE idventa = 24;

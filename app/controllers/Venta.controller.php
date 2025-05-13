@@ -33,36 +33,12 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
             // 3) Listado por periodo (dia/semana/mes) usando vs_ventas
             if (isset($_GET['modo'], $_GET['fecha'])) {
-                $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true) ? $_GET['modo'] : 'dia';
+                $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true)
+                    ? $_GET['modo']
+                    : 'dia';
                 $fecha = $_GET['fecha'] ?: date('Y-m-d');
-
-                // construimos WHERE dinámico
-                switch ($modo) {
-                    case 'semana':
-                        $where = "v.fechahora BETWEEN DATE_SUB(:fecha, INTERVAL 7 DAY) AND :fecha";
-                        break;
-                    case 'mes':
-                        $where = "v.fechahora BETWEEN DATE_SUB(:fecha, INTERVAL 1 MONTH) AND :fecha";
-                        break;
-                    case 'dia':
-                    default:
-                        $where = "DATE(v.fechahora) = :fecha";
-                }
-
-                $sql = "SELECT 
-                        v.id       AS idventa,
-                        v.cliente,
-                        v.tipocom,
-                        v.numcom,
-                        v.estado_pago
-                     FROM vs_ventas v
-                     WHERE $where
-                     ORDER BY v.fechahora DESC";
-                $stmt = $venta->getPdo()->prepare($sql);
-                $stmt->execute([':fecha' => $fecha]);
-                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                echo json_encode(['status' => 'success', 'data' => $data]);
+                $ventas = $venta->listarPorPeriodoVentas($modo, $fecha);
+                echo json_encode(['status' => 'success', 'data' => $ventas]);
                 exit;
             }
 

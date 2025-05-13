@@ -56,16 +56,16 @@ try {
   echo json_encode([
     'status' => 'error',
     'message' => 'Error de base de datos',
-    'detail' => $e->getMessage()
+    'detail' => $e->getMessage()      // <— detalle de PDO
   ]);
+  exit;
 } catch (Exception $e) {
-  http_response_code($e->getCode() ?: 500);
+  $code = $e->getCode() ?: 500;
+  http_response_code($code);
   echo json_encode([
     'status' => 'error',
-    'message' => $e->getMessage()
+    'message' => $e->getMessage(),
+    'detail' => $e->getMessage()     // <— detalle de Exception
   ]);
+  exit;
 }
-exit;
-
-
-

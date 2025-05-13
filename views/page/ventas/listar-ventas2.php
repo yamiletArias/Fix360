@@ -175,16 +175,18 @@ require_once "../../partials/_footer.php";
 </script>
 <!-- Vista principal -->
 <script>
+    let tablaVentas;
     function cargarTablaVentas() {
-        if ($.fn.DataTable.isDataTable("#tablaventasdia")) {
-            $("#tablaventasdia").DataTable().destroy();
-        } // Cierra if
+        if (tablaVentas) {
+            tablaVentas.destroy();
+            $("#tablaventasdia").empty(); // elimina el HTML residual
+        }
 
-        $("#tablaventasdia").DataTable({ // Inicio de configuración DataTable para vehículos
+        tablaVentas = $("#tablaventasdia").DataTable({
             ajax: {
                 url: "<?= SERVERURL ?>app/controllers/Venta.controller.php",
                 dataSrc: "data"
-            }, // Cierra ajax
+            },
             columns: [
                 { // Columna 1: Número de fila
                     data: null,
@@ -207,33 +209,31 @@ require_once "../../partials/_footer.php";
                 }, // Cierra columna 4
                 {
                     data: null,
-                    class: 'text-center',
-                    render: function (data, type, row) {
-                        // row.estado_pago === 'pendiente' → botón amarillo; 'pagado' → check verde
-                        let btnAmortizar;
-                        if (row.estado_pago === 'pendiente') {
-                            btnAmortizar = `
-                            <button class="btn btn-warning btn-sm btn-amortizar"
-                                    data-id="${row.idventa || row.id}"
-                                    data-bs-toggle="modal" data-bs-target="#modalAmortizar"
-                                    title="Amortizar">
-                            <i class="fa-solid fa-dollar-sign"></i>
-                            </button>`;
-                        } else {
-                            btnAmortizar = `
-                            <button class="btn btn-success btn-sm" disabled title="Pago completo">
-                            <i class="fa-solid fa-check"></i>
-                            </button>`;
-                        }
+                    class: "text-center",
+                    render: (data, type, row) => {
+
+                        // El botón de amortizar: verde (pagado) o amarillo (pendiente)
+                        const btnAmort = row.estado_pago === 'pagado'
+                            ? `<button class="btn btn-success btn-sm" disabled title="Pago completo">
+       <i class="fa-solid fa-check"></i>
+     </button>`
+                            : `<button class="btn btn-warning btn-sm btn-amortizar"
+             data-id="${row.id}"
+             data-bs-toggle="modal" data-bs-target="#modalAmortizar"
+             title="Amortizar">
+       <i class="fa-solid fa-dollar-sign"></i>
+     </button>`;
+
                         return `
-                        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.idventa || row.id}">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                        ${btnAmortizar}
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#miModal"
-                                onclick="verDetalleVenta('${row.idventa || row.id}')">
-                            <i class="fa-solid fa-circle-info"></i>
-                        </button>`;
+        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+        ${btnAmort}
+        <button class="btn btn-primary btn-sm" 
+                data-bs-toggle="modal" data-bs-target="#miModal"
+                onclick="verDetalleVenta('${row.id}')">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>`;
                     }
                 }
             ], // Cierra columns
@@ -434,44 +434,60 @@ require_once "../../partials/_footer.php";
         };
 
         // pinta filas y mensaje cuando está vacío
+        // pinta filas y mensaje cuando está vacío
         const pintar = data => {
             tablaBody.innerHTML = '';
             if (data.length === 0) {
                 tablaBody.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center text-muted">
-                No hay datos disponibles en la tabla
-                </td>
-            </tr>`;
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                    No hay datos disponibles en la tabla
+                    </td>
+                </tr>`;
                 return;
             }
             data.forEach((v, i) => {
+                // ── Lógica para el botón de amortizar ──
+                const btnAmort = v.estado_pago === 'pagado'
+                    ? `<button class="btn btn-success btn-sm" disabled title="Pago completo">
+                 <i class="fa-solid fa-check"></i>
+               </button>`
+                    : `<button class="btn btn-warning btn-sm btn-amortizar"
+                       data-id="${v.id}"
+                       data-bs-toggle="modal"
+                       data-bs-target="#modalAmortizar"
+                       title="Amortizar">
+                   <i class="fa-solid fa-dollar-sign"></i>
+               </button>`;
+
                 tablaBody.insertAdjacentHTML('beforeend', `
-            <tr>
-                <td>${i + 1}</td>
-                <td class="text-start">${v.cliente || ''}</td>
-                <td class="text-center">${v.tipocom || ''}</td>
-                <td class="text-center">${v.numcom || ''}</td>
-                <td class="text-center">
-                <button class="btn btn-danger btn-sm" data-id="${v.id}" data-action="eliminar">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-                <button class="btn btn-warning btn-sm btn-amortizar" data-id="${v.id}" title="Amortizar">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                </button>
-                <button class="btn btn-primary btn-sm" data-action="detalle" data-id="${v.id}">
-                    <i class="fa-solid fa-circle-info"></i>
-                </button>
-                </td>
-            </tr>`);
+                <tr>
+                    <td>${i + 1}</td>
+                    <td class="text-start">${v.cliente || ''}</td>
+                    <td class="text-center">${v.tipocom || ''}</td>
+                    <td class="text-center">${v.numcom || ''}</td>
+                    <td class="text-center">
+                        <button class="btn btn-danger btn-sm"
+                                data-id="${v.id}"
+                                data-action="eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        ${btnAmort}
+                        <button class="btn btn-primary btn-sm"
+                                data-action="detalle"
+                                data-id="${v.id}">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                    </td>
+                </tr>`);
             });
         };
-
         // Llama al endpoint y pinta
         const cargar = async (modo, fecha) => {
             try {
                 const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}`);
                 const json = await res.json();
+                console.log("🔍 first row completo:", json.data[0]);
                 if (json.status === 'success') {
                     pintar(json.data);
                 } else {
@@ -546,13 +562,18 @@ require_once "../../partials/_footer.php";
                 });
                 const json = await res.json();
 
+                // 1) Log en consola de la respuesta completa:
+                /* console.log(" Respuesta POST amortizar:", json); */
+
                 if (json.status === 'success') {
                     showToast(json.message, 'SUCCESS', 1500);
                     $('#modalAmortizar').modal('hide');
                     verDetalleVenta(idventa);
-                    cargar(currentModo, $('#Fecha').val());
+                    /* cargar(currentModo, $('#Fecha').val()); */
+                    cargarTablaVentas();
                 } else {
-                    throw new Error(json.message || 'Error desconocido');
+                    // 2) Usa json.detail si existe, sino json.message
+                    throw new Error(json.detail || json.message || 'Error desconocido');
                 }
             } catch (e) {
                 console.error(e);
