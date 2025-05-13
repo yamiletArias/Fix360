@@ -515,3 +515,20 @@ CREATE TABLE amortizaciones (
   CONSTRAINT chk_amortizacion CHECK (amortizacion > 0)
 ) ENGINE = INNODB;
 
+-- INTENTO CON CHK_AMORTIZACION_VC (idventa - idcompra)
+DROP TABLE IF EXISTS amortizaciones;
+CREATE TABLE amortizaciones (
+  idamortizacion     INT             PRIMARY KEY AUTO_INCREMENT,
+  idventa            INT             ,
+  idcompra           INT             ,
+  idformapago        INT             NOT NULL,
+  amortizacion       DECIMAL(10,2)   NOT NULL,
+  saldo              DECIMAL(10,2)   NOT NULL DEFAULT 0,
+  creado             DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  estado             ENUM('P','C')   NOT NULL DEFAULT 'P',  -- P: pendiente, C: cancelado
+  numtransaccion     VARCHAR(20)     NULL,
+CONSTRAINT chk_amortizacion_vc CHECK ((idventa IS NOT NULL AND idcompra IS NULL) OR (idventa IS NULL AND idcompra IS NOT NULL)),
+  CONSTRAINT fk_idventa_1 FOREIGN KEY (idventa) REFERENCES ventas(idventa),
+  CONSTRAINT fk_idformapago FOREIGN KEY (idformapago) REFERENCES formapagos(idformapago),
+  CONSTRAINT chk_amortizacion CHECK (amortizacion > 0)
+) ENGINE = INNODB;

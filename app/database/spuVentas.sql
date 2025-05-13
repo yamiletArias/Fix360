@@ -437,6 +437,52 @@ BEGIN
     SET end_date   = _fecha;
   END IF;
 
+  -- Listar compras en el rango con info de pago
+  SELECT 
+    C.idcompra AS id,
+    E.nomcomercial AS proveedor,
+    C.tipocom, 
+    C.numcom,
+    vspc.total_pendiente,
+    CASE 
+      WHEN vspc.total_pendiente = 0 THEN 'pagado'
+      ELSE 'pendiente'
+    END AS estado_pago
+  FROM compras C
+  JOIN proveedores P ON C.idproveedor = P.idproveedor
+  JOIN empresas E ON P.idempresa = E.idempresa
+  LEFT JOIN vista_saldos_por_compra vspc ON C.idcompra = vspc.idcompra
+  WHERE DATE(C.fechacompra) BETWEEN start_date AND end_date
+    AND C.estado = TRUE
+  ORDER BY C.fechacompra;
+END$$
+
+
+
+-- PRUEBAS
+-- PERIODO NORMAL DE COMPRAS
+DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListComprasPorPeriodo(
+  IN _modo  ENUM('semana','mes','dia'),
+  IN _fecha DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  -- Calcular rango según modo
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
   -- Listar compras en el rango sin mostrar fechacompra
   SELECT 
     C.idcompra AS id,
@@ -450,12 +496,7 @@ BEGIN
     AND C.estado = TRUE
   ORDER BY C.fechacompra;
 END$$
-
-
-
--- PRUEBAS
-
--- PERIODO NORMAL
+-- PERIODO NORMAL VENTAS
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListVentasPorPeriodo(
