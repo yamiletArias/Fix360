@@ -15,17 +15,33 @@ class Colaborador extends Conexion {
      * @return array|null Resultado del login: ['status'=>'SUCCESS','idcolaborador'=>x] o ['status'=>'FAILURE']
      */
     public function login($namuser, $passuser) {
-        try {
-            $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
-            $stmt->bindParam(':namuser', $namuser, PDO::PARAM_STR);
-            $stmt->bindParam(':passuser', $passuser, PDO::PARAM_STR);
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result ?: ['status' => 'FAILURE'];
-        } catch (PDOException $e) {
-            return ['status' => 'FAILURE', 'message' => 'Error en login: ' . $e->getMessage()];
+    try {
+        $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
+        $stmt->bindParam(':namuser',  $namuser,   PDO::PARAM_STR);
+        $stmt->bindParam(':passuser', $passuser,  PDO::PARAM_STR);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        // liberar recursos del SP para permitir nuevas llamadas
+        $stmt->closeCursor();
+
+        if ($row) {
+            $ok = (isset($row['STATUS']) && strtoupper($row['STATUS']) === 'SUCCESS');
+            return [
+                'status'        => $ok,
+                'idcolaborador' => $ok ? (int)$row['idcolaborador'] : null
+            ];
         }
+        // si no devolvió nada, asumo fallo
+        return [ 'status' => false ];
+    } catch (PDOException $e) {
+        return [
+            'status'  => false,
+            'message' => 'Error en login: ' . $e->getMessage()
+        ];
     }
+}
+
     /**
      * Obtiene todos los colaboradores activos y con contrato vigente.
      * @return array Lista de colaboradores.

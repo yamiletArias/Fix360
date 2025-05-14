@@ -9,7 +9,7 @@ if (
     empty($_SESSION['login']['status']) ||
     $_SESSION['login']['status'] !== true
 ) {
-    header("Location: " . SERVERURL . "views/page/login.php");
+    header("Location: " . SERVERURL);
     exit;
 }
 

@@ -1,9 +1,13 @@
+
 <?php
+header('Content-Type: application/json; charset=utf-8');
+ini_set('display_errors', 0);
+error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
+
+session_start();
 require_once "../models/Colaborador.php";
 require_once "../helpers/helper.php";
 
-session_start();
-header("Content-Type: application/json");
 
 $colaborador = new Colaborador();
 
@@ -34,25 +38,31 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['action']) && $_GET['act
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['operation'])) {
     switch ($_POST['operation']) {
         case 'login':
-            $namuser  = Helper::limpiarCadena($_POST['namuser']);
-            $passuser = $_POST['passuser'];
+    $namuser  = Helper::limpiarCadena($_POST['namuser']);
+    $passuser = $_POST['passuser'];
 
-            $res = $colaborador->login($namuser, $passuser);
-            if ($res['status'] === 'SUCCESS') {
-                // Asignar datos de sesión (suponiendo el SP devuelve estos campos)
-                $_SESSION['login'] = [
-                    'status'        => true,
-                    'idcolaborador' => $res['idcolaborador'],
-                    'namuser'       => $res['namuser']   ?? $namuser,
-                    'nombres'       => $res['nombres']   ?? '',
-                    'apellidos'     => $res['apellidos'] ?? '',
-                    'rol'           => $res['rol']       ?? ''
-                ];
-                echo json_encode([ 'status' => true, 'message' => 'Bienvenido' ]);
-            } else {
-                echo json_encode([ 'status' => false, 'message' => 'Credenciales inválidas o contrato no vigente' ]);
-            }
-            break;
+    $res = $colaborador->login($namuser, $passuser);
+    if ($res['status'] === true) {
+        $_SESSION['login'] = [
+            'status'        => true,
+            'idcolaborador' => $res['idcolaborador'],
+            'namuser'       => $namuser,
+            // si quieres traer más campos del SP, tendrás que ajustarlo
+        ];
+        echo json_encode([
+            'status'  => true,
+            'message' => '¡Bienvenido!',
+            'idcolaborador' => $res['idcolaborador']
+        ]);
+    } else {
+        echo json_encode([
+            'status'  => false,
+            'message' => $res['message'] 
+                ?? 'Credenciales inválidas o contrato no vigente'
+        ]);
+    }
+    break;
+
 
         case 'register':
             $params = [
