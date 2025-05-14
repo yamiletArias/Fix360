@@ -441,40 +441,40 @@ require_once "../../partials/_footer.php";
     function estaDuplicado(idproducto = 0) {
       return detalleVenta.some(d => d.idproducto == idproducto);
     }
-    
+
     // — PRECARGA DESDE COTIZACIÓN SI VIENE ?id=XX —
-  const params = new URLSearchParams(window.location.search);
-  const cotId  = params.get('id');
-  if (cotId) {
-    // 1) Cabecera
-    fetch(`<?= SERVERURL ?>app/controllers/Cotizacion.controller.php`
+    const params = new URLSearchParams(window.location.search);
+    const cotId = params.get('id');
+    if (cotId) {
+      // 1) Cabecera
+      fetch(`<?= SERVERURL ?>app/controllers/Cotizacion.controller.php`
         + `?action=getCabecera&idcotizacion=${cotId}`)
-      .then(res => res.json())
-      .then(cab => {
-        hiddenIdCliente.value = cab.idcliente;
-        inputProp.value       = cab.cliente;
-        monedaSelect.value    = cab.moneda;
-        fechaInput.value      = cab.fechahora.split(' ')[0];
-        // recarga vehículos
-        hiddenIdCliente.dispatchEvent(new Event('change'));
-      })
-      .catch(console.error);
+        .then(res => res.json())
+        .then(cab => {
+          hiddenIdCliente.value = cab.idcliente;
+          inputProp.value = cab.cliente;
+          monedaSelect.value = cab.moneda;
+          fechaInput.value = cab.fechahora.split(' ')[0];
+          // recarga vehículos
+          hiddenIdCliente.dispatchEvent(new Event('change'));
+        })
+        .catch(console.error);
 
-    // 2) Detalle: insertar directo en la tabla
-    fetch(`<?= SERVERURL ?>app/controllers/Detcotizacion.controller.php`
+      // 2) Detalle: insertar directo en la tabla
+      fetch(`<?= SERVERURL ?>app/controllers/Detcotizacion.controller.php`
         + `?idcotizacion=${cotId}`)
-      .then(res => res.json())
-      .then(items => {
-        items.forEach(item => {
-          const precio    = parseFloat(item.precio);
-          const cantidad  = parseFloat(item.cantidad);
-          const descuento = parseFloat(item.descuento);
-          const importe   = precio * cantidad - descuento;
+        .then(res => res.json())
+        .then(items => {
+          items.forEach(item => {
+            const precio = parseFloat(item.precio);
+            const cantidad = parseFloat(item.cantidad);
+            const descuento = parseFloat(item.descuento);
+            const importe = precio * cantidad - descuento;
 
-          // Crear fila y botón quitar
-          const fila = document.createElement("tr");
-          fila.dataset.idproducto = item.idproducto;
-          fila.innerHTML = `
+            // Crear fila y botón quitar
+            const fila = document.createElement("tr");
+            fila.dataset.idproducto = item.idproducto;
+            fila.innerHTML = `
             <td>0</td>
             <td>${item.producto}</td>
             <td>${precio.toFixed(2)}</td>
@@ -483,28 +483,28 @@ require_once "../../partials/_footer.php";
             <td>${importe.toFixed(2)}</td>
             <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
           `;
-          fila.querySelector(".btn-quitar").addEventListener("click", () => {
-            fila.remove();
-            const idx = detalleVenta.findIndex(d => d.idproducto == item.idproducto);
-            if (idx >= 0) detalleVenta.splice(idx, 1);
-            actualizarNumeros();
-            calcularTotales();
-          });
-          tabla.appendChild(fila);
+            fila.querySelector(".btn-quitar").addEventListener("click", () => {
+              fila.remove();
+              const idx = detalleVenta.findIndex(d => d.idproducto == item.idproducto);
+              if (idx >= 0) detalleVenta.splice(idx, 1);
+              actualizarNumeros();
+              calcularTotales();
+            });
+            tabla.appendChild(fila);
 
-          // Agregar al array
-          detalleVenta.push({
-            idproducto: item.idproducto,
-            producto:   item.producto,
-            precio, cantidad, descuento,
-            importe: importe.toFixed(2)
+            // Agregar al array
+            detalleVenta.push({
+              idproducto: item.idproducto,
+              producto: item.producto,
+              precio, cantidad, descuento,
+              importe: importe.toFixed(2)
+            });
           });
-        });
-        actualizarNumeros();
-        calcularTotales();
-      })
-      .catch(console.error);
-  }
+          actualizarNumeros();
+          calcularTotales();
+        })
+        .catch(console.error);
+    }
 
     // --- Agregar Producto al Detalle ---
     agregarProductoBtn.addEventListener("click", () => {
