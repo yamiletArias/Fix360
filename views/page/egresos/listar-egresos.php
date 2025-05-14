@@ -24,7 +24,7 @@ require_once "../../partials/header.php";
             <div class="row mt-3">
                 <div class="col-12">
                     <div class="input-group">
-                        <input type="date" class="form-control" id="Fecha">
+                        <input type="date" class="form-control input" id="Fecha">
                         <a href="registrar-egresos.php" class="btn btn-success" id="btnRegistrar">Registrar</a>
                     </div>
                 </div>
@@ -39,7 +39,6 @@ require_once "../../partials/header.php";
                 <tr>
                     <th>#</th>
                     <th>Fecha</th>
-                    <th>Hora</th>
                     <th>Registrador</th>
                     <th>Receptor</th>
                     <th>Concepto</th>
@@ -58,7 +57,6 @@ require_once "../../partials/header.php";
                 <tr>
                     <th>#</th>
                     <th>Fecha</th>
-                    <th>Hora</th>
                     <th>Registrador</th>
                     <th>Receptor</th>
                     <th>Concepto</th>
@@ -93,17 +91,42 @@ require_once "../../partials/header.php";
     </div>
 </div>
 
+
+<!-- Modal Ver Justificación -->
+<div class="modal fade" id="modalVerJustificacion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Justificación de Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="textoJustificacion"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <?php require_once "../../partials/_footer.php"; ?>
 
 <script>
     const API = SERVERURL + 'app/controllers/Egreso.controller.php';
-    let tablaEgresos;
+
+    // Referencias DOM
     const fechaInput = document.getElementById('Fecha');
     const btnDia = document.querySelector('button[data-modo="dia"]');
     const btnSemana = document.querySelector('button[data-modo="semana"]');
     const btnMes = document.querySelector('button[data-modo="mes"]');
+    const btnVerEliminados = document.getElementById('btnVerEliminados');
     const filtros = [btnDia, btnSemana, btnMes];
+
+    // Estado actual
     let currentModo = 'dia';
+    let showingDeleted = false; // <-- bandera: ¿estamos viendo eliminados?
 
     function marcarActivo(btn) {
         filtros.forEach(b => b.classList.toggle('active', b === btn));
@@ -111,34 +134,54 @@ require_once "../../partials/header.php";
 
     function cargarTabla(modo, fecha, eliminados = false) {
         const selector = eliminados ? '#tablaegresoseliminados' : '#tablaegresosdia';
+        // destruyo DataTable si existe
         if ($.fn.DataTable.isDataTable(selector)) {
             $(selector).DataTable().destroy();
             $(`${selector} tbody`).empty();
         }
-        tablaEgresos = $(selector).DataTable({
+        // inicializo DataTable con el parámetro estado
+        $(selector).DataTable({
             ajax: {
-  url: API,
-  data: function () {
-    return {
-      modo: currentModo,
-      fecha: fechaInput.value
-    };
-  },
-
-
-  dataSrc: json => json.status === 'success' ? json.data : []
-}
-
-,
-            columns: [
-                { data: null, render: (d,t,r,m)=> m.row+1 },
-                { data: 'fecha', class: 'text-center' },
-                { data: 'hora', class: 'text-center' },
-                { data: 'registrador', class: 'text-start' },
-                { data: 'receptor', class: 'text-start' },
-                { data: 'concepto', class: 'text-start' },
-                { data: 'monto', class: 'text-end', render: $.fn.dataTable.render.number(',', '.', 2) },
-                { data: null, class: 'text-center', render: renderOpciones }
+                url: API,
+                data: function() {
+                    return {
+                        modo: currentModo,
+                        fecha: fecha,
+                        estado: eliminados ? 'D' : 'A'
+                    };
+                },
+                dataSrc: json => json.status === 'success' ? json.data : []
+            },
+            columns: [{
+                    data: null,
+                    render: (d, t, r, m) => m.row + 1
+                },
+                {
+                    data: 'fecha',
+                    class: 'text-center'
+                },
+                {
+                    data: 'registrador',
+                    class: 'text-start'
+                },
+                {
+                    data: 'receptor',
+                    class: 'text-start'
+                },
+                {
+                    data: 'concepto',
+                    class: 'text-start'
+                },
+                {
+                    data: 'monto',
+                    class: 'text-end',
+                    render: $.fn.dataTable.render.number(',', '.', 2)
+                },
+                {
+                    data: null,
+                    class: 'text-center',
+                    render: renderOpciones
+                }
             ],
             language: {
                 lengthMenu: "Mostrar _MENU_ por página",
@@ -152,62 +195,157 @@ require_once "../../partials/header.php";
         });
     }
 
-    function renderOpciones(data) {
-        const id = data.idegreso;
-        return `<button class="btn btn-danger btn-sm btn-eliminar" data-id="${id}"><i class="fa-solid fa-trash"></i></button>`;
+function renderOpciones(data) {
+    const id         = data.idegreso;
+    const recordDate = data.fecha;          // ahora es "DD/MM/YYYY"
+    // calculamos hoy en DD/MM/YYYY
+    const d  = new Date();
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    const todayStr = `${dd}/${mm}/${yyyy}`;
+
+    if (!showingDeleted) {
+        // botón de detalle siempre
+        let html = `
+          <button class="btn btn-sm btn-info" title="Detalle del egreso">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </button>
+        `;
+        // solo si recordDate coincide con hoy mostramos la papelera
+        if (recordDate === todayStr) {
+            html += `
+              <button
+                class="btn btn-danger btn-sm btn-eliminar"
+                data-id="${id}"
+                title="Eliminar egreso (solo hoy)"
+              >
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            `;
+        }
+        return html;
+    } else {
+        // vista eliminados: botón “ver justificación”
+        return `
+          <button
+            class="btn btn-secondary btn-sm btn-view-just"
+            data-just="${encodeURIComponent(data.justificacion)}"
+            title="Ver justificación"
+          >
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        `;
     }
+}
+
+
+
 
     $(document).ready(() => {
-        // inicializar fecha y tabla
-        const hoy = new Date().toISOString().slice(0,10);
+        // inicializar fecha y marcadores
+        const hoy = new Date().toISOString().slice(0, 10);
         fechaInput.value = hoy;
         marcarActivo(btnDia);
-        cargarTabla(currentModo, hoy);
+        cargarTabla(currentModo, hoy, showingDeleted);
 
-        // filtros
-        filtros.forEach(btn=> btn.addEventListener('click', ()=>{
+        // al hacer clic en día/semana/mes
+        filtros.forEach(btn => btn.addEventListener('click', () => {
             currentModo = btn.dataset.modo;
             marcarActivo(btn);
-            $('#tableEliminados').hide();
-            $('#tableDia').show();
-            cargarTabla(currentModo, fechaInput.value);
+            // Recalculamos la visibilidad según la bandera actual
+            if (showingDeleted) {
+                $('#tableDia').hide();
+                $('#tableEliminados').show();
+            } else {
+                $('#tableEliminados').hide();
+                $('#tableDia').show();
+            }
+            cargarTabla(currentModo, fechaInput.value, showingDeleted);
         }));
 
-        // cambio de fecha -> dia
-        fechaInput.addEventListener('change', ()=>{
-            currentModo = 'dia';
-            marcarActivo(btnDia);
-            cargarTabla(currentModo, fechaInput.value);
+        // al cambiar fecha -> vuelvo a recargar con la bandera actual
+fechaInput.addEventListener('change', ()=>{
+    currentModo = 'dia';
+    marcarActivo(btnDia);
+
+    
+    if (showingDeleted) {
+        $('#tableDia').hide();
+        $('#tableEliminados').show();
+    } else {
+        $('#tableEliminados').hide();
+        $('#tableDia').show();
+    }
+    cargarTabla(currentModo, fechaInput.value, showingDeleted);
+});
+
+
+        // toggle ver/ocultar eliminados
+        // toggle ver/ocultar eliminados
+        btnVerEliminados.addEventListener('click', () => {
+            // invertimos bandera
+            showingDeleted = !showingDeleted;
+
+            // intercambio tablas
+            if (showingDeleted) {
+                $('#tableDia').hide();
+                $('#tableEliminados').show();
+
+                // cambio estilos y icono: ahora mostramos el ojo (ver)
+                btnVerEliminados.classList.replace('btn-secondary', 'btn-primary');
+                btnVerEliminados.querySelector('i')
+                    .classList.replace('fa-eye-slash', 'fa-eye');
+                btnVerEliminados.title = 'Ver activos';
+            } else {
+                $('#tableEliminados').hide();
+                $('#tableDia').show();
+
+                // restauramos botón de eliminar (ojo tachado)
+                btnVerEliminados.classList.replace('btn-primary', 'btn-secondary');
+                btnVerEliminados.querySelector('i')
+                    .classList.replace('fa-eye', 'fa-eye-slash');
+                btnVerEliminados.title = 'Ver eliminados';
+            }
+
+            // recargo la tabla con el estado adecuado
+            cargarTabla(currentModo, fechaInput.value, showingDeleted);
         });
 
-        // ver eliminados
-        $('#btnVerEliminados').click(()=>{
-            $('#tableDia').hide();
-            $('#tableEliminados').show();
-            cargarTabla(currentModo, fechaInput.value, true);
-        });
-
-        // eliminar con justificación
+        // eliminación con justificación
         let idToDelete = 0;
         $(document).on('click', '.btn-eliminar', function() {
             idToDelete = $(this).data('id');
             $('#justificacion').val('');
             $('#modalJustificacion').modal('show');
         });
-        $('#btnEliminarEgreso').click(async ()=>{
+        $('#btnEliminarEgreso').click(async () => {
             const just = $('#justificacion').val().trim();
             if (!just) return alert('Escribe una justificación.');
             const res = await fetch(API, {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ action: 'delete', idegreso: idToDelete, justificacion: just })
-            }).then(r=>r.json());
-            if (res.status==='success') {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'delete',
+                    idegreso: idToDelete,
+                    justificacion: just
+                })
+            }).then(r => r.json());
+            if (res.status === 'success') {
                 $('#modalJustificacion').modal('hide');
-                cargarTabla(currentModo, fechaInput.value);
+                // recargo la vista actual (activos o eliminados)
+                cargarTabla(currentModo, fechaInput.value, showingDeleted);
             } else {
-                alert(res.message||'Error al eliminar');
+                alert(res.message || 'Error al eliminar');
             }
         });
+
+        $(document).on('click', '.btn-view-just', function() {
+    const just = decodeURIComponent($(this).data('just'));
+    $('#textoJustificacion').text(just);
+    $('#modalVerJustificacion').modal('show');
+});
     });
 </script>

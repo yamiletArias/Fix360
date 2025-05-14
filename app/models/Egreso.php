@@ -18,14 +18,19 @@ class Egreso extends Conexion
      * @param string $fecha Fecha en formato 'YYYY-MM-DD'
      * @return array
      */
-    public function listarPorPeriodo(string $modo, string $fecha): array
+    public function listarPorPeriodo(array $params = []): array
     {
         try {
-            $stmt = $this->pdo->prepare("CALL spListEgresosPorPeriodo(:modo, :fecha)");
+            $sql = "CALL spListEgresosPorPeriodo(?,?,?)";
+            $stmt = $this->pdo->prepare($sql);
+
+            // Ejecutar pasando un array plano [modo, fecha, estado]
             $stmt->execute([
-                ':modo'  => $modo,
-                ':fecha' => $fecha,
+                $params['modo'] ?? 'dia',
+                $params['fecha'] ?? date('Y-m-d'),
+                $params['estado'] ?? 'A'
             ]);
+
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $stmt->closeCursor();
             return $result;
@@ -34,6 +39,7 @@ class Egreso extends Conexion
             return [];
         }
     }
+
 
     /**
      * Registra un nuevo egreso

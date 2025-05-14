@@ -48,13 +48,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Listar egresos por periodo
-    $modo  = $_GET['modo']  ?? 'dia';
-    $fecha = $_GET['fecha'] ?? date('Y-m-d');
+    // Listar egresos por periodo y estado
+    $modo   = $_GET['modo']   ?? 'dia';
+    $fecha  = $_GET['fecha']  ?? date('Y-m-d');
+    $estado = $_GET['estado'] ?? 'A';  // por defecto activos
+
+    // validación básica
     if (!in_array($modo, ['dia', 'semana', 'mes'], true)) {
         $modo = 'dia';
     }
-    $egresos = $egresoModel->listarPorPeriodo($modo, $fecha);
-    echo json_encode(['status' => 'success', 'data' => $egresos]);
+    if (!in_array($estado, ['A', 'D'], true)) {
+        $estado = 'A';
+    }
+
+    // Llamada al modelo con los 3 parámetros
+    $params = [
+        'modo'   => $modo,
+        'fecha'  => $fecha,
+        'estado' => $estado
+    ];
+    $egresos = $egresoModel->listarPorPeriodo($params);
+
+    echo json_encode([
+        'status' => 'success',
+        'data'   => $egresos
+    ]);
     exit;
 }

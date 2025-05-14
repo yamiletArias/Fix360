@@ -966,7 +966,8 @@ DROP PROCEDURE IF EXISTS spListEgresosPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListEgresosPorPeriodo(
   IN _modo   ENUM('semana','mes','dia'),
-  IN _fecha  DATE
+  IN _fecha  DATE,
+  IN _estado ENUM('A','D')
 )
 BEGIN
   DECLARE start_date DATE;
@@ -984,23 +985,22 @@ BEGIN
   END IF;
 
   SELECT
-    e.idegreso,
-    DATE(e.fecharegistro) AS fecha,
-    TIME(e.fecharegistro) AS hora,
-    adm.namuser    AS registrador,
-    col.namuser    AS receptor,
-    e.concepto,
-    e.monto,
-    e.numcomprobante,
-    e.justificacion
-  FROM egresos e
+  e.idegreso,
+  DATE_FORMAT(e.fecharegistro, '%d/%m/%Y') AS fecha,
+  TIME(e.fecharegistro) AS hora,
+  adm.namuser    AS registrador,
+  col.namuser    AS receptor,
+  e.concepto,
+  e.monto,
+  e.numcomprobante,
+  e.justificacion
+FROM egresos e
     JOIN colaboradores adm ON e.idadmin       = adm.idcolaborador
     JOIN colaboradores col ON e.idcolaborador = col.idcolaborador
   WHERE DATE(e.fecharegistro) BETWEEN start_date AND end_date
-    AND e.estado = 'A'
+    AND e.estado = _estado
   ORDER BY e.fecharegistro;
 END$$
-
 
 -- 3) SP: registrar un nuevo egreso
 DROP PROCEDURE IF EXISTS spRegisterEgreso;
@@ -1044,7 +1044,7 @@ CREATE PROCEDURE spDeleteEgreso(
 BEGIN
   UPDATE egresos
      SET estado       = 'D',
-         justificacion = NULLIF(_justificacion, '')
+         justificacion = _justificacion
    WHERE idegreso     = _idegreso;
 END$$
 

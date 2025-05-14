@@ -352,12 +352,14 @@ html, body {
               <i class="fa-solid fa-car-tunnel menu-icon"></i>
             </a>
           </li>
+          <!--- 
           <li class="nav-item">
             <a class="nav-link" href="<?= SERVERURL ?>views/page/promociones/listar-promociones.php">
               <span class="menu-title">Promociones</span>
               <i class="fa-solid fa-percent menu-icon"></i>
             </a>
           </li>
+          -->
           <li class="nav-item nav-category">
             <span class="nav-link">Administracion</span>
           </li>
@@ -384,6 +386,12 @@ html, body {
           </li>
           <li class="nav-item nav-category">
             <span class="nav-link">Caja</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/egresos/listar-egresos.php">
+              <span class="menu-title">Egresos</span>
+              <i class="fa-solid fa-money-bill-transfer menu-icon"></i>
+            </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="<?= SERVERURL ?>views/page/arqueocaja/listar-arqueo-caja.php">
