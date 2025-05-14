@@ -7,7 +7,9 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
     require_once '../models/Venta.php';
     require_once "../helpers/helper.php";
+    require_once '../models/Cotizacion.php';
     $venta = new Venta();
+    $m = new Cotizacion();
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
@@ -65,6 +67,15 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 } catch (Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
+                exit;
+            }
+
+            //COTIZAION
+            if (isset($_GET['action'], $_GET['idcotizacion']) 
+                && $_GET['action'] === 'getCabecera') {
+                $m   = new Cotizacion();
+                $cab = $m->getCabeceraById((int) $_GET['idcotizacion']);
+                echo json_encode($cab);
                 exit;
             }
 

@@ -64,17 +64,11 @@ class Amortizacion extends Conexion
     {
         if ($tipo === 'venta') {
             $sql = "SELECT total_original, total_pagado, total_pendiente
-                      FROM vista_saldos_por_venta WHERE idventa = ?";
+                    FROM vista_saldos_por_venta WHERE idventa = ?";
         } else {
             // totales de compra desde vistas
-            $sql = "SELECT
-                        tc.total AS total_original,
-                        COALESCE(ac.total_amortizado,0) AS total_pagado,
-                        (tc.total - COALESCE(ac.total_amortizado,0)) AS total_pendiente
-                      FROM vista_total_por_compra tc
-                      LEFT JOIN vista_amortizaciones_por_compra ac
-                        ON tc.idcompra = ac.idcompra
-                      WHERE tc.idcompra = ?";
+            $sql = "SELECT total_original, total_pagado, total_pendiente 
+                    FROM vista_saldos_por_compra WHERE idcompra = ?";
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
@@ -85,7 +79,7 @@ class Amortizacion extends Conexion
     /**
      * Lista amortizaciones según tipo y id
      */
-    public function listBy($tipo, $id)
+    public function listBy($tipo, $id) 
     {
         if ($tipo === 'venta') {
             $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idventa = ? ORDER BY idamortizacion";
