@@ -2,6 +2,22 @@
 // header.php (o partials/header.php)
 
 session_start();
+
+// 1) Si no hay sesión activa, lo mando al login
+if (
+    ! isset($_SESSION['login']) ||
+    empty($_SESSION['login']['status']) ||
+    $_SESSION['login']['status'] !== true
+) {
+    header("Location: " . SERVERURL . "views/page/login.php");
+    exit;
+}
+
+// 2) Si llegó aquí, ya está autenticado:
+//    guardo el idcolaborador en una variable global
+$idadmin = $_SESSION['login']['idcolaborador'];
+
+// ... luego requieres tus modelos helpers, etc.
 require_once dirname(__DIR__, 2) . '/app/models/Agenda.php';
 require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
 
@@ -258,7 +274,7 @@ html, body {
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
                 <img class="img-md rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image"  style="width:50px;"/>
                 <p class="mb-1 mt-3">Elena</p>
                 <p class="font-weight-light text-muted mb-0">
                   fix360@gmail.com
@@ -273,7 +289,7 @@ html, body {
                 Activity</a>
               <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
                 FAQ</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Sign Out</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Cerrar Sesion</a>
             </div>
           </li>
         </ul>

@@ -1,10 +1,5 @@
 <?php
-
 require_once "Conexion.php";
-
-/**
- * Clase Colaborador
- */
 class Colaborador extends Conexion {
 
     private $pdo;
@@ -16,27 +11,28 @@ class Colaborador extends Conexion {
     /**
      * Iniciar sesión de un colaborador.
      * @param string $namuser Nombre de usuario.
-     * @return array Datos del colaborador si existe.
+     * @param string $passuser Contraseña en texto plano.
+     * @return array|null Resultado del login: ['status'=>'SUCCESS','idcolaborador'=>x] o ['status'=>'FAILURE']
      */
-    public function login($namuser) {
+    public function login($namuser, $passuser) {
         try {
-            $stmt = $this->pdo->prepare("CALL spu_colaboradores_login(:namuser)");
-            $stmt->bindParam(":namuser", $namuser, PDO::PARAM_STR);
+            $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
+            $stmt->bindParam(':namuser', $namuser, PDO::PARAM_STR);
+            $stmt->bindParam(':passuser', $passuser, PDO::PARAM_STR);
             $stmt->execute();
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $resultado ?: null;
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ?: ['status' => 'FAILURE'];
         } catch (PDOException $e) {
-            return ["esCorrecto" => false, "mensaje" => "Error en login: " . $e->getMessage()];
+            return ['status' => 'FAILURE', 'message' => 'Error en login: ' . $e->getMessage()];
         }
     }
-
     /**
-     * Obtiene todos los colaboradores con su información detallada.
+     * Obtiene todos los colaboradores activos y con contrato vigente.
      * @return array Lista de colaboradores.
      */
     public function getAll() {
         try {
-            $query = "SELECT * FROM vw_colaboradores";
+            $query = "SELECT * FROM vwColaboradoresActivosVigentes";
             $cmd = $this->pdo->prepare($query);
             $cmd->execute();
             return $cmd->fetchAll(PDO::FETCH_ASSOC);
@@ -47,76 +43,19 @@ class Colaborador extends Conexion {
 
     /**
      * Registra un nuevo colaborador.
-     * @param array $params Datos del colaborador.
-     * @return array Resultado del proceso.
+     * @param array $params Datos: idcontrato, namuser, passuser
+     * @return array Estado del registro.
      */
     public function add($params = []) {
         try {
-            $query = "CALL spRegisterColaborador(?, ?, ?, ?)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([
-                $params["idcontrato"],
-                $params["namuser"],
-                password_hash($params["passuser"], PASSWORD_BCRYPT),
-                $params["estado"]
-            ]);
-            return ["status" => true, "message" => "Colaborador registrado correctamente."];
-        } catch (Exception $e) {
-            return ["status" => false, "message" => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Busca un colaborador por su nombre de usuario.
-     * @param string $namuser Nombre de usuario.
-     * @return array Datos del colaborador.
-     */
-    public function find($namuser) {
-        try {
-            $query = "CALL spGetColaboradorByUser(?)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([$namuser]);
-            return $cmd->fetch(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            die($e->getMessage());
-        }
-    }
-
-    /**
-     * Actualiza la información de un colaborador.
-     * @param array $params Datos actualizados.
-     * @return array Resultado del proceso.
-     */
-    public function update($params = []) {
-        try {
-            $query = "CALL spUpdateColaborador(?, ?, ?, ?, ?)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([
-                $params["idcolaborador"],
-                $params["idcontrato"],
-                $params["namuser"],
-                password_hash($params["passuser"], PASSWORD_BCRYPT),
-                $params["estado"]
-            ]);
-            return ["status" => true, "message" => "Colaborador actualizado correctamente."];
-        } catch (Exception $e) {
-            return ["status" => false, "message" => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Elimina un colaborador por su ID.
-     * @param int $idcolaborador ID del colaborador.
-     * @return array Resultado del proceso.
-     */
-    public function delete($idcolaborador) {
-        try {
-            $query = "CALL spDeleteColaborador(?)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([$idcolaborador]);
-            return ["status" => true, "message" => "Colaborador eliminado correctamente."];
-        } catch (Exception $e) {
-            return ["status" => false, "message" => $e->getMessage()];
+            $stmt = $this->pdo->prepare("CALL spRegisterColaborador(:idcontrato, :namuser, :passuser)");
+            $stmt->bindParam(':idcontrato', $params['idcontrato'], PDO::PARAM_INT);
+            $stmt->bindParam(':namuser',    $params['namuser'],    PDO::PARAM_STR);
+            $stmt->bindParam(':passuser',   $params['passuser'],   PDO::PARAM_STR);
+            $stmt->execute();
+            return ['status' => true, 'message' => 'Colaborador registrado correctamente.'];
+        } catch (PDOException $e) {
+            return ['status' => false, 'message' => 'Error al registrar: ' . $e->getMessage()];
         }
     }
 }

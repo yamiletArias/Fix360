@@ -16,6 +16,7 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -35,6 +36,7 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
   <!-- Layout styles -->
   <!-- End layout styles -->
 </head>
+
 <body>
   <div class="container-scroller">
     <div class="container-fluid page-body-wrapper full-page-wrapper">
@@ -44,32 +46,22 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
             <div class="auth-form-light text-left p-5">
               <h4>Bienvenido</h4>
               <h6 class="font-weight-light">Ingresa tu datos.</h6>
-              <form class="pt-3" method="post" id="formLogin" autocomplete="off" >
+              <form class="pt-3" method="post" id="formLogin" autocomplete="off">
                 <div class="form-group">
-                  <input type="text" class="form-control form-control-lg" 
-                  id="namuser" placeholder="User Name" autofocus required>
+                  <input type="text" class="form-control form-control-lg"
+                    id="namuser" placeholder="User Name" autofocus required>
                 </div>
                 <div class="form-group">
-                  <input type="password" class="form-control form-control-lg" 
-                  id="passuser" placeholder="Password" required>
+                  <input type="password" class="form-control form-control-lg"
+                    id="passuser" placeholder="Password" required>
                 </div>
                 <div class="mt-3">
-                  <button class="btn d-grid btn-primary btn-lg font-weight-medium auth-form-btn" 
-                  type="submit">Iniciar sesión</button>
+                  <button class="btn d-grid btn-primary btn-lg font-weight-medium auth-form-btn"
+                    type="submit">Iniciar sesión</button>
 
                 </div>
-                <div class="my-2 d-flex justify-content-between align-items-center">
-                  <div class="form-check">
-                    <label class="form-check-label text-muted">
-                      <input type="checkbox" class="form-check-input" id="remember"> 
-                      Recordar contraseña 
-                    </label>
-                  </div>
-                  <a href="#" class="auth-link text-black">Olvidaste tu contraseña?</a>
-                </div>
 
-                <div class="text-center mt-4 font-weight-light"> No tienes cuenta? <a href="register.html" class="text-primary">Create</a>
-                </div>
+
               </form>
             </div>
           </div>
@@ -92,69 +84,65 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
   <script src="./views/assets/js/settings.js"></script>
   <script src="./views/assets/js/todolist.js"></script>
 
-  <script>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   const formLogin = document.querySelector("#formLogin");
-  const NamUser = document.querySelector("#namuser");
-  const PassUser = document.querySelector("#passuser");
+  const namuser   = document.querySelector("#namuser");
+  const passuser  = document.querySelector("#passuser");
 
-  formLogin.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  formLogin.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    // Validar que los campos no estén vacíos
-    if (NamUser.value.trim() === "" || PassUser.value.trim() === "") {
-      showToast("Ingrese usuario y contraseña", "WARNING");
-      return;
+    if (!namuser.value.trim() || !passuser.value.trim()) {
+      return showToast("Ingrese usuario y contraseña", "WARNING");
     }
 
-    // Datos a enviar
-    const parametros = new FormData();
-    parametros.append("operation", "login");
-    parametros.append("namuser", NamUser.value.trim());
-    parametros.append("passuser", PassUser.value.trim());
+    // Preparamos el form data
+    const fd = new FormData();
+    fd.append("operation", "login");
+    fd.append("namuser", namuser.value.trim());
+    fd.append("passuser", passuser.value);
 
     try {
-      const response = await fetch(`./app/controllers/Colaborador.controller.php`, {
+      const res = await fetch(`./app/controllers/Colaborador.controller.php`, {
         method: "POST",
-        body: parametros,
+        body: fd
       });
+      const json = await res.json();
 
-      const responseText = await response.text(); // Captura la respuesta en texto
-      console.log("Respuesta del servidor:", responseText); // Muestra en la consola
-
-      // Intentar parsear la respuesta a JSON
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (error) {
-        console.error("Error al convertir JSON:", responseText);
-        showToast("Respuesta inválida del servidor", "ERROR");
-        return;
-      }
-
-      // Validar respuesta
-      if (data.esCorrecto) {
-        showToast(data.mensaje, "SUCCESS", 2000, "./views/page/home/welcome");
+      if (json.status === true) {
+        // Éxito: guardamos notificación y redirigimos
+        showToast(json.message, "SUCCESS", 1500, "./views/page/movdiario/listar-movdiario.php");
       } else {
-        showToast(data.mensaje, "WARNING");
+        // Falló login o contrato no vigente
+        showToast(json.message || "Credenciales inválidas", "WARNING");
       }
-    } catch (error) {
-      console.error("Error en la petición:", error);
+
+    } catch (err) {
+      console.error(err);
       showToast("Error al conectar con el servidor", "ERROR");
     }
   });
 
-  function showToast(mensaje, tipo, delay = 2000, redirect = null) {
-    alert(`${tipo}: ${mensaje}`);
-    if (redirect) {
-      setTimeout(() => {
-        window.location.href = redirect;
-      }, delay);
+  /**
+   * Muestra un alert (o tu toast) y opcionalmente redirige
+   * @param {string} msg
+   * @param {'SUCCESS'|'WARNING'|'ERROR'} type
+   * @param {number} delay milisegundos antes de la redirección
+   * @param {string|null} url a donde ir
+   */
+  function showToast(msg, type, delay = 2000, url = null) {
+    // Aquí puedes reemplazar alert por tu sistema de notificaciones
+    alert(`${type}: ${msg}`);
+    if (url) {
+      setTimeout(() => window.location.href = url, delay);
     }
   }
 });
 </script>
 
+
   <!-- endinject -->
 </body>
+
 </html>

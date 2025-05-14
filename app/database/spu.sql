@@ -1048,6 +1048,8 @@ BEGIN
    WHERE idegreso     = _idegreso;
 END$$
 
+-- select * from egresos
+
 -- call spDeleteOrdenServicio(1)
 -- CALL spGetUltimoKilometraje(8);
 -- select * from ordenservicios

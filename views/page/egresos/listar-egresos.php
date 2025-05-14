@@ -6,8 +6,10 @@ require_once "../../partials/header.php";
 ?>
 
 <div class="container-main mt-5">
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
+    <div class="card border">
+        <div class="card-header">
+    <div class="row align-items-center">
+        <div class="col-md-12 d-flex justify-content-between align-items-center mb-md-0">
             <div class="btn-group" role="group" aria-label="Filtros periodo">
                 <button type="button" data-modo="dia" class="btn btn-primary text-white">Día</button>
                 <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
@@ -31,6 +33,8 @@ require_once "../../partials/header.php";
             </div>
         </div>
     </div>
+    </div>
+<div class="card-body">
 
     <!-- Tabla egresos activos -->
     <div id="tableDia" class="col-12">
@@ -43,6 +47,7 @@ require_once "../../partials/header.php";
                     <th>Receptor</th>
                     <th>Concepto</th>
                     <th class="text-end">Monto</th>
+                    <th>N° Comprobante</th>
                     <th class="text-center">Opciones</th>
                 </tr>
             </thead>
@@ -61,12 +66,15 @@ require_once "../../partials/header.php";
                     <th>Receptor</th>
                     <th>Concepto</th>
                     <th class="text-end">Monto</th>
+                    <th>N° Comprobante</th>
                     <th class="text-center">Opciones</th>
                 </tr>
             </thead>
             <tbody class="text-center"></tbody>
         </table>
     </div>
+    </div>
+</div>
 </div>
 </div>
 </div>
@@ -81,11 +89,11 @@ require_once "../../partials/header.php";
             </div>
             <div class="modal-body">
                 <p>¿Por qué deseas eliminar este egreso?</p>
-                <textarea id="justificacion" class="form-control" rows="3" placeholder="Escribe tu justificación..."></textarea>
-            </div>
+                <textarea id="justificacion" class="form-control input" rows="3" placeholder="Escribe tu justificación..."></textarea>
+            </div> 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnEliminarEgreso" class="btn btn-danger">Eliminar</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEliminarEgreso" class="btn btn-sm btn-danger">Eliminar</button>
             </div>
         </div>
     </div>
@@ -104,7 +112,7 @@ require_once "../../partials/header.php";
         <p id="textoJustificacion"></p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -178,6 +186,13 @@ require_once "../../partials/header.php";
                     render: $.fn.dataTable.render.number(',', '.', 2)
                 },
                 {
+  data: 'numcomprobante',
+  class: 'text-end',
+  render: function(data, type, row) {
+    return data && data.trim() !== '' ? data : 'No registrado';
+  }
+},
+                {
                     data: null,
                     class: 'text-center',
                     render: renderOpciones
@@ -206,37 +221,37 @@ function renderOpciones(data) {
     const todayStr = `${dd}/${mm}/${yyyy}`;
 
     if (!showingDeleted) {
-        // botón de detalle siempre
-        let html = `
-          <button class="btn btn-sm btn-info" title="Detalle del egreso">
-            <i class="fa-solid fa-clipboard-list"></i>
-          </button>
-        `;
-        // solo si recordDate coincide con hoy mostramos la papelera
-        if (recordDate === todayStr) {
-            html += `
-              <button
-                class="btn btn-danger btn-sm btn-eliminar"
-                data-id="${id}"
-                title="Eliminar egreso (solo hoy)"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            `;
-        }
-        return html;
-    } else {
-        // vista eliminados: botón “ver justificación”
-        return `
-          <button
-            class="btn btn-secondary btn-sm btn-view-just"
-            data-just="${encodeURIComponent(data.justificacion)}"
-            title="Ver justificación"
-          >
-            <i class="fa-solid fa-eye"></i>
-          </button>
-        `;
-    }
+  // botón de detalle siempre
+  let html = ``;
+
+  const isToday = recordDate === todayStr;
+
+  html += `
+    <button
+      class="btn btn-sm ${isToday ? 'btn-danger' : 'btn-secondary'} btn-eliminar"
+      data-id="${id}"
+      title="Eliminar egreso (solo hoy)"
+      ${isToday ? '' : 'disabled'}
+    >
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  `;
+
+  return html;
+
+} else {
+  // vista eliminados: botón “ver justificación”
+  return `
+    <button
+      class="btn btn-primary btn-sm btn-view-just"
+      data-just="${encodeURIComponent(data.justificacion)}"
+      title="Ver justificación"
+    >
+      <i class="fa-solid fa-eye"></i>
+    </button>
+  `;
+}
+
 }
 
 

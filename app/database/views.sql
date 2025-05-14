@@ -232,5 +232,21 @@ JOIN clientes AS c
 JOIN personas AS p
   ON c.idpersona = p.idpersona
 WHERE DATE(a.fchproxvisita) = CURDATE() AND a.estado IN ('P','R'); 
+-- --
+DROP VIEW IF EXISTS vwColaboradoresActivosVigentes;
+CREATE VIEW vwColaboradoresActivosVigentes AS
+SELECT
+  col.idcolaborador,
+  CONCAT(p.nombres, ' ', p.apellidos) AS nombre_completo
+FROM colaboradores col
+  JOIN contratos con ON col.idcontrato = con.idcontrato
+  JOIN personas  p   ON con.idpersona    = p.idpersona
+WHERE
+  col.estado = TRUE
+  AND con.fechainicio <= CURDATE()
+  AND (con.fechafin IS NULL OR con.fechafin >= CURDATE())
+ORDER BY nombre_completo;
 
-
+DROP VIEW IF EXISTS vwFormaPagos;
+CREATE VIEW vwFormapagos AS
+SELECT * FROM formapagos;

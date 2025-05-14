@@ -54,7 +54,7 @@ require_once "../../partials/header.php";
         </table>
       </div>
     </div>
-    
+
   </div>
 </div>
 </div>
@@ -86,49 +86,56 @@ require_once "../../partials/_footer.php";
     };
 
     // pinta el resultado
-    const pintar = data => {
-  tablaBody.innerHTML = '';
-  data.forEach((o, i) => {
-    // botones que siempre quieres mostrar
-    const btnDetalle = `<button class="btn btn-sm btn-info" data-id="${o.idorden}" data-action="detalle">
-                          <i class="fa-solid fa-clipboard-list"></i>
-                        </button>`;
-    const btnVer     = `<a class="btn btn-sm btn-primary" href="listar-observacion-orden.php?idorden=${o.idorden}" data-id="${o.idorden}" data-action="ver">
-                          <i class="fa-solid fa-eye"></i>
-                        </a>`;
+const pintar = data => {
+  // 1. Destruye DataTable si ya existe
+  if ($.fn.DataTable.isDataTable('#miTabla')) {
+    $('#miTabla').DataTable().destroy();
+  }
 
-    // botones condicionales: sólo si no hay fecha de salida
+  tablaBody.innerHTML = ''; // limpia
+
+  // 2. Pinta manualmente los datos
+  data.forEach((o, i) => {
+    const btnDetalle = `<button class="btn btn-sm btn-info" data-id="${o.idorden}" data-action="detalle"><i class="fa-solid fa-clipboard-list"></i></button>`;
+    const btnVer     = `<a class="btn btn-sm btn-primary" href="listar-observacion-orden.php?idorden=${o.idorden}"><i class="fa-solid fa-eye"></i></a>`;
+
     let btnEliminar = '', btnSalida = '';
     if (!o.fechasalida) {
-      btnEliminar = `<button class="btn btn-sm btn-danger" data-id="${o.idorden}" data-action="eliminar">
-                       <i class="fa-solid fa-trash"></i>
-                    </button>`;
-      btnSalida    = `<button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida">
-                       <i class="fa-solid fa-calendar-days"></i>
-                    </button>`;
+      btnEliminar = `<button class="btn btn-sm btn-danger" data-id="${o.idorden}" data-action="eliminar"><i class="fa-solid fa-trash"></i></button>`;
+      btnSalida   = `<button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida"><i class="fa-solid fa-calendar-days"></i></button>`;
     }
 
     tablaBody.insertAdjacentHTML('beforeend', `
       <tr>
-        <td class="text-center">${i+1}</td>
-        <td>${o.propietario||''}</td>
-        <td>${o.cliente    ||''}</td>
+        <td class="text-center">${i + 1}</td>
+        <td>${o.propietario || ''}</td>
+        <td>${o.cliente || ''}</td>
         <td>${fmt(o.fechaingreso)}</td>
+        <td>${o.fechasalida ? fmt(o.fechasalida) : '<span class="text-muted">Servicios en desarrollo</span>'}</td>
+        <td>${o.placa || ''}</td>
         <td>
-          ${ o.fechasalida 
-              ? fmt(o.fechasalida) 
-              : '<span class="text-muted">Servicios en desarrollo</span>' }
-        </td>
-        <td>${o.placa||''}</td>
-        <td>
-        <div class="d-flex justify-content-center align-items-center gap-1">
-          ${btnEliminar}
-          ${btnDetalle}
-          ${btnVer}
-          ${btnSalida}
+          <div class="d-flex justify-content-center align-items-center gap-1">
+            ${btnEliminar}${btnDetalle}${btnVer}${btnSalida}
           </div>
         </td>
-      </tr>`);
+      </tr>
+    `);
+  });
+
+  // 3. Vuelve a inicializar DataTable ya con las filas cargadas
+  $('#miTabla').DataTable({
+    paging:   true,
+    searching:true,
+    info:     true,
+    columnDefs: [{ orderable: false, targets: -1 }],
+    language: {
+      lengthMenu: "Mostrar _MENU_ por página",
+      zeroRecords: "No hay resultados",
+      info: "Mostrando página _PAGE_ de _PAGES_",
+      infoEmpty: "Mostrando 0 a 0 de 0 entradas",
+      search: "Buscar:",
+      emptyTable: "No hay datos"
+    }
   });
 };
 
@@ -148,6 +155,30 @@ require_once "../../partials/_footer.php";
       }
     };
 
+    // Después de tu `pintar(json.data)`:
+    if (!$.fn.DataTable.isDataTable('#miTabla')) {
+      $('#miTabla').DataTable({
+        paging: true,
+        searching: true,
+        info: true,
+        // puedes desactivar orden en “Opciones”:
+        columnDefs: [{
+          orderable: false,
+          targets: -1
+        }],
+        language: {
+          lengthMenu: "Mostrar _MENU_ por página",
+          zeroRecords: "No hay resultados",
+          info: "Mostrando página _PAGE_ de _PAGES_",
+          search: "Buscar:",
+          emptyTable: "No hay datos"
+        }
+      });
+    } else {
+      $('#miTabla').DataTable().draw(); // redibuja si ya existía
+    }
+
+
     // marca botones
     const marcaActivo = btn => {
       filtros.forEach(b => b.classList.toggle('active', b === btn));
@@ -164,31 +195,33 @@ require_once "../../partials/_footer.php";
         cargar(currentModo, fechaInput.value);
       }
       // … dentro de tu tablaBody.addEventListener('click', async ev => { … })
-if (btn.dataset.action === 'salida' && await ask('¿Confirma fecha de salida?', 'Orden')) {
-  try {
-    // Llamada al controlador para setFechaSalida
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'setSalida',
-        idorden: id
-      })
-    });
-    const json = await res.json();
+      if (btn.dataset.action === 'salida' && await ask('¿Confirma fecha de salida?', 'Orden')) {
+        try {
+          // Llamada al controlador para setFechaSalida
+          const res = await fetch(API, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              action: 'setSalida',
+              idorden: id
+            })
+          });
+          const json = await res.json();
 
-    if (json.status === 'success' && json.updated > 0) {
-      showToast('Fecha de salida registrada', 'SUCCESS');
-    } else {
-      showToast('No se pudo registrar la salida: ' + (json.message || 'error desconocido'), 'ERROR');
-    }
-  } catch (e) {
-    console.error('Error al asignar fecha de salida:', e);
-    showToast('Error de red al asignar salida', 'ERROR');
-  }
-  // Refrescar la tabla
-  cargar(currentModo, fechaInput.value);
-}
+          if (json.status === 'success' && json.updated > 0) {
+            showToast('Fecha de salida registrada', 'SUCCESS');
+          } else {
+            showToast('No se pudo registrar la salida: ' + (json.message || 'error desconocido'), 'ERROR');
+          }
+        } catch (e) {
+          console.error('Error al asignar fecha de salida:', e);
+          showToast('Error de red al asignar salida', 'ERROR');
+        }
+        // Refrescar la tabla
+        cargar(currentModo, fechaInput.value);
+      }
 
       // etc.
     });
