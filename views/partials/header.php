@@ -58,7 +58,7 @@ $hoy_count    = count($hoy);
 html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden;
+  /*overflow: hidden; */
 }
 
 .swal2-modal .swal2-icon,

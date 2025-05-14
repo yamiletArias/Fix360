@@ -190,6 +190,27 @@ CONSTRAINT fk_idcontrato FOREIGN KEY (idcontrato) REFERENCES contratos (idcontra
 CONSTRAINT uq_namuser UNIQUE (namuser)
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS egresos;
+CREATE TABLE egresos (
+  idegreso           INT             PRIMARY KEY AUTO_INCREMENT,
+  idadmin            INT             NOT NULL,  -- quien registra el egreso
+  idcolaborador      INT             NOT NULL,  -- quien recibe el dinero
+  idformapago        INT             NOT NULL,
+  concepto           VARCHAR(100)    NOT NULL,
+  monto              DECIMAL(10,2)   NOT NULL,
+  fecharegistro      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  numcomprobante     VARCHAR(20)     NULL,
+  justificacion      VARCHAR(255)    NULL,
+  estado             ENUM('A','D')   NOT NULL DEFAULT 'A',
+  creado             TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+  modificado         TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_egresos_admin       FOREIGN KEY (idadmin)       REFERENCES colaboradores(idcolaborador),
+  CONSTRAINT fk_egresos_colaborador FOREIGN KEY (idcolaborador) REFERENCES colaboradores(idcolaborador),
+  CONSTRAINT fk_egresos_formapago   FOREIGN KEY (idformapago)   REFERENCES formapagos(idformapago),
+  CONSTRAINT chk_egresos_monto      CHECK (monto > 0)
+) ENGINE=INNODB;	
+
+
 DROP TABLE IF EXISTS modelos;
 CREATE TABLE modelos(
 

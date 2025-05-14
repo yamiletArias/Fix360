@@ -111,25 +111,25 @@ require_once "../../partials/_footer.php";
           data: "img",
           render: function(data, type, row) {
             if (data && data.trim() !== "") {
-              // Construyo la URL completa, usando la carpeta real 'images'
-             const imgUrl = data.startsWith('http')
-  ? data
-  : `${SERVERURL.replace(/\/$/, '')}/${data.replace(/^\/+/, '')}`;
+              const imgUrl = data.startsWith('http') ?
+                data :
+                `${SERVERURL.replace(/\/$/, '')}/${data.replace(/^\/+/, '')}`;
 
+              console.log('Lightbox imgUrl:', imgUrl); // <— comprueba que apunte correctamente
 
               return `
-        <a href="${imgUrl}"
-           data-lightbox="productos"
-           data-title="${row.descripcion}">
-          <img src="${imgUrl}"
-               alt="${row.descripcion}"
-               style="width:50px; border-radius:0%;" />
-        </a>
-      `;
+      <a href="${imgUrl}"
+         data-lightbox="productos"
+         data-title="${row.descripcion}">
+        <img src="${imgUrl}"
+             alt="${row.descripcion}"
+             style="width:50px; border-radius:0%;" />
+      </a>
+    `;
             }
             return "Sin imagen";
-
           }
+
         },
         // Cierra columna 9
         { // Columna 10: Opciones (botones para editar y eliminar)
@@ -156,6 +156,12 @@ require_once "../../partials/_footer.php";
         "loadingRecords": "Cargando...",
         "processing": "Procesando...",
         "emptyTable": "No hay datos disponibles en la tabla"
+      },
+      drawCallback: function(settings) {
+        // Esto vuelve a enlazar Lightbox con los <a data-lightbox> recién creados
+        if (window.lightbox && typeof lightbox.init === 'function') {
+          lightbox.init();
+        }
       } // Cierra language
     }); // Cierra DataTable inicialización
   } // Cierra cargarTablaProductos()

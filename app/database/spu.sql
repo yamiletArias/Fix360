@@ -961,7 +961,92 @@ BEGIN
   LIMIT 1;
 END$$
 
+-- call spListEgresosPorPeriodo('dia','2025-05-01')
+DROP PROCEDURE IF EXISTS spListEgresosPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListEgresosPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
 
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    e.idegreso,
+    DATE(e.fecharegistro) AS fecha,
+    TIME(e.fecharegistro) AS hora,
+    adm.namuser    AS registrador,
+    col.namuser    AS receptor,
+    e.concepto,
+    e.monto,
+    e.numcomprobante,
+    e.justificacion
+  FROM egresos e
+    JOIN colaboradores adm ON e.idadmin       = adm.idcolaborador
+    JOIN colaboradores col ON e.idcolaborador = col.idcolaborador
+  WHERE DATE(e.fecharegistro) BETWEEN start_date AND end_date
+    AND e.estado = 'A'
+  ORDER BY e.fecharegistro;
+END$$
+
+
+-- 3) SP: registrar un nuevo egreso
+DROP PROCEDURE IF EXISTS spRegisterEgreso;
+DELIMITER $$
+CREATE PROCEDURE spRegisterEgreso(
+  IN _idadmin        INT,
+  IN _idcolaborador  INT,
+  IN _idformapago    INT,
+  IN _concepto       VARCHAR(100),
+  IN _monto          DECIMAL(10,2),
+  IN _numcomprobante VARCHAR(20)
+)
+BEGIN
+  INSERT INTO egresos (
+    idadmin,
+    idcolaborador,
+    idformapago,
+    concepto,
+    monto,
+    numcomprobante
+  ) VALUES (
+    _idadmin,
+    _idcolaborador,
+    _idformapago,
+    _concepto,
+    _monto,
+    NULLIF(_numcomprobante, '')
+  );
+  SELECT LAST_INSERT_ID() AS idegreso;
+END$$
+
+
+
+-- 4) SP: \"eliminar\" un egreso (marcar estado = 'D')
+DROP PROCEDURE IF EXISTS spDeleteEgreso;
+DELIMITER $$
+CREATE PROCEDURE spDeleteEgreso(
+  IN _idegreso       INT,
+  IN _justificacion  VARCHAR(255)
+)
+BEGIN
+  UPDATE egresos
+     SET estado       = 'D',
+         justificacion = NULLIF(_justificacion, '')
+   WHERE idegreso     = _idegreso;
+END$$
 
 -- call spDeleteOrdenServicio(1)
 -- CALL spGetUltimoKilometraje(8);
