@@ -659,11 +659,88 @@ require_once "../../partials/_footer.php";
 
     // Ver detalle de compra (usa tu modal existente)
     function verDetalleCompra(idcompra) {
+        // limpia la tabla de productos...
+        $("#miModal tbody").empty();
+        // y limpia cualquier tabla de amortizaciones previa:
+        $("#miModal .amortizaciones-container").remove();
+        // ahora continúa como antes…
         $("#miModal").modal("show");
+        $("#miModal").modal("show");
+        // limpia cualquier contenido previo
         $("#proveedor").val('');
         $("#miModal tbody").empty();
 
+        /* $("#miModal").modal("show");
+        $("#proveedor").val('');
+        $("#miModal tbody").empty(); */
+
         $.ajax({
+            url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
+            method: "GET",
+            data: { idcompra },
+            dataType: "json",
+            success(response) {
+                const tbody = $("#miModal tbody").empty();
+                if (response.length === 0) {
+                    return $("#miModal tbody").append(
+                        `<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`
+                    );
+                }
+                // pinta productos como antes…
+                $("#proveedor").val(response[0].proveedor);
+                response.forEach((item, i) => {
+                    tbody.append(`
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${item.producto}</td>
+                            <td>${item.precio}</td>
+                            <td>${item.descuento}%</td>
+                        </tr>`);
+                });
+
+                // ─── AÑADE ESTE BLOQUE PARA LAS AMORTIZACIONES ───
+                fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idcompra=${idcompra}`)
+                    .then(r => r.json())
+                    .then(json => {
+                        if (json.status === 'success' && json.data.length) {
+                            // crear sección y tabla de amortizaciones
+                            const cont = $(`
+                                <div class="amortizaciones-container mt-4">
+                                <h6>Amortizaciones</h6>
+                                <table class="table table-sm">
+                                    <thead><tr>
+                                        <th>#</th>
+                                        <th>Transacción</th>
+                                        <th>Monto</th>
+                                        <th>F. Pago</th>
+                                        <th>Saldo</th>
+                                    </tr></thead>
+                                    <tbody></tbody>
+                                    </table>
+                                </div>
+                            `);
+                            // rellenar filas
+                            json.data.forEach((a, i) => {
+                                cont.find('tbody').append(`
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td>${new Date(a.creado).toLocaleString()}</td>
+                                    <td>${parseFloat(a.amortizacion).toFixed(2)}</td>
+                                    <td>${a.formapago}</td>
+                                    <td>${parseFloat(a.saldo).toFixed(2)}</td>
+                                </tr>`);
+                            });
+                            // insertar después de la tabla de productos
+                            $("#miModal .modal-body").append(cont);
+                        }
+                    })
+                    .catch(err => console.error("Error amortizaciones:", err));
+            },
+            error() {
+                alert("Ocurrió un error al cargar el detalle.");
+            }
+        });
+        /* $.ajax({
             url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
             method: "GET",
             data: { idcompra },
@@ -674,12 +751,12 @@ require_once "../../partials/_footer.php";
                     $("#proveedor").val(response[0].proveedor);
                     response.forEach((item, i) => {
                         tbody.append(`
-              <tr>
-                <td>${i + 1}</td>
-                <td>${item.producto}</td>
-                <td>${item.precio}</td>
-                <td>${item.descuento}%</td>
-              </tr>`);
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${item.producto}</td>
+                                <td>${item.precio}</td>
+                                <td>${item.descuento}%</td>
+                            </tr>`);
                     });
                 } else {
                     tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
@@ -688,7 +765,7 @@ require_once "../../partials/_footer.php";
             error() {
                 alert("Error al cargar detalle de compra.");
             }
-        });
+        }); */
     }
 
     $(document).ready(function() {
@@ -757,23 +834,23 @@ require_once "../../partials/_footer.php";
 
     // Ver detalle activa
     $(document).on('click', '.btn-detalle', function() {
-      const idc = $(this).data('id');
-      verDetalleCompra(idc);
+      const idcompra = $(this).data('id');
+      verDetalleCompra(idcompra);
     });
     // Ver detalle eliminados
     $(document).on('click', '.btn-detalle-elim', function() {
-      const idc = $(this).data('id');
-      verDetalleCompra(idc);
+      const idcompra = $(this).data('id');
+      verDetalleCompra(idcompra);
     });
 
     // guardar amortización
         $(document).on('click', '#btnGuardarAmortizacion', async function () {
-            const idventa = +$('#am_idventa').val();
-            const monto = parseFloat($('#am_monto').val());
-            const formapago = +$('#am_formapago').val();
+            const idcompra = +$('#am_idcompra').val();
+            const monto = parseFloat($('#am_monto_com').val());
+            const formapago = +$('#am_formapago_com').val();
             if (!monto || monto <= 0) return alert('Monto inválido');
             const form = new FormData();
-            form.append('idventa', idventa);
+            form.append('idcompra', idcompra);
             form.append('monto', monto);
             form.append('idformapago', formapago);
             const res = await fetch("<?= SERVERURL ?>app/controllers/Amortizacion.controller.php", {
@@ -782,8 +859,8 @@ require_once "../../partials/_footer.php";
             if (res.status === 'success') {
                 showToast(res.message, 'SUCCESS', 1500);
                 $('#modalAmortizar').modal('hide');
-                cargarTablaVentas(currentModo, fechaInput.value);
-                verDetalleVenta(idventa);
+                cargarTablaCompras(currentModo, fechaInput.value);
+                verDetalleCompra(idcompra);
             } else {
                 showToast(res.detail || res.message, 'ERROR', 2000);
             }
@@ -822,7 +899,6 @@ require_once "../../partials/_footer.php";
 
 <!--FIN COMPRAS-->
 </body>
-
 </html>
 <!-- <script>
     // reemplaza el handler existente por éste

@@ -11,6 +11,26 @@ class Cotizacion extends Conexion
     $this->pdo = parent::getConexion();
   }
 
+  //LLEVAR DATOS
+  public function getCabeceraById(int $id): array
+    {
+        $sql = "
+            SELECT 
+                c.idcotizacion,
+                c.idcliente,
+                cli.nombre AS cliente,
+                c.moneda,
+                DATE_FORMAT(c.fechahora, '%Y-%m-%d %H:%i:%s') AS fechahora
+            FROM cotizaciones c
+            JOIN clientes cli ON cli.idcliente = c.idcliente
+            WHERE c.idcotizacion = ?
+            LIMIT 1
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    }
+
   public function getAll(): array
     {
         $result = [];

@@ -6,8 +6,7 @@ require_once "../../partials/header.php";
 ?>
 <style>
     #am_formapago {
-        color: black;
-        /* Cambia solo el color de la letra */
+        color: black; /* Cambia solo el color de la letra */
     }
 </style>
 
