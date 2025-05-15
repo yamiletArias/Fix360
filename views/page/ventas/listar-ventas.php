@@ -697,4 +697,5 @@ require_once "../../partials/_footer.php";
     </div>
 </div>
 </body>
+
 </html>
