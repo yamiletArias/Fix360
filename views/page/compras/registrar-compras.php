@@ -122,74 +122,79 @@ require_once "../../partials/header.php";
 
   <!-- seccion de detalles de la compra -->
 
-  <div class="container-main-2 mt-4">
-    <div class="card border">
-      <div class="card-body p-3">
-        <table class="table table-striped table-sm mb-0" id="tabla-detalle-compra">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>Precio</th>
-              <th>Cantidad</th>
-              <th>Dsct</th>
-              <th>Importe</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- se agregan los detalles del producto -->
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer text-end">
-        <table class="tabla table-sm">
-          <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 60%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 5%;">
-          </colgroup>
-          <tbody>
-            <tr>
-              <td colspan="4" class="text-end">NETO</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">DSCT</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">IGV</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">Importe</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="mt-4">
-          <a href="" type="button" class="btn input btn-success" id="btnFinalizarCompra">
-            Guardar
-          </a>
-          <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarCompra">
-            Cancelar
-          </a>
-        </div>
+  <div class="card mt-2 border">
+    <!-- <div class="card border"> -->
+    <div class="card-body">
+      <table class="table table-striped table-sm" id="tabla-detalle-compra">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Dsct</th>
+            <th>Importe</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se agregarán los detalles de los productos -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card mt-2 border">
+    <div class="card-footer text-end">
+      <table class="tabla table-sm">
+        <colgroup>
+          <col style="width: 10%;">
+          <col style="width: 60%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 5%;">
+        </colgroup>
+        <tbody>
+          <tr>
+            <td colspan="4" class="text-end">NETO</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">DSCT</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">IGV</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">Importe</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-4">
+        <!-- <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
+            Aceptar
+          </a> -->
+        <button id="btnFinalizarCompra" type="button" class="btn btn-success text-end">Aceptar</button>
+        <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
+          Cancelar
+        </a>
       </div>
     </div>
   </div>
+
+
 </div>
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
@@ -415,7 +420,6 @@ require_once "../../partials/header.php";
 </script>
 
 <script>
-
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     const proveedorSelect = document.getElementById('proveedor');
@@ -450,24 +454,33 @@ require_once "../../partials/header.php";
     initDateField('fechaIngreso');
     const fechaInput = document.getElementById("fechaIngreso");
 
+    // --- Funciones auxiliares ---
     function calcularTotales() {
       let totalImporte = 0;
       let totalDescuento = 0;
 
-      document.querySelectorAll("#tabla-detalle-compra tbody tr").forEach(fila => {
-        const subtotal = parseFloat(fila.querySelector("td:nth-child(6)").textContent) || 0;
-        const descuento = parseFloat(fila.querySelector("td:nth-child(5)").textContent) || 0;
-        totalImporte += subtotal;
-        totalDescuento += descuento;
+      tabla.querySelectorAll("tr").forEach(fila => {
+        // 1) cantidad desde el input de la celda
+        const cantidadLinea = parseFloat(fila.querySelector('.cantidad-input').value) || 0;
+        // 2) precio y descuento unitario de las celdas
+        const precioUnitario = parseFloat(fila.children[2].textContent) || 0;
+        const descUnitario = parseFloat(fila.children[4].textContent) || 0;
+
+        // 3) neto y acumulados
+        const importeLinea = (precioUnitario - descUnitario) * cantidadLinea;
+        totalImporte += importeLinea;
+        totalDescuento += descUnitario * cantidadLinea;
       });
 
-      // Calcular IGV y Neto
+      // 4) IGV 18% y neto
       const igv = totalImporte - (totalImporte / 1.18);
       const neto = totalImporte / 1.18;
-      document.getElementById("total").value = totalImporte.toFixed(2);
+
+      // 5) resultado a inputs
+      document.getElementById("neto").value = neto.toFixed(2);
       document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
       document.getElementById("igv").value = igv.toFixed(2);
-      document.getElementById("neto").value = neto.toFixed(2);
+      document.getElementById("total").value = totalImporte.toFixed(2);
     }
 
     // Función para evitar duplicados en productos
@@ -485,52 +498,123 @@ require_once "../../partials/header.php";
 
     // Manejador del botón "Agregar" para añadir producto al detalle de compra
     agregarProductoBtn.addEventListener("click", function () {
-      const nomProducto = inputProductElement.value;
+      const nomProducto = inputProductElement.value.trim();
       const precioProducto = parseFloat(inputPrecio.value);
       const cantidadProducto = parseFloat(inputCantidad.value);
-      const descuentoProducto = parseFloat(inputDescuento.value);
+      if (inputDescuento.value.trim() === "") {
+        inputDescuento.value = "0";
+      }
+      const descuentoProducto = parseFloat(inputDescuento.value) || 0;
 
+      // 1) Campos completos
       if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
-        alert("Por favor, complete todos los campos correctamente.");
-        return;
+        return alert("Por favor, complete todos los campos correctamente.");
+      }
+      // 2) Descuento ≤ precio unitario
+      if (descuentoProducto > precioProducto) {
+        alert("El descuento unitario no puede ser mayor que el precio unitario.");
+        return resetCamposProducto();
+      }
+      // 3) No duplicar
+      if (estaDuplicado(selectedProduct.idproducto)) {
+        alert("Este producto ya ha sido agregado.");
+        return resetCamposProducto();
       }
 
-      const importe = (precioProducto * cantidadProducto) - descuentoProducto;
+      // 4) Cálculo de importe unitario descontado y total
+      const netoUnit = precioProducto - descuentoProducto;
+      const importeTotal = netoUnit * cantidadProducto;
+
+      // 5) Crear fila mostrando descuento unitario
       const nuevaFila = document.createElement("tr");
+      nuevaFila.dataset.idproducto = selectedProduct.idproducto;
       nuevaFila.innerHTML = `
         <td>${tabla.rows.length + 1}</td>
         <td>${nomProducto}</td>
         <td>${precioProducto.toFixed(2)}</td>
-        <td>${cantidadProducto}</td>
+        <td>
+          <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+            <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
+            <input type="number"
+                  class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                  value="${cantidadProducto}" min="1">
+            <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+          </div>
+        </td>
         <td>${descuentoProducto.toFixed(2)}</td>
-        <td>${importe.toFixed(2)}</td>
-        <td><button class="btn btn-danger btn-sm">X</button></td>
+        <td class="importe-cell">${importeTotal.toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
       `;
-      nuevaFila.querySelector("button").addEventListener("click", function () {
+
+      // Agregar comportamientos a la fila
+      const decBtn = nuevaFila.querySelector(".btn-decrement");
+      const incBtn = nuevaFila.querySelector(".btn-increment");
+      const qtyInput = nuevaFila.querySelector(".cantidad-input");
+      const importeCell = nuevaFila.querySelector(".importe-cell");
+
+      function actualizarLinea() {
+        let qty = parseInt(qtyInput.value, 10) || 1;
+        if (qty < 1) qty = 1;
+        qtyInput.value = qty;
+
+        const nuevoImporte = netoUnit * qty;
+        importeCell.textContent = nuevoImporte.toFixed(2);
+
+        // Actualiza array detalleCompra
+        const idx = detalleCompra.findIndex(d => d.idproducto === selectedProduct.idproducto);
+        if (idx >= 0) {
+          detalleCompra[idx].cantidad = qty;
+          detalleCompra[idx].importe = nuevoImporte.toFixed(2);
+        }
+
+        actualizarNumeros();
+        calcularTotales();
+      }
+
+      decBtn.addEventListener("click", () => { qtyInput.stepDown(); actualizarLinea(); });
+      incBtn.addEventListener("click", () => { qtyInput.stepUp(); actualizarLinea(); });
+      qtyInput.addEventListener("input", actualizarLinea);
+
+      // Eliminar fila
+      nuevaFila.querySelector(".btn-quitar").addEventListener("click", function () {
         nuevaFila.remove();
+        const idx = detalleCompra.findIndex(d => d.idproducto === selectedProduct.idproducto);
+        if (idx >= 0) detalleCompra.splice(idx, 1);
         actualizarNumeros();
         calcularTotales();
       });
-      tabla.appendChild(nuevaFila);
 
-      const detalle = {
+      // Insertar en DOM y array
+      tabla.appendChild(nuevaFila);
+      detalleCompra.push({
         idproducto: selectedProduct.idproducto,
         producto: nomProducto,
         precio: precioProducto,
         cantidad: cantidadProducto,
         descuento: descuentoProducto,
-        importe: importe.toFixed(2)
-      };
-      detalleCompra.push(detalle);
+        importe: importeTotal.toFixed(2)
+      });
 
-      inputProductElement.value = "";
-      inputPrecio.value = "";
-      inputStock.value = "";
-      inputCantidad.value = 1;
-      inputDescuento.value = 0;
-
+      resetCamposProducto();
+      actualizarNumeros();
       calcularTotales();
     });
+
+    function resetCamposProducto() {
+      inputProductElement.value = "";
+      inputStock.value = "";
+      inputPrecio.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
+    }
+
+    function resetCamposProducto() {
+      inputProductElement.value = "";
+      inputStock.value = "";
+      inputPrecio.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
+    }
 
     function actualizarNumeros() {
       const filas = tabla.getElementsByTagName("tr");
@@ -608,6 +692,19 @@ require_once "../../partials/header.php";
               inputStock.value = producto.stock;
               inputCantidad.value = 1;
               inputDescuento.value = 0;
+
+              inputDescuento.addEventListener("focus", function () {
+                if (inputDescuento.value === "0") {
+                  inputDescuento.value = "";
+                }
+              });
+
+              inputDescuento.addEventListener("keydown", function (e) {
+                if (inputDescuento.value === "0" && e.key >= "0" && e.key <= "9") {
+                  inputDescuento.value = "";
+                }
+              });
+
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,

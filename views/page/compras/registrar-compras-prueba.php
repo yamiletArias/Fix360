@@ -1,5 +1,5 @@
 <?php
-const NAMEVIEW = "Registro de Compras";
+const NAMEVIEW = "Compras | Registro";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
@@ -7,7 +7,7 @@ require_once "../../partials/header.php";
 
 <div class="container-main mt-5">
   <div class="card border">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <!-- <div class="card-header d-flex justify-content-between align-items-center">
       <div>
         <h3 class="mb-0">Complete los datos</h3>
       </div>
@@ -16,17 +16,19 @@ require_once "../../partials/header.php";
           Mostrar Lista
         </a>
       </div>
-    </div>
+    </div> -->
     <div class="card-body">
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input type="radio" name="tipo" value="factura" onclick="inicializarCampos()" checked>
+              <input class="form-check-input text-start" type="radio" name="tipo" value="factura"
+                onclick="inicializarCampos()" checked>
               Factura
             </label>
-            <label>
-              <input type="radio" name="tipo" value="boleta" onclick="inicializarCampos()">
+            <label style="padding-left: 10px;">
+              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta"
+                onclick="inicializarCampos()">
               Boleta
             </label>
           </div>
@@ -48,26 +50,24 @@ require_once "../../partials/header.php";
                 <option selected>Selecciona proveedor</option>
                 <!-- Se llenará dinámicamente vía AJAX -->
               </select>
-              <label for="proveedor">Proveedor</label>
+              <label for="proveedor"><strong>Proveedor</strong></label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="date" class="form-control input" name="fecha" id="fecha" required />
-              <label for="fecha">Fecha de venta:</label>
+              <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
+              <label for="fechaIngreso">Fecha de Compra:</label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
-                <option value="soles" selected>Soles</option>
                 <!-- Aquí se insertan dinámicamente el resto de monedas -->
               </select>
               <label for="moneda">Moneda:</label>
             </div>
           </div>
         </div>
-
         <!-- Sección Producto, Precio, Cantidad y Descuento -->
         <div class="row g-2 mt-3">
           <div class="col-md-5">
@@ -75,7 +75,7 @@ require_once "../../partials/header.php";
               <!-- Campo de búsqueda de Producto -->
               <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
                 placeholder="Buscar Producto" required>
-              <label for="producto">Buscar Producto: </label>
+              <label for="producto"><strong>Buscar Producto:</strong></label>
               <input type="hidden" id="hiddenIdCliente" />
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                 data-bs-target="#miModal">
@@ -83,33 +83,45 @@ require_once "../../partials/header.php";
               </button>
             </div>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-1">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="precio" id="precio" required />
-              <label for="precio">Precio</label>
+              <input type="number" class="form-control input" name="stock" id="stock" placeholder="Stock" required
+                readonly />
+              <label for="stock">Stock</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="number" class="form-control input" name="cantidad" id="cantidad" required />
-              <label for="cantidad">Cantidad</label>
+              <input type="number" class="form-control input" name="preciocompra" id="preciocompra" placeholder="Precio"
+                required />
+              <label for="preciocompra"><strong>Precio</strong></label>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="number" class="form-control input" name="cantidadcompra" id="cantidadcompra"
+                placeholder="Cantidad" required />
+              <label for="cantidadcompra"><strong>Cantidad</strong></label>
+            </div>
+          </div>
+          <div class="col-md-2">
             <div class="input-group">
               <div class="form-floating">
-                <input type="number" class="form-control input" name="descuento" id="descuento" required />
-                <label for="descuento">Descuento</label>
+                <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT"
+                  required />
+                <label for="descuento">DSCT</label>
               </div>
-              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+              <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
             </div>
           </div>
         </div>
       </form>
     </div>
+
   </div>
 
   <!-- seccion de detalles de la compra -->
+
   <div class="container-main-2 mt-4">
     <div class="card border">
       <div class="card-body p-3">
@@ -142,9 +154,9 @@ require_once "../../partials/header.php";
           </colgroup>
           <tbody>
             <tr>
-              <td colspan="4" class="text-end">Importe</td>
+              <td colspan="4" class="text-end">NETO</td>
               <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
               </td>
             </tr>
             <tr>
@@ -160,9 +172,9 @@ require_once "../../partials/header.php";
               </td>
             </tr>
             <tr>
-              <td colspan="4" class="text-end">NETO</td>
+              <td colspan="4" class="text-end">Importe</td>
               <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
               </td>
             </tr>
           </tbody>
@@ -247,9 +259,9 @@ require_once "../../partials/header.php";
             </div>
             <div class="col-12">
               <div class="form-floating">
-                <input type="number" class="form-control" id="precioModal" name="precioModal" placeholder="Precio"
+                <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
                   style="background-color: white; color: black;" />
-                <label for="precioModal">Precio:</label>
+                <label for="precio">Precio:</label>
               </div>
             </div>
             <div class="col-12">
@@ -271,6 +283,7 @@ require_once "../../partials/header.php";
 </div>
 </div>
 </body>
+
 </html>
 
 <script>
@@ -303,11 +316,24 @@ require_once "../../partials/header.php";
           if (inputBusqueda) {
             inputBusqueda.value = `${subcategoriaText} ${descripcion}`;
           }
+          // ← aquí las dos líneas nuevas:
+          document.getElementById("cantidadcompra").value = 1;
+          document.getElementById("descuento").value = 0;
+
           // **** Actualización clave: asignar el id retornado al objeto global selectedProduct ****
           // Se asume que la respuesta JSON ahora incluye la propiedad "idproducto" obtenida en PHP.
           selectedProduct.idproducto = resp.idproducto;
           selectedProduct.subcategoria_producto = `${subcategoriaText} ${descripcion}`;
-          selectedProduct.precio = document.getElementById("precioModal").value;
+          selectedProduct.precio = document.getElementById("precio").value;
+
+          // nueva línea para jalarlo al formulario de compra:
+          document.getElementById("preciocompra").value = selectedProduct.precio;
+
+          // 1) captura la cantidad ingresada en el modal:
+          const modalCantidad = document.getElementById("cantidad").value;
+
+          // 2) asígnala al campo stock del formulario principal:
+          document.getElementById("stock").value = modalCantidad;
 
           // Cerrar el modal correctamente.
           const modalEl = document.getElementById('miModal');
@@ -388,35 +414,58 @@ require_once "../../partials/header.php";
   });
 </script>
 
-
 <script>
+
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     const proveedorSelect = document.getElementById('proveedor');
     const inputProductElement = document.getElementById("producto");
     const numSerieInput = document.getElementById("numserie");
     const numComInput = document.getElementById("numcom");
-    const fechaInput = document.getElementById('fecha');
+    /* const fechaInput = document.getElementById('fecha'); */
     const monedaSelect = document.getElementById('moneda');
     const tipoInputs = document.querySelectorAll('input[name="tipo"]');
     const agregarProductoBtn = document.querySelector("#agregarProducto");
     const tabla = document.querySelector("#tabla-detalle-compra tbody");
     const btnFinalizarCompra = document.getElementById('btnFinalizarCompra');
 
+    // Nuevos elementos de input para los detalles del producto
+    const inputStock = document.getElementById("stock");
+    const inputPrecio = document.getElementById("preciocompra");
+    const inputCantidad = document.getElementById("cantidadcompra");
+    const inputDescuento = document.getElementById("descuento");
+
+    function initDateField(id) {
+      const el = document.getElementById(id);
+      if (!el) return;               // si no existe, no hace nada
+      const today = new Date();
+      const twoAgo = new Date();
+      twoAgo.setDate(today.getDate() - 2);
+      const fmt = d => d.toISOString().split('T')[0];
+      el.value = fmt(today);
+      el.min = fmt(twoAgo);
+      el.max = fmt(today);
+    }
+
+    initDateField('fechaIngreso');
+    const fechaInput = document.getElementById("fechaIngreso");
+
     function calcularTotales() {
       let totalImporte = 0;
       let totalDescuento = 0;
 
       document.querySelectorAll("#tabla-detalle-compra tbody tr").forEach(fila => {
-        const subtotal = parseFloat(fila.querySelector("td:nth-child(6)").textContent) || 0;
-        const descuento = parseFloat(fila.querySelector("td:nth-child(5)").textContent) || 0;
+        const cantidad = parseFloat(fila.children[3].textContent) || 0;
+        const descUnit = parseFloat(fila.children[4].textContent) || 0;
+        const subtotal = parseFloat(fila.children[5].textContent) || 0;
+
         totalImporte += subtotal;
-        totalDescuento += descuento;
+        totalDescuento += descUnit * cantidad;  // descuento_unitario × cantidad
       });
 
-      // Calcular IGV y Neto
       const igv = totalImporte - (totalImporte / 1.18);
       const neto = totalImporte / 1.18;
+
       document.getElementById("total").value = totalImporte.toFixed(2);
       document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
       document.getElementById("igv").value = igv.toFixed(2);
@@ -437,60 +486,177 @@ require_once "../../partials/header.php";
     }
 
     // Manejador del botón "Agregar" para añadir producto al detalle de compra
-    agregarProductoBtn.addEventListener("click", function () {
-      const nomProducto = inputProductElement.value;
-      const precioProducto = parseFloat(document.getElementById('precio').value);
-      const cantidadProducto = parseFloat(document.getElementById('cantidad').value);
-      const descuentoProducto = parseFloat(document.getElementById('descuento').value);
+    agregarProductoBtn.addEventListener("click", () => {
+  const idp = selectedProduct.idproducto;
+  const nomProducto = inputProductElement.value.trim();
+  const precioProducto = parseFloat(inputPrecio.value);
+  const cantidadProducto = parseFloat(inputCantidad.value);
+  
+  // Si no hay descuento, poner 0
+  if (inputDescuento.value.trim() === "") inputDescuento.value = "0";
+  const descuentoProducto = parseFloat(inputDescuento.value);
 
-      if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
-        alert("Por favor, complete todos los campos correctamente.");
-        return;
-      }
+  // Validaciones básicas
+  if (!idp || nomProducto !== selectedProduct.subcategoria_producto) {
+    alert("Ese producto no existe. Elige uno de la lista.");
+    return resetCamposProducto();
+  }
+  if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
+    alert("Por favor, complete todos los campos correctamente.");
+    return resetCamposProducto();
+  }
 
-      if (!selectedProduct.idproducto) {
-        alert("Primero selecciona o registra un producto");
-        return;
-      }
+  const stockDisponible = selectedProduct.stock || 0;
+  if (cantidadProducto > stockDisponible) {
+    alert(`No puedes pedir ${cantidadProducto} unidades; solo hay ${stockDisponible} en stock.`);
+    return resetCamposProducto();
+  }
 
-      const importe = (precioProducto * cantidadProducto) - descuentoProducto;
-      const nuevaFila = document.createElement("tr");
-      nuevaFila.innerHTML = `
-      <td>${tabla.rows.length + 1}</td>
-      <td>${nomProducto}</td>
-      <td>${precioProducto.toFixed(2)}</td>
-      <td>${cantidadProducto}</td>
-      <td>${descuentoProducto.toFixed(2)}</td>
-      <td>${importe.toFixed(2)}</td>
-      <td><button class="btn btn-danger btn-sm">X</button></td>
-      `;
-      nuevaFila.querySelector("button").addEventListener("click", function () {
-        nuevaFila.remove();
-        actualizarNumeros();
-        calcularTotales();
-      });
-      tabla.appendChild(nuevaFila);
+  if (descuentoProducto > precioProducto) {
+    alert("El descuento unitario no puede ser mayor que el precio unitario.");
+    return resetCamposProducto();
+  }
 
-      detalleCompra.push({
-        idproducto: selectedProduct.idproducto,
-        producto: selectedProduct.subcategoria_producto,
-        precio: parseFloat(document.getElementById('precio').value),
-        cantidad: parseFloat(document.getElementById('cantidad').value),
-        descuento: parseFloat(document.getElementById('descuento').value)
-      });
+  if (estaDuplicado(idp)) {
+    alert("Este producto ya ha sido agregado.");
+    return resetCamposProducto();
+  }
 
+  // Cálculos
+  const netoUnit = precioProducto - descuentoProducto;
+  const importeTotal = netoUnit * cantidadProducto;
+
+  // Construir fila
+  const fila = document.createElement("tr");
+  fila.dataset.idproducto = idp;
+  fila.innerHTML = `
+    <td>${tabla.rows.length + 1}</td>
+    <td>${nomProducto}</td>
+    <td>${precioProducto.toFixed(2)}</td>
+    <td>
+      <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+        <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
+        <input type="number"
+               class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+               value="${cantidadProducto}" min="1" max="${stockDisponible}">
+        <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+      </div>
+    </td>
+    <td>${descuentoProducto.toFixed(2)}</td>
+    <td class="importe-cell">${importeTotal.toFixed(2)}</td>
+    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+  `;
+
+  // Función para actualizar línea
+  const decBtn = fila.querySelector(".btn-decrement");
+  const incBtn = fila.querySelector(".btn-increment");
+  const qtyInput = fila.querySelector(".cantidad-input");
+  const importeCell = fila.querySelector(".importe-cell");
+
+  function actualizarLinea() {
+    let qty = parseInt(qtyInput.value, 10) || 1;
+    qty = Math.max(1, Math.min(qty, stockDisponible));
+    qtyInput.value = qty;
+
+    const nuevoImporte = (precioProducto - descuentoProducto) * qty;
+    importeCell.textContent = nuevoImporte.toFixed(2);
+
+    // Actualizar array de detalleCompra
+    const idx = detalleCompra.findIndex(d => d.idproducto === idp);
+    if (idx >= 0) {
+      detalleCompra[idx].cantidad = qty;
+      detalleCompra[idx].importe = nuevoImporte.toFixed(2);
+    }
+
+    actualizarNumeros();
+    calcularTotales();
+  }
+
+  // Eventos cantidad
+  decBtn.addEventListener("click", () => { qtyInput.stepDown(); actualizarLinea(); });
+  incBtn.addEventListener("click", () => { qtyInput.stepUp(); actualizarLinea(); });
+  qtyInput.addEventListener("input", actualizarLinea);
+
+  // Evento quitar
+  fila.querySelector(".btn-quitar").addEventListener("click", () => {
+    fila.remove();
+    const idx = detalleCompra.findIndex(d => d.idproducto === idp);
+    if (idx >= 0) detalleCompra.splice(idx, 1);
+    actualizarNumeros();
+    calcularTotales();
+  });
+
+  // Agregar al DOM y al array
+  tabla.appendChild(fila);
+  detalleCompra.push({
+    idproducto: idp,
+    producto: nomProducto,
+    precio: precioProducto,
+    cantidad: cantidadProducto,
+    descuento: descuentoProducto,
+    importe: importeTotal.toFixed(2)
+  });
+
+  resetCamposProducto();
+  actualizarNumeros();
+  calcularTotales();
+});
+
+    function resetCamposProducto() {
+      // Reset campos
       inputProductElement.value = "";
-      document.getElementById('precio').value = "";
-      document.getElementById('cantidad').value = 1;
-      document.getElementById('descuento').value = 0;
-
-      calcularTotales();
-    });
+      inputPrecio.value = "";
+      inputStock.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
+    }
 
     function actualizarNumeros() {
       const filas = tabla.getElementsByTagName("tr");
       for (let i = 0; i < filas.length; i++) {
         filas[i].children[0].textContent = i + 1;
+      }
+    }
+
+    // Función de debounce para evitar demasiadas llamadas en tiempo real
+    function debounce(func, delay) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    // Función de navegación con el teclado para autocompletar
+    function agregaNavegacion(input, itemsDiv) {
+      let currentFocus = -1;
+      input.addEventListener("keydown", function (e) {
+        const items = itemsDiv.getElementsByTagName("div");
+        if (!items.length) return;
+        if (e.key === "ArrowDown") {
+          currentFocus++;
+          addActive(items);
+        } else if (e.key === "ArrowUp") {
+          currentFocus--;
+          addActive(items);
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          if (currentFocus > -1) items[currentFocus].click();
+        }
+      });
+
+      function addActive(items) {
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        const el = items[currentFocus];
+        el.classList.add("autocomplete-active");
+        // esto hará que el elemento activo se vea
+        el.scrollIntoView({ block: "nearest" });
+      }
+
+      function removeActive(items) {
+        Array.from(items).forEach(i => i.classList.remove("autocomplete-active"));
       }
     }
 
@@ -517,10 +683,23 @@ require_once "../../partials/header.php";
             optionDiv.textContent = producto.subcategoria_producto;
             optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
-              document.getElementById('precio').value = producto.precio;
-              // Se establece cantidad 1 y descuento 0
-              document.getElementById('cantidad').value = 1;
-              document.getElementById('descuento').value = 0;
+              inputPrecio.value = producto.precio;
+              inputStock.value = producto.stock;
+              inputCantidad.value = 1;
+              inputDescuento.value = 0;
+
+              inputDescuento.addEventListener("focus", function () {
+                if (inputDescuento.value === "0") {
+                  inputDescuento.value = "";
+                }
+              });
+
+              inputDescuento.addEventListener("keydown", function (e) {
+                if (inputDescuento.value === "0" && e.key >= "0" && e.key <= "9") {
+                  inputDescuento.value = "";
+                }
+              });
+
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
@@ -530,18 +709,13 @@ require_once "../../partials/header.php";
             });
             itemsDiv.appendChild(optionDiv);
           });
+          // Habilitar navegación por teclado en la lista de productos
+          agregaNavegacion(input, itemsDiv);
         })
         .catch(err => console.error('Error al obtener los productos: ', err));
     }
-    inputProductElement.addEventListener("input", function () {
-      mostrarOpcionesProducto(this);
-    });
-    inputProductElement.addEventListener("click", function () {
-      mostrarOpcionesProducto(this);
-    });
-    document.addEventListener("click", function (e) {
-      cerrarListas(e.target);
-    });
+
+    // Función para cerrar las listas de autocompletado
     function cerrarListas(elemento) {
       const items = document.getElementsByClassName("autocomplete-items");
       for (let i = 0; i < items.length; i++) {
@@ -550,6 +724,19 @@ require_once "../../partials/header.php";
         }
       }
     }
+
+    // Listeners para el autocompletado de productos usando debounce
+    const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+    inputProductElement.addEventListener("input", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+    inputProductElement.addEventListener("click", function () {
+      debouncedMostrarOpcionesProducto(this);
+    });
+    document.addEventListener("click", function (e) {
+      cerrarListas(e.target);
+    });
+
     // Funciones para generar número de serie y de comprobante
     function generateNumber(type) {
       const randomNumber = Math.floor(Math.random() * 100);
@@ -582,6 +769,7 @@ require_once "../../partials/header.php";
       fechaInput.value = `${year}-${month}-${day}`;
     };
     setFechaDefault();
+
     // Carga de proveedores vía AJAX
     fetch('http://localhost/Fix360/app/controllers/Compra.controller.php?type=proveedor')
       .then(response => response.json())
@@ -600,85 +788,105 @@ require_once "../../partials/header.php";
       })
       .catch(error => console.error('Error al cargar los proveedores:', error));
 
+    // Navegación con Enter para ir de campo en campo (productos, precio, cantidad y descuento)
+    inputProductElement.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputPrecio.focus();
+      }
+    });
+
+    inputPrecio.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputCantidad.focus();
+      }
+    });
+
+    inputCantidad.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputDescuento.focus();
+      }
+    });
+
+    inputDescuento.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        // Opcional: puedes mover el foco al botón de agregar o ejecutar su acción directamente
+        agregarProductoBtn.focus();
+        // agregarProductoBtn.click();  // Si prefieres ejecutar la acción
+      }
+    });
+
     // Evento del botón "Guardar" para enviar la compra
-    btnFinalizarCompra.addEventListener("click", function (e) {
+    btnFinalizarCompra.addEventListener('click', function (e) {
       e.preventDefault();
-      btnFinalizarCompra.disabled = true;
-      btnFinalizarCompra.textContent = "Guardando...";
-      // Habilitar los inputs de num. serie y comprobante para enviar sus valores
-      numSerieInput.disabled = false;
-      numComInput.disabled = false;
 
-      // Validar que se haya seleccionado un proveedor y agregado productos
-      if (proveedorSelect.value === "" || proveedorSelect.value === "Selecciona proveedor") {
-        alert("Por favor, selecciona un proveedor.");
-        btnFinalizarCompra.disabled = false;
-        btnFinalizarCompra.textContent = "Guardar";
+      if (!proveedorSelect.value || proveedorSelect.value === 'Selecciona proveedor') {
+        showToast('Por favor selecciona un proveedor', 'ERROR', 2000);
         return;
       }
+
       if (detalleCompra.length === 0) {
-        alert("Por favor, agrega al menos un producto.");
-        btnFinalizarCompra.disabled = false;
-        btnFinalizarCompra.textContent = "Guardar";
+        showToast('Agrega al menos un producto', 'WARNING', 2000);
         return;
       }
-      // Armar el objeto de datos a enviar
-      const dataCompra = {
-        tipocom: document.querySelector('input[name="tipo"]:checked').value,
-        fechacompra: fechaInput.value.trim(),
-        numserie: numSerieInput.value.trim(),
-        numcom: numComInput.value.trim(),
-        moneda: monedaSelect.value,
-        idproveedor: proveedorSelect.value,
-        productos: detalleCompra
-      };
 
-      // Enviar datos al servidor mediante fetch
-      fetch("http://localhost/Fix360/app/controllers/Compra.controller.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataCompra)
-      })
-        .then(response => response.text())
-        .then(text => {
-          console.log("Respuesta del servidor:", text);
-          try {
-            const json = JSON.parse(text);
-            if (json && json.status === "success") {
-              Swal.fire({
-                icon: 'success',
-                title: '¡Compra registrada con éxito!',
-                showConfirmButton: false,
-                timer: 1800
-              }).then(() => {
-                window.location.href = 'listar-compras.php';
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error al registrar la venta',
-                text: 'Inténtalo nuevamente.',
-              });
-            }
-          } catch (e) {
-            console.error("No se pudo parsear JSON:", e);
-            Swal.fire({
-              icon: 'error',
-              title: 'Respuesta inesperada',
-              text: 'El servidor no devolvió una respuesta válida.',
+      Swal.fire({
+        title: '¿Deseas guardar la compra?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33'
+      }).then(result => {
+        if (result.isConfirmed) {
+          btnFinalizarCompra.disabled = true;
+          btnFinalizarCompra.textContent = 'Guardando...';
+
+          fetch('http://localhost/Fix360/app/controllers/Compra.controller.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tipocom: document.querySelector('input[name="tipo"]:checked').value,
+              fechacompra: fechaInput.value,
+              numserie: numSerieInput.value,
+              numcom: numComInput.value,
+              moneda: monedaSelect.value,
+              idproveedor: proveedorSelect.value,
+              productos: detalleCompra
+            })
+          })
+            .then(res => res.json())
+            .then(json => {
+              if (json.status === 'success') {
+                showToast('Compra registrada exitosamente.', 'SUCCESS', 1500);
+                setTimeout(() => {
+                  window.location.href = 'listar-compras.php';
+                }, 1500);
+              } else {
+                Swal.fire('Error', 'No se pudo registrar la compra.', 'error');
+              }
+            })
+            .catch(() => Swal.fire('Error', 'Fallo de conexión.', 'error'))
+            .finally(() => {
+              btnFinalizarCompra.disabled = false;
+              btnFinalizarCompra.textContent = 'Guardar';
             });
-          }
-        })
-        .finally(() => {
-          btnFinalizarCompra.disabled = false;
-          btnFinalizarCompra.textContent = "Guardar";
-        });
+        }
+      });
     });
   });
 </script>
 
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+
 <!-- js de carga moneda -->
-<script src="<?= SERVERURL ?>views/assets/js/tipomoneda.js"></script>
+
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+
 <?php
 require_once "../../partials/_footer.php";
 ?>

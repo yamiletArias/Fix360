@@ -5,19 +5,20 @@
 DROP VIEW IF EXISTS vista_total_por_venta;
 CREATE VIEW vista_total_por_venta AS
 SELECT
-  idventa,
-  SUM(precioventa * (1 - descuento/100)) AS total
-FROM detalleventa
-GROUP BY idventa;
+  dv.idventa,
+  -- Suma para cada línea: (precio unitario - descuento unitario) × cantidad
+  ROUND(SUM((dv.precioventa - dv.descuento) * dv.cantidad), 2) AS total
+FROM detalleventa AS dv
+GROUP BY dv.idventa;
 
 -- 1) VISTA PARA VER EL TOTAL DE LAS COMPRAS (ID)
 DROP VIEW IF EXISTS vista_total_por_compra;
 CREATE VIEW vista_total_por_compra AS
 SELECT
-	idcompra,
-	SUM(preciocompra * (1 - descuento / 100)) AS total
-FROM detallecompra
-GROUP BY idcompra;
+  dc.idcompra,
+  ROUND(SUM((dc.preciocompra - dc.descuento) * dc.cantidad), 2) AS total
+FROM detallecompra AS dc
+GROUP BY dc.idcompra;
 
 -- 2) VISTA PARA VER LAS AMORTIZACIONES DE CADA VENTA (ID)
 DROP VIEW IF EXISTS vista_amortizaciones_por_venta;
@@ -115,13 +116,17 @@ CREATE VIEW vista_detalle_venta AS
 SELECT 
   v.idventa,
   v.fechahora,
-  COALESCE(CONCAT(p.apellidos, ' ' , p.nombres), e.nomcomercial) AS cliente,
+  COALESCE(CONCAT(p.apellidos, ' ', p.nombres), e.nomcomercial) AS cliente,
   v.kilometraje,
-  -- Vehículo: muestra NULL si no hay vehículo
+  -- Vehículo completo
   CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
-  CONCAT(s.subcategoria,' ',pr.descripcion) AS producto,
+  -- Producto
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.cantidad,
   dv.precioventa AS precio,
-  dv.descuento
+  dv.descuento,
+  -- Total a pagar por línea: (precio - descuento) * cantidad
+  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto
 FROM ventas v
 JOIN clientes c        ON v.idcliente      = c.idcliente
 LEFT JOIN personas p   ON c.idpersona      = p.idpersona
@@ -161,16 +166,20 @@ DROP VIEW IF EXISTS vista_detalle_compra;
 CREATE VIEW vista_detalle_compra AS
 SELECT 
   c.idcompra,
+  c.fechacompra,
   e.nomcomercial AS proveedor,
   CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
   dc.preciocompra AS precio,
-  dc.descuento
+  dc.descuento,
+  dc.cantidad,
+  ROUND((dc.preciocompra - dc.descuento) * dc.cantidad, 2) AS total_producto
 FROM compras c
 JOIN proveedores prov ON c.idproveedor = prov.idproveedor
 JOIN empresas e ON prov.idempresa = e.idempresa
 JOIN detallecompra dc ON c.idcompra = dc.idcompra
 JOIN productos pr ON dc.idproducto = pr.idproducto
-JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria;
+JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
+WHERE c.estado = TRUE;
 
 -- ************************* VISTA COTIZACION *************************
 

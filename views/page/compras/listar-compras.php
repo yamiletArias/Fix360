@@ -273,80 +273,79 @@ require_once "../../partials/_footer.php";
         });
     }
 
-    // Ver detalle de compra (usa tu modal existente)
     function verDetalleCompra(idcompra) {
-        // limpia la tabla de productos...
-        $("#miModal tbody").empty();
-        // y limpia cualquier tabla de amortizaciones previa:
-        $("#miModal .amortizaciones-container").remove();
-        // ahora continúa como antes…
-        $("#miModal").modal("show");
-        // limpia cualquier contenido previo
-        $("#proveedor").val('');
-        $("#miModal tbody").empty();
+        const modal = $('#miModal');
+        const tbody = modal.find('tbody');
 
-        /* $("#miModal").modal("show");
-        $("#proveedor").val('');
-        $("#miModal tbody").empty(); */
+        // Limpiar contenido previo
+        modal.find('#proveedor, #fechaCompra').val('');
+        tbody.empty();
+        modal.find('.amortizaciones-container').remove();
 
+        // Mostrar modal
+        modal.modal('show');
+
+        // Petición AJAX para detalle de compra
         $.ajax({
             url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
             method: "GET",
             data: { idcompra },
             dataType: "json",
             success(response) {
-                const tbody = $("#miModal tbody").empty();
-                if (response.length === 0) {
-                    return $("#miModal tbody").append(
-                        `<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`
+                if (!Array.isArray(response) || response.length === 0) {
+                    tbody.append(
+                        `<tr><td colspan="6" class="text-center">No hay detalles disponibles</td></tr>`
                     );
+                    return;
                 }
-                // pinta productos como antes…
-                $("#proveedor").val(response[0].proveedor);
+
+                // Rellenar encabezados: proveedor y fecha
+                modal.find('#proveedor').val(response[0].proveedor);
+                modal.find('#fechaCompra').val(response[0].fechacompra);
+
+                // Agregar filas de productos
                 response.forEach((item, i) => {
                     tbody.append(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${item.producto}</td>
-                            <td>${item.precio}</td>
-                            <td>${item.descuento}%</td>
-                        </tr>`);
+          <tr>
+            <td>${i + 1}</td>
+            <td>${item.producto}</td>
+            <td>${item.cantidad}</td>
+            <td>${parseFloat(item.precio).toFixed(2)}</td>
+            <td>${parseFloat(item.descuento).toFixed(2)} $</td>
+            <td>${parseFloat(item.total_producto).toFixed(2)} $</td>
+          </tr>
+        `);
                 });
 
-                // ─── AÑADE ESTE BLOQUE PARA LAS AMORTIZACIONES ───
+                // Cargar amortizaciones si existen
                 fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idcompra=${idcompra}`)
                     .then(r => r.json())
                     .then(json => {
-                        if (json.status === 'success' && json.data.length) {
-                            // crear sección y tabla de amortizaciones
-                            const cont = $(`
-                                <div class="amortizaciones-container mt-4">
-                                <h6>Amortizaciones</h6>
-                                <table class="table table-sm">
-                                    <thead><tr>
-                                        <th>#</th>
-                                        <th>Transacción</th>
-                                        <th>Monto</th>
-                                        <th>F. Pago</th>
-                                        <th>Saldo</th>
-                                    </tr></thead>
-                                    <tbody></tbody>
-                                    </table>
-                                </div>
-                            `);
-                            // rellenar filas
+                        if (json.status === 'success' && Array.isArray(json.data) && json.data.length) {
+                            const cont = $(
+                                `<div class="amortizaciones-container mt-4">
+                <h6>Amortizaciones</h6>
+                <table class="table table-sm">
+                  <thead><tr>
+                    <th>#</th><th>Transacción</th><th>Monto</th><th>F. Pago</th><th>Saldo</th>
+                  </tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>`
+                            );
+                            const bodyAmp = cont.find('tbody');
                             json.data.forEach((a, i) => {
-                                cont.find('tbody').append(`
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${new Date(a.creado).toLocaleString()}</td>
-                                    <td>${parseFloat(a.amortizacion).toFixed(2)}</td>
-                                    <td>${a.formapago}</td>
-                                    <td>${parseFloat(a.saldo).toFixed(2)}</td>
-                                </tr>`);
+                                bodyAmp.append(`
+                <tr>
+                  <td>${i + 1}</td>
+                  <td>${new Date(a.creado).toLocaleString()}</td>
+                  <td>${parseFloat(a.amortizacion).toFixed(2)}</td>
+                  <td>${a.formapago}</td>
+                  <td>${parseFloat(a.saldo).toFixed(2)}</td>
+                </tr>
+              `);
                             });
-                            // insertar después de la tabla de productos
-                            $("#miModal .modal-body").append(cont);
+                            modal.find('.modal-body').append(cont);
                         }
                     })
                     .catch(err => console.error("Error amortizaciones:", err));
@@ -535,21 +534,31 @@ require_once "../../partials/_footer.php";
             </div>
             <div class="modal-body">
                 <div class="row g-3 mb-3">
-                    <div class="form-floating">
-                        <input type="text" disabled class="form-control input" id="proveedor" placeholder="Proveedor">
-                        <label for="proveedor">Proveedor: </label>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="proveedor"
+                                placeholder="Proveedor">
+                            <label for="proveedor">Proveedor: </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="fechaCompra"
+                                placeholder="Fecha & Hora">
+                            <label for="fechaCompra">Fecha & Hora: </label>
+                        </div>
                     </div>
                 </div>
-
-                <!-- <p><strong>Proveedor:</strong> <label for="proveedor"></label></p> -->
                 <div class="table-container">
                     <table class="table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Productos</th>
+                                <th>Cantidad</th>
                                 <th>Precio</th>
                                 <th>Descuento</th>
+                                <th>T. producto</th>
                             </tr>
                         </thead>
                         <tbody>

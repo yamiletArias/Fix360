@@ -415,19 +415,33 @@ require_once "../../partials/header.php";
     const monedaSelect = document.getElementById('moneda');
 
     // --- Funciones auxiliares ---
-    function calcularTotales() {
-      let totalImporte = 0, totalDescuento = 0;
-      document.querySelectorAll("#tabla-detalle tbody tr").forEach(fila => {
-        totalImporte += parseFloat(fila.children[5].textContent) || 0;
-        totalDescuento += parseFloat(fila.children[4].textContent) || 0;
-      });
-      const igv = totalImporte - (totalImporte / 1.18);
-      const neto = totalImporte / 1.18;
-      document.getElementById("total").value = totalImporte.toFixed(2);
-      document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
-      document.getElementById("igv").value = igv.toFixed(2);
-      document.getElementById("neto").value = neto.toFixed(2);
-    }
+function calcularTotales() {
+  let totalImporte   = 0;
+  let totalDescuento = 0;
+
+  // Recorre cada fila de detalle
+  tabla.querySelectorAll("tr").forEach(fila => {
+    const cantidad = parseFloat(fila.querySelector('.cantidad-input').value) || 0;
+    const precio   = parseFloat(fila.children[2].textContent)            || 0;
+    const descuento= parseFloat(fila.children[4].textContent)            || 0;
+
+    // Importe neto de la línea
+    const importeLinea = (precio - descuento) * cantidad;
+
+    totalImporte   += importeLinea;
+    totalDescuento += descuento * cantidad;
+  });
+
+  // Cálculo de IGV (18%) y neto
+  const igv  = totalImporte - (totalImporte / 1.18);
+  const neto = totalImporte / 1.18;
+
+  // Asignar a los inputs del footer
+  document.getElementById("neto").value            = neto.toFixed(2);
+  document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
+  document.getElementById("igv").value            = igv.toFixed(2);
+  document.getElementById("total").value          = totalImporte.toFixed(2);
+}
 
     function actualizarNumeros() {
       [...tabla.rows].forEach((fila, i) => fila.cells[0].textContent = i + 1);
@@ -440,7 +454,8 @@ require_once "../../partials/header.php";
     // --- Agregar Producto al Detalle ---
     agregarProductoBtn.addEventListener("click", () => {
       const idp = selectedProduct.idproducto;
-      const nombre = inputProductElement.value;
+      const nombre = inputProductElement.value.trim();
+      /* const nombre = inputProductElement.value; */
       const precio = parseFloat(inputPrecio.value);
       const cantidad = parseFloat(inputCantidad.value);
       if (inputDescuento.value.trim() === "") {
@@ -448,15 +463,36 @@ require_once "../../partials/header.php";
       }
       const descuento = parseFloat(inputDescuento.value);
 
+      if (!idp || nombre !== selectedProduct.subcategoria_producto) {
+        alert("Ese producto no existe. Elige uno de la lista.");
+        return resetCamposProducto();
+      }
       if (!nombre || isNaN(precio) || isNaN(cantidad)) {
         return alert("Completa todos los campos correctamente.");
       }
+
+      const stockDisponible = selectedProduct.stock || 0;
+      /* const stockDisponible = parseFloat(inputStock.value) || 0; */
+      if (cantidad > stockDisponible) {
+        alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
+        return resetCamposProducto();
+      }
+
+      // Validación de descuento unitario
+      if (descuento > precio) {
+        alert("El descuento unitario no puede ser mayor que el precio unitario.");
+        return resetCamposProducto();
+      }
+
       if (detalleVenta.some(d => d.idproducto === idp)) {
         alert("Este producto ya ha sido agregado.");
         return resetCamposProducto();
       }
 
-      const importe = (precio * cantidad) - descuento;
+      /* const importe = (precio * cantidad) - descuento; */
+      const netoUnit = precio - descuento;
+      const importe = netoUnit * cantidad;
+
       const fila = document.createElement("tr");
       // le pongo data-idproducto a la fila
       fila.dataset.idproducto = idp;
@@ -464,12 +500,23 @@ require_once "../../partials/header.php";
         <td>${tabla.rows.length + 1}</td>
         <td>${nombre}</td>
         <td>${precio.toFixed(2)}</td>
-        <td>${cantidad}</td>
+        <td>
+          <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+            <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
+            <input type="number"
+                  class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                  value="${cantidad}"
+                  min="1"
+                  max="${stockDisponible}">
+            <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+          </div>
+        </td>
         <td>${descuento.toFixed(2)}</td>
-        <td>${importe.toFixed(2)}</td>
+        <td class="importe-cell">${importe.toFixed(2)}</td>
+
         <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
       `;
-      // al crear el botón de quitar…
+      // al crear el botón de quitar
       fila.querySelector(".btn-quitar").addEventListener("click", () => {
         // 1) quito la fila del DOM
         fila.remove();
@@ -484,7 +531,61 @@ require_once "../../partials/header.php";
 
       tabla.appendChild(fila);
 
-      detalleVenta.push({ idproducto: idp, producto: nombre, precio, cantidad, descuento, importe: importe.toFixed(2) });
+      const decBtn = fila.querySelector(".btn-decrement");
+      const incBtn = fila.querySelector(".btn-increment");
+      const qtyInput = fila.querySelector(".cantidad-input");
+      const importeCell = fila.querySelector(".importe-cell");
+
+      function actualizarLinea() {
+        let qty = parseInt(qtyInput.value, 10) || 1;
+        //  capea entre 1 y stockDisponible
+        if (qty < 1) qty = 1;
+        if (qty > stockDisponible) qty = stockDisponible;
+        qtyInput.value = qty;
+
+        // recalcula importe neto para esta línea
+        const netoUnit = precio - descuento;
+        const nuevoImporte = netoUnit * qty;
+        importeCell.textContent = nuevoImporte.toFixed(2);
+
+        // actualiza el array detalleVenta
+        const idx = detalleVenta.findIndex(d => d.idproducto === idp);
+        if (idx >= 0) {
+          detalleVenta[idx].cantidad = qty;
+          detalleVenta[idx].importe = nuevoImporte.toFixed(2);
+        }
+
+        // renumera y recalcula totales generales
+        calcularTotales();
+      }
+
+      // incr/decr
+      decBtn.addEventListener("click", () => {
+        qtyInput.stepDown();
+        actualizarLinea();
+      });
+      incBtn.addEventListener("click", () => {
+        qtyInput.stepUp();
+        actualizarLinea();
+      });
+      // y si alguien escribe un número directamente
+      qtyInput.addEventListener("input", actualizarLinea);
+      // 3) resto de tu listener de quitar…
+      fila.querySelector(".btn-quitar").addEventListener("click", () => {
+        fila.remove();
+        const idx = detalleVenta.findIndex(d => d.idproducto === idp);
+        if (idx >= 0) detalleVenta.splice(idx, 1);
+        actualizarNumeros();
+        calcularTotales();
+      });
+
+      detalleVenta.push({
+        idproducto: idp,
+        producto: nombre,
+        precio, cantidad,
+        descuento,
+        importe: importe.toFixed(2)
+      });
       resetCamposProducto();
       calcularTotales();
     });
@@ -573,6 +674,7 @@ require_once "../../partials/header.php";
               inputStock.value = producto.stock;
               inputCantidad.value = 1;
               inputDescuento.value = 0;
+
               inputDescuento.addEventListener("focus", function () {
                 if (inputDescuento.value === "0") {
                   inputDescuento.value = "";
@@ -584,12 +686,14 @@ require_once "../../partials/header.php";
                   inputDescuento.value = "";
                 }
               });
-              
+
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
-                precio: producto.precio
+                precio: producto.precio,
+                stock: producto.stock
               };
+              inputStock.value = selectedProduct.stock;
               cerrarListas();
             });
             itemsDiv.appendChild(optionDiv);
@@ -706,7 +810,7 @@ require_once "../../partials/header.php";
                 window.location.href = 'listar-ventas.php';
               }, 1500);
             } else {
-              Swal.fire('Error', 'No se pudo registrar la venta.', 'error');
+              Swal.fire('Error', json.message || 'No se pudo registrar la venta.', 'error');
             }
           })
           .catch(() => Swal.fire('Error', 'Fallo de conexión.', 'error'))

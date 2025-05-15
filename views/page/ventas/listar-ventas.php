@@ -248,7 +248,6 @@ require_once "../../partials/_footer.php";
         $("#miModal .amortizaciones-container").remove();
         // ahora continúa como antes…
         $("#miModal").modal("show");
-        $("#miModal").modal("show");
         // limpia cualquier contenido previo
         $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
         $("#miModal tbody").empty();
@@ -274,8 +273,10 @@ require_once "../../partials/_footer.php";
                     <tr>
                         <td>${i + 1}</td>
                         <td>${item.producto}</td>
+                        <td>${item.cantidad}</td>
                         <td>${item.precio}</td>
-                        <td>${item.descuento}%</td>
+                        <td>${item.descuento} $</td>
+                        <td>${item.total_producto} $</td>
                     </tr>`);
                 });
 
@@ -293,7 +294,7 @@ require_once "../../partials/_footer.php";
                                         <th>#</th>
                                         <th>Transacción</th>
                                         <th>Monto</th>
-                                        <th>FP (id)</th>
+                                        <th>F. Pago</th>
                                         <th>Saldo</th>
                                     </tr></thead>
                                     <tbody></tbody>
@@ -325,7 +326,6 @@ require_once "../../partials/_footer.php";
 </script>
 
 <script>
-
     let tablaVentas;
     const API = "<?= SERVERURL ?>app/controllers/Venta.controller.php";
     const fechaInput = document.getElementById('Fecha');
@@ -414,24 +414,24 @@ require_once "../../partials/_footer.php";
                     class: "text-center",
                     render: function (data, type, row) {
                         return `
-              <button class="btn btn-info btn-sm btn-ver-justificacion"
-                      data-id="${row.id}"
-                      data-bs-toggle="modal"
-                      data-bs-target="#modalVerJustificacion">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-              <button class="btn btn-warning btn-sm btn-amortizar"
-                      data-id="${row.id}"
-                      data-bs-toggle="modal"
-                      data-bs-target="#modalAmortizar">
-                <i class="fa-solid fa-dollar-sign"></i>
-              </button>
-              <button class="btn btn-primary btn-sm"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#miModal"
-                                onclick="verDetalleVenta('${row.id}')">
-                                <i class="fa-solid fa-circle-info"></i>
-                            </button>`;
+                            <button class="btn btn-info btn-sm btn-ver-justificacion"
+                                    data-id="${row.id}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalVerJustificacion">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm btn-amortizar"
+                                    data-id="${row.id}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalAmortizar">
+                                <i class="fa-solid fa-dollar-sign"></i>
+                            </button>
+                            <button class="btn btn-primary btn-sm"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#miModal"
+                                                onclick="verDetalleVenta('${row.id}')">
+                                                <i class="fa-solid fa-circle-info"></i>
+                                            </button>`;
                     }
                 }
             ],
@@ -459,17 +459,17 @@ require_once "../../partials/_footer.php";
        </button>`;
 
         return `
-    <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
-      <i class="fa-solid fa-trash"></i>
-    </button>
-    ${btnAmort}
-    <button class="btn btn-primary btn-sm btn-detalle"
-            data-action="detalle"
-            data-id="${row.id}"
-            data-bs-toggle="modal"
-            data-bs-target="#miModal">
-      <i class="fa-solid fa-circle-info"></i>
-    </button>`;
+        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+        <i class="fa-solid fa-trash"></i>
+        </button>
+        ${btnAmort}
+        <button class="btn btn-primary btn-sm btn-detalle"
+                data-action="detalle"
+                data-id="${row.id}"
+                data-bs-toggle="modal"
+                data-bs-target="#miModal">
+        <i class="fa-solid fa-circle-info"></i>
+        </button>`;
     }
     document.addEventListener("DOMContentLoaded", () => {
         // inicializo fecha de hoy
@@ -659,8 +659,10 @@ require_once "../../partials/_footer.php";
                             <tr>
                                 <th>#</th>
                                 <th>Productos</th>
+                                <th>Cantidad</th>
                                 <th>Precio</th>
                                 <th>Descuento</th>
+                                <th>T. producto</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -696,6 +698,7 @@ require_once "../../partials/_footer.php";
         </div>
     </div>
 </div>
+
 </body>
 
 </html>
