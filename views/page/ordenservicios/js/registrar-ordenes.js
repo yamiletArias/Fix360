@@ -35,6 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+   const kmInput = document.getElementById("kilometraje");
+  if (kmInput) {
+    kmInput.addEventListener("change", () => {
+      const nuevo = parseFloat(kmInput.value);
+      if (prevKilometraje !== null && nuevo < prevKilometraje) {
+        alert(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`);
+        kmInput.value = prevKilometraje;  // restablecer al valor válido
+      }
+    });
+  }
+
   // 2) Selección de Cliente
   const tablaCli = document.querySelector("#tabla-resultado-cliente tbody");
   if (tablaCli) {
@@ -104,6 +115,8 @@ async function fetchUltimoKilometraje(idvehiculo) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
+    const ultimo = data.ultimo_kilometraje ?? 0;
+    prevKilometraje = parseFloat(ultimo); 
     console.log("SP response:", data);
     document.getElementById("kilometraje").value = data.ultimo_kilometraje ?? "";
   } catch (err) {
@@ -336,6 +349,13 @@ function recalcular() {
  */
 function onAceptarOrden(e) {
   e.preventDefault();
+
+    const kmInput = document.getElementById('kilometraje');
+  const nuevo = parseFloat(kmInput.value);
+  if (prevKilometraje !== null && nuevo < prevKilometraje) {
+    return alert(`No puedes enviar un kilometraje menor que ${prevKilometraje}.`);
+  }
+  
   if (!window.confirm('¿Estás seguro de que quieres registrar esta orden de servicio?')) return;
   if (detalleArr.length === 0) return alert('Agrega al menos un servicio');
 

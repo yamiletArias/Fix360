@@ -13,9 +13,14 @@ if (
   exit;
 }
 
+
+
 // 2) Si llegó aquí, ya está autenticado:
 //    guardo el idcolaborador en una variable global
 $idadmin = $_SESSION['login']['idcolaborador'];
+require_once dirname(__DIR__, 2) . '/app/models/Colaborador.php';
+$colModel = new Colaborador();
+$usuario  = $colModel->getById($idadmin);
 
 // ... luego requieres tus modelos helpers, etc.
 require_once dirname(__DIR__, 2) . '/app/models/Agenda.php';
@@ -274,15 +279,15 @@ $hoy_count = count($hoy);
               aria-expanded="false">
               <img class="img-xs rounded-circle ms-2"
                 src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-              <span class="font-weight-normal"><?= htmlspecialchars($_SESSION['login']['nombreCompleto'] ?? '') ?>  </span></a>
+              <span class="font-weight-normal"><?= htmlspecialchars($usuario['nombreCompleto']) ?> </span></a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
                 <img class="img-md rounded-circle"
                   src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image"
                   style="width:50px;" />
-                <p class="mb-1 mt-3"><?= htmlspecialchars($_SESSION['login']['nombreCompleto'] ?? '') ?></p>
+                <p class="mb-1 mt-3"><?= htmlspecialchars($usuario['nombreCompleto']) ?></p>
                 <p class="font-weight-light text-muted mb-0">
-                  fix360@gmail.comfvv 
+                  <?= htmlspecialchars($usuario['namuser']) ?>
                 </p>
               </div>
               <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
@@ -325,8 +330,8 @@ $hoy_count = count($hoy);
                 <div class="dot-indicator bg-success"></div>
               </div>
               <div class="text-wrapper">
-                <p class="profile-name"> <?= htmlspecialchars($_SESSION['login']['nombreCompleto'] ?? '') ?></p>
-                <p class="designation">Administrador</p>
+                <p class="profile-name"> <?= htmlspecialchars($usuario['nombreCompleto']) ?></p>
+                <p class="designation"><?= htmlspecialchars($usuario['rol']) ?></p>
               </div>
             </a>
           </li>

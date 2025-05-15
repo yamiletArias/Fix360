@@ -55,6 +55,27 @@ public function login($namuser, $passuser) {
         }
     }
 
+    public function getById($idcolaborador)
+    {
+        try {
+            $stmt = $this->pdo->prepare("CALL spGetColaboradorInfo(:idcolaborador)");
+            $stmt->bindParam(':idcolaborador', $idcolaborador, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->nextRowset();
+            $permsRow = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+
+            if ($data) {
+                $data['permisos'] = isset($permsRow['permisos']) ? json_decode($permsRow['permisos'], true) : [];
+                return $data;
+            }
+            return null;
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
 
     /**
      * Obtiene todos los colaboradores activos y con contrato vigente.

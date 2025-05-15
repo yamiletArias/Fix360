@@ -38,6 +38,21 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['action']) && $_GET['act
     exit;
 }
 
+if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['action']) && $_GET['action'] === 'get') {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    if ($id > 0) {
+        $col = $colaborador->getById($id);
+        if ($col) {
+            echo json_encode(['status' => 'success', 'data' => $col]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'No se encontró colaborador']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'ID inválido']);
+    }
+    exit;
+}
+
 // 2) POST: login, register, logout
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['operation'])) {
     switch ($_POST['operation']) {
