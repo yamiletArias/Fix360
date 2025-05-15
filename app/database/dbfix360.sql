@@ -124,6 +124,26 @@ CONSTRAINT uq_condiciones UNIQUE(idpromocion,descripcion)
 
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS vistas;
+CREATE TABLE vistas (
+  idvista    INT PRIMARY KEY AUTO_INCREMENT,
+  nombre     VARCHAR(100) NOT NULL,    -- p.ej. 'gestionar_clientes'
+  ruta       VARCHAR(255) NOT NULL,     -- p.ej. '/clientes/listado'
+  CONSTRAINT uq_nombre UNIQUE(nombre),
+  CONSTRAINT uq_ruta UNIQUE(ruta)
+);
+
+DROP TABLE IF EXISTS rolVistas;
+CREATE TABLE rolVistas (
+  idrv 	   INT PRIMARY KEY AUTO_INCREMENT,
+  idrol    INT NOT NULL,
+  idvista  INT NOT NULL,
+  FOREIGN KEY (idrol)   REFERENCES roles(idrol),
+  FOREIGN KEY (idvista) REFERENCES vistas(idvista)
+);
+
+
+
 DROP TABLE IF EXISTS tipomovimientos;
 CREATE TABLE tipomovimientos(
 idtipomov 		INT 				PRIMARY KEY 	AUTO_INCREMENT,

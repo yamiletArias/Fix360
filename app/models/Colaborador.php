@@ -1,10 +1,12 @@
 <?php
 require_once "Conexion.php";
-class Colaborador extends Conexion {
+class Colaborador extends Conexion
+{
 
     private $pdo;
 
-    public function __CONSTRUCT() {
+    public function __CONSTRUCT()
+    {
         $this->pdo = parent::getConexion();
     }
 
@@ -14,39 +16,52 @@ class Colaborador extends Conexion {
      * @param string $passuser Contraseña en texto plano.
      * @return array|null Resultado del login: ['status'=>'SUCCESS','idcolaborador'=>x] o ['status'=>'FAILURE']
      */
-    public function login($namuser, $passuser) {
-    try {
-        $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
-        $stmt->bindParam(':namuser',  $namuser,   PDO::PARAM_STR);
-        $stmt->bindParam(':passuser', $passuser,  PDO::PARAM_STR);
-        $stmt->execute();
+public function login($namuser, $passuser) {
+        try {
+            $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
+            $stmt->bindParam(':namuser',  $namuser,   PDO::PARAM_STR);
+            $stmt->bindParam(':passuser', $passuser,  PDO::PARAM_STR);
+            $stmt->execute();
 
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        // liberar recursos del SP para permitir nuevas llamadas
-        $stmt->closeCursor();
+            // 1) Primer result‑set: STATUS, idcolaborador, nombreCompleto
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($row) {
-            $ok = (isset($row['STATUS']) && strtoupper($row['STATUS']) === 'SUCCESS');
+            // 2) Segundo result‑set: permisos
+            $stmt->nextRowset();
+            $permsRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Ya no necesitamos el cursor
+            $stmt->closeCursor();
+
+            if ($row && strtoupper($row['STATUS']) === 'SUCCESS') {
+                $permisos = isset($permsRow['permisos'])
+                         ? json_decode($permsRow['permisos'], true)
+                         : [];
+                return [
+                    'status'         => true,
+                    'idcolaborador'  => (int)$row['idcolaborador'],
+                    'nombreCompleto' => $row['nombreCompleto'],
+                    'permisos'       => $permisos
+                ];
+            }
+
+            return ['status' => false];
+
+        } catch (PDOException $e) {
             return [
-                'status'        => $ok,
-                'idcolaborador' => $ok ? (int)$row['idcolaborador'] : null
+                'status'  => false,
+                'message' => 'Error en login: ' . $e->getMessage()
             ];
         }
-        // si no devolvió nada, asumo fallo
-        return [ 'status' => false ];
-    } catch (PDOException $e) {
-        return [
-            'status'  => false,
-            'message' => 'Error en login: ' . $e->getMessage()
-        ];
     }
-}
+
 
     /**
      * Obtiene todos los colaboradores activos y con contrato vigente.
      * @return array Lista de colaboradores.
      */
-    public function getAll() {
+    public function getAll()
+    {
         try {
             $query = "SELECT * FROM vwColaboradoresActivosVigentes";
             $cmd = $this->pdo->prepare($query);
@@ -62,7 +77,8 @@ class Colaborador extends Conexion {
      * @param array $params Datos: idcontrato, namuser, passuser
      * @return array Estado del registro.
      */
-    public function add($params = []) {
+    public function add($params = [])
+    {
         try {
             $stmt = $this->pdo->prepare("CALL spRegisterColaborador(:idcontrato, :namuser, :passuser)");
             $stmt->bindParam(':idcontrato', $params['idcontrato'], PDO::PARAM_INT);

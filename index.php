@@ -32,7 +32,7 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>FIX360</title>
+  <title>Fix360</title>
   <!-- plugins:css -->
   <link rel="stylesheet" href="./views/assets/css/vertical-light-layout/style.css">
   <link rel="stylesheet" href="./views/assets/images/favicon.png">

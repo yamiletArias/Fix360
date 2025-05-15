@@ -509,4 +509,5 @@ INSERT INTO egresos (
 -- Día 31
 (1, 2, 1, 'Gasto diario 2025-05-31', 175.45, '2025-05-31 10:00:00');
 
+INSERT INTO tipomovimientos (flujo,tipomov) VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion');
 

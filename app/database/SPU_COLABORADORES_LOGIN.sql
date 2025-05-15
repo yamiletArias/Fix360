@@ -1,32 +1,4 @@
 USE dbfix360;
-
-DROP PROCEDURE IF EXISTS `spu_colaboradores_login`;
-DELIMITER //
-CREATE PROCEDURE spu_colaboradores_login(IN _namuser VARCHAR(50))
-BEGIN
-    SELECT 
-        C.idcolaborador,
-        C.namuser,
-        C.passuser,
-        P.nombres,
-        P.apellidos,
-        R.rol
-    FROM colaboradores C
-    INNER JOIN contratos CO ON CO.idcontrato = C.idcontrato
-    INNER JOIN personas P ON P.idpersona = CO.idpersona
-    INNER JOIN roles R ON R.idrol = CO.idrol
-    WHERE C.namuser = _namuser 
-    AND C.estado = TRUE;
-END //
-DELIMITER ;
-
-CALL spu_colaboradores_login('juan.perez'); -- Admin
-CALL spu_colaboradores_login('carlos.diaz'); -- Gerente
-CALL spu_colaboradores_login('luis.rodriguez'); -- Mecanico
-
-
-
-
 /*
 -- 1) Registrar un nuevo colaborador (hashear contraseña)
 -- 2) Login de colaborador (verifica credenciales, estado activo y contrato vigente)
@@ -56,40 +28,81 @@ END$$
 DROP PROCEDURE IF EXISTS spLoginColaborador;
 DELIMITER $$
 CREATE PROCEDURE spLoginColaborador(
-  IN _namuser    VARCHAR(50),
-  IN _passuser   VARCHAR(255)
+  IN  _namuser    VARCHAR(50),
+  IN  _passuser   VARCHAR(255)
 )
 BEGIN
-  DECLARE _hashed_pwd      VARCHAR(64);
-  DECLARE _idcolaborador   INT;
-  DECLARE _count           INT;
+  DECLARE _hashed_pwd    VARCHAR(64);
+  DECLARE _idcolaborador INT;
+  DECLARE _idrol         INT;
+  DECLARE _count         INT;
+  DECLARE _fullname      VARCHAR(101);
 
-  -- Hashear la contraseña recibida
   SET _hashed_pwd = SHA2(_passuser, 256);
 
-  -- Buscar colaborador con user/pass y estado TRUE
+  -- Validar colaborador activo
   SELECT c.idcolaborador
     INTO _idcolaborador
     FROM colaboradores c
-   WHERE c.namuser = _namuser
+   WHERE c.namuser  = _namuser
      AND c.passuser = _hashed_pwd
-     AND c.estado = TRUE;
+     AND c.estado   = TRUE
+   LIMIT 1;
 
-  -- Contar contratos vigentes
-  SELECT COUNT(*)
-    INTO _count
+  -- Verificar contrato vigente
+  SELECT COUNT(*) INTO _count
     FROM contratos t
     JOIN colaboradores c2 ON c2.idcontrato = t.idcontrato
    WHERE c2.idcolaborador = _idcolaborador
-     AND t.fechainicio <= CURDATE()
+     AND t.fechainicio    <= CURDATE()
      AND (t.fechafin IS NULL OR t.fechafin >= CURDATE());
 
   IF _count = 1 THEN
-    -- Login exitoso
-    SELECT 'SUCCESS' AS STATUS, _idcolaborador AS idcolaborador;
+    -- Obtener rol y nombre completo
+    SELECT 
+      t.idrol,
+      CONCAT(p.nombres, ' ', p.apellidos)
+    INTO
+      _idrol,
+      _fullname
+    FROM contratos t
+    JOIN colaboradores c3 ON c3.idcontrato = t.idcontrato
+    JOIN personas     p  ON p.idpersona   = t.idpersona
+    WHERE c3.idcolaborador = _idcolaborador
+      AND t.fechainicio    <= CURDATE()
+      AND (t.fechafin IS NULL OR t.fechafin >= CURDATE())
+    LIMIT 1;
+
+    -- Primer result‑set
+    SELECT 
+      'SUCCESS'      AS STATUS,
+      _idcolaborador AS idcolaborador,
+      _fullname      AS nombreCompleto;
+
+    -- Segundo result‑set: permisos “manual” en JSON
+    SELECT 
+      IFNULL(
+        CONCAT(
+          '[', 
+          GROUP_CONCAT(CONCAT('"', REPLACE(v.ruta, '"', '\"'), '"')), 
+          ']'
+        ),
+        '[]'
+      ) AS permisos
+    FROM rolVistas rv
+    JOIN vistas    v ON v.idvista = rv.idvista
+    WHERE rv.idrol = _idrol;
+
   ELSE
-    -- Credenciales inválidas o sin contrato vigente
-    SELECT 'FAILURE' AS STATUS, NULL AS idcolaborador;
+    -- Login fallido
+    SELECT 
+      'FAILURE'       AS STATUS,
+      NULL            AS idcolaborador,
+      NULL            AS nombreCompleto;
   END IF;
 END$$
+
+
+
+
 -- select * from colaboradores;

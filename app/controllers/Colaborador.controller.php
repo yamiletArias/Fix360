@@ -41,31 +41,38 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['action']) && $_GET['act
 // 2) POST: login, register, logout
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['operation'])) {
     switch ($_POST['operation']) {
-        case 'login':
+       case 'login':
     $namuser  = Helper::limpiarCadena($_POST['namuser']);
     $passuser = $_POST['passuser'];
 
     $res = $colaborador->login($namuser, $passuser);
     if ($res['status'] === true) {
+        // 1) Almacenar en sesión ID, nombre y permisos
         $_SESSION['login'] = [
-            'status'        => true,
-            'idcolaborador' => $res['idcolaborador'],
-            'namuser'       => $namuser,
-            // si quieres traer más campos del SP, tendrás que ajustarlo
+            'status'          => true,
+            'idcolaborador'   => $res['idcolaborador'],
+            'namuser'         => $namuser,
+            'nombreCompleto'  => $res['nombreCompleto'],
+            'permisos'        => $res['permisos']
         ];
+        // 2) Responder al cliente con toda la info
         echo json_encode([
-            'status'  => true,
-            'message' => '¡Bienvenido!',
-            'idcolaborador' => $res['idcolaborador']
+            'status'          => true,
+            'message'         => '¡Bienvenido!',
+            'idcolaborador'   => $res['idcolaborador'],
+            'nombreCompleto'  => $res['nombreCompleto'],
+            'permisos'        => $res['permisos']
         ]);
     } else {
         echo json_encode([
             'status'  => false,
-            'message' => $res['message'] 
-                ?? 'Credenciales inválidas o contrato no vigente'
+            'message' => $res['message']
+                      ?? 'Credenciales inválidas o contrato no vigente'
         ]);
     }
     break;
+
+
 
 
         case 'register':

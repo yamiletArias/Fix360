@@ -274,15 +274,15 @@ $hoy_count = count($hoy);
               aria-expanded="false">
               <img class="img-xs rounded-circle ms-2"
                 src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-              <span class="font-weight-normal"> Elena </span></a>
+              <span class="font-weight-normal"><?= htmlspecialchars($_SESSION['login']['nombreCompleto'] ?? '') ?>  </span></a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
                 <img class="img-md rounded-circle"
                   src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image"
                   style="width:50px;" />
-                <p class="mb-1 mt-3">Elena</p>
+                <p class="mb-1 mt-3"><?= htmlspecialchars($_SESSION['login']['nombreCompleto'] ?? '') ?></p>
                 <p class="font-weight-light text-muted mb-0">
-                  fix360@gmail.com
+                  fix360@gmail.comfvv 
                 </p>
               </div>
               <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
@@ -325,7 +325,7 @@ $hoy_count = count($hoy);
                 <div class="dot-indicator bg-success"></div>
               </div>
               <div class="text-wrapper">
-                <p class="profile-name">Elena</p>
+                <p class="profile-name"> <?= htmlspecialchars($_SESSION['login']['nombreCompleto'] ?? '') ?></p>
                 <p class="designation">Administrador</p>
               </div>
             </a>
