@@ -74,23 +74,7 @@ select * from v_stock_actual;
 
 DELIMITER $$
 
--- 1) SP para traer todos los movimientos de un producto
-delimiter $$
-CREATE PROCEDURE spMovimientosPorProducto(
-  IN _idproducto INT
-)
-BEGIN
-  SELECT
-    m.idmovimiento,
-    k.idproducto,
-    m.fecha,
-    m.cantidad,
-    m.saldorestante
-  FROM movimientos AS m
-  JOIN kardex     AS k ON m.idkardex = k.idkardex
-  WHERE k.idproducto = _idproducto
-  ORDER BY m.fecha DESC, m.idmovimiento DESC;
-END$$
+
 
 -- 2) SP para traer el stock actual de un producto
 delimiter $$
