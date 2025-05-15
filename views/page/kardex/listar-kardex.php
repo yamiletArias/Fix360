@@ -14,7 +14,7 @@ require_once "../../partials/header.php";
         <div class="col-md-6 mb-2 mb-md-0">
           <div class="input-group">
             <span class="input-group-text input">Producto:</span>
-            <input type="text" id="producto" class="form-control input" placeholder="busca producto...">
+            <input type="text" id="producto" class="form-control input" placeholder="busca producto..." Autocomplete="off">
             <div id="autocomplete-producto" class="autocomplete-items"></div>
           </div>
         </div>

@@ -24,9 +24,9 @@ require_once "../../partials/header.php";
           <div class="col-md-6">
             <div class="form-floating">
               <select class="form-select input" id="idformapago" name="idformapago" style="color:black;" required>
-                <option value="">Seleccione forma de pago</option>
+                <option value="">Seleccione forma de entrega</option>
               </select>
-              <label for="idformapago">Forma de Pago</label>
+              <label for="idformapago">Forma de entrega</label>
             </div>
           </div>
 
@@ -100,7 +100,7 @@ async function loadSelects() {
   const resFP = await fetch(`${SERVERURL}app/controllers/Formapagos.controller.php`);
   const jsonFP = await resFP.json();
   if (jsonFP.status === 'success') {
-    let htmlFP = '<option value="">Seleccione forma de pago</option>';
+    let htmlFP = '<option value="">Seleccione forma de entrega</option>';
     jsonFP.data.forEach(f => {
       htmlFP += `<option value="${f.idformapago}">${f.formapago}</option>`;
     });

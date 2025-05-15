@@ -111,7 +111,10 @@ BEGIN
   END IF;
 END$$
 -- select * from movimientos where idmovimiento = 113;
-CALL spMovimientosPorProducto(42);
+-- CALL spMovimientosPorProducto(42);
 
-CALL spStockActualPorProducto(42);
+-- CALL spStockActualPorProducto(42);
+
+-- select * from kardex where idproducto = 1;
+-- select * from productos;
 

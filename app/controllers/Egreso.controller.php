@@ -1,9 +1,9 @@
 <?php
 // app/controllers/egresos.controller.php
 header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../models/sesion.php';
 require_once '../models/Egreso.php';
 require_once '../helpers/helper.php';
-session_start();
 
 $egresoModel = new Egreso();
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Registrar nuevo egreso
     $params = [
-        'idadmin'        => $_SESSION['user_id'] ?? 1,
+        'idadmin'        => $idadmin,
         'idcolaborador'  => intval($data['idcolaborador'] ?? 0),
         'idformapago'    => intval($data['idformapago'] ?? 0),
         'concepto'       => Helper::limpiarCadena($data['concepto'] ?? ''),
