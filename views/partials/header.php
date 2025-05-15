@@ -5,12 +5,12 @@ session_start();
 
 // 1) Si no hay sesión activa, lo mando al login
 if (
-    ! isset($_SESSION['login']) ||
-    empty($_SESSION['login']['status']) ||
-    $_SESSION['login']['status'] !== true
+  !isset($_SESSION['login']) ||
+  empty($_SESSION['login']['status']) ||
+  $_SESSION['login']['status'] !== true
 ) {
-    header("Location: " . SERVERURL);
-    exit;
+  header("Location: " . SERVERURL);
+  exit;
 }
 
 // 2) Si llegó aquí, ya está autenticado:
@@ -21,9 +21,9 @@ $idadmin = $_SESSION['login']['idcolaborador'];
 require_once dirname(__DIR__, 2) . '/app/models/Agenda.php';
 require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
 
-$agendaModel  = new Agenda();
-$hoy          = $agendaModel->getRecordatoriosHoy();
-$hoy_count    = count($hoy);
+$agendaModel = new Agenda();
+$hoy = $agendaModel->getRecordatoriosHoy();
+$hoy_count = count($hoy);
 ?>
 
 
@@ -51,7 +51,8 @@ $hoy_count    = count($hoy);
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/swalcustom.js"></script>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
 
   <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/font-awesome/css/font-awesome.min.css" />
 
@@ -60,28 +61,32 @@ $hoy_count    = count($hoy);
   <!--link rel="shortcut icon" href="<?= SERVERURL ?>views/assets/images/favicon.png" /-->
   <link rel="shortcut icon" href="<?= SERVERURL ?>images/minilogo.jpg" />
 
-    <!-- Lightbox2 CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet" integrity="sha512-M7L1UxM9cmR2rWNpBj0JzAjBVPvmRolc5KX2P8z6Q3nsxTaTa620FVv0Xv05sXzNPp+cscZvHazMwE5swlZ0Og==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Lightbox2 CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet"
+    integrity="sha512-M7L1UxM9cmR2rWNpBj0JzAjBVPvmRolc5KX2P8z6Q3nsxTaTa620FVv0Xv05sXzNPp+cscZvHazMwE5swlZ0Og=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-   
-html, body {
-  height: 100%;
-  margin: 0;
-  /*overflow: hidden; */
-}
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      /*overflow: hidden; */
+    }
 
-.swal2-modal .swal2-icon,
-.swal2-modal .swal2-success-ring {
-  margin-top: 0;
-  margin-bottom: 0px;
-}
+    .swal2-modal .swal2-icon,
+    .swal2-modal .swal2-success-ring {
+      margin-top: 0;
+      margin-bottom: 0px;
+    }
 
 
     .container-main {
@@ -102,7 +107,7 @@ html, body {
       cursor: pointer;
     }
 
-   
+
     label {
       padding: 0px;
     }
@@ -119,7 +124,7 @@ html, body {
 
     .input {
       font-size: 17px;
-      color:black;
+      color: black;
     }
 
 
@@ -225,25 +230,24 @@ html, body {
         <h2 class="mb-0 font-weight-medium d-none d-lg-flex"><?= NAMEVIEW ?></h2>
         <ul class="navbar-nav navbar-nav-right">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown" title="Recordatorios de hoy"
-              aria-expanded="false">
+            <a class="nav-link dropdown-toggle count-indicator message-dropdown" id="messageDropdown" href="#"
+              data-bs-toggle="dropdown" title="Recordatorios de hoy" aria-expanded="false">
               <i class="icon-speech"></i>
               <span class="count"><?= $hoy_count ?></span>
             </a>
-            <div
-              class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
-              aria-labelledby="messageDropdown"
-              style="min-width: 250px;">
+            <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
+              aria-labelledby="messageDropdown" style="min-width: 250px;">
               <!-- Barra superior con los dos botones -->
 
               <!-- Cabecera de “tienes X recordatorios” -->
-               <div class="dropdown-header mb-0 px-3 py-2">
+              <div class="dropdown-header mb-0 px-3 py-2">
 
-                 <h7 ><strong> <?= $hoy_count ?> recordatorio<?= $hoy_count !== 1 ? 's' : '' ?> </strong></h7>
-                   <a class="btn btn-sm btn-primary text-end" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php" title="Ver todos los recordatorios">
+                <h7><strong> <?= $hoy_count ?> recordatorio<?= $hoy_count !== 1 ? 's' : '' ?> </strong></h7>
+                <a class="btn btn-sm btn-primary text-end" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
+                  title="Ver todos los recordatorios">
                   <i class="fa fa-list-alt"></i>
                 </a>
-                </div>
+              </div>
               <div class="dropdown-divider"></div>
 
               <?php if ($hoy_count): ?>
@@ -274,7 +278,8 @@ html, body {
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
                 <img class="img-md rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image"  style="width:50px;"/>
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image"
+                  style="width:50px;" />
                 <p class="mb-1 mt-3">Elena</p>
                 <p class="font-weight-light text-muted mb-0">
                   fix360@gmail.com
@@ -289,7 +294,12 @@ html, body {
                 Activity</a>
               <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
                 FAQ</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-power text-primary"></i>Cerrar Sesion</a>
+              <a class="dropdown-item" href="<?= SERVERURL ?>views/logout.php">
+                <i class="dropdown-item-icon icon-power text-primary"></i> Cerrar Sesión
+              </a>
+
+
+
             </div>
           </li>
         </ul>
@@ -417,3 +427,26 @@ html, body {
           </li>
         </ul>
       </nav>
+
+      <script>
+        document.getElementById('logoutBtn').addEventListener('click', async e => {
+          e.preventDefault();
+          try {
+            const resp = await fetch('<?= SERVERURL ?>app/controllers/colaborador.controller.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: new URLSearchParams({ operation: 'logout' })
+            });
+            const data = await resp.json();
+            if (data.status) {
+              // Una vez que el back cierre la sesión, redirige al login
+              window.location.href = '<?= SERVERURL ?>';
+            } else {
+              alert('No se pudo cerrar sesión: ' + data.message);
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Error de red al cerrar sesión');
+          }
+        });
+      </script>

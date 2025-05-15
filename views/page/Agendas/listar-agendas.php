@@ -266,7 +266,7 @@ require_once "../../partials/header.php";
             const js = await res.json();
             if (js.status === 'success') {
                 comentIn.value = '';
-                showToast('Orden registrada exitosamente', 'SUCCESS', 1500);
+                showToast('Recordatorio registrada exitosamente', 'SUCCESS', 1500);
                 // Después de 1 segundo (una vez visible el toast) redirige:
                 setTimeout(() => {
                     cargar();
@@ -434,25 +434,52 @@ require_once "../../partials/header.php";
                     break;
 
                 case 'estado':
-                    // Llenar select de nuevos estados según estado actual
-                    selectNuevo.innerHTML = '';
-                    let opciones = [];
-                    if (selectedRec.estado === 'P') opciones = [
-                        ['C', 'Cancelado'],
-                        ['H', 'Hecho']
-                    ];
-                    else if (selectedRec.estado === 'R') opciones = [
-                        ['C', 'Cancelado'],
-                        ['H', 'Hecho']
-                    ];
-                    opciones.forEach(opt => {
-                        const o = document.createElement('option');
-                        o.value = opt[0];
-                        o.text = opt[1];
-                        selectNuevo.appendChild(o);
-                    });
-                    new bootstrap.Modal(document.getElementById('modalEstado')).show();
-                    break;
+  Swal.fire({
+    title: '¿Qué quieres hacer con este recordatorio?',
+    icon: 'question',
+    showCancelButton: true,
+    showDenyButton: true,
+    confirmButtonText: 'Hecho',
+    confirmButtonColor: '#56d559',
+    denyButtonText: 'Cancelado',
+    denyButtonColor: '#ff4d6b',
+    cancelButtonText: 'Cerrar',
+    cancelButtonColor: '#d8d8d8', // #ff4d6b
+    timerProgressBar: true,
+    timer: 3500
+  }).then(async (result) => {
+    // Si el usuario confirma “Hecho”
+    if (result.isConfirmed) {
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updateEstado',
+          idagenda: selectedId,
+          estado: 'H'
+        })
+      });
+      showToast('Recordatorio realizado exitosamente', 'SUCCESS', 1500);
+      cargar();
+    }
+    // Si el usuario elige “Cancelar Recordatorio”
+    else if (result.isDenied) {
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updateEstado',
+          idagenda: selectedId,
+          estado: 'C'
+        })
+      });
+      showToast('Recordatorio cancelado correctamente', 'SUCCESS', 1500);
+      cargar();
+    }
+    // Si el usuario pulsa “Cerrar”, no hacemos nada
+  });
+  break;
+
             }
         });
 

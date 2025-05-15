@@ -14,6 +14,17 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
 
 ?>
 
+<style>
+      .input {
+      font-size: 17px;
+      color:black;
+    }
+
+    .content-wrapper {
+    background: #01122c !important;
+}
+</style>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -48,15 +59,15 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
               <h6 class="font-weight-light">Ingresa tu datos.</h6>
               <form class="pt-3" method="post" id="formLogin" autocomplete="off">
                 <div class="form-group">
-                  <input type="text" class="form-control form-control-lg"
-                    id="namuser" placeholder="User Name" autofocus required>
+                  <input type="text" class="input form-control form-control-lg "
+                    id="namuser" placeholder="Nombre de usuario" autofocus required>
                 </div>
                 <div class="form-group">
-                  <input type="password" class="form-control form-control-lg"
-                    id="passuser" placeholder="Password" required>
+                  <input type="password" class="input form-control form-control-lg"
+                    id="passuser" placeholder="contraseña" required>
                 </div>
                 <div class="mt-3">
-                  <button class="btn d-grid btn-primary btn-lg font-weight-medium auth-form-btn"
+                  <button class="btn d-grid btn-success btn-lg font-weight-medium auth-form-btn text-end"
                     type="submit">Iniciar sesión</button>
 
                 </div>

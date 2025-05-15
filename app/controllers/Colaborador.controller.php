@@ -12,7 +12,8 @@ require_once "../helpers/helper.php";
 $colaborador = new Colaborador();
 
 // Inicializar sesión
-if (!isset($_SESSION['login'])) {
+if ($_SERVER['REQUEST_METHOD']==='GET' && isset($_GET['operation']) && $_GET['operation']==='logout') {
+    // Limpio sesión
     $_SESSION['login'] = [
         "status"        => false,
         "idcolaborador" => -1,
@@ -21,6 +22,9 @@ if (!isset($_SESSION['login'])) {
         "apellidos"     => "",
         "rol"           => ""
     ];
+    // Redirijo al login
+    header('Location: ' . SERVERURL);
+    exit;
 }
 
 // 1) Listar colaboradores activos vigentes

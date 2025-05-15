@@ -1,17 +1,5 @@
-/* registrar-ordenes.js */
-console.log("1️⃣ registrar-ordenes.js arrancó");
-
-// Debug: confirm script loading and SERVERURL
-console.log("→ registrar-ordenes.js loaded, SERVERURL=", window.SERVERURL);
-
 let detalleArr = [];
-const SERVERURL = window.SERVERURL;
-
-/**
- * Handler único para cambio de vehículo.
- */
 function fetchHandler() {
-  console.log("🚀 select#vehiculo cambió a:", this.value);
   document.getElementById("kilometraje").value = "";
   if (this.value) fetchUltimoKilometraje(this.value);
 }
@@ -299,6 +287,11 @@ function onAgregarDetalle() {
   const mec  = document.getElementById('mecanico');
   const precio = parseFloat(document.getElementById('precio').value);
   const idServ = +serv.value;
+
+   if (isNaN(precio) || precio <= 0) {
+    return alert('El precio debe ser un número mayor a cero');
+  }
+  
 
   if (!idServ || !+mec.value) return alert('Selecciona servicio y mecánico');
   if (detalleArr.some(d => d.idservicio === idServ)) return alert('Este servicio ya está en la lista');
