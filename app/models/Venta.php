@@ -152,11 +152,14 @@ class Venta extends Conexion
             return $idventa;
         } catch (PDOException $e) {
             $pdo->rollBack();
-            error_log("Error DB: " . $e->getMessage());
-            return 0;
-        } catch (Exception $ex) {
-            error_log("Error: " . $ex->getMessage());
-            return 0;
+            // Loguea en el server
+            error_log("Error DB en registerVentas: " . $e->getMessage());
+            // Devuélvelo como JSON y termina la ejecución:
+            echo json_encode([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+            exit;
         }
     }
 

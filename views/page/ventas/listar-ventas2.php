@@ -274,7 +274,7 @@ require_once "../../partials/_footer.php";
                         <td>${i + 1}</td>
                         <td>${item.producto}</td>
                         <td>${item.precio}</td>
-                        <td>${item.descuento}%</td>
+                        <td>${item.descuento} $</td>
                     </tr>`);
                 });
 
@@ -292,7 +292,7 @@ require_once "../../partials/_footer.php";
                                         <th>#</th>
                                         <th>Transacción</th>
                                         <th>Monto</th>
-                                        <th>FP (id)</th>
+                                        <th>F. Pago</th>
                                         <th>Saldo</th>
                                     </tr></thead>
                                     <tbody></tbody>
