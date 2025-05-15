@@ -134,7 +134,7 @@ require_once "../../partials/header.php";
             <th>Producto</th>
             <th>Precio</th>
             <th>Cantidad</th>
-            <th>Dsct</th>
+            <th>Dsct $</th>
             <th>Importe</th>
             <th>Acciones</th>
           </tr>
@@ -443,6 +443,9 @@ require_once "../../partials/header.php";
       const nombre = inputProductElement.value;
       const precio = parseFloat(inputPrecio.value);
       const cantidad = parseFloat(inputCantidad.value);
+      if (inputDescuento.value.trim() === "") {
+        inputDescuento.value = "0";
+      }
       const descuento = parseFloat(inputDescuento.value);
 
       if (!nombre || isNaN(precio) || isNaN(cantidad)) {
@@ -570,6 +573,18 @@ require_once "../../partials/header.php";
               inputStock.value = producto.stock;
               inputCantidad.value = 1;
               inputDescuento.value = 0;
+              inputDescuento.addEventListener("focus", function () {
+                if (inputDescuento.value === "0") {
+                  inputDescuento.value = "";
+                }
+              });
+
+              inputDescuento.addEventListener("keydown", function (e) {
+                if (inputDescuento.value === "0" && e.key >= "0" && e.key <= "9") {
+                  inputDescuento.value = "";
+                }
+              });
+              
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
