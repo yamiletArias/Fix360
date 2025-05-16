@@ -85,7 +85,7 @@ BEGIN
   INSERT INTO propietarios (idcliente, idvehiculo)
   VALUES (_idcliente, _idvehiculo);
 END$$
-
+/*
 -- 4) Registrar producto
 DROP PROCEDURE IF EXISTS spRegisterProducto;
 DELIMITER $$
@@ -110,7 +110,46 @@ BEGIN
     _cantidad, NULLIF(_img, '')
   );
 END$$
+*/
 
+DROP PROCEDURE IF EXISTS spRegisterProducto;
+DELIMITER $$
+CREATE PROCEDURE spRegisterProducto(
+  IN  _idsubcategoria INT,
+  IN  _idmarca        INT,
+  IN  _descripcion    VARCHAR(50),
+  IN  _precio         DECIMAL(7,2),
+  IN  _presentacion   VARCHAR(40),
+  IN  _undmedida      VARCHAR(40),
+  IN  _cantidad       DECIMAL(10,2),
+  IN  _img            VARCHAR(255),
+  IN  _stockmin       INT,
+  IN  _stockmax       INT,           -- puede ser NULL si no lo usas
+  OUT _idproducto     INT
+)
+BEGIN
+  -- 1) Inserto el producto
+  INSERT INTO productos 
+    (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img)
+  VALUES 
+    (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, NULLIF(_img, ''));
+
+  -- 2) Capturo el id que acabo de generar
+  SET _idproducto = LAST_INSERT_ID();
+
+  -- 3) Inserto el kardex asociado
+  INSERT INTO kardex
+    (idproducto, fecha, stockmin, stockmax)
+  VALUES
+    (_idproducto,
+     CURDATE(),          -- o la fecha que prefieras
+     _stockmin,
+     nullif(_stockmax,'')
+    );
+END$$
+
+-- select * from kardex
+-- select * from productos
 -- 5) Registrar servicio
 DROP PROCEDURE IF EXISTS spRegisterServicio;
 DELIMITER $$

@@ -1,5 +1,6 @@
 USE dbfix360;
-
+-- select * from ordenservicios;
+-- select * from colaboradores;
 INSERT INTO marcas (nombre, tipo) VALUES
 ('S/M', 'S/M'),
 ('SHELL HELIX', 'ACEITE'),

@@ -73,9 +73,9 @@ select * from v_stock_actual;
 
 
 DELIMITER $$
-
-
-
+-- select * from movimientos where idkardex = 52
+-- select * from kardex where idproducto = 52
+-- call spStockActualPorProducto(52)
 -- 2) SP para traer el stock actual de un producto
 delimiter $$
 CREATE PROCEDURE spStockActualPorProducto(
@@ -112,9 +112,51 @@ BEGIN
 END$$
 -- select * from movimientos where idmovimiento = 113;
 -- CALL spMovimientosPorProducto(42);
-
+-- select * from productos where idproducto = 42
 -- CALL spStockActualPorProducto(42);
 
 -- select * from kardex where idproducto = 1;
 -- select * from productos;
+
+
+DROP PROCEDURE IF EXISTS spStockActualPorProducto;
+DELIMITER $$
+CREATE PROCEDURE spStockActualPorProducto(
+  IN _idproducto INT
+)
+BEGIN
+  DECLARE _idkardex INT;
+
+  -- 1) Buscamos el kardex asociado a ese producto
+  SELECT idkardex
+    INTO _idkardex
+    FROM kardex
+   WHERE idproducto = _idproducto
+   LIMIT 1;
+
+  -- 2) Si no hay kardex, devolvemos NULLs en los tres campos
+  IF _idkardex IS NULL THEN
+    SELECT 
+      NULL AS stock_actual,
+      NULL AS stockmin,
+      NULL AS stockmax;
+  ELSE
+    -- 3) Si existe kardex, devolvemos stockmin/stockmax y calculamos stock_actual
+    SELECT
+      COALESCE(
+        ( SELECT m.saldorestante
+            FROM movimientos AS m
+           WHERE m.idkardex = _idkardex
+           ORDER BY m.idmovimiento DESC
+           LIMIT 1
+        ),
+        k.stockmin     -- si no hay movimientos, usamos stockmin
+      )                  AS stock_actual,
+      k.stockmin,
+      k.stockmax
+    FROM kardex AS k
+    WHERE k.idkardex = _idkardex;
+  END IF;
+END$$
+
 

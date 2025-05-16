@@ -24,7 +24,7 @@ require_once "../../partials/header.php";
     <div class="card-body">
       <div class="row">
         <!-- Marca -->
-        <div class="col-md-3 mb-3">
+        <div class="col-md-4 mb-3">
           <div class="form-floating">
             <select class="form-select" id="marca" name="idmarca" style="color: black;" required>
               <option>Seleccione una opcion</option>
@@ -33,7 +33,7 @@ require_once "../../partials/header.php";
           </div>
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-4 mb-3">
           <div class="form-floating">
             <select class="form-select" id="categoria" name="categoria" style="color: black;" required>
               <option>Seleccione una opcion</option>
@@ -43,7 +43,7 @@ require_once "../../partials/header.php";
         </div>
 
         <!-- Subcategoria -->
-        <div class="col-md-3">
+        <div class="col-md-4">
           <div class="form-floating">
             <select class="form-select" name="subcategoria" id="subcategoria" style="color: black;" required>
               <option value="">Selecciona una opcion</option>
@@ -52,7 +52,7 @@ require_once "../../partials/header.php";
           </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-5">
           <div class="form-floating mb-3">
             <textarea class="form-control input" id="descripcion" rows="4" name="descripcion" placeholder="descripcion"></textarea>
             <label for="descripcion">Descripción</label>
@@ -68,7 +68,7 @@ require_once "../../partials/header.php";
 
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control input" id="cantidad" name="cantidad" placeholder="cantidad" />
+            <input type="number" class="form-control input" step="0.1" id="cantidad" name="cantidad" placeholder="cantidad" min="0" />
             <label for="cantidad">Cantidad</label>
           </div>
         </div>
@@ -83,12 +83,26 @@ require_once "../../partials/header.php";
         
         <div class="col-md-2">
           <div class="form-floating mb-3">
-            <input type="text" class="form-control input" id="precio" name="precio" placeholder="presio" />
+            <input type="number" class="form-control input" step="0.1" id="precio" name="precio" placeholder="presio" min="0" />
             <label for="precio">Precio</label>
           </div>
         </div>
 
+          <div class="col-md-3">
+          <div class="form-floating ">
+            <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin" placeholder="stockmin" min="0" />
+            <label for="stockmin">Stock min.</label>
+          </div>
+        </div>
+
         <div class="col-md-3">
+          <div class="form-floating ">
+            <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax" placeholder="stockmax" min="0" />
+            <label for="stockmax">Stock max.</label>
+          </div>
+        </div>
+
+        <div class="col-md-4">
           <div class="form-floating mb-3">
             <input type="file" class="btn btn-outline-dark border input-img" name="img" id="img" accept="image/png, image/jpeg" placeholder="img">
           </div>

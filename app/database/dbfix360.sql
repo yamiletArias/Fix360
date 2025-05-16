@@ -438,8 +438,8 @@ fecha				DATE 				NOT NULL,
 stockmin			INT 				NOT NULL,
 stockmax			INT 				NULL,
 CONSTRAINT fk_idproducto_7 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
-CHECK (stockmin >= 0 AND (stockmax IS NULL OR stockmax >= 0))
-
+CHECK (stockmin >= 0 AND (stockmax IS NULL OR stockmax >= 0)),
+CONSTRAINT uq_idproducto UNIQUE(idproducto)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS movimientos;

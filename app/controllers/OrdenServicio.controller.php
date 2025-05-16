@@ -1,9 +1,10 @@
 <?php
 // app/controllers/ordenservicio.controller.php
 header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../models/sesion.php';
 require_once '../models/OrdenServicio.php';
 require_once "../helpers/helper.php";
-session_start();
+
 
 $ordenModel = new OrdenServicio();
 
@@ -33,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Ruta para registrar nueva orden
     $params = [
-        'idadmin'           => $_SESSION['user_id'] ?? 1,
+        'idadmin'           => $idadmin,
         'idpropietario'     => intval($data['idpropietario']),
         'idcliente'         => intval($data['idcliente']),
         'idvehiculo'        => intval($data['idvehiculo']),

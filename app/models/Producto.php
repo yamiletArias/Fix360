@@ -48,17 +48,29 @@ class Producto extends Conexion
     }
 
     /**
-     * Agrega un nuevo producto
-     * @param array $params
-     * @return array
+     * Agrega un nuevo producto + kardex (stockmin, stockmax)
+     * @param array $params {
+     *   @var int    idsubcategoria
+     *   @var int    idmarca
+     *   @var string descripcion
+     *   @var float  precio
+     *   @var string presentacion
+     *   @var string undmedida
+     *   @var float  cantidad
+     *   @var string img          -- ruta o ''
+     *   @var int    stockmin
+     *   @var int    stockmax
+     * }
+     * @return int  El nuevo idproducto (0 si falla)
      */
-    public function add($params = []): int
+    public function add(array $params): int
     {
         $idProducto = 0;
         try {
-            $query = "CALL spRegisterProducto(?, ?, ?, ?, ?, ?, ?, ?, @idproducto)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([
+            // Nótese que ya pasamos 10 IN y luego usamos @idproducto como OUT
+            $sql = "CALL spRegisterProducto(?,?,?,?,?,?,?,?,?,?,@idproducto)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
                 $params["idsubcategoria"],
                 $params["idmarca"],
                 $params["descripcion"],
@@ -66,14 +78,21 @@ class Producto extends Conexion
                 $params["presentacion"],
                 $params["undmedida"],
                 $params["cantidad"],
-                $params["img"]
+                $params["img"],
+                $params["stockmin"],   // nuevo
+                $params["stockmax"]    // nuevo
             ]);
-            // Obtenemos el valor de la variable de salida
-            $idProducto = $this->pdo->query("SELECT @idproducto")->fetchColumn();
+            
+
+            // Recuperar la variable OUT
+            $idProducto = (int) $this->pdo
+                ->query("SELECT @idproducto")
+                ->fetchColumn();
+
         } catch (Exception $e) {
-            error_log("Error DB: " . $e->getMessage());
-            return 0;
+            error_log("Producto::add error: " . $e->getMessage());
         }
+
         return $idProducto;
     }
 
