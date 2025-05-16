@@ -6,6 +6,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     date_default_timezone_set("America/Lima");
 
     require_once '../models/Compra.php';
+    require_once __DIR__ . '/../models/sesion.php';
     require_once "../helpers/helper.php";
 
     $compra = new Compra();
@@ -108,6 +109,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 exit;
             }
             // Validación de datos
+            $idadmin = $_SESSION['login']['idcolaborador'] ?? 0;
             $fechacompra = Helper::limpiarCadena($dataJSON['fechacompra'] ?? "");
             if (empty($fechacompra)) {
                 $fechacompra = date("Y-m-d");
@@ -132,6 +134,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "numcom" => $numcom,
                 "moneda" => $moneda,
                 "idproveedor" => $idproveedor,
+                "idcolaborador" => $idadmin,
                 "productos" => $productos
             ]);
             if ($idCompraInsertada > 0) {

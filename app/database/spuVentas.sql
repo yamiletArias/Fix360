@@ -18,6 +18,8 @@ ALTER TABLE compras MODIFY idcolaborador INT NULL;
 -- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
 ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
 
+SELECT * FROM compras;
+
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
 DELIMITER $$
@@ -28,12 +30,14 @@ CREATE PROCEDURE spuRegisterVenta (
   IN _numcom CHAR(20),
   IN _moneda CHAR(11),
   IN _idcliente INT,
+  IN _idcolaborador INT,
   IN _idvehiculo INT,
   IN _kilometraje DECIMAL(10,2)
 )
 BEGIN
   INSERT INTO ventas (
     idcliente,
+    idcolaborador,
     idvehiculo,
     tipocom,
     fechahora,
@@ -44,6 +48,7 @@ BEGIN
   )
   VALUES (
     _idcliente,
+    _idcolaborador,
     NULLIF(_idvehiculo, 0),
     _tipocom,
     _fechahora,
@@ -162,11 +167,13 @@ CREATE PROCEDURE spuRegisterCompra (
   IN _numserie VARCHAR(10),
   IN _numcom VARCHAR(10),
   IN _moneda VARCHAR(20),
-  IN _idproveedor INT
+  IN _idproveedor INT,
+  IN _idcolaborador INT
 )
 BEGIN
   INSERT INTO compras (
     idproveedor,
+    idcolaborador,
     fechacompra,
     tipocom,
     numserie,
@@ -175,6 +182,7 @@ BEGIN
   )
   VALUES (
     _idproveedor,
+    _idcolaborador,
     _fechacompra,
     _tipocom,
     _numserie,

@@ -6,6 +6,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     date_default_timezone_set("America/Lima");
 
     require_once '../models/Venta.php';
+    require_once __DIR__ . '/../models/sesion.php';
     require_once "../helpers/helper.php";
     require_once '../models/Cotizacion.php';
     $venta = new Venta();
@@ -71,9 +72,11 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             }
 
             //COTIZAION
-            if (isset($_GET['action'], $_GET['idcotizacion']) 
-                && $_GET['action'] === 'getCabecera') {
-                $m   = new Cotizacion();
+            if (
+                isset($_GET['action'], $_GET['idcotizacion'])
+                && $_GET['action'] === 'getCabecera'
+            ) {
+                $m = new Cotizacion();
                 $cab = $m->getCabeceraById((int) $_GET['idcotizacion']);
                 echo json_encode($cab);
                 exit;
@@ -82,6 +85,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             // 6) Listar todas las ventas si no se especifica nada
             echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);
             exit;
+
         case 'POST':
 
             // Anulación de venta (soft-delete) con justificación
@@ -113,6 +117,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             }
 
             // Limpieza y validación de datos
+            $idadmin = $_SESSION['login']['idcolaborador'] ?? 0;
             $tipocom = Helper::limpiarCadena($dataJSON['tipocom'] ?? "");
             $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
             if (empty($fechahora)) {
@@ -145,6 +150,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "numcom" => $numcom,
                 "moneda" => $moneda,
                 "idcliente" => $idcliente,
+                "idcolaborador" => $idadmin,
                 "idvehiculo" => $idvehiculo,
                 "kilometraje" => $kilometraje,
                 "productos" => $productos

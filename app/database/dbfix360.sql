@@ -456,7 +456,7 @@ modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idkardex FOREIGN KEY (idkardex) REFERENCES kardex (idkardex),
 CONSTRAINT fk_idtipomov FOREIGN KEY (idtipomov) REFERENCES tipomovimientos (idtipomov),
 CONSTRAINT chk_saldorestante CHECK (cantidad > 0),
-CONSTRAINT chk_movimientos_cantidad CHECK (saldorestante > 0)
+CONSTRAINT chk_movimientos_cantidad CHECK (saldorestante >= 0)
 
  )ENGINE = INNODB;
  

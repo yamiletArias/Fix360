@@ -102,7 +102,7 @@ class Venta extends Conexion
 
             error_log("Parametros para spuRegisterVenta: " . print_r($params, true));
 
-            $stmtVenta = $pdo->prepare("CALL spuRegisterVenta(?,?,?,?,?,?,?,?)");
+            $stmtVenta = $pdo->prepare("CALL spuRegisterVenta(?,?,?,?,?,?,?,?,?)");
             $stmtVenta->execute([
                 $params["tipocom"],
                 $params["fechahora"],
@@ -110,6 +110,7 @@ class Venta extends Conexion
                 $params["numcom"],
                 $params["moneda"],
                 $params["idcliente"],
+                $params['idcolaborador'],
                 $params["idvehiculo"],
                 $params["kilometraje"]
             ]);
@@ -216,6 +217,19 @@ class Venta extends Conexion
         $stmt->execute([$idventa]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? $row['justificacion'] : null;
+    }
+
+    private function ensureKardex(int $idproducto): void
+    {
+        $stm = $this->pdo->prepare("SELECT idkardex FROM kardex WHERE idproducto = ?");
+        $stm->execute([$idproducto]);
+        if (!$stm->fetch()) {
+            // Inserta un kardex con valores por defecto
+            $ins = $this->pdo->prepare(
+                "INSERT INTO kardex (idproducto, fecha, stockmin, stockmax) VALUES (?, CURDATE(), 0, NULL)"
+            );
+            $ins->execute([$idproducto]);
+        }
     }
 
 }

@@ -84,14 +84,15 @@ class Compra extends Conexion
       error_log("Parametros para spuRegisterCompra: " . print_r($params, true));
 
       // Llamada al Stored Procedure spuRegisterCompra
-      $stmtCompra = $pdo->prepare("CALL spuRegisterCompra(?, ?, ?, ?, ?, ?)");
+      $stmtCompra = $pdo->prepare("CALL spuRegisterCompra(?, ?, ?, ?, ?, ?, ?)");
       $stmtCompra->execute([
         $params["fechacompra"],
         $params["tipocom"],
         $params["numserie"],
         $params["numcom"],
         $params["moneda"],
-        $params["idproveedor"]
+        $params["idproveedor"],
+        $params['idcolaborador']
       ]);
 
       error_log("Stored Procedure spuRegisterCompra ejecutado.");

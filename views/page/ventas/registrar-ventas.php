@@ -415,33 +415,33 @@ require_once "../../partials/header.php";
     const monedaSelect = document.getElementById('moneda');
 
     // --- Funciones auxiliares ---
-function calcularTotales() {
-  let totalImporte   = 0;
-  let totalDescuento = 0;
+    function calcularTotales() {
+      let totalImporte = 0;
+      let totalDescuento = 0;
 
-  // Recorre cada fila de detalle
-  tabla.querySelectorAll("tr").forEach(fila => {
-    const cantidad = parseFloat(fila.querySelector('.cantidad-input').value) || 0;
-    const precio   = parseFloat(fila.children[2].textContent)            || 0;
-    const descuento= parseFloat(fila.children[4].textContent)            || 0;
+      // Recorre cada fila de detalle
+      tabla.querySelectorAll("tr").forEach(fila => {
+        const cantidad = parseFloat(fila.querySelector('.cantidad-input').value) || 0;
+        const precio = parseFloat(fila.children[2].textContent) || 0;
+        const descuento = parseFloat(fila.children[4].textContent) || 0;
 
-    // Importe neto de la línea
-    const importeLinea = (precio - descuento) * cantidad;
+        // Importe neto de la línea
+        const importeLinea = (precio - descuento) * cantidad;
 
-    totalImporte   += importeLinea;
-    totalDescuento += descuento * cantidad;
-  });
+        totalImporte += importeLinea;
+        totalDescuento += descuento * cantidad;
+      });
 
-  // Cálculo de IGV (18%) y neto
-  const igv  = totalImporte - (totalImporte / 1.18);
-  const neto = totalImporte / 1.18;
+      // Cálculo de IGV (18%) y neto
+      const igv = totalImporte - (totalImporte / 1.18);
+      const neto = totalImporte / 1.18;
 
-  // Asignar a los inputs del footer
-  document.getElementById("neto").value            = neto.toFixed(2);
-  document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
-  document.getElementById("igv").value            = igv.toFixed(2);
-  document.getElementById("total").value          = totalImporte.toFixed(2);
-}
+      // Asignar a los inputs del footer
+      document.getElementById("neto").value = neto.toFixed(2);
+      document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
+      document.getElementById("igv").value = igv.toFixed(2);
+      document.getElementById("total").value = totalImporte.toFixed(2);
+    }
 
     function actualizarNumeros() {
       [...tabla.rows].forEach((fila, i) => fila.cells[0].textContent = i + 1);
@@ -475,13 +475,15 @@ function calcularTotales() {
       /* const stockDisponible = parseFloat(inputStock.value) || 0; */
       if (cantidad > stockDisponible) {
         alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
-        return resetCamposProducto();
+        document.getElementById("cantidad").value = stockDisponible;
+        return;
       }
 
       // Validación de descuento unitario
       if (descuento > precio) {
         alert("El descuento unitario no puede ser mayor que el precio unitario.");
-        return resetCamposProducto();
+        document.getElementById("descuento").value = "";
+        return;
       }
 
       if (detalleVenta.some(d => d.idproducto === idp)) {
@@ -502,13 +504,13 @@ function calcularTotales() {
         <td>${precio.toFixed(2)}</td>
         <td>
           <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
-            <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
+            <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
             <input type="number"
                   class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
                   value="${cantidad}"
                   min="1"
                   max="${stockDisponible}">
-            <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+            <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
           </div>
         </td>
         <td>${descuento.toFixed(2)}</td>
