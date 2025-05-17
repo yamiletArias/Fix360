@@ -1,24 +1,11 @@
 -- PROCEDIMIENTO ALMACENADOS DE VENTAS REAL
 
--- ALTERAR LA CANTIDAD DE PODER VENDER 1  por el momento
-ALTER TABLE productos
-  DROP CONSTRAINT chk_cantidad;
-ALTER TABLE productos
-  ADD CONSTRAINT chk_cantidad CHECK (cantidad >= 0);
-
 -- ALTERAR POR AHORA (IDORDEN, IDPROMOCION, IDCOLABORADOR, IDVEHICULO) EN VENTAS
 ALTER TABLE detalleventa
 MODIFY COLUMN idorden INT NULL,
 MODIFY COLUMN idpromocion INT NULL;
-ALTER TABLE ventas MODIFY idcolaborador INT NULL;
-ALTER TABLE ventas MODIFY idvehiculo INT NULL;
-ALTER TABLE ventas MODIFY kilometraje DECIMAL(10,2) NULL;
--- ALTERAR ID COLABORADOR EN COMPRAS POR EL MOMENTO
-ALTER TABLE compras MODIFY idcolaborador INT NULL;
 -- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
 ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
-
-SELECT * FROM compras;
 
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
@@ -60,7 +47,38 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idventa;
 END$$
 
--- 2) PROCEDIMIENTO DE REGISTRO DETALLE DE VENTA OBTENIENDO EL IDVENTA
+-- 2) CALCULAR SALDO RESTANTE
+DROP FUNCTION IF EXISTS calcularSaldoRestante;
+DELIMITER $$
+CREATE FUNCTION calcularSaldoRestante(
+  _idkardex INT,
+  _cantidad INT
+) RETURNS INT
+BEGIN
+  DECLARE _saldoactual INT;
+
+  -- Intentamos leer el último saldo de movimientos
+  SELECT m.saldorestante
+  INTO _saldoactual
+  FROM movimientos m
+  WHERE m.idkardex = _idkardex
+  ORDER BY m.idmovimiento DESC
+  LIMIT 1;
+
+  -- Si no hay movimientos, usamos stockmax del kardex
+  IF _saldoactual IS NULL THEN
+    SELECT k.stockmax
+    INTO _saldoactual
+    FROM kardex k
+    WHERE k.idkardex = _idkardex;
+  END IF;
+
+  -- Restamos la cantidad de la venta
+  RETURN _saldoactual - _cantidad;
+END$$
+DELIMITER ;
+
+-- 3) PROCEDIMIENTO DE REGISTRO DETALLE DE VENTA OBTENIENDO EL IDVENTA
 DROP PROCEDURE IF EXISTS spuInsertDetalleVenta;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleVenta (
@@ -72,28 +90,47 @@ CREATE PROCEDURE spuInsertDetalleVenta (
   IN _descuento DECIMAL(5,2)
 )
 BEGIN
+  DECLARE _idkardex INT;
+  DECLARE _idtipomov INT;
+  DECLARE _saldoNuevo INT;
+  -- Insertar en detalle de venta
   INSERT INTO detalleventa (
-    idproducto,
-    idventa,
-    cantidad,
-    numserie,
-    precioventa,
-    descuento
-	)
-	VALUES (
-	_idproducto,
-	_idventa,
-	_cantidad,
-	CASE 
-	  WHEN _numserie_detalle IS NULL THEN JSON_ARRAY() 
-	  ELSE JSON_ARRAY(_numserie_detalle) 
-	END,
-	_precioventa,
-	_descuento
-	);
-END $$
+    idproducto, idventa, cantidad, numserie, precioventa, descuento
+  )
+  VALUES (
+    _idproducto,
+    _idventa,
+    _cantidad,
+    CASE 
+      WHEN _numserie_detalle IS NULL THEN JSON_ARRAY() 
+      ELSE JSON_ARRAY(_numserie_detalle) 
+    END,
+    _precioventa,
+    _descuento
+  );
+  -- Traer idkardex del producto
+  SELECT idkardex INTO _idkardex
+  FROM kardex
+  WHERE idproducto = _idproducto
+  LIMIT 1;
+  -- Obtener idtipomov para venta (flujo salida)
+  SELECT idtipomov INTO _idtipomov
+  FROM tipomovimientos
+  WHERE flujo = 'salida' AND tipomov = 'venta'
+  LIMIT 1;
+  -- Calcular nuevo saldo restante
+  SET _saldoNuevo = calcularSaldoRestante(_idkardex, _cantidad);
+  -- Insertar en movimientos
+  INSERT INTO movimientos (
+    idkardex, idtipomov, fecha, cantidad, saldorestante
+  )
+  VALUES (
+    _idkardex, _idtipomov, CURDATE(), _cantidad, _saldoNuevo
+  );
+END$$
+DELIMITER ;
 
--- 3) PROCEDIMINETO PARA OBTENER MONEDAS (soles & dolares)
+-- 4) PROCEDIMINETO PARA OBTENER MONEDAS (soles & dolares)
 DROP PROCEDURE IF EXISTS spuGetMonedasVentas;
 DELIMITER $$
 CREATE PROCEDURE spuGetMonedasVentas()
@@ -112,53 +149,50 @@ BEGIN
   WHERE moneda IN ('SOLES', 'DOLARES');
 END $$
 
--- 4) PROCEDIMIENTO PARA BUSCAR CLIENTES
-DROP PROCEDURE IF EXISTS buscar_cliente;
-DELIMITER $$
-CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
-BEGIN
-    SELECT 
-        C.idcliente,
-        CASE
-            WHEN C.idempresa IS NOT NULL AND E.nomcomercial IS NOT NULL THEN E.nomcomercial
-            WHEN C.idpersona IS NOT NULL AND P.nombres IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
-        END AS cliente,
-        C.idempresa,
-        C.idpersona
-    FROM clientes C
-    LEFT JOIN empresas E ON C.idempresa = E.idempresa
-    LEFT JOIN personas P ON C.idpersona = P.idpersona
-    WHERE 
-        (E.nomcomercial LIKE CONCAT('%', termino_busqueda, '%') AND E.nomcomercial IS NOT NULL)
-        OR 
-        ((P.nombres LIKE CONCAT('%', termino_busqueda, '%') OR P.apellidos LIKE CONCAT('%', termino_busqueda, '%')) 
-         AND P.nombres IS NOT NULL AND P.apellidos IS NOT NULL)
-    LIMIT 10;
-END$$
-
-
 -- 5) PROCEDIMIENTO PARA BUSCAR PRODUCTO (producto, stock, precio)
 DROP PROCEDURE IF EXISTS buscar_producto;
 DELIMITER $$
 CREATE PROCEDURE buscar_producto(
   IN termino_busqueda VARCHAR(255)
 )
+SELECT
+  P.idproducto,
+  CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
+  P.precio,
+  (
+    SELECT COALESCE(SUM(
+      CASE 
+        WHEN tm.flujo = 'entrada' THEN m.cantidad
+        WHEN tm.flujo = 'salida' THEN -m.cantidad
+        ELSE 0
+      END
+    ), 0)
+    FROM movimientos m
+    JOIN tipomovimientos tm ON m.idtipomov = tm.idtipomov
+    WHERE m.idkardex = k.idkardex
+  ) AS stock
+FROM productos P
+JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
+JOIN kardex k ON P.idproducto = k.idproducto
+WHERE S.subcategoria LIKE CONCAT('%', termino_busqueda, '%')
+   OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
+LIMIT 10;
+END$$
+
+-- 6) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
+DROP PROCEDURE IF EXISTS spuGetProveedores;
+DELIMITER $$
+CREATE PROCEDURE spuGetProveedores()
 BEGIN
-    SELECT 
-        P.idproducto,
-        CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-        P.precio,
-        P.cantidad AS stock
-    FROM productos P
-    INNER JOIN subcategorias S 
-      ON P.idsubcategoria = S.idsubcategoria
-    WHERE 
-        S.subcategoria LIKE CONCAT('%', termino_busqueda, '%') 
-     OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
-    LIMIT 10;
+  SELECT DISTINCT 
+    p.idproveedor,
+    e.nomcomercial AS nombre_empresa
+  FROM proveedores p
+  INNER JOIN empresas e ON p.idempresa = e.idempresa
+  LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
 END $$
 
--- 6) PROCEDIMIENTO PARA REGISTRAR COMPRAS
+-- 7) PROCEDIMIENTO PARA REGISTRAR COMPRAS
 DROP PROCEDURE IF EXISTS spuRegisterCompra;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCompra (
@@ -192,7 +226,7 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idcompra;
 END $$
 
--- 7) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COMPRA OBTENIENDO EL IDCOMPRA
+-- 8) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COMPRA OBTENIENDO EL IDCOMPRA
 DROP PROCEDURE IF EXISTS spuInsertDetalleCompra;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCompra (
@@ -203,6 +237,10 @@ CREATE PROCEDURE spuInsertDetalleCompra (
   IN _descuento DECIMAL(5,2)
 )
 BEGIN
+  DECLARE _idkardex INT;
+  DECLARE _saldorestante INT;
+
+  -- Insertar detallecompra
   INSERT INTO detallecompra (
     idproducto,
     idcompra,
@@ -217,85 +255,42 @@ BEGIN
     _preciocompra,
     _descuento
   );
-END $$
 
--- 8) PROCEDIMIENTO PARA REGISTRAR PRODUCTO Y OBTENER EL ID COMO SALIDA
-DROP PROCEDURE IF EXISTS spRegisterProducto;
-DELIMITER $$
-CREATE PROCEDURE spRegisterProducto(
-  IN _idsubcategoria INT,
-  IN _idmarca INT,
-  IN _descripcion VARCHAR(50),
-  IN _precio DECIMAL(7,2),
-  IN _presentacion VARCHAR(40),
-  IN _undmedida VARCHAR(40),
-  IN _cantidad DECIMAL(10,2),
-  IN _img VARCHAR(255),
-  OUT _idproducto INT
-)
-BEGIN
-  INSERT INTO productos (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img) 
-  VALUES (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, _img);
-  SET _idproducto = LAST_INSERT_ID();
-END$$
-DELIMITER $$
+  -- Obtener idkardex del producto
+  SELECT idkardex INTO _idkardex
+  FROM kardex
+  WHERE idproducto = _idproducto
+  LIMIT 1;
 
--- 9) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
-DROP PROCEDURE IF EXISTS spuGetProveedores;
-DELIMITER $$
-CREATE PROCEDURE spuGetProveedores()
-BEGIN
-  SELECT DISTINCT 
-    p.idproveedor,
-    e.nomcomercial AS nombre_empresa
-  FROM proveedores p
-  INNER JOIN empresas e ON p.idempresa = e.idempresa
-  LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
-END $$
+  -- Obtener saldo restante actual
+  SELECT saldorestante INTO _saldorestante
+  FROM movimientos
+  WHERE idkardex = _idkardex
+  ORDER BY idmovimiento DESC
+  LIMIT 1;
 
--- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES AL REGISTRAR)
-DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
-DELIMITER $$
-CREATE PROCEDURE spRegisterClienteEmpresa (
-  IN _ruc CHAR(11),
-  IN _nomcomercial VARCHAR(80),
-  IN _razonsocial VARCHAR(80),
-  IN _telefono VARCHAR(20),
-  IN _correo VARCHAR(100),
-  IN _idcontactabilidad INT
-)
-BEGIN
-  DECLARE _idempresa INT;
-  -- Insertar en la tabla empresas
-  INSERT INTO empresas (
-    ruc,
-    nomcomercial,
-    razonsocial,
-    telefono,
-    correo
+  SET _saldorestante = IFNULL(_saldorestante, 0) + _cantidad;
+
+  -- Insertar movimiento de entrada por compra
+  INSERT INTO movimientos (
+    idkardex,
+    idtipomov,
+    fecha,
+    cantidad,
+    saldorestante
   )
   VALUES (
-    _ruc,
-    _nomcomercial,
-    _razonsocial,
-    _telefono,
-    _correo
+    _idkardex,
+    (SELECT idtipomov FROM tipomovimientos WHERE flujo = 'entrada' AND tipomov = 'compra' LIMIT 1),
+    CURDATE(),
+    _cantidad,
+    _saldorestante
   );
-  -- Obtener el ID de la empresa insertada
-  SET _idempresa = LAST_INSERT_ID();
-  -- Insertar en la tabla clientes vinculando la empresa
-  INSERT INTO clientes (idempresa, idcontactabilidad)
-  VALUES (_idempresa, _idcontactabilidad);
-  -- Insertar en la tabla proveedores solo si no existe
-  IF NOT EXISTS (
-    SELECT 1 FROM proveedores WHERE idempresa = _idempresa
-  ) THEN
-    INSERT INTO proveedores (idempresa)
-    VALUES (_idempresa);
-  END IF;
-END $$
 
--- 10) PROCEDIMIENTO PARA REGISTRAR COTIZACION
+END$$
+DELIMITER ;
+
+-- 9) PROCEDIMIENTO PARA REGISTRAR COTIZACION
 DROP PROCEDURE IF EXISTS spuRegisterCotizaciones;
 DELIMITER $$
 CREATE PROCEDURE spuRegisterCotizaciones (
@@ -320,7 +315,7 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idcotizacion;
 END $$
 
--- 11) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
+-- 10) PROCEDIMIENTO PARA REGISTRAR EL DETALLE COTIZACION OBTENIENDO EL IDCOTIZACION
 DROP PROCEDURE IF EXISTS spuInsertDetalleCotizacion;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCotizacion (
@@ -347,7 +342,7 @@ BEGIN
   );
 END $$
 
--- 12) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA = COMPRA ANULADA
+-- 11) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA = COMPRA ANULADA
 DROP PROCEDURE IF EXISTS spuDeleteCompra;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteCompra (
@@ -368,7 +363,7 @@ BEGIN
   COMMIT;
 END$$
 
--- 13) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA = VENTA ANULADA
+-- 12) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA = VENTA ANULADA
 DROP PROCEDURE IF EXISTS spuDeleteVenta;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteVenta (
@@ -376,20 +371,61 @@ CREATE PROCEDURE spuDeleteVenta (
   IN _justificacion VARCHAR(255)
 )
 BEGIN
+  DECLARE _idproducto INT;
+  DECLARE _cantidad INT;
+  DECLARE _idkardex INT;
+  DECLARE _saldorestante INT;
+  DECLARE _done INT DEFAULT FALSE;
+  DECLARE cur CURSOR FOR 
+    SELECT dv.idproducto, dv.cantidad
+    FROM detalleventa dv
+    WHERE dv.idventa = _idventa;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET _done = TRUE;
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
     ROLLBACK;
     RESIGNAL;
   END;
   START TRANSACTION;
+    -- 1. Marcar la venta como anulada
     UPDATE ventas
     SET estado = FALSE,
         justificacion = _justificacion
     WHERE idventa = _idventa;
+    -- 2. Procesar cada producto de la venta
+    OPEN cur;
+    read_loop: LOOP
+      FETCH cur INTO _idproducto, _cantidad;
+      IF _done THEN
+        LEAVE read_loop;
+      END IF;
+      -- 2.1 Obtener idkardex del producto
+      SELECT k.idkardex INTO _idkardex
+      FROM kardex k
+      WHERE k.idproducto = _idproducto
+      LIMIT 1;
+      -- 2.2 Calcular nuevo saldo restante (suma)
+      SELECT saldorestante INTO _saldorestante
+      FROM movimientos
+      WHERE idkardex = _idkardex
+      ORDER BY idmovimiento DESC
+      LIMIT 1;
+      SET _saldorestante = IFNULL(_saldorestante, 0) + _cantidad;
+      -- 2.3 Insertar movimiento de devolución
+      INSERT INTO movimientos (idkardex, idtipomov, fecha, cantidad, saldorestante)
+      VALUES (
+        _idkardex,
+        (SELECT idtipomov FROM tipomovimientos WHERE flujo = 'entrada' AND tipomov = 'devolucion' LIMIT 1),
+        CURDATE(),
+        _cantidad,
+        _saldorestante
+      );
+    END LOOP;
+    CLOSE cur;
   COMMIT;
 END$$
 
--- 14) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
+-- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListVentasPorPeriodo(
@@ -399,7 +435,6 @@ CREATE PROCEDURE spListVentasPorPeriodo(
 BEGIN
   DECLARE start_date DATE;
   DECLARE end_date   DATE;
-
   IF _modo = 'semana' THEN
     SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
     SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
@@ -410,7 +445,6 @@ BEGIN
     SET start_date = _fecha;
     SET end_date   = _fecha;  
   END IF;
-
   SELECT
     v.idventa    AS id,
     COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
@@ -428,7 +462,7 @@ BEGIN
   ORDER BY v.fechahora;
 END$$
 
--- 15) PROCEDIMIENTO PARA DATOS DE COMPRA (DIA, SEMANA Y MES)
+-- 14) PROCEDIMIENTO PARA DATOS DE COMPRA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListComprasPorPeriodo(
@@ -438,7 +472,6 @@ CREATE PROCEDURE spListComprasPorPeriodo(
 BEGIN
   DECLARE start_date DATE;
   DECLARE end_date   DATE;
-
   -- Calcular rango según modo
   IF _modo = 'semana' THEN
     SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
@@ -450,7 +483,6 @@ BEGIN
     SET start_date = _fecha;
     SET end_date   = _fecha;
   END IF;
-
   -- Listar compras en el rango con info de pago
   SELECT 
     C.idcompra AS id,
@@ -470,4 +502,29 @@ BEGIN
     AND C.estado = TRUE
   ORDER BY C.fechacompra;
 END$$
+
+-- 15) PROCEDIMIENTO PARA BUSCAR CLIENTES
+DROP PROCEDURE IF EXISTS buscar_cliente;
+DELIMITER $$
+CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
+BEGIN
+    SELECT 
+        C.idcliente,
+        CASE
+            WHEN C.idempresa IS NOT NULL AND E.nomcomercial IS NOT NULL THEN E.nomcomercial
+            WHEN C.idpersona IS NOT NULL AND P.nombres IS NOT NULL THEN CONCAT(P.nombres, ' ', P.apellidos)
+        END AS cliente,
+        C.idempresa,
+        C.idpersona
+    FROM clientes C
+    LEFT JOIN empresas E ON C.idempresa = E.idempresa
+    LEFT JOIN personas P ON C.idpersona = P.idpersona
+    WHERE 
+        (E.nomcomercial LIKE CONCAT('%', termino_busqueda, '%') AND E.nomcomercial IS NOT NULL)
+        OR 
+        ((P.nombres LIKE CONCAT('%', termino_busqueda, '%') OR P.apellidos LIKE CONCAT('%', termino_busqueda, '%')) 
+         AND P.nombres IS NOT NULL AND P.apellidos IS NOT NULL)
+    LIMIT 10;
+END$$
+
 

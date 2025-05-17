@@ -85,7 +85,7 @@ f.formapago
 FROM amortizaciones AS a
 LEFT JOIN formapagos AS f ON a.idformapago = f.idformapago;
 
--- ************************* VISTA DE VENTAS
+-- ************************* VISTA DE VENTAS *************************
 
 -- 1) VISTA DE VENTAS PARA LISTAR-VENTAS
 DROP VIEW IF EXISTS vs_ventas;
@@ -217,7 +217,6 @@ JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
 INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
 
-
 -- ************************* VISTA PARA LOS ESTADO FALSE *************************
 
 -- 1) VISTA DE VENTAS ELIMINADAS
@@ -247,8 +246,11 @@ SELECT
   v.kilometraje,
   CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
   CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.cantidad,
   dv.precioventa AS precio,
-  dv.descuento
+  dv.descuento,
+  -- Total a pagar por línea: (precio - descuento) * cantidad
+  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto
 FROM ventas v
 JOIN clientes c        ON v.idcliente      = c.idcliente
 LEFT JOIN personas p   ON c.idpersona      = p.idpersona
@@ -310,8 +312,185 @@ JOIN productos pr ON dc.idproducto = pr.idproducto
 JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
 WHERE c.estado = FALSE;
 
--- ************************* VISTA DE ARQUEO DE CAJA *************************
+-- 4) VISTA DE COMPRAS ELIMINADAS
+DROP VIEW IF EXISTS vs_compras_eliminadas;
+CREATE VIEW vs_compras_eliminadas AS
+SELECT 
+    C.idcompra AS id,
+    E.nomcomercial AS proveedor,
+    C.tipocom,
+    C.numcom
+FROM compras C
+JOIN proveedores P ON C.idproveedor = P.idproveedor
+JOIN empresas E ON P.idempresa = E.idempresa
+WHERE C.estado = FALSE;
 
+-- 5) VISTA PARA VER LA JUSTIFICACION POR IDCOMPRA
+DROP VIEW IF EXISTS vista_justificacion_compra;
+CREATE VIEW vista_justificacion_compra AS
+SELECT 
+    idcompra,
+    justificacion
+FROM compras
+WHERE estado = FALSE;
+
+-- 6) VISTA PARA EL DETALLE DE COMPRA
+DROP VIEW IF EXISTS vista_detalle_compra_eliminada;
+CREATE VIEW vista_detalle_compra_eliminada AS
+SELECT 
+  c.idcompra,
+  e.nomcomercial AS proveedor,
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.preciocompra AS precio,
+  dc.descuento
+FROM compras c
+JOIN proveedores prov ON c.idproveedor = prov.idproveedor
+JOIN empresas e ON prov.idempresa = e.idempresa
+JOIN detallecompra dc ON c.idcompra = dc.idcompra
+JOIN productos pr ON dc.idproducto = pr.idproducto
+JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
+WHERE c.estado = FALSE;
+
+-- PRUEBAS PARA VER EL STOCK
+/*
+CREATE OR REPLACE VIEW vista_stock_actual AS
+SELECT 
+  k.idproducto,
+  p.descripcion,
+  COALESCE(SUM(
+    CASE 
+      WHEN tm.flujo = 'entrada' THEN m.cantidad
+      WHEN tm.flujo = 'salida'  THEN -m.cantidad
+      ELSE 0
+    END
+  ), 0) AS stock_actual
+FROM kardex k
+JOIN productos p ON k.idproducto = p.idproducto
+LEFT JOIN movimientos m ON m.idkardex = k.idkardex
+LEFT JOIN tipomovimientos tm ON m.idtipomov = tm.idtipomov
+GROUP BY k.idproducto, p.descripcion;
+*/
+
+-- VISTA PARA VER LAS ENTRADAS DE COMPRA
+/*
+SELECT
+  c.idcompra,
+  c.fechacompra,
+  c.tipocom,
+  c.numserie,
+  c.numcom,
+  c.moneda,
+  p.idproducto,
+  p.descripcion AS producto,
+  dc.cantidad,
+  dc.preciocompra,
+  dc.descuento,
+  k.idkardex,
+  lm.idmovimiento,
+  lm.fecha,
+  lm.cantidad,
+  lm.saldorestante,
+  tm.flujo,
+  tm.tipomov
+FROM compras c
+INNER JOIN detallecompra dc ON c.idcompra = dc.idcompra
+INNER JOIN productos p ON dc.idproducto = p.idproducto
+LEFT JOIN kardex k ON p.idproducto = k.idproducto
+-- Traemos el último movimiento que corresponde a la compra y producto exactos
+LEFT JOIN movimientos lm
+  ON lm.idkardex = k.idkardex
+  AND lm.cantidad = dc.cantidad
+  AND lm.fecha <= c.fechacompra
+  AND lm.idtipomov IN (
+    SELECT idtipomov FROM tipomovimientos WHERE flujo = 'entrada' AND tipomov = 'compra'
+  )
+LEFT JOIN tipomovimientos tm ON lm.idtipomov = tm.idtipomov
+WHERE c.estado = TRUE
+ORDER BY c.fechacompra DESC, c.idcompra, p.descripcion; 
+*/
+
+-- VISTA PARA VER LAS SALIDA DE VENTAS
+/*
+SELECT
+  v.idventa,
+  v.fechahora,
+  v.tipocom,
+  v.numserie,
+  v.numcom,
+  v.moneda,
+  v.kilometraje,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(cp.nombres, ' ', cp.apellidos) AS colaborador,
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+  dv.idproducto,
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa AS precio_unitario,
+  dv.descuento AS descuento_unitario,
+  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_linea,
+  dv.numserie AS numserie_detalle,
+  k.idkardex,
+  lm.idmovimiento,
+  lm.fecha,
+  lm.cantidad,
+  lm.saldorestante,
+  tm.flujo,
+  tm.tipomov
+FROM ventas v
+INNER JOIN detalleventa dv ON v.idventa = dv.idventa
+LEFT JOIN clientes c ON v.idcliente = c.idcliente
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+LEFT JOIN colaboradores col ON v.idcolaborador = col.idcolaborador
+LEFT JOIN contratos ct ON col.idcontrato = ct.idcontrato
+LEFT JOIN personas cp ON ct.idpersona = cp.idpersona
+LEFT JOIN vehiculos vh ON v.idvehiculo = vh.idvehiculo
+LEFT JOIN modelos m ON vh.idmodelo = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
+LEFT JOIN marcas ma ON m.idmarca = ma.idmarca
+INNER JOIN productos pr ON dv.idproducto = pr.idproducto
+INNER JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
+LEFT JOIN kardex k ON pr.idproducto = k.idproducto
+LEFT JOIN movimientos lm 
+  ON lm.idkardex = k.idkardex 
+  AND lm.cantidad = dv.cantidad
+  AND lm.fecha <= v.fechahora
+  AND lm.idtipomov IN (
+    SELECT idtipomov FROM tipomovimientos WHERE flujo = 'salida' AND tipomov = 'venta'
+  )
+LEFT JOIN tipomovimientos tm ON lm.idtipomov = tm.idtipomov
+WHERE v.estado = TRUE;
+*/
+
+-- VISTAR PARA LA DEVOLUCION:
+/*
+SELECT
+  v.idventa,
+  v.fechahora,
+  v.numcom,
+  v.justificacion,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  dv.idproducto,
+  pr.descripcion AS producto,
+  dv.cantidad AS cantidad_vendida,
+  m.fecha AS fecha_devolucion,
+  m.cantidad AS cantidad_devuelta,
+  m.saldorestante
+FROM ventas v
+INNER JOIN detalleventa dv ON v.idventa = dv.idventa
+INNER JOIN productos pr ON dv.idproducto = pr.idproducto
+LEFT JOIN clientes c ON v.idcliente = c.idcliente
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+LEFT JOIN kardex k ON pr.idproducto = k.idproducto
+INNER JOIN movimientos m ON m.idkardex = k.idkardex
+INNER JOIN tipomovimientos tm ON m.idtipomov = tm.idtipomov
+    AND tm.flujo = 'entrada'
+    AND tm.tipomov = 'devolucion'
+WHERE v.estado = 0;
+*/
+
+-- ************************* VISTA DE ARQUEO DE CAJA *************************
 
 -- prueba 
 DROP VIEW IF EXISTS vista_para_convertir_cotizacion;

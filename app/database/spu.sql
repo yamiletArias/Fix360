@@ -31,6 +31,7 @@ BEGIN
 END$$
 
 -- 2) Registrar cliente (empresa)
+/*
 DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
 DELIMITER $$
 CREATE PROCEDURE spRegisterClienteEmpresa (
@@ -54,6 +55,49 @@ BEGIN
   INSERT INTO clientes (idempresa, idcontactabilidad)
   VALUES (_idempresa, _idcontactabilidad);
 END$$
+*/
+
+-- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES AL REGISTRAR)
+DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
+DELIMITER $$
+CREATE PROCEDURE spRegisterClienteEmpresa (
+  IN _ruc CHAR(11),
+  IN _nomcomercial VARCHAR(80),
+  IN _razonsocial VARCHAR(80),
+  IN _telefono VARCHAR(20),
+  IN _correo VARCHAR(100),
+  IN _idcontactabilidad INT
+)
+BEGIN
+  DECLARE _idempresa INT;
+  -- Insertar en la tabla empresas
+  INSERT INTO empresas (
+    ruc,
+    nomcomercial,
+    razonsocial,
+    telefono,
+    correo
+  )
+  VALUES (
+    _ruc,
+    _nomcomercial,
+    _razonsocial,
+    _telefono,
+    _correo
+  );
+  -- Obtener el ID de la empresa insertada
+  SET _idempresa = LAST_INSERT_ID();
+  -- Insertar en la tabla clientes vinculando la empresa
+  INSERT INTO clientes (idempresa, idcontactabilidad)
+  VALUES (_idempresa, _idcontactabilidad);
+  -- Insertar en la tabla proveedores solo si no existe
+  IF NOT EXISTS (
+    SELECT 1 FROM proveedores WHERE idempresa = _idempresa
+  ) THEN
+    INSERT INTO proveedores (idempresa)
+    VALUES (_idempresa);
+  END IF;
+END $$
 
 -- 3) Registrar vehículo y propietario
 DROP PROCEDURE IF EXISTS spRegisterVehiculo;

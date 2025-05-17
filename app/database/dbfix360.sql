@@ -410,7 +410,7 @@ modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idmarca FOREIGN KEY (idmarca) REFERENCES marcas (idmarca),
 CONSTRAINT fk_subcategoria FOREIGN KEY (idsubcategoria) REFERENCES subcategorias (idsubcategoria),
 CONSTRAINT chk_precio CHECK (precio >= 0),
-CONSTRAINT chk_cantidad CHECK (cantidad > 0),
+CONSTRAINT chk_cantidad CHECK (cantidad >= 0),
 CONSTRAINT uq_descripcion UNIQUE (descripcion, idsubcategoria)
 )ENGINE = INNODB;
 

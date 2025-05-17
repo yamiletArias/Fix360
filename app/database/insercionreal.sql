@@ -512,3 +512,27 @@ INSERT INTO egresos (
 
 INSERT INTO tipomovimientos (flujo,tipomov) VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion');
 
+-- ***************************************************************************************************************
+-- KARDEX - MOVIMIENTOS - TIPO DE MOVIMIENTO
+-- 1. Insertar registros en kardex solo si no existen
+
+INSERT INTO kardex (idproducto, fecha, stockmin, stockmax)
+SELECT idproducto, CURDATE(), 5, 100
+FROM productos
+WHERE idproducto NOT IN (SELECT idproducto FROM kardex);
+
+INSERT INTO movimientos (idkardex, idtipomov, cantidad, saldorestante)
+SELECT 
+  k.idkardex,
+  @id_compra,           -- Movimiento de entrada (compra)
+  k.stockmax,           -- Cantidad que entra = stockmax
+  k.stockmax            -- Saldo restante = stockmax
+FROM kardex k;
+
+/*
+SELECT * FROM kardex;
+SELECT * FROM productos;
+SET @id_venta := (SELECT idtipomov FROM tipomovimientos WHERE flujo = 'salida' AND tipomov = 'venta' LIMIT 1);
+SET @id_compra := (SELECT idtipomov FROM tipomovimientos WHERE flujo = 'entrada' AND tipomov = 'compra' LIMIT 1);
+SET @id_devolucion := (SELECT idtipomov FROM tipomovimientos WHERE flujo = 'entrada' AND tipomov = 'devolucion' LIMIT 1);
+*/
