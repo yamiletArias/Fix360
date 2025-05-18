@@ -301,9 +301,12 @@ CREATE VIEW vista_detalle_compra_eliminada AS
 SELECT 
   c.idcompra,
   e.nomcomercial AS proveedor,
+  c.fechacompra,
   CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.cantidad,
   dc.preciocompra AS precio,
-  dc.descuento
+  dc.descuento,
+  ROUND((dc.preciocompra - dc.descuento) * dc.cantidad, 2) AS total_producto
 FROM compras c
 JOIN proveedores prov ON c.idproveedor = prov.idproveedor
 JOIN empresas e ON prov.idempresa = e.idempresa
@@ -312,44 +315,198 @@ JOIN productos pr ON dc.idproducto = pr.idproducto
 JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
 WHERE c.estado = FALSE;
 
--- 4) VISTA DE COMPRAS ELIMINADAS
-DROP VIEW IF EXISTS vs_compras_eliminadas;
-CREATE VIEW vs_compras_eliminadas AS
-SELECT 
-    C.idcompra AS id,
-    E.nomcomercial AS proveedor,
-    C.tipocom,
-    C.numcom
-FROM compras C
-JOIN proveedores P ON C.idproveedor = P.idproveedor
-JOIN empresas E ON P.idempresa = E.idempresa
-WHERE C.estado = FALSE;
+-- ************************* VISTA DE ARQUEO DE CAJA *************************
 
--- 5) VISTA PARA VER LA JUSTIFICACION POR IDCOMPRA
-DROP VIEW IF EXISTS vista_justificacion_compra;
-CREATE VIEW vista_justificacion_compra AS
-SELECT 
-    idcompra,
-    justificacion
-FROM compras
-WHERE estado = FALSE;
+-- VISTA PARA VER LOS INGRESOS
+DROP VIEW IF EXISTS vista_formapagos;
+CREATE VIEW vista_formapagos AS
+SELECT
+  idformapago,
+  formapago
+FROM formapagos;
 
--- 6) VISTA PARA EL DETALLE DE COMPRA
-DROP VIEW IF EXISTS vista_detalle_compra_eliminada;
-CREATE VIEW vista_detalle_compra_eliminada AS
-SELECT 
-  c.idcompra,
-  e.nomcomercial AS proveedor,
-  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
-  dc.preciocompra AS precio,
-  dc.descuento
-FROM compras c
-JOIN proveedores prov ON c.idproveedor = prov.idproveedor
-JOIN empresas e ON prov.idempresa = e.idempresa
-JOIN detallecompra dc ON c.idcompra = dc.idcompra
-JOIN productos pr ON dc.idproducto = pr.idproducto
-JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
-WHERE c.estado = FALSE;
+-- VISTA PARA VER LOS EGRESOS
+
+CREATE OR REPLACE VIEW vista_conceptos_egresos AS
+SELECT 'almuerzo' AS concepto
+UNION ALL SELECT 'combustible'
+UNION ALL SELECT 'compra de insumos'
+UNION ALL SELECT 'otros conceptos'
+UNION ALL SELECT 'pasajes'
+UNION ALL SELECT 'servicios varios';
+
+-- VISTA PARA EL RESUMEN Y SALDO RESTANTE
+DROP VIEW IF EXISTS vista_resumen_arqueo;
+CREATE VIEW vista_resumen_arqueo AS
+SELECT
+  f.fecha,
+
+  -- 1) Saldo anterior: ingresos acumulados – egresos (sólo conceptos válidos) acumulados antes de la fecha
+  COALESCE(
+    (SELECT SUM(a.amortizacion)
+     FROM amortizaciones a
+     WHERE a.idventa IS NOT NULL
+       AND DATE(a.creado) < f.fecha)
+    , 0)
+  -
+  COALESCE(
+    (SELECT SUM(e.monto)
+     FROM egresos e
+     JOIN vista_conceptos_egresos c ON e.concepto = c.concepto
+     WHERE DATE(e.creado) < f.fecha)
+    , 0)
+  AS saldo_anterior,
+
+  -- 2) Ingreso efectivo del día: todas las amortizaciones del día
+  COALESCE(
+    (SELECT SUM(a.amortizacion)
+     FROM amortizaciones a
+     WHERE a.idventa IS NOT NULL
+       AND DATE(a.creado) = f.fecha)
+  , 0) AS ingreso_efectivo,
+
+  -- 3) Egresos del día: sólo los conceptos de la vista
+  COALESCE(
+    (SELECT SUM(e.monto)
+     FROM egresos e
+     JOIN vista_conceptos_egresos c ON e.concepto = c.concepto
+     WHERE DATE(e.creado) = f.fecha)
+  , 0) AS total_egresos,
+
+  -- 4) Total efectivo (saldo anterior + ingreso del día)
+  ( (    
+        COALESCE(
+          (SELECT SUM(a.amortizacion)
+           FROM amortizaciones a
+           WHERE a.idventa IS NOT NULL
+             AND DATE(a.creado) < f.fecha)
+        , 0)
+      -
+        COALESCE(
+          (SELECT SUM(e.monto)
+           FROM egresos e
+           JOIN vista_conceptos_egresos c ON e.concepto = c.concepto
+           WHERE DATE(e.creado) < f.fecha)
+        , 0)
+    )
+    +
+    COALESCE(
+      (SELECT SUM(a.amortizacion)
+       FROM amortizaciones a
+       WHERE a.idventa IS NOT NULL
+         AND DATE(a.creado) = f.fecha)
+    , 0)
+  ) AS total_efectivo,
+
+  -- 5) Total en caja (total efectivo – egresos del día)
+  GREATEST(
+    (
+      ( 
+        COALESCE(
+          (SELECT SUM(a.amortizacion)
+           FROM amortizaciones a
+           WHERE a.idventa IS NOT NULL
+             AND DATE(a.creado) < f.fecha)
+        , 0)
+      -
+        COALESCE(
+          (SELECT SUM(e.monto)
+           FROM egresos e
+           JOIN vista_conceptos_egresos c ON e.concepto = c.concepto
+           WHERE DATE(e.creado) < f.fecha)
+        , 0)
+      )
+      +
+      COALESCE(
+        (SELECT SUM(a.amortizacion)
+         FROM amortizaciones a
+         WHERE a.idventa IS NOT NULL
+           AND DATE(a.creado) = f.fecha)
+      , 0)
+    )
+    -
+    COALESCE(
+      (SELECT SUM(e.monto)
+       FROM egresos e
+       JOIN vista_conceptos_egresos c ON e.concepto = c.concepto
+       WHERE DATE(e.creado) = f.fecha)
+    , 0)
+  , 0) AS total_caja
+
+FROM (
+  -- Todas las fechas con movimiento (ingresos u egresos)
+  SELECT DATE(creado) AS fecha FROM amortizaciones
+  UNION
+  SELECT DATE(creado) AS fecha FROM egresos
+) AS f
+ORDER BY f.fecha;
+
+
+-- PRUEBA DE EGRESOS
+/*
+DROP VIEW IF EXISTS vista_egresos_por_fecha_y_concepto;
+CREATE VIEW vista_egresos_por_fecha_y_concepto AS
+SELECT
+  d.fecha,
+  c.concepto,
+  COALESCE(agg.total_egresos, 0) AS total_egresos
+FROM
+  -- 1) todas las fechas en que hay registro de egresos
+  ( SELECT DISTINCT DATE(creado) AS fecha
+    FROM egresos
+  ) AS d
+CROSS JOIN
+  -- 2) lista fija de conceptos que quieres mostrar siempre
+  ( SELECT 'almuerzo'           AS concepto
+    UNION ALL SELECT 'combustible'
+    UNION ALL SELECT 'compra de insumos'
+    UNION ALL SELECT 'otros conceptos'
+    UNION ALL SELECT 'pasajes'
+    UNION ALL SELECT 'servicios varios'
+  ) AS c
+LEFT JOIN
+  -- 3) sumas reales por fecha y concepto
+  ( SELECT
+      DATE(creado)        AS fecha,
+      concepto,
+      ROUND(SUM(monto),2) AS total_egresos
+    FROM egresos
+    GROUP BY DATE(creado), concepto
+  ) AS agg
+  ON agg.fecha    = d.fecha
+ AND agg.concepto = c.concepto
+ORDER BY d.fecha, c.concepto;
+*/
+-- PRUEBA DE INGRESOS
+/*
+DROP VIEW IF EXISTS vista_ingresos_por_formapago;
+CREATE VIEW vista_ingresos_por_formapago AS
+SELECT
+  f.idformapago,
+  f.formapago,
+  d.fecha,
+  COALESCE(agg.total_ingresos, 0) AS total_ingresos
+FROM formapagos AS f
+CROSS JOIN (
+  -- todas las fechas en que hubo cobros de venta
+  SELECT DISTINCT DATE(creado) AS fecha
+  FROM amortizaciones
+  WHERE idventa IS NOT NULL
+) AS d
+LEFT JOIN (
+  -- suma de amortizaciones por forma y fecha
+  SELECT
+    idformapago,
+    DATE(creado) AS fecha,
+    ROUND(SUM(amortizacion), 2) AS total_ingresos
+  FROM amortizaciones
+  WHERE idventa IS NOT NULL
+  GROUP BY idformapago, DATE(creado)
+) AS agg
+  ON agg.idformapago = f.idformapago
+ AND agg.fecha       = d.fecha
+ORDER BY d.fecha, f.idformapago;
+*/
 
 -- PRUEBAS PARA VER EL STOCK
 /*
@@ -490,9 +647,7 @@ INNER JOIN tipomovimientos tm ON m.idtipomov = tm.idtipomov
 WHERE v.estado = 0;
 */
 
--- ************************* VISTA DE ARQUEO DE CAJA *************************
-
--- prueba 
+/*
 DROP VIEW IF EXISTS vista_para_convertir_cotizacion;
 CREATE VIEW vista_para_convertir_cotizacion AS
 SELECT
@@ -513,3 +668,4 @@ LEFT JOIN empresas AS e          ON cli.idempresa  = e.idempresa
 JOIN productos AS pr             ON dc.idproducto  = pr.idproducto
 JOIN subcategorias AS s          ON pr.idsubcategoria = s.idsubcategoria
 WHERE c.idcotizacion IS NOT NULL;
+*/

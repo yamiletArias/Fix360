@@ -81,7 +81,32 @@ require_once "../../partials/header.php";
 <?php
 require_once "../../partials/_footer.php";
 ?>
+<script>
+  // ——— Toggle Activos / Eliminados ———
+  let mostrandoComprasEliminadas = false;
+  const btnVerEliminados = document.getElementById("btnVerEliminados");
+  const contActivos      = document.getElementById("tableDia");
+  const contEliminados   = document.getElementById("tableEliminados");
 
+  btnVerEliminados.addEventListener("click", () => {
+    if (!mostrandoComprasEliminadas) {
+      // Mostrar eliminadas
+      contActivos.style.display    = "none";
+      contEliminados.style.display = "block";
+      cargarComprasEliminadas();
+      btnVerEliminados.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
+      btnVerEliminados.title     = "Volver a compras activas";
+    } else {
+      // Volver a activas
+      contEliminados.style.display = "none";
+      contActivos.style.display    = "block";
+      // No recargamos: la tabla activa ya está cargada
+      btnVerEliminados.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
+      btnVerEliminados.title     = "Ver eliminados";
+    }
+    mostrandoComprasEliminadas = !mostrandoComprasEliminadas;
+  });
+</script>
 <script>
     $(document).on('click', '.btn-amortizar', async function () {
         const id = $(this).data('id');
@@ -306,15 +331,15 @@ require_once "../../partials/_footer.php";
                 // Agregar filas de productos
                 response.forEach((item, i) => {
                     tbody.append(`
-          <tr>
-            <td>${i + 1}</td>
-            <td>${item.producto}</td>
-            <td>${item.cantidad}</td>
-            <td>${parseFloat(item.precio).toFixed(2)}</td>
-            <td>${parseFloat(item.descuento).toFixed(2)} $</td>
-            <td>${parseFloat(item.total_producto).toFixed(2)} $</td>
-          </tr>
-        `);
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${item.producto}</td>
+                        <td>${item.cantidad}</td>
+                        <td>${parseFloat(item.precio).toFixed(2)}</td>
+                        <td>${parseFloat(item.descuento).toFixed(2)} $</td>
+                        <td>${parseFloat(item.total_producto).toFixed(2)} $</td>
+                    </tr>
+                    `);
                 });
 
                 // Cargar amortizaciones si existen
@@ -376,11 +401,11 @@ require_once "../../partials/_footer.php";
         });
 
         // Ver eliminados
-        $("#btnVerEliminados").on("click", () => {
+        /* $("#btnVerEliminados").on("click", () => {
             $("#tableDia").hide();
             $("#tableEliminados").show();
             cargarComprasEliminadas();
-        });
+        }); */
 
         // Delegación de eventos
         $(document).on('click', '.btn-eliminar', function () {
