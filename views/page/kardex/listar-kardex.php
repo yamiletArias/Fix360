@@ -13,7 +13,7 @@ require_once "../../partials/header.php";
       <button type="button" data-modo="dia" class="btn btn-primary active">Día</button>
       <button type="button" data-modo="semana" class="btn btn-primary">Semana</button>
       <button type="button" data-modo="mes" class="btn btn-primary">Mes</button>
-      <button type="button" class="btn btn-danger text-white">
+      <button type="button" id="btnPdfKardex" class="btn btn-danger text-white">
         <i class="fa-solid fa-file-pdf"></i>
       </button>
     </div>
@@ -77,14 +77,16 @@ require_once "../../partials/header.php";
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const inpProducto = document.getElementById('producto');
-    const listaAuto   = document.getElementById('autocomplete-producto');
-    const fechaInput  = document.getElementById('fecha');
-    const botones     = document.querySelectorAll('button[data-modo]');
-    const tablaBody   = document.querySelector('#miTabla tbody');
-    const API_MOV     = 'http://localhost/Fix360/app/controllers/Movimiento.controller.php';
-    const API_STOCK   = 'http://localhost/Fix360/app/controllers/Kardex.Controller.php?task=getStock';
+    const listaAuto = document.getElementById('autocomplete-producto');
+    const fechaInput = document.getElementById('fecha');
+    const botones = document.querySelectorAll('button[data-modo]');
+    const tablaBody = document.querySelector('#miTabla tbody');
+    const API_MOV = 'http://localhost/Fix360/app/controllers/Movimiento.controller.php';
+    const API_STOCK = 'http://localhost/Fix360/app/controllers/Kardex.Controller.php?task=getStock';
 
-    let selectedProduct = { idproducto: null };
+    let selectedProduct = {
+      idproducto: null
+    };
     let currentModo = 'dia';
 
     // ---- Interfaz de fecha ----
@@ -173,13 +175,32 @@ require_once "../../partials/header.php";
       try {
         const res = await fetch(`${API_STOCK}&idproducto=${selectedProduct.idproducto}`);
         const json = await res.json();
-        document.getElementById('stock_actual').value = json.stock_actual ?? '';
-        document.getElementById('stock_min').value    = json.stockmin ?? '';
-        document.getElementById('stock_max').value    = json.stockmax ?? '';
+        const actual = json.stock_actual ?? '';
+        const min = json.stockmin ?? '';
+        const max = json.stockmax ?? '';
+
+        // Rellenar los campos
+        document.getElementById('stock_actual').value = actual;
+        document.getElementById('stock_min').value = min;
+        document.getElementById('stock_max').value = max;
+
+        // Verificar niveles y mostrar alert
+        const a = parseFloat(actual);
+        const mn = parseFloat(min);
+        const mx = parseFloat(max);
+
+        if (!isNaN(a) && !isNaN(mn) && a < mn) {
+          showToast(`¡Atención! El stock actual (${a}) ha bajado por debajo del mínimo (${mn}).`, 'WARNING', 1500);
+        }
+        if (!isNaN(a) && !isNaN(mx) && a > mx) {
+          showToast(`¡Atención! El stock actual (${a}) ha superado el máximo (${mx}).`, 'WARNING', 1500);
+        }
+
       } catch (e) {
         console.error('cargarStock error:', e);
       }
     }
+
 
     // ---- Cargar movimientos ----
     async function cargarMovimientos() {
@@ -212,19 +233,32 @@ require_once "../../partials/header.php";
       }
       $('#miTabla').DataTable({
         data: [],
-        columns: [
-          { title: '#' },
-          { title: 'Fecha' },
-          { title: 'Flujo' },
-          { title: 'Tipo Movimiento' },
-          { title: 'Cantidad' },
-          { title: 'Saldo' }
+        columns: [{
+            title: '#'
+          },
+          {
+            title: 'Fecha'
+          },
+          {
+            title: 'Flujo'
+          },
+          {
+            title: 'Tipo Movimiento'
+          },
+          {
+            title: 'Cantidad'
+          },
+          {
+            title: 'Saldo'
+          }
         ],
         paging: false,
         searching: false,
         info: false,
         ordering: false,
-        language: { emptyTable: msg }
+        language: {
+          emptyTable: msg
+        }
       });
     }
 
@@ -232,7 +266,7 @@ require_once "../../partials/header.php";
     function fmtFecha(iso) {
       if (!iso) return '';
       const d = new Date(iso);
-      const pad = v => String(v).padStart(2,'0');
+      const pad = v => String(v).padStart(2, '0');
       return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
     }
 
@@ -256,8 +290,11 @@ require_once "../../partials/header.php";
       $('#miTabla').DataTable({
         paging: true,
         info: true,
-        search:false,
-        columnDefs: [{ orderable: false, targets: -1 }],
+        search: false,
+        columnDefs: [{
+          orderable: false,
+          targets: -1
+        }],
         language: {
           lengthMenu: "Mostrar _MENU_ por página",
           zeroRecords: "No hay resultados",
@@ -272,5 +309,26 @@ require_once "../../partials/header.php";
     initWithFirstProduct();
 
     fechaInput.addEventListener('change', cargarMovimientos);
-  });
+    
+    document.getElementById('btnPdfKardex').addEventListener('click', () => {
+      if (!selectedProduct.idproducto) {
+    alert('Selecciona primero un producto.');
+    return;
+  }
+  const idp   = selectedProduct.idproducto;
+  const fecha = fechaInput.value;
+  const modo  = currentModo;
+    const nombre  = selectedProduct.subcategoria_producto; 
+
+  // Ajusta el path según dónde sirvas tu PHP:
+  const url = `http://localhost/Fix360/app/reports/reportekardex.php`
+    + `?idproducto=${encodeURIComponent(idp)}`
+    + `&fecha=${encodeURIComponent(fecha)}`
+    + `&modo=${encodeURIComponent(modo)}`;
+
+    window.open(url, '_blank');
+});
+
+});
 </script>
+
