@@ -155,29 +155,27 @@ DELIMITER $$
 CREATE PROCEDURE buscar_producto(
   IN termino_busqueda VARCHAR(255)
 )
-SELECT
-  P.idproducto,
-  CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-  P.precio,
-  (
-    SELECT COALESCE(SUM(
-      CASE 
-        WHEN tm.flujo = 'entrada' THEN m.cantidad
-        WHEN tm.flujo = 'salida' THEN -m.cantidad
-        ELSE 0
-      END
-    ), 0)
-    FROM movimientos m
-    JOIN tipomovimientos tm ON m.idtipomov = tm.idtipomov
-    WHERE m.idkardex = k.idkardex
-  ) AS stock
-FROM productos P
-JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
-JOIN kardex k ON P.idproducto = k.idproducto
-WHERE S.subcategoria LIKE CONCAT('%', termino_busqueda, '%')
-   OR P.descripcion LIKE CONCAT('%', termino_busqueda, '%')
-LIMIT 10;
-END$$
+BEGIN
+  SELECT
+    P.idproducto,
+    CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
+    P.precio,
+    -- En lugar de sumar, tomamos el saldo restante más reciente
+    (
+      SELECT m2.saldorestante
+      FROM movimientos m2
+      WHERE m2.idkardex = k.idkardex
+      ORDER BY m2.idmovimiento DESC
+      LIMIT 1
+    ) AS stock
+  FROM productos P
+  JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
+  JOIN kardex k       ON P.idproducto     = k.idproducto
+  WHERE S.subcategoria LIKE CONCAT('%', termino_busqueda, '%')
+     OR P.descripcion   LIKE CONCAT('%', termino_busqueda, '%')
+  LIMIT 10;
+END $$
+DELIMITER ;
 
 -- 6) PROCEDIMIENTO PARA MOSTRAR EL PROVEEDOR
 DROP PROCEDURE IF EXISTS spuGetProveedores;
@@ -342,7 +340,7 @@ BEGIN
   );
 END $$
 
--- 11) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA = COMPRA ANULADA
+-- 11) PROCEDIMIENTO PARA LA JUSTIFICACION DE LA COMPRA ELIMINADA = COMPRA ANULADA (con devolución de stock)
 DROP PROCEDURE IF EXISTS spuDeleteCompra;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteCompra (
@@ -350,18 +348,71 @@ CREATE PROCEDURE spuDeleteCompra (
   IN _justificacion VARCHAR(255)
 )
 BEGIN
+  DECLARE _idproducto INT;
+  DECLARE _cantidad INT;
+  DECLARE _idkardex INT;
+  DECLARE _saldorestante INT;
+  DECLARE _done INT DEFAULT FALSE;
+
+  DECLARE cur CURSOR FOR 
+    SELECT dc.idproducto, dc.cantidad
+    FROM detallecompra dc
+    WHERE dc.idcompra = _idcompra;
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET _done = TRUE;
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
     ROLLBACK;
     RESIGNAL;
   END;
+
   START TRANSACTION;
+
+    -- 1. Marcar la compra como anulada
     UPDATE compras
     SET estado = FALSE,
         justificacion = _justificacion
     WHERE idcompra = _idcompra;
+
+    -- 2. Procesar cada producto del detalle de la compra
+    OPEN cur;
+    read_loop: LOOP
+      FETCH cur INTO _idproducto, _cantidad;
+      IF _done THEN
+        LEAVE read_loop;
+      END IF;
+
+      -- 2.1 Obtener idkardex del producto
+      SELECT k.idkardex INTO _idkardex
+      FROM kardex k
+      WHERE k.idproducto = _idproducto
+      LIMIT 1;
+
+      -- 2.2 Calcular nuevo saldo restante (restar la cantidad)
+      SELECT saldorestante INTO _saldorestante
+      FROM movimientos
+      WHERE idkardex = _idkardex
+      ORDER BY idmovimiento DESC
+      LIMIT 1;
+
+      SET _saldorestante = IFNULL(_saldorestante, 0) - _cantidad;
+
+      -- 2.3 Insertar movimiento de devolución de compra (flujo: salida)
+      INSERT INTO movimientos (idkardex, idtipomov, fecha, cantidad, saldorestante)
+      VALUES (
+        _idkardex,
+        (SELECT idtipomov FROM tipomovimientos WHERE flujo = 'salida' AND tipomov = 'devolucion' LIMIT 1),
+        CURDATE(),
+        _cantidad,
+        _saldorestante
+      );
+
+    END LOOP;
+    CLOSE cur;
+
   COMMIT;
 END$$
+DELIMITER ;
 
 -- 12) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA = VENTA ANULADA
 DROP PROCEDURE IF EXISTS spuDeleteVenta;

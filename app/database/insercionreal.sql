@@ -415,10 +415,11 @@ INSERT INTO componentes (componente) VALUES
 ('Radiador');
 
 INSERT INTO formapagos (formapago) VALUES 
-('Yape'),
+('Deposito'),
+('Visa'),
 ('Plin'),
-('Efectivo'),
-('Deposito');
+('Yape'),
+('Efectivo');
 -- select * from agendas;
 
 INSERT INTO agendas (idpropietario,fchproxvisita,comentario,estado) VALUES
@@ -510,7 +511,8 @@ INSERT INTO egresos (
 -- Día 31
 (1, 2, 1, 'Gasto diario 2025-05-31', 175.45, '2025-05-31 10:00:00');
 
-INSERT INTO tipomovimientos (flujo,tipomov) VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion');
+INSERT INTO tipomovimientos (flujo,tipomov) 
+VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion'),('salida', 'devolucion');
 
 -- ***************************************************************************************************************
 -- KARDEX - MOVIMIENTOS - TIPO DE MOVIMIENTO
@@ -524,10 +526,17 @@ WHERE idproducto NOT IN (SELECT idproducto FROM kardex);
 INSERT INTO movimientos (idkardex, idtipomov, cantidad, saldorestante)
 SELECT 
   k.idkardex,
-  @id_compra,           -- Movimiento de entrada (compra)
-  k.stockmax,           -- Cantidad que entra = stockmax
-  k.stockmax            -- Saldo restante = stockmax
+  @id_compra,
+  k.stockmax,
+  k.stockmax
 FROM kardex k;
+
+/*
+SELECT idtipomov INTO @id_compra 
+FROM tipomovimientos 
+WHERE tipomov = 'compra' AND flujo = 'entrada' 
+LIMIT 1;
+*/
 
 /*
 SELECT * FROM kardex;
