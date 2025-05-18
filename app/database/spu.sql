@@ -188,7 +188,7 @@ BEGIN
     (_idproducto,
      CURDATE(),          -- o la fecha que prefieras
      _stockmin,
-     nullif(_stockmax,'')
+     NULLIF(_stockmax,'')
     );
 END$$
 
@@ -1135,4 +1135,54 @@ END$$
 
 -- call spDeleteOrdenServicio(1)
 -- CALL spGetUltimoKilometraje(8);
--- select * from ordenservicios
+-- select * from ordenservicios;
+
+
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS spListMovimientosPorProductoPorPeriodo $$
+CREATE PROCEDURE spListMovimientosPorProductoPorPeriodo(
+    IN in_idproducto INT,
+    IN in_modo       VARCHAR(10),
+    IN in_fecha      DATE
+)
+BEGIN
+    DECLARE v_inicio DATE;
+    DECLARE v_fin    DATE;
+
+    -- Determina el rango según el modo
+    IF in_modo = 'dia' THEN
+        SET v_inicio = in_fecha;
+        SET v_fin    = in_fecha;
+    ELSEIF in_modo = 'semana' THEN
+        SET v_inicio = DATE_SUB(in_fecha, INTERVAL WEEKDAY(in_fecha) DAY);
+        SET v_fin    = DATE_ADD(v_inicio, INTERVAL 6 DAY);
+    ELSEIF in_modo = 'mes' THEN
+        SET v_inicio = DATE_SUB(in_fecha, INTERVAL DAY(in_fecha)-1 DAY);
+        SET v_fin    = LAST_DAY(in_fecha);
+    ELSE
+        SET v_inicio = in_fecha;
+        SET v_fin    = in_fecha;
+    END IF;
+
+    -- Selección de movimientos
+    SELECT
+        m.fecha,
+        tm.flujo,
+        tm.tipomov       AS tipo_movimiento,
+        m.cantidad,
+        m.saldorestante  AS saldo_restante
+    FROM movimientos AS m
+    INNER JOIN kardex           AS k  ON k.idkardex = m.idkardex
+    INNER JOIN tipomovimientos  AS tm ON tm.idtipomov  = m.idtipomov
+    WHERE k.idproducto = in_idproducto
+      AND m.fecha BETWEEN v_inicio AND v_fin
+    ORDER BY m.fecha
+    ;
+END $$
+ 
+DELIMITER ;
+
+CALL spListMovimientosPorProductoPorPeriodo(2, 'mes', '2025-05-01');
+

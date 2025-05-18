@@ -49,7 +49,7 @@ DELIMITER ;
 CALL test_movimientos();
 DROP PROCEDURE IF EXISTS test_movimientos;
 
-select * from movimientos;
+SELECT * FROM movimientos;
 
 
 
@@ -68,7 +68,7 @@ SELECT
   ) AS stock_actual
 FROM kardex AS k;
 
-select * from v_stock_actual;
+SELECT * FROM v_stock_actual;
 
 
 
@@ -77,6 +77,7 @@ DELIMITER $$
 -- select * from kardex where idproducto = 52
 -- call spStockActualPorProducto(52)
 -- 2) SP para traer el stock actual de un producto
+/*
 delimiter $$
 CREATE PROCEDURE spStockActualPorProducto(
   IN _idproducto INT
@@ -110,6 +111,7 @@ BEGIN
     ) AS stock_actual;
   END IF;
 END$$
+*/
 -- select * from movimientos where idmovimiento = 113;
 -- CALL spMovimientosPorProducto(42);
 -- select * from productos where idproducto = 42
@@ -158,5 +160,43 @@ BEGIN
     WHERE k.idkardex = _idkardex;
   END IF;
 END$$
+
+CALL buscar_producto('s')
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS buscar_producto $$
+CREATE PROCEDURE buscar_producto(
+    IN in_termino_busqueda VARCHAR(255)
+)
+BEGIN
+    SELECT
+        P.idproducto,
+        CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
+        P.precio,
+        (
+            SELECT COALESCE(
+                SUM(
+                    CASE 
+                        WHEN tm.flujo = 'entrada' THEN m.cantidad
+                        WHEN tm.flujo = 'salida'  THEN -m.cantidad
+                        ELSE 0
+                    END
+                ), 
+                0
+            )
+            FROM movimientos AS m
+            JOIN tipomovimientos AS tm ON m.idtipomov = tm.idtipomov
+            WHERE m.idkardex = k.idkardex
+        ) AS stock
+    FROM productos     AS P
+    JOIN subcategorias AS S ON P.idsubcategoria = S.idsubcategoria
+    JOIN kardex        AS k ON P.idproducto     = k.idproducto
+    WHERE S.subcategoria LIKE CONCAT('%', in_termino_busqueda, '%')
+       OR P.descripcion   LIKE CONCAT('%', in_termino_busqueda, '%')
+    LIMIT 10;
+END $$
+
+DELIMITER ;
+
 
 
