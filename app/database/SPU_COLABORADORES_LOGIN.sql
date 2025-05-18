@@ -102,7 +102,41 @@ BEGIN
   END IF;
 END$$
 
-
-
+-- call spGetColaboradorInfo(1)
+DROP PROCEDURE IF EXISTS spGetColaboradorInfo;
+DELIMITER $$
+CREATE PROCEDURE spGetColaboradorInfo(
+    IN in_idcolaborador INT
+)
+BEGIN
+    SELECT
+        CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompleto,
+        col.namuser,
+        r.rol,
+        -- Construye un JSON array de rutas: ["ruta1","ruta2",...]
+        CONCAT(
+          '[',
+          IFNULL(
+            GROUP_CONCAT(
+              CONCAT(
+                '"',
+                REPLACE(v.ruta, '"', '\"'),
+                '"'
+              )
+            ),
+            ''
+          ),
+          ']'
+        ) AS permisos
+    FROM colaboradores AS col
+    JOIN contratos    AS ct ON ct.idcontrato = col.idcontrato
+    JOIN personas     AS p  ON p.idpersona  = ct.idpersona
+    JOIN roles        AS r  ON r.idrol      = ct.idrol
+    LEFT JOIN rolVistas AS rv ON rv.idrol   = r.idrol
+    LEFT JOIN vistas    AS v  ON v.idvista  = rv.idvista
+    WHERE col.idcolaborador = in_idcolaborador
+    GROUP BY col.idcolaborador
+    LIMIT 1;
+END $$
 
 -- select * from colaboradores;
