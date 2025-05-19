@@ -4,8 +4,6 @@
 ALTER TABLE detalleventa
 MODIFY COLUMN idorden INT NULL,
 MODIFY COLUMN idpromocion INT NULL;
--- POR EL MOMENTO ALTERAR ID COLABORADOR EN COTIZACIONES
-ALTER TABLE cotizaciones MODIFY idcolaborador INT NULL;
 
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
@@ -295,17 +293,20 @@ CREATE PROCEDURE spuRegisterCotizaciones (
   IN _fechahora TIMESTAMP,
   IN _vigenciadias INT,
   IN _moneda VARCHAR(20),
+  IN _idcolaborador INT,
   IN _idcliente INT
 )
 BEGIN
   INSERT INTO cotizaciones (
     idcliente,
+    idcolaborador,
     fechahora,
     vigenciadias,
     moneda
   )
   VALUES (
     _idcliente,
+    _idcolaborador,
     _fechahora,
     _vigenciadias,
     _moneda
@@ -476,6 +477,32 @@ BEGIN
   COMMIT;
 END$$
 
+-- PROCEDIMIENTO PARA ELIMINAR COTIZACIONES
+DROP PROCEDURE IF EXISTS spuDeleteCotizacion;
+DELIMITER $$
+CREATE PROCEDURE spuDeleteCotizacion (
+  IN _idcotizacion INT,
+  IN _justificacion VARCHAR(255)
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+
+  START TRANSACTION;
+
+    -- Solo marcamos como anulada (no afecta stock)
+    UPDATE cotizaciones
+    SET estado = FALSE,
+        justificacion = _justificacion
+    WHERE idcotizacion = _idcotizacion;
+
+  COMMIT;
+END$$
+DELIMITER ;
+
 -- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
 DELIMITER $$
@@ -553,6 +580,43 @@ BEGIN
     AND C.estado = TRUE
   ORDER BY C.fechacompra;
 END$$
+
+-- 15) PROCEDIMIENTO PARA DATOS DE COTIZACIÓN (DIA, SEMANA Y MES)
+DROP PROCEDURE IF EXISTS spListCotizacionesPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListCotizacionesPorPeriodo(
+  IN _modo   ENUM('dia','semana','mes'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date, end_date DATE;
+  IF _modo='semana' THEN
+    SET start_date=DATE_SUB(_fecha,INTERVAL WEEKDAY(_fecha) DAY),
+        end_date=DATE_ADD(start_date,INTERVAL 6 DAY);
+  ELSEIF _modo='mes' THEN
+    SET start_date=DATE_FORMAT(_fecha,'%Y-%m-01'),
+        end_date=LAST_DAY(_fecha);
+  ELSE
+    SET start_date=_fecha, end_date=_fecha;
+  END IF;
+
+  SELECT
+    v.idcotizacion AS id,
+    v.cliente,
+    SUM(v.precio) AS total,
+    v.vigencia,
+    CASE
+      WHEN DATE_ADD(DATE(v.fechahora),INTERVAL v.vigencia DAY)>=CURRENT_DATE()
+        THEN 'vigente'
+      ELSE 'expirada'
+    END AS estado_vigencia,
+    DATE(v.fechahora) AS fecha
+  FROM vs_cotizaciones v
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+  GROUP BY v.idcotizacion, v.cliente, v.vigencia, DATE(v.fechahora)
+  ORDER BY DATE(v.fechahora);
+END$$
+DELIMITER ;
 
 -- 15) PROCEDIMIENTO PARA BUSCAR CLIENTES
 DROP PROCEDURE IF EXISTS buscar_cliente;

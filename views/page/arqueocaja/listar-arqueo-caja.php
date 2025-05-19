@@ -38,7 +38,14 @@ require_once "../../partials/header.php";
                 </label>
                 <div class="col-sm-3">
                     <input id="presentado-por" type="text" readonly class="form-control-plaintext input border-bottom"
-                        value="Elena Castilla">
+                        value="<?=
+                            htmlspecialchars(
+                                $usuario['nombreCompleto']    // o $usuario['namuser'], según tu SP
+                                ?? 'Invitado',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            )
+                            ?>">
                 </div>
                 <label for="fecha" class="col-sm-3 col-form-label fw-bold input">
                     <i class="fa-solid fa-calendar me-2"></i>Fecha
@@ -285,6 +292,7 @@ require_once "../../partials/_footer.php";
         await cargarResumen();
     }
 
+
     document.addEventListener('DOMContentLoaded', () => {
         const hoy = new Date().toISOString().slice(0, 10);
         document.getElementById('fecha').value = hoy;
@@ -294,6 +302,21 @@ require_once "../../partials/_footer.php";
         /* document.getElementById('print-btn').addEventListener('click', () => {
             window.print();
         }); */
+        document.getElementById('print-btn').addEventListener('click', () => {
+            const fecha = document.getElementById('fecha').value;
+            if (!fecha) {
+                alert('Selecciona primero una fecha');
+                return;
+            }
+            // Si quieres pasar el nombre de usuario, toma la variable PHP 
+            // (asegúrate de imprimirla en JS)
+            const usuario = <?= json_encode($usuario['nombreCompleto'] ?? 'Invitado') ?>;
+
+            const url = `<?= SERVERURL ?>app/reports/reportearqueo.php`
+                + `?fecha=${encodeURIComponent(fecha)}`
+                + `&usuario=${encodeURIComponent(usuario)}`;
+            window.open(url, '_blank');
+        });
     });
 </script>
 </body>

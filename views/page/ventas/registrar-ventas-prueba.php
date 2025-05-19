@@ -1,22 +1,12 @@
 <?php
-const NAMEVIEW = "Ventas";
+const NAMEVIEW = "Ventas | Registro";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
+
 <div class="container-main mt-5">
   <div class="card border">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <div>
-        <h3 class="mb-0">Complete los datos</h3>
-      </div>
-      <div>
-        <a href="listar-ventas.php" class="btn input btn-success">
-          Mostrar Lista
-        </a>
-      </div>
-    </div>
-
     <div class="card-body">
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
@@ -54,11 +44,6 @@ require_once "../../partials/header.php";
                 ...
               </button>
             </div>
-            <!-- <div class="form-floating">
-              <input name="cliente" id="cliente" type="text" class=" form-control input" placeholder="Producto"
-                required />
-              <label for="cliente">Cliente</label>
-            </div> -->
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-floating">
@@ -131,7 +116,7 @@ require_once "../../partials/header.php";
                   required />
                 <label for="descuento">DSCT</label>
               </div>
-              <button type="button" class="btn btn-success" id="agregarProducto">Agregar</button>
+              <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
             </div>
           </div>
         </div>
@@ -140,75 +125,79 @@ require_once "../../partials/header.php";
   </div>
 
   <!-- Sección de Detalles de la Venta -->
-  <div class="container-main-2 mt-4">
-    <div class="card border">
 
-      <div class="card-body p-3">
-        <table class="table table-striped table-sm mb-0" id="tabla-detalle">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>Precio</th>
-              <th>Cantidad</th>
-              <th>Dsct</th>
-              <th>Importe</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Aquí se agregarán los detalles de los productos -->
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer text-end">
-        <table class="tabla table-sm">
-          <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 60%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 5%;">
-          </colgroup>
-          <tbody>
-            <tr>
-              <td colspan="4" class="text-end">Importe</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">DSCT</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">IGV</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">NETO</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="mt-4">
-          <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
-            Guardar
-          </a>
-          <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarVenta">
-            Cancelar
-          </a>
-        </div>
+  <div class="card mt-2 border">
+    <!-- <div class="card border"> -->
+    <div class="card-body">
+      <table class="table table-striped table-sm" id="tabla-detalle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Dsct</th>
+            <th>Importe</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se agregarán los detalles de los productos -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card mt-2 border">
+    <div class="card-footer text-end">
+      <table class="tabla table-sm">
+        <colgroup>
+          <col style="width: 10%;">
+          <col style="width: 60%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 5%;">
+        </colgroup>
+        <tbody>
+          <tr>
+            <td colspan="4" class="text-end">NETO</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">DSCT</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">IGV</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">Importe</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-4">
+        <!-- <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
+            Aceptar
+          </a> -->
+        <button id="btnFinalizarVenta" type="button" class="btn btn-success text-end">Aceptar</button>
+        <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
+          Cancelar
+        </a>
       </div>
     </div>
   </div>
+</div>
 </div>
 </div>
 
@@ -286,54 +275,172 @@ require_once "../../partials/header.php";
   </div>
 </div>
 <!-- Formulario Venta -->
-</body>
 
-</html>
+<?php
+require_once "../../partials/_footer.php";
+?>
+
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-    const vehiculoSelect = document.getElementById("vehiculo");
-    let clienteId = null;
 
-    // 1) Función para cargar vehículos tras seleccionar cliente
+    // 1) Referencias únicas
+    const hiddenIdCli = document.getElementById("hiddenIdCliente");
+    const inputProp = document.getElementById("propietario");
+    const vehiculoSelect = document.getElementById("vehiculo");
+    const vbuscado = document.getElementById("vbuscado");
+    const selectMetodo = document.getElementById("selectMetodo");
+    const tablaRes = document.querySelector("#tabla-resultado tbody");
+    let propietarioTimer;
+
+    // 1) Cargo el cliente de la cotización y lo pinto en “Propietario”
+    const cotId = new URLSearchParams(window.location.search).get('id');
+    if (cotId) {
+      fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=getClienteCotizacion&idcotizacion=${cotId}`)
+        .then(res => res.json())
+        .then(cab => {
+          hiddenIdCli.value = cab.cliente;
+          inputProp.value = cab.cliente;
+          hiddenIdCli.dispatchEvent(new Event('change'));
+        })
+        .catch(console.error);
+    }
+
+    // 3) Cuando cambia hiddenIdCli, cargo sus vehículos
     function cargarVehiculos() {
-      const id = hiddenIdCliente.value;
-      vehiculoSelect.innerHTML = '<option value="">Eliga un vehículo</option>';
+      const id = hiddenIdCli.value;
+      vehiculoSelect.innerHTML = '<option value="">Sin vehículo</option>';
       if (!id) return;
       fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(id)}`)
         .then(res => res.json())
         .then(data => {
           data.forEach(item => {
-            const option = document.createElement("option");
-            option.value = item.idvehiculo;
-            option.textContent = item.vehiculo;
-            vehiculoSelect.appendChild(option);
+            const opt = document.createElement("option");
+            opt.value = item.idvehiculo;
+            opt.textContent = item.vehiculo;
+            vehiculoSelect.appendChild(opt);
           });
         })
-        .catch(err => console.error("Error al cargar vehículos:", err));
+        .catch(console.error);
     }
+    hiddenIdCli.addEventListener("change", cargarVehiculos);
 
-    // 2) Al cambiar el hiddenIdCliente, recarga vehículos
-    hiddenIdCliente.addEventListener("change", cargarVehiculos);
+    // 4) Si abres el modal, también muestro al cliente actual
+    document.getElementById('miModal')
+      .addEventListener('show.bs.modal', () => {
+        tablaRes.innerHTML = '';
+        if (hiddenIdCli.value && inputProp.value) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+          <td>1</td>
+          <td>${inputProp.value}</td>
+          <td>Cliente de cotización</td>
+          <td><span class="badge bg-success">Cliente actual</span></td>`;
+          tablaRes.appendChild(tr);
+        }
+      });
+    // — FIN cargarVehiculos —
 
-    // 3) Cuando confirmas en el modal, además de poner el input, actualiza clienteId y dispara change
+    // 1) Actualiza las opciones de búsqueda según Persona / Empresa
+    window.actualizarOpciones = function () {
+      const esEmpresa = document.getElementById("rbtnempresa").checked;
+      // redefinimos los métodos disponibles
+      selectMetodo.innerHTML = esEmpresa
+        ? '<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>'
+        : '<option value="dni">DNI</option><option value="nombre">Apellidos y Nombres</option>';
+    };
+
+    // 2) Función que invoca al controlador y pinta resultados
+    window.buscarPropietario = function () {
+      const tipo = document.querySelector('input[name="tipoBusqueda"]:checked').id === 'rbtnempresa' ? 'empresa' : 'persona';
+      const metodo = selectMetodo.value;
+      const valor = vbuscado.value.trim();
+      if (!valor) {
+        tablaRes.innerHTML = '';
+
+        // IMPORTANTE: Si hay un cliente ya seleccionado, volver a mostrarlo cuando
+        // se borra la búsqueda
+        if (hiddenIdCli.value && inputProp.value) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+                <td>1</td>
+                <td>${inputProp.value}</td>
+                <td>Cliente de cotización</td>
+                <td>
+                    <span class="badge bg-success">Cliente actual</span>
+                </td>`;
+          tablaRes.appendChild(tr);
+        }
+        return;
+      }
+
+      fetch(`http://localhost/fix360/app/controllers/propietario.controller.php?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`)
+        .then(r => r.json())
+        .then(data => {
+          tablaRes.innerHTML = '';
+
+          // Siempre mostrar primero el cliente actual de la cotización si existe
+          if (hiddenIdCli.value && inputProp.value) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>★</td>
+                <td>${inputProp.value}</td>
+                <td>Cliente de cotización</td>
+                <td>
+                    <span class="badge bg-success">Cliente actual</span>
+                </td>`;
+            tablaRes.appendChild(tr);
+          }
+
+          data.forEach((item, i) => {
+            // No mostrar el cliente actual de nuevo en los resultados
+            if (item.idcliente == hiddenIdCli.value) return;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${item.nombre}</td>
+            <td>${item.documento}</td>
+            <td>
+              <button class="btn btn-success btn-sm" data-id="${item.idcliente}">
+                <i class="fa-solid fa-circle-check"></i>
+              </button>
+            </td>`;
+            tablaRes.appendChild(tr);
+          });
+        })
+        .catch(console.error);
+    };
+
+    // 3) Dispara búsqueda con debounce al tipear o cambiar método
+    vbuscado.addEventListener('input', () => {
+      clearTimeout(propietarioTimer);
+      propietarioTimer = setTimeout(buscarPropietario, 300);
+    });
+    selectMetodo.addEventListener('change', () => {
+      clearTimeout(propietarioTimer);
+      propietarioTimer = setTimeout(buscarPropietario, 300);
+    });
+
+    // 4) Cuando el usuario hace click en "✔" asignamos ID y nombre, y cerramos modal
     document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
       const btn = e.target.closest(".btn-success");
       if (!btn) return;
       const id = btn.getAttribute("data-id");
-      const fila = btn.closest("tr");
-      const nombre = fila.cells[1].textContent;
-
-      hiddenIdCliente.value = id;
-      document.getElementById("propietario").value = nombre;
-      clienteId = id;                        // ← actualizar variable interna
-      hiddenIdCliente.dispatchEvent(new Event("change"));  // ← dispara carga de vehículos
+      const nombre = btn.closest("tr").cells[1].textContent;
+      hiddenIdCli.value = id;
+      inputProp.value = nombre;
+      // disparar evento change para que cargue vehículos, si aplica
+      hiddenIdCli.dispatchEvent(new Event("change"));
+      // cerrar modal
+      document.querySelector("#miModal .btn-close").click();
     });
 
-    // … resto de tu código de ventas …
-  });
+    // Inicializamos las opciones al abrir el modal
+    actualizarOpciones();
 
+  });
 </script>
 
 <script>
@@ -352,8 +459,8 @@ require_once "../../partials/header.php";
     const agregarProductoBtn = document.getElementById("agregarProducto");
     const tabla = document.querySelector("#tabla-detalle tbody");
     const detalleVenta = [];
-    const vehiculoSelect = document.getElementById("vehiculo");
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
+
     function initDateField(id) {
       const el = document.getElementById(id);
       if (!el) return;               // si no existe, no hace nada
@@ -365,6 +472,7 @@ require_once "../../partials/header.php";
       el.min = fmt(twoAgo);
       el.max = fmt(today);
     }
+
     initDateField('fechaIngreso');
     const fechaInput = document.getElementById("fechaIngreso");
     const monedaSelect = document.getElementById('moneda');
@@ -391,60 +499,123 @@ require_once "../../partials/header.php";
     function estaDuplicado(idproducto = 0) {
       return detalleVenta.some(d => d.idproducto == idproducto);
     }
+    const params = new URLSearchParams(window.location.search);
+    const cotId = params.get('id');
+    if (cotId) {
+      // 1) Cabecera
+      fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=getCabecera&idcotizacion=${cotId}`)
+        .then(res => res.json())
+        .then(cab => {
+          hiddenIdCliente.value = cab.idcliente; // ID interno de cliente
+          inputProp.value = cab.cliente; // Nombre para el input “Propietario”
+          fechaInput.value = cab.fechahora.split(' ')[0]; // (el resto: monedaSelect, fechaInput…)
+          monedaSelect.value = cab.moneda;
+          hiddenIdCliente.dispatchEvent(new Event('change')); // Dispara el change para recargar “vehículos”
+        })
+        .catch(console.error);
 
+      // 2) Detalle: insertar directo en la tabla
+      fetch(`<?= SERVERURL ?>app/controllers/Detcotizacion.controller.php`
+        + `?idcotizacion=${cotId}`)
+        .then(res => res.json())
+        .then(items => {
+          items.forEach(item => {
+            console.log(item);
+            const precio = parseFloat(item.precio);
+            const cantidad = parseFloat(item.cantidad);
+            const descuento = parseFloat(item.descuento);
+            const importe = precio * cantidad - descuento;
 
-    // --- Agregar Producto al Detalle ---
-
-    agregarProductoBtn.addEventListener("click", () => {
-      const nombre = inputProductElement.value;
-      const precio = parseFloat(inputPrecio.value);
-      const cantidad = parseFloat(inputCantidad.value);
-      const descuento = parseFloat(inputDescuento.value);
-      if (!nombre || isNaN(precio) || isNaN(cantidad)) {
-        return alert("Completa todos los campos correctamente.");
-      }
-      if (estaDuplicado(selectedProduct.idproducto)) {
-        alert("Este producto ya ha sido agregado.");
-        inputProductElement.value = "";
-        inputPrecio.value = "";
-        inputCantidad.value = 1;
-        inputDescuento.value = 0;
-        return;
-      }
-      const importe = (precio * cantidad) - descuento;
-      const fila = document.createElement("tr");
-      fila.innerHTML = `
-            <td>${tabla.rows.length + 1}</td>
-            <td>${nombre}</td>
+            const fila = document.createElement("tr");
+            fila.dataset.idproducto = item.idproducto;
+            fila.innerHTML = `
+            <td>0</td>
+            <td>${item.producto}</td>
             <td>${precio.toFixed(2)}</td>
             <td>${cantidad}</td>
             <td>${descuento.toFixed(2)}</td>
             <td>${importe.toFixed(2)}</td>
-            <td><button class="btn btn-danger btn-sm">X</button></td>
-        `;
-      fila.querySelector("button").addEventListener("click", () => {
+            <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+          `;
+
+            // Listener de “quitar”
+            fila.querySelector(".btn-quitar").addEventListener("click", () => {
+              fila.remove();
+              const idx = detalleVenta.findIndex(d => d.idproducto == item.idproducto);
+              if (idx >= 0) detalleVenta.splice(idx, 1);
+              actualizarNumeros();
+              calcularTotales();
+            });
+
+            tabla.appendChild(fila);
+            detalleVenta.push({
+              idproducto: item.idproducto, producto: item.producto,
+              precio, cantidad, descuento,
+              importe: importe.toFixed(2)
+            });
+          });
+          actualizarNumeros();
+          calcularTotales();
+        })
+        .catch(console.error);
+    }
+
+    // --- Agregar Producto al Detalle ---
+    agregarProductoBtn.addEventListener("click", () => {
+      const idp = selectedProduct.idproducto;
+      const nombre = inputProductElement.value;
+      const precio = parseFloat(inputPrecio.value);
+      const cantidad = parseFloat(inputCantidad.value);
+      const descuento = parseFloat(inputDescuento.value);
+
+      if (!nombre || isNaN(precio) || isNaN(cantidad)) {
+        return alert("Completa todos los campos correctamente.");
+      }
+      if (detalleVenta.some(d => d.idproducto === idp)) {
+        alert("Este producto ya ha sido agregado.");
+        return resetCamposProducto();
+      }
+
+      const importe = (precio * cantidad) - descuento;
+      const fila = document.createElement("tr");
+      // le pongo data-idproducto a la fila
+      fila.dataset.idproducto = idp;
+      fila.innerHTML = `
+        <td>${tabla.rows.length + 1}</td>
+        <td>${nombre}</td>
+        <td>${precio.toFixed(2)}</td>
+        <td>${cantidad}</td>
+        <td>${descuento.toFixed(2)}</td>
+        <td>${importe.toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+      `;
+      // al crear el botón de quitar…
+      fila.querySelector(".btn-quitar").addEventListener("click", () => {
+        // 1) quito la fila del DOM
         fila.remove();
+        // 2) quito del array usando el idproducto guardado en la fila
+        const idElim = parseInt(fila.dataset.idproducto, 10);
+        const idx = detalleVenta.findIndex(d => d.idproducto === idElim);
+        if (idx >= 0) detalleVenta.splice(idx, 1);
+        // 3) renumero y recalculo
         actualizarNumeros();
         calcularTotales();
       });
+
       tabla.appendChild(fila);
 
-      detalleVenta.push({
-        idproducto: selectedProduct.idproducto,
-        producto: nombre,
-        precio, cantidad, descuento,
-        importe: importe.toFixed(2)
-      });
-
-      // Reset campos
-      inputProductElement.value = "";
-      inputPrecio.value = "";
-      inputStock.value = "";
-      inputCantidad.value = 1;
-      inputDescuento.value = 0;
-
+      detalleVenta.push({ idproducto: idp, producto: nombre, precio, cantidad, descuento, importe: importe.toFixed(2) });
+      resetCamposProducto();
       calcularTotales();
     });
+
+    function resetCamposProducto() {
+      inputProductElement.value = "";
+      inputStock.value = "";
+      inputPrecio.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
+    }
 
     function actualizarNumeros() {
       const filas = tabla.getElementsByTagName("tr");
@@ -467,6 +638,7 @@ require_once "../../partials/header.php";
       let currentFocus = -1;
       input.addEventListener("keydown", function (e) {
         const items = itemsDiv.getElementsByTagName("div");
+        if (!items.length) return;
         if (e.key === "ArrowDown") {
           currentFocus++;
           addActive(items);
@@ -475,24 +647,22 @@ require_once "../../partials/header.php";
           addActive(items);
         } else if (e.key === "Enter") {
           e.preventDefault();
-          if (currentFocus > -1 && items[currentFocus]) {
-            items[currentFocus].click();
-          }
+          if (currentFocus > -1) items[currentFocus].click();
         }
       });
 
       function addActive(items) {
-        if (!items) return false;
         removeActive(items);
         if (currentFocus >= items.length) currentFocus = 0;
         if (currentFocus < 0) currentFocus = items.length - 1;
-        items[currentFocus].classList.add("autocomplete-active");
+        const el = items[currentFocus];
+        el.classList.add("autocomplete-active");
+        // esto hará que el elemento activo se vea
+        el.scrollIntoView({ block: "nearest" });
       }
 
       function removeActive(items) {
-        for (let i = 0; i < items.length; i++) {
-          items[i].classList.remove("autocomplete-active");
-        }
+        Array.from(items).forEach(i => i.classList.remove("autocomplete-active"));
       }
     }
 
@@ -501,7 +671,7 @@ require_once "../../partials/header.php";
       cerrarListas();
       if (!input.value) return;
       const searchTerm = input.value;
-      fetch(`http://localhost/Fix360/app/controllers/Compra.controller.php?q=${searchTerm}&type=producto`)
+      fetch(`http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`)
         .then(response => response.json())
         .then(data => {
           const itemsDiv = document.createElement("div");
@@ -561,7 +731,6 @@ require_once "../../partials/header.php";
     });
 
     // --- Generación de Serie y Comprobante ---
-
     function generateNumber(type) {
       return `${type}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
     }
@@ -582,7 +751,6 @@ require_once "../../partials/header.php";
     inicializarCampos();
 
     // --- Navegación con Enter entre campos de producto ---
-
     inputProductElement.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); inputPrecio.focus(); } });
     inputPrecio.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); inputCantidad.focus(); } });
     inputCantidad.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); inputDescuento.focus(); } });
@@ -590,95 +758,79 @@ require_once "../../partials/header.php";
       if (e.key === "Enter") {
         e.preventDefault();
         agregarProductoBtn.focus();
-        // o bien: agregarProductoBtn.click();
+        // o : agregarProductoBtn.click();
       }
     });
 
     // --- Guardar Venta ---
-
-
-    btnFinalizarVenta.addEventListener("click", async function (e) {
+    btnFinalizarVenta.addEventListener('click', function (e) {
       e.preventDefault();
-      btnFinalizarVenta.disabled = true;
-      btnFinalizarVenta.textContent = "Guardando...";
-      numSerieInput.disabled = numComInput.disabled = false;
 
       if (detalleVenta.length === 0) {
-        alert("Agrega al menos un producto.");
-        btnFinalizarVenta.disabled = false;
-        btnFinalizarVenta.textContent = "Guardar";
+        showToast("Agrega al menos un producto.", "WARNING", 2000);
         return;
       }
 
-      const idVehiculo = vehiculoSelect.value ? parseInt(vehiculoSelect.value) : null;
-      /* const idVehiculo = parseInt(vehiculoSelect.value);
-      if (!idVehiculo) {
-        alert("Selecciona un vehículo.");
-        btnFinalizarVenta.disabled = false;
-        btnFinalizarVenta.textContent = "Guardar";
-        return;
-      } */
+      Swal.fire({
+        title: '¿Deseas guardar la venta?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33'
+      }).then(result => {
+        if (!result.isConfirmed) return;
 
-      const km = parseFloat(document.getElementById("kilometraje").value) || 0;
+        btnFinalizarVenta.disabled = true;
+        btnFinalizarVenta.textContent = 'Guardando...';
+        numSerieInput.disabled = numComInput.disabled = false;
 
-      const data = {
-        tipocom: document.querySelector('input[name="tipo"]:checked').value,
-        fechahora: fechaInput.value.trim(),
-        numserie: numSerieInput.value.trim(),
-        numcom: numComInput.value.trim(),
-        moneda: monedaSelect.value,
-        idcliente: hiddenIdCliente.value,
-        idvehiculo: idVehiculo, // puede ser null
-        kilometraje: km,         // puede ser 0 o null
-        productos: detalleVenta
-      };
+        const idVehiculo = vehiculoSelect.value ? parseInt(vehiculoSelect.value) : null;
+        const km = parseFloat(document.getElementById("kilometraje").value) || 0;
 
-      const confirmacion = await ask("¿Estás seguro de registrar esta venta?", "Confirmar Venta");
-      if (!confirmacion) {
-        showToast('Registro cancelado.', 'WARNING', 1500);
-        btnFinalizarVenta.disabled = false;
-        btnFinalizarVenta.textContent = "Guardar";
-        return;
-      }
+        const data = {
+          tipocom: document.querySelector('input[name="tipo"]:checked').value,
+          fechahora: fechaInput.value.trim(),
+          numserie: numSerieInput.value.trim(),
+          numcom: numComInput.value.trim(),
+          moneda: monedaSelect.value,
+          idcliente: hiddenIdCliente.value,
+          idvehiculo: idVehiculo,
+          kilometraje: km,
+          productos: detalleVenta
+        };
 
-      fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-        .then(r => r.text())
-        .then(text => {
-          try {
-            const json = JSON.parse(text);
-            if (json.status === "success") {
-              Swal.fire({
-                icon: 'success',
-                title: '¡Venta registrada con éxito!',
-                showConfirmButton: false,
-                timer: 1800
-              }).then(() => window.location.href = 'listar-ventas.php');
-            } else {
-              throw new Error();
-            }
-          } catch {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Respuesta inesperada del servidor.'
-            });
-          }
+        fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
         })
-        .finally(() => {
-          btnFinalizarVenta.disabled = false;
-          btnFinalizarVenta.textContent = "Guardar";
-        });
+          .then(res => res.json())
+          .then(json => {
+            if (json.status === "success") {
+              showToast('Venta registrada exitosamente.', 'SUCCESS', 1500);
+              setTimeout(() => {
+                window.location.href = 'listar-ventas.php';
+              }, 1500);
+            } else {
+              Swal.fire('Error', 'No se pudo registrar la venta.', 'error');
+            }
+          })
+          .catch(() => Swal.fire('Error', 'Fallo de conexión.', 'error'))
+          .finally(() => {
+            btnFinalizarVenta.disabled = false;
+            btnFinalizarVenta.textContent = "Guardar";
+          });
+      });
     });
   });
 </script>
-<!-- <script src="<?= SERVERURL ?>views/page/ventas/js/registrar-ventas.js"></script> -->
-<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+<!-- <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script> -->
 <!-- js de carga moneda -->
+
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-<?php
-require_once "../../partials/_footer.php";
-?>
+
+</body>
+
+</html>

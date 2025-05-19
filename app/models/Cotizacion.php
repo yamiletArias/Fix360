@@ -13,8 +13,8 @@ class Cotizacion extends Conexion
 
   //LLEVAR DATOS
   public function getCabeceraById(int $id): array
-    {
-        $sql = "
+  {
+    $sql = "
             SELECT 
                 c.idcotizacion,
                 c.idcliente,
@@ -26,24 +26,92 @@ class Cotizacion extends Conexion
             WHERE c.idcotizacion = ?
             LIMIT 1
         ";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-    }
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+  }
+
+  /**
+   * Devuelve el detalle completo (productos, precio, cantidad, descuento) de una cotización.
+   */
+  public function getDetalleById(int $idcotizacion): array
+  {
+    $sql = "
+      SELECT 
+        dc.idproducto,
+        p.subcategoria_producto AS producto,
+        dc.precio,
+        dc.cantidad,
+        dc.descuento
+      FROM detallecotizacion dc
+      JOIN productos p ON p.idproducto = dc.idproducto
+      WHERE dc.idcotizacion = ?
+      ORDER BY dc.iddetallecotizacion ASC
+    ";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$idcotizacion]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
 
   public function getAll(): array
-    {
-        $result = [];
-        try {
-            $sql = "SELECT * FROM vs_cotizaciones ORDER BY idcotizacion DESC";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            throw new Exception("Error al obtener las Cotizaciones: " . $e->getMessage());
-        }
-        return $result;
+  {
+    $result = [];
+    try {
+      $sql = "SELECT * FROM vs_cotizaciones ORDER BY idcotizacion DESC";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute();
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception("Error al obtener las Cotizaciones: " . $e->getMessage());
     }
+    return $result;
+  }
+
+  // Anular cotización (soft delete)
+  public function deleteCotizacion(int $idcotizacion, string $justificacion = null): bool
+  {
+    try {
+      $sql = "CALL spuDeleteCotizacion(:idcotizacion, :justificacion)";
+      $stmt = $this->pdo->prepare($sql);
+      $res = $stmt->execute([
+        ':idcotizacion' => $idcotizacion,
+        ':justificacion' => $justificacion
+      ]);
+      error_log("Procedimiento spuDeleteCotizacion ejecutado para cotización #{$idcotizacion}.");
+      return $res;
+    } catch (PDOException $e) {
+      error_log("Error al ejecutar spuDeleteCotizacion para cotización #{$idcotizacion}: " . $e->getMessage());
+      return false;
+    }
+  }
+
+  // Listar cotizaciones anuladas
+  public function getCotizacionesEliminadas(): array
+  {
+    try {
+      $sql = "SELECT 
+          idcotizacion AS id, 
+          cliente, 
+          precio, 
+          vigencia 
+      FROM vs_cotizaciones_eliminadas";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute();
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      throw new Exception("Error al obtener las cotizaciones eliminadas: " . $e->getMessage());
+    }
+  }
+
+  // Obtener justificación de anulación de cotización
+  public function getJustificacion(int $idcotizacion): ?string
+  {
+    $sql = "SELECT justificacion FROM vista_justificacion_cotizacion WHERE idcotizacion = ?";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$idcotizacion]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['justificacion'] ?? null;
+  }
 
   //buscar cliente
   public function buscarCliente(string $termino): array
@@ -98,11 +166,12 @@ class Cotizacion extends Conexion
 
       error_log("Parametros para spuRegisterCotizacion: " . print_r($params, true));
 
-      $stmt = $pdo->prepare("CALL spuRegisterCotizaciones(?,?,?,?)");
+      $stmt = $pdo->prepare("CALL spuRegisterCotizaciones(?,?,?,?,?)");
       $stmt->execute([
         $params["fechahora"],
         $params["vigenciadias"],
         $params["moneda"],
+        $params['idcolaborador'],
         $params["idcliente"]
       ]);
 
@@ -148,6 +217,30 @@ class Cotizacion extends Conexion
     } catch (PDOException $e) {
       error_log("Error" . $e->getMessage());
       return 0;
+    }
+  }
+
+  /**
+   * Lista Cotizacion por periodo: dia, semana, mes
+   * 
+   * @param string $modo dia - semana - mes
+   * @param string $fecha Fecha en formato YYYY-MM-DD
+   * @return array
+   */
+  public function listarPorPeriodoCotizacion(string $modo, string $fecha): array
+  {
+    try {
+      $stmt = $this->pdo->prepare("CALL spListCotizacionesPorPeriodo(:modo, :fecha)");
+      $stmt->execute([
+        ':modo' => $modo,
+        ':fecha' => $fecha,
+      ]);
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $stmt->closeCursor();
+      return $result;
+    } catch (Exception $e) {
+      error_log("Cotizacion::listarPorPeriodoCotizacion error: " . $e->getMessage());
+      return [];
     }
   }
 }

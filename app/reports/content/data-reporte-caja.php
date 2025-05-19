@@ -1,182 +1,242 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Caja</title>
-    
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+<?php
+// content/data-reporte-caja.php
+?>
+<style>
+    body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 10pt;
+        line-height: 1.3;
+        margin: 0;
+        padding: 0;
+    }
 
-        .container-main {
-            background: transparent;
-            padding: 30px;
-            width: 100%;
-            margin: 0;
-        }
+    .title {
+        text-align: center;
+        font-size: 16pt;
+        font-weight: bold;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #999;
+    }
 
-        .title {
-            text-align: center;
-            font-size: 30px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            margin-top: -40px; /* Ajuste para mover el título hacia arriba */
-        }
+    table.info-table {
+        width: 96%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+    table.info-table th {
+        background-color: #f0f0f0;
+        padding: 6px 8px;
+        text-align: left;
+        font-weight: bold;
+        border: 1px solid #555;
+        width: 36.5%;
+    }
 
-        th, td {
-            padding: 7px;
-            text-align: left;
-            font-size: 15px;
-        }
+    table.info-table td {
+        padding: 6px 8px;
+        border: 1px solid #555;
+    }
 
-        th {
-            font-weight: bold;
-        }
+    .column-wrap .section {
+        font-weight: bold;
+        background: #f0f0f0;
+        padding: 6px 8px;
+        border: 1px solid #555;
+        margin-bottom: 5px;
+        page-break-after: avoid;
+    }
 
-        td {
-            font-size: 15px;
-            position: relative; /* Necesario para agregar la línea de forma correcta */
-        }
+    .content-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        border: 1px solid #555;
+    }
 
-        /* Línea extendida */
-        td::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100vw; /* Extiende la línea hasta el borde de la ventana */
-            border-bottom: 2px solid #000;
-        }
+    .content-table td {
+        padding: 5px 8px;
+        border-bottom: 1px dotted #ccc;
+        word-wrap: break-word;
+        word-break: break-all;
+    }
 
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 20px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 5px;
-        }
+    .content-table tr:last-child td {
+        border-bottom: none;
+    }
 
-        .input-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            margin-left: 50px; /* Ajuste para mover los inputs hacia la derecha */
-        }
+    .label-cell {
+        text-align: left;
+        width: 65%;
+    }
 
-        .label-container {
-            width: 40%;
-            font-weight: bold;
-        }
+    .value-cell {
+        text-align: right;
+        font-weight: 500;
+        width: 35%;
+    }
 
-        .value-container {
-            width: 60%;
-            text-align: right;
-        }
+    .total-row td {
+        font-weight: bold;
+        border-top: 1px solid #555;
+        border-bottom: 1px solid #555;
+        background-color: #f9f9f9;
+    }
 
-        .highlight {
-            background-color: #FFEB3B;
-            font-weight: bold;
-        }
+    .two-columns {
+        width: 101.5%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+    }
 
-    </style>
-</head>
-<body>
+    .two-columns td {
+        vertical-align: top;
+        padding-right: 10px;
+    }
 
-<div class="container-main">
-    <div class="title">
-        ARQUEO DE CAJA - FIX 360
-    </div>
-    <table>
+    .saldo-inicial {
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+
+    .resumen-section {
+        clear: both;
+        margin-top: 15px;
+    }
+</style>
+
+<page format="A4-L" backtop="10mm" backbottom="15mm" backleft="10mm" backright="10mm">
+
+    <!-- TITULO -->
+    <div class="title">ARQUEO DE CAJA - FIX 360</div>
+
+    <!-- INFO -->
+    <table class="info-table">
         <tr>
             <th>Presentado por</th>
-            <td>Elena Castilla</td>
-        </tr>
-        <tr>
+            <td><?= htmlspecialchars($usuario ?? 'Invitado', ENT_QUOTES, 'UTF-8') ?></td>
             <th>Fecha</th>
-            <td>2025-03-24</td>
+            <td><?= htmlspecialchars($fecha, ENT_QUOTES, 'UTF-8') ?></td>
         </tr>
         <tr>
-            <th>Hora de inicio</th>
-            <td>08:00</td>
-        </tr>
-        <tr>
-            <th>Hora de cierre</th>
-            <td>18:00</td>
+            <th>Hora inicio</th>
+            <td><?= $resumen['hora_inicio'] ?? '08:00' ?></td>
+            <th>Hora cierre</th>
+            <td><?= $resumen['hora_cierre'] ?? '18:00' ?></td>
         </tr>
     </table>
 
-    <!-- Saldo Inicial -->
-    <div class="section-title">Saldo Inicial</div>
-    <div class="input-container">
-        <div>Saldo restante:</div>
-        <div class="value-container">S/ 385.00</div>
+    <!-- SALDO INICIAL -->
+    <div class="saldo-inicial">
+        <div class="column-wrap">
+            <div class="section">Saldo Inicial</div>
+            <table class="content-table">
+                <tr>
+                    <td class="label-cell">Saldo restante</td>
+                    <td class="value-cell">S/ <?= number_format($resumen['total_caja'] ?? 0, 2) ?></td>
+                </tr>
+            </table>
+        </div>
     </div>
 
-    <div class="section-title">Ingresos</div>
-    <div class="input-container">
-        <div>Efectivo</div>
-        <div class="value-container">S/ 50.00</div>
+    <!-- INGRESOS / EGRESOS DOS COLUMNAS -->
+    <table class="two-columns">
+        <tr>
+            <td style="width: 50%;">
+                <div class="column-wrap">
+                    <div class="section">Ingresos</div>
+                    <table class="content-table">
+                        <?php if (!empty($ingresos)): ?>
+                            <?php foreach ($ingresos as $item): ?>
+                                <tr>
+                                    <td class="label-cell"><?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td class="value-cell">S/ <?= number_format($item['valor'], 2) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td class="label-cell">Sin ingresos</td>
+                                <td class="value-cell">-</td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+            </td>
+            <td style="width: 50%;">
+                <div class="column-wrap">
+                    <div class="section">Egresos</div>
+                    <table class="content-table">
+                        <?php if (!empty($egresos)): ?>
+                            <?php foreach ($egresos as $item): ?>
+                                <tr>
+                                    <td class="label-cell"><?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td class="value-cell">S/ <?= number_format($item['valor'], 2) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td class="label-cell">Sin egresos</td>
+                                <td class="value-cell">-</td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- RESUMEN -->
+    <div class="resumen-section">
+        <div class="column-wrap">
+            <div class="section">Resumen</div>
+            <table class="content-table">
+                <?php
+                $resumen_items = [
+                    'saldo_anterior' => 'Saldo anterior en efectivo',
+                    'ingreso_efectivo' => 'Ingreso diario efectivo',
+                    'total_efectivo' => 'Total efectivo',
+                    'total_egresos' => 'Total egresos',
+                    'total_caja' => 'Total caja'
+                ];
+                $spacerInserted = false;
+                foreach ($resumen_items as $key => $label):
+                    $is_total = in_array($key, ['total_efectivo', 'total_egresos', 'total_caja']);
+                    // Cuando llegue al primer total, meto una fila vacía de separación
+                    if ($is_total && !$spacerInserted):
+                        $spacerInserted = true;
+                        ?>
+                        <tr>
+                            <td colspan="2" style="border:none; padding:0; height:8px;"></td>
+                        </tr>
+                        <?php
+                    endif;
+                    ?>
+                    <tr <?= $is_total ? 'class="total-row"' : '' ?>>
+                        <td class="label-cell"><?= $label ?></td>
+                        <td class="value-cell">
+                            S/ <?= number_format($resumen[$key] ?? 0, 2) ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
     </div>
 
-    <div class="label-container">Digital</div>
-    <div class="input-container">
-        <div>Yape</div>
-        <div class="value-container">S/ 50.00</div>
-        <div>Plin</div>
-        <div class="value-container">S/ 40.00</div>
-        <div>Visa</div>
-        <div class="value-container">S/ 25.00</div>
-        <div>Deposito</div>
-        <div class="value-container">S/ 200.00</div>
-    </div>
-
-    <div class="section-title">Egresos</div>
-    <div class="input-container">
-        <div>Combustible</div>
-        <div class="value-container">S/ -</div>
-        <div>Almuerzo</div>
-        <div class="value-container">S/ -</div>
-        <div>Pasaje</div>
-        <div class="value-container">S/ 16.00</div>
-        <div>Compra de insumo</div>
-        <div class="value-container">S/ 20.00</div>
-        <div>Servicios varios</div>
-        <div class="value-container">S/ -</div>
-        <div>Otros conceptos</div>
-        <div class="value-container">S/ -</div>
-        <div class="label-container">Gerencia</div>
-        <div class="value-container">S/ -</div>
-    </div>
-
-    <div class="section-title">Resumen</div>
-    <div class="input-container">
-        <div>Saldo anterior en efectivo</div>
-        <div class="value-container">S/ 385.00</div>
-        <div>Ingreso diario efectivo</div>
-        <div class="value-container">S/ 545.00</div>
-        <div>Total efectivo</div>
-        <div class="value-container">S/ 930.00</div>
-        <div>Total egresos</div>
-        <div class="value-container">S/ 272.00</div>
-        <div>Total caja</div>
-        <div class="value-container">S/ 658.00</div>
-        <div>Otros Aportes registrados</div>
-        <div class="value-container">S/ -</div>
-        <div class="label-container">Banco, Yape, Plin</div>
-        
-    </div>
-
-</div>
-
-</body>
-</html>
+    <!-- PIE FIJO -->
+    <page_footer>
+        <div style="
+            width:100%;
+            text-align:center;
+            font-size:10pt;
+            color:#666;
+            border-top:1px solid #999;
+            padding-top:8px;
+        ">
+            Documento generado el <?= htmlspecialchars($fecha, ENT_QUOTES, 'UTF-8') ?>
+            a las <?= $resumen['hora_cierre'] ?? '18:00' ?>
+        </div>
+    </page_footer>
+</page>

@@ -784,7 +784,9 @@ require_once "../../partials/header.php";
         btnFinalizarVenta.textContent = 'Guardando...';
         numSerieInput.disabled = numComInput.disabled = false;
 
-        const idVehiculo = vehiculoSelect.value ? parseInt(vehiculoSelect.value) : null;
+        const idVehiculo = vehiculoSelect.value
+          ? parseInt(vehiculoSelect.value, 10)
+          : 0;
         const km = parseFloat(document.getElementById("kilometraje").value) || 0;
 
         const data = {

@@ -193,12 +193,15 @@ SELECT
     WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
   END AS cliente,
   dc.precio,
-  c.vigenciadias AS vigencia
+  c.vigenciadias AS vigencia,
+  c.fechahora    AS fechahora
 FROM cotizaciones c
-LEFT JOIN clientes cli ON c.idcliente = cli.idcliente
-LEFT JOIN empresas e ON cli.idempresa = e.idempresa
-LEFT JOIN personas p ON cli.idpersona = p.idpersona
-JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion;
+  LEFT JOIN clientes cli ON c.idcliente = cli.idcliente
+  LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+  LEFT JOIN personas p ON cli.idpersona = p.idpersona
+  JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+WHERE c.estado = TRUE;
+
 
 -- 6) VISTA PARA EL DETALLE DE COTIZACION PARA EL MODAL POR CADA IDCOTIZACION
 DROP VIEW IF EXISTS vista_detalle_cotizacion;
@@ -208,6 +211,23 @@ SELECT
   COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
   CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
   dc.precio,
+  dc.descuento
+FROM cotizaciones c
+JOIN clientes cli ON c.idcliente = cli.idcliente
+LEFT JOIN personas p ON cli.idpersona = p.idpersona
+LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+JOIN productos pr ON dc.idproducto = pr.idproducto
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
+
+DROP VIEW IF EXISTS vista_detalle_cotizacion;
+CREATE VIEW vista_detalle_cotizacion AS
+SELECT 
+  c.idcotizacion,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.precio,
+  dc.cantidad,        -- ← lo agregamos
   dc.descuento
 FROM cotizaciones c
 JOIN clientes cli ON c.idcliente = cli.idcliente
@@ -314,6 +334,50 @@ JOIN detallecompra dc ON c.idcompra = dc.idcompra
 JOIN productos pr ON dc.idproducto = pr.idproducto
 JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
 WHERE c.estado = FALSE;
+
+-- 7) COTIZACIONES
+DROP VIEW IF EXISTS vs_cotizaciones_eliminadas;
+CREATE VIEW vs_cotizaciones_eliminadas AS
+SELECT 
+  c.idcotizacion,
+  CASE
+    WHEN cli.idempresa IS NOT NULL THEN e.nomcomercial
+    WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+  END AS cliente,
+  dc.precio,
+  c.vigenciadias AS vigencia,
+  c.fechahora
+FROM cotizaciones c
+  LEFT JOIN clientes cli ON c.idcliente = cli.idcliente
+  LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+  LEFT JOIN personas p ON cli.idpersona = p.idpersona
+  JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+WHERE c.estado = FALSE;
+
+DROP VIEW IF EXISTS vista_detalle_cotizacion_eliminada;
+CREATE VIEW vista_detalle_cotizacion_eliminada AS
+SELECT 
+  c.idcotizacion,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.precio,
+  dc.descuento
+FROM cotizaciones c
+JOIN clientes cli ON c.idcliente = cli.idcliente
+LEFT JOIN personas p ON cli.idpersona = p.idpersona
+LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+JOIN productos pr ON dc.idproducto = pr.idproducto
+JOIN subcategorias s ON pr.idsubcategoria = s.idsubcategoria
+WHERE c.estado = FALSE;
+
+DROP VIEW IF EXISTS vista_justificacion_cotizacion;
+CREATE VIEW vista_justificacion_cotizacion AS
+SELECT 
+  idcotizacion,
+  justificacion
+FROM cotizaciones
+WHERE estado = FALSE;
 
 -- ************************* VISTA DE ARQUEO DE CAJA *************************
 

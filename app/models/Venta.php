@@ -15,6 +15,7 @@ class Venta extends Conexion
         return $this->pdo;
     }
 
+
     public function getAll(): array
     {
         $result = [];
