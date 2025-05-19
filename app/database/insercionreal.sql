@@ -517,7 +517,7 @@ VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion'),('salida
 -- ***************************************************************************************************************
 -- KARDEX - MOVIMIENTOS - TIPO DE MOVIMIENTO
 -- 1. Insertar registros en kardex solo si no existen
-
+/*
 INSERT INTO kardex (idproducto, fecha, stockmin, stockmax)
 SELECT idproducto, CURDATE(), 5, 100
 FROM productos
@@ -531,7 +531,7 @@ SELECT
   k.stockmax
 FROM kardex k;
 
-/*
+
 SELECT idtipomov INTO @id_compra 
 FROM tipomovimientos 
 WHERE tipomov = 'compra' AND flujo = 'entrada' 

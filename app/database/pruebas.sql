@@ -165,6 +165,7 @@ CALL buscar_producto('s')
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS buscar_producto $$
+DELIMITER $$
 CREATE PROCEDURE buscar_producto(
     IN in_termino_busqueda VARCHAR(255)
 )
@@ -198,5 +199,167 @@ END $$
 
 DELIMITER ;
 
+-- Orden de servicio y venta
+
+-- 1) Orden de servicio (sin fecharecordatorio)
+DROP PROCEDURE IF EXISTS spRegisterOrdenServicio;
+DELIMITER $$
+CREATE PROCEDURE spRegisterOrdenServicio (
+  IN _idadmin        INT,
+  IN _idpropietario  INT,
+  IN _idcliente      INT,
+  IN _idvehiculo     INT,
+  IN _kilometraje    DECIMAL(10,2),
+  IN _observaciones  VARCHAR(255),
+  IN _ingresogrua    BOOLEAN,
+  IN _fechaingreso   DATETIME
+)
+BEGIN
+  INSERT INTO ordenservicios (
+    idadmin,
+    idpropietario,
+    idcliente,
+    idvehiculo,
+    kilometraje,
+    observaciones,
+    ingresogrua,
+    fechaingreso
+  )
+  VALUES (
+    _idadmin,
+    _idpropietario,
+    _idcliente,
+    _idvehiculo,
+    _kilometraje,
+    NULLIF(_observaciones, ''),
+    _ingresogrua,
+    _fechaingreso
+  );
+
+  SELECT LAST_INSERT_ID() AS idorden;
+END$$
+DELIMITER ;
+
+-- 2) Venta (y opcionalmente orden)
+DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
+DELIMITER $$
+CREATE PROCEDURE spRegisterVentaConOrden(
+  -- Flag: ¿crear también la orden de servicio?
+  IN _conOrden        BOOLEAN,
+
+  -- Parámetros comunes a orden y venta
+  IN _idadmin         INT,
+  IN _idpropietario   INT,
+  IN _idcliente       INT,
+  IN _idvehiculo      INT,
+  IN _kilometraje     DECIMAL(10,2),
+  IN _observaciones   VARCHAR(255),
+  IN _ingresogrua     BOOLEAN,
+  IN _p_fechaingreso  DATETIME,      -- puede venir NULL desde la app
+
+  -- Parámetros específicos de la venta
+  IN _tipocom         VARCHAR(20),   -- 'boleta' o 'factura'
+  IN _fechahora       DATETIME,
+  IN _numserie        VARCHAR(30),
+  IN _numcom          CHAR(20),
+  IN _moneda          VARCHAR(20),
+  IN _idcolaborador   INT
+)
+BEGIN
+  DECLARE _idorden    INT DEFAULT NULL;
+  DECLARE _idventa    INT DEFAULT NULL;
+  DECLARE _fechaingreso DATETIME;
+
+  -- Normalizamos fecha de ingreso usando la de venta si vino NULL
+  SET _fechaingreso = COALESCE(_p_fechaingreso, _fechahora);
+
+  -- 1) Crear orden si se solicita
+  IF _conOrden THEN
+    CALL spRegisterOrdenServicio(
+      _idadmin,
+      _idpropietario,
+      _idcliente,
+      _idvehiculo,
+      _kilometraje,
+      _observaciones,
+      _ingresogrua,
+      _fechaingreso
+    );
+    SELECT LAST_INSERT_ID() INTO _idorden;
+  END IF;
+
+  -- 2) Insertar la venta (con idpropietario = idorden si existe)
+  INSERT INTO ventas(
+    idpropietario,
+    idcliente,
+    idcolaborador,
+    idvehiculo,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda,
+    kilometraje
+  ) VALUES (
+    COALESCE(_idorden, _idpropietario),
+    _idcliente,
+    _idcolaborador,
+    _idvehiculo,
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda,
+    _kilometraje
+  );
+  SELECT LAST_INSERT_ID() INTO _idventa;
+
+  -- 3) Devolver ambos IDs
+  SELECT _idventa AS idventa,
+         _idorden AS idorden;
+END$$
+DELIMITER ;
 
 
+
+-- 1) Iniciamos transacción para no ensuciar datos
+START TRANSACTION;
+
+-- 2) Llamada al SP unificado:
+CALL spRegisterVentaConOrden(
+  1,                    -- _conOrden         : 1 = sí quiero crear orden
+  1,                    -- _idadmin          : id del colaborador que registra
+  10,                   -- _idpropietario    : cliente/propietario (puede ser mismo que idcliente)
+  10,                   -- _idcliente        : quien paga
+  3,                    -- _idvehiculo       : vehículo asociado
+  12000.50,             -- _kilometraje      : km actual
+  'Cambio de aceite',   -- _observaciones    : texto libre
+  0,                    -- _ingresogrua      : 0 = no ingresó en grúa
+  NULL,                 -- _fechaingreso     : NULL → tomará la misma que _fechahora
+  'boleta',             -- _tipocom          : 'boleta' ó 'factura'
+  '2025-05-19 14:30:00',-- _fechahora        : fecha‑hora de la venta
+  'B068',               -- _numserie         : serie de comprobante
+  'B-3731456',          -- _numcom           : número de comprobante
+  'Soles',              -- _moneda           : moneda
+  1                    -- _idcolaborador    : quien atiende la venta
+);
+
+-- El SP devolverá un result set con:
+-- +---------+---------+
+-- | idventa | idorden |
+-- +---------+---------+
+-- |     123 |      45 |
+-- +---------+---------+
+
+-- 3) Suponiendo que nos devolvió idventa=123 e idorden=45,
+--    insertamos un par de líneas de detalle de venta:
+CALL spuInsertDetalleVenta(123,  7,  2, 'SN001,SN002',  150.00,  10.00);
+CALL spuInsertDetalleVenta(123, 12,  1, 'SN010',      200.00,   0.00);
+
+-- 4) Y detalle de servicios en la misma orden (si aplica):
+CALL spInsertDetalleOrdenServicio(45,  4 /*idservicio*/,  2 /*idmecánico*/, 250.00);
+
+-- 5) Confirmamos
+COMMIT;
+
+-- select * from ordenservicios;

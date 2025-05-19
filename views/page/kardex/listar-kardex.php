@@ -310,24 +310,24 @@ require_once "../../partials/header.php";
 
     fechaInput.addEventListener('change', cargarMovimientos);
 
-document.getElementById('btnPdfKardex').addEventListener('click', () => {
-  if (!selectedProduct.idproducto) {
-    alert('Selecciona primero un producto.');
-    return;
-  }
-  const idp     = selectedProduct.idproducto;
-  const fecha   = fechaInput.value;
-  const modo    = currentModo;
-  const nombre  = selectedProduct.subcategoria_producto;
+    document.getElementById('btnPdfKardex').addEventListener('click', () => {
+      if (!selectedProduct.idproducto) {
+        alert('Selecciona primero un producto.');
+        return;
+      }
+      const idp = selectedProduct.idproducto;
+      const fecha = fechaInput.value;
+      const modo = currentModo;
+      const nombre = selectedProduct.subcategoria_producto;
 
-  const url = `http://localhost/Fix360/app/reports/reportekardex.php`
-    + `?idproducto=${encodeURIComponent(idp)}`
-    + `&fecha=${encodeURIComponent(fecha)}`
-    + `&modo=${encodeURIComponent(modo)}`
-    + `&nombre=${encodeURIComponent(nombre)}`;  // ← lo agregamos aquí
+      const url = `http://localhost/Fix360/app/reports/reportekardex.php` +
+        `?idproducto=${encodeURIComponent(idp)}` +
+        `&fecha=${encodeURIComponent(fecha)}` +
+        `&modo=${encodeURIComponent(modo)}` +
+        `&nombre=${encodeURIComponent(nombre)}`; // ← lo agregamos aquí
 
-  window.open(url, '_blank');
-});
+      window.open(url, '_blank');
+    });
 
 
   });

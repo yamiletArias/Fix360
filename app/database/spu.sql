@@ -458,8 +458,7 @@ CREATE PROCEDURE spRegisterOrdenServicio (
   IN _kilometraje       DECIMAL(10,2),
   IN _observaciones     VARCHAR(255),
   IN _ingresogrua       BOOLEAN,
-  IN _fechaingreso      DATETIME,
-  IN _fecharecordatorio DATE
+  IN _fechaingreso      DATETIME
 )
 BEGIN
   INSERT INTO ordenservicios (
@@ -470,8 +469,7 @@ BEGIN
     kilometraje,
     observaciones,
     ingresogrua,
-    fechaingreso,
-    fecharecordatorio
+    fechaingreso
   )
   VALUES (
     _idadmin,
@@ -481,8 +479,7 @@ BEGIN
     _kilometraje,
     NULLIF(_observaciones, ''),
     _ingresogrua,
-    _fechaingreso,
-    _fecharecordatorio
+    _fechaingreso
   );
 
   -- Devuelve el nuevo idorden
@@ -1137,11 +1134,8 @@ END$$
 -- CALL spGetUltimoKilometraje(8);
 -- select * from ordenservicios;
 
-
-
+DROP PROCEDURE IF EXISTS spListMovimientosPorProductoPorPeriodo;
 DELIMITER $$
-
-DROP PROCEDURE IF EXISTS spListMovimientosPorProductoPorPeriodo $$
 CREATE PROCEDURE spListMovimientosPorProductoPorPeriodo(
     IN in_idproducto INT,
     IN in_modo       VARCHAR(10),
@@ -1184,5 +1178,5 @@ END $$
  
 DELIMITER ;
 
-CALL spListMovimientosPorProductoPorPeriodo(2, 'mes', '2025-05-01');
+-- CALL spListMovimientosPorProductoPorPeriodo(2, 'mes', '2025-05-01');
 

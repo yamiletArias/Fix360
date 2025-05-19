@@ -112,86 +112,54 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);
             exit;
 
-        case 'POST':
+        // …
+case 'POST':
+    // …
+    $data = json_decode(file_get_contents('php://input'), true);
 
-            // Anulación de venta (soft-delete) con justificación
-            if (isset($_POST['action'], $_POST['idventa']) && $_POST['action'] === 'eliminar') {
-                $id = intval($_POST['idventa']);
-                $justificacion = trim($_POST['justificacion'] ?? "");
+    // Recojo todos los campos nuevos
+    $conOrden       = !empty($data['servicios']);      // si hay servicios, creamos orden
+    $idpropietario  = $data['idpropietario'] ?? 0;
+    $observaciones  = trim($data['observaciones'] ?? '');
+    $ingresogrua    = !empty($data['ingresogrua']) ? 1 : 0;
+    // Solo envío fechaingreso si la quiero distinta; si no, lo omito y el SP la iguala a fechahora
+    $fechaingreso   = $data['fechaingreso'] ?? null;
 
-                error_log("Intentando anular compra #$id. Justificación: $justificacion");
+    $params = [
+        'conOrden'       => $conOrden,
+        'idcolaborador'  => $_SESSION['login']['idcolaborador'],
+        'idpropietario'  => $idpropietario,
+        'idcliente'      => (int)$data['idcliente'],
+        'idvehiculo'     => (int)$data['idvehiculo'],
+        'kilometraje'    => $data['kilometraje'] ?? 0,
+        'observaciones'  => $observaciones,
+        'ingresogrua'    => $ingresogrua,
+        'fechaingreso'   => $fechaingreso,          // o null
+        'tipocom'        => $data['tipocom'],
+        'fechahora'      => $data['fechahora'],
+        'numserie'       => $data['numserie'],
+        'numcom'         => $data['numcom'],
+        'moneda'         => $data['moneda'],
+        'productos'      => $data['productos'],
+        'servicios'      => $data['servicios'] ?? [],  // array de servicios {idservicio,idmecanico,precio}
+    ];
 
-                $ok = $venta->deleteVenta($id, $justificacion);
-                error_log("Resultado deleteVenta: " . ($ok ? 'OK' : 'FAIL'));
+    try {
+        $res = (new Venta())->registerVentasConOrden($params);
+        echo json_encode([
+            'status'  => 'success',
+            'idventa' => $res['idventa'],
+            'idorden' => $res['idorden']  // null si no hubo orden
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'status'  => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+    exit;
 
-                echo json_encode([
-                    'status' => $ok ? 'success' : 'error',
-                    'message' => $ok ? 'Compra anulada.' : 'No se pudo anular la compra.'
-                ]);
-                exit;
-            }
-
-            // Captura el JSON de entrada
-            $input = file_get_contents('php://input');
-            error_log("Entrada POST: " . $input);
-
-            $dataJSON = json_decode($input, true);
-            if (!$dataJSON) {
-                error_log("Error: JSON inválido.");
-                echo json_encode(["status" => "error", "message" => "JSON inválido."]);
-                exit;
-            }
-
-            // Limpieza y validación de datos
-            $idadmin = $_SESSION['login']['idcolaborador'] ?? 0;
-            $tipocom = Helper::limpiarCadena($dataJSON['tipocom'] ?? "");
-            $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
-            if (empty($fechahora)) {
-                $fechahora = date("Y-m-d H:i:s");
-            } else {
-                $fecha = explode(" ", $fechahora)[0];
-                $fechahora = $fecha . " " . date("H:i:s");
-            }
-
-            $numserie = Helper::limpiarCadena($dataJSON['numserie'] ?? "");
-            $numcom = Helper::limpiarCadena($dataJSON['numcom'] ?? "");
-            $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
-            $idcliente = $dataJSON['idcliente'] ?? 0;
-            $kilometraje = $dataJSON['kilometraje'] ?? 0;
-            $idvehiculo = intval($dataJSON['idvehiculo'] ?? 0);
-            $productos = $dataJSON['productos'] ?? [];
-
-            if (empty($productos)) {
-                echo json_encode(["status" => "error", "message" => "No se enviaron productos."]);
-                exit;
-            }
-
-            error_log("Datos recibidos: " . print_r($dataJSON, true));
-
-            $venta = new Venta();
-            $idVentaInsertada = $venta->registerVentas([
-                "tipocom" => $tipocom,
-                "fechahora" => $fechahora,
-                "numserie" => $numserie,
-                "numcom" => $numcom,
-                "moneda" => $moneda,
-                "idcliente" => $idcliente,
-                "idcolaborador" => $idadmin,
-                "idvehiculo" => $idvehiculo,
-                "kilometraje" => $kilometraje,
-                "productos" => $productos
-            ]);
-
-            if ($idVentaInsertada > 0) {
-                echo json_encode([
-                    "status" => "success",
-                    "message" => "Venta registrada con exito.",
-                    "idventa" => $idVentaInsertada
-                ]);
-            } else {
-                echo json_encode(["status" => "error", "message" => "No se pudo registrar la venta."]);
-            }
-            break;
 
     }
 }
