@@ -19,7 +19,19 @@
     </div>
 
     <!-- Aquí obligamos el estilo en línea para la tabla -->
-    <table border="1" cellpadding="6" cellspacing="0" width="100%" >
+    <table  border="1" 
+  cellpadding="6" 
+  cellspacing="0" 
+  width="100%" 
+  style="width:100%; font-size:12pt; border-collapse:collapse;" >
+    <colgroup>
+    <col style="width:5%;" />   <!-- # -->
+    <col style="width:20%;" />  <!-- Fecha -->
+    <col style="width:20%;" />  <!-- Flujo -->
+    <col style="width:25%;" />  <!-- Tipo -->
+    <col style="width:15%;" />  <!-- Cantidad -->
+    <col style="width:15%;" />  <!-- Saldo -->
+  </colgroup> 
       <thead>
         <tr>
           <th style="padding:6px; border:1px solid #333;">#</th>
@@ -34,7 +46,7 @@
         <?php foreach ($datos as $i => $fila): ?>
           <tr <?= $i % 2 ? 'style="background-color:#f9f9f9;"' : '' ?>>
             <td style="padding:6px; border:1px solid #333;"><?= $i + 1 ?></td>
-            <td style="padding:6px; border:1px solid #333;"><?= date('d/m/Y', strtotime($fila['fecha'])) ?></td>
+            <td style="padding:6px; border:1px solid #333; text-align:center;"><?= date('d/m/Y', strtotime($fila['fecha'])) ?></td>
             <td style="padding:6px; border:1px solid #333;"><?= htmlspecialchars($fila['flujo'], ENT_QUOTES, 'UTF-8') ?></td>
             <td style="padding:6px; border:1px solid #333;"><?= htmlspecialchars($fila['tipo_movimiento'], ENT_QUOTES, 'UTF-8') ?></td>
             <td style="padding:6px; border:1px solid #333; text-align:right;"><?= htmlspecialchars($fila['cantidad'], ENT_QUOTES, 'UTF-8') ?></td>

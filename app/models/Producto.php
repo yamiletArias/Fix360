@@ -28,24 +28,7 @@ class Producto extends Conexion
             throw new Exception($e->getMessage());
         }
         return $result;
-    }
-
-    /**
-     * Obtiene un producto por su ID
-     * @param int $idproducto
-     * @return array
-     */
-    public function find($idproducto)
-    {
-        try {
-            $query = "CALL spGetProductoById(?)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([$idproducto]);
-            return $cmd->fetch(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            die($e->getMessage());
-        }
-    }
+    }    
 
     /**
      * Agrega un nuevo producto + kardex (stockmin, stockmax)
@@ -68,7 +51,7 @@ class Producto extends Conexion
         $idProducto = 0;
         try {
             // Nótese que ya pasamos 10 IN y luego usamos @idproducto como OUT
-            $sql = "CALL spRegisterProducto(?,?,?,?,?,?,?,?,?,?,@idproducto)";
+            $sql = "CALL spRegisterProducto(?,?,?,?,?,?,?,?,?,?,?,@idproducto)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 $params["idsubcategoria"],
@@ -79,6 +62,7 @@ class Producto extends Conexion
                 $params["undmedida"],
                 $params["cantidad"],
                 $params["img"],
+                $params["stockInicial"],
                 $params["stockmin"],   // nuevo
                 $params["stockmax"]    // nuevo
             ]);
@@ -97,34 +81,39 @@ class Producto extends Conexion
     }
 
     /**
-     * Actualiza un producto
-     * @param array $params
-     * @return array
+     * Actualiza sólo descripción, presentación, precio, img, stockmin y stockmax
+     * @param array $params {
+     *   @var int     idproducto
+     *   @var string  descripcion
+     *   @var float   cantidad      // presentación
+     *   @var float   precio
+     *   @var string  img           // ruta o ''
+     *   @var int     stockmin
+     *   @var int     stockmax      // o NULL
+     * }
+     * @return bool  true si se actualizó correctamente
      */
-    public function update($params = [])
+    public function update(array $params): bool
     {
-        $resultado = ["status" => false, "message" => ""];
         try {
-            $query = "CALL spUpdateProducto(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute([
-                $params["idproducto"],
-                $params["idmarca"],
-                $params["idsubcategoria"],
-                $params["descripcion"],
-                $params["precio"],
-                $params["presentacion"],
-                $params["undmedida"],
-                $params["cantidad"],
-                $params["img"]
+            $sql = "CALL spUpdateProducto(?,?,?,?,?,?,?)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                $params['idproducto'],
+                $params['descripcion'],
+                $params['cantidad'],
+                $params['precio'],
+                $params['img']        ?? '',
+                $params['stockmin'],
+                $params['stockmax']   // si quieres permitir NULL, pásalo directamente
             ]);
-            $resultado["status"] = true;
-            $resultado["message"] = "Producto actualizado correctamente";
+            return true;
         } catch (Exception $e) {
-            $resultado["message"] = $e->getMessage();
+            error_log("Producto::update error: " . $e->getMessage());
+            return false;
         }
-        return $resultado;
     }
+
 
     /**
      * Elimina un producto
@@ -145,4 +134,15 @@ class Producto extends Conexion
         }
         return $resultado;
     }
+
+    public function find($idproducto){
+    try {
+        $query = "CALL spGetProductoById(?)";
+        $cmd   = $this->pdo->prepare($query);
+        $cmd->execute([$idproducto]);
+        return $cmd->fetch(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        die($e->getMessage());
+    }
+}
 }

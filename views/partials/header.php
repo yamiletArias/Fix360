@@ -66,10 +66,9 @@ $hoy_count = count($hoy);
   <!--link rel="shortcut icon" href="<?= SERVERURL ?>views/assets/images/favicon.png" /-->
   <link rel="shortcut icon" href="<?= SERVERURL ?>images/minilogo.jpg" />
 
-  <!-- Lightbox2 CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet"
-    integrity="sha512-M7L1UxM9cmR2rWNpBj0JzAjBVPvmRolc5KX2P8z6Q3nsxTaTa620FVv0Xv05sXzNPp+cscZvHazMwE5swlZ0Og=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Lightbox2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
+
 
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"

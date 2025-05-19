@@ -512,8 +512,7 @@ INSERT INTO egresos (
 (1, 2, 1, 'Gasto diario 2025-05-31', 175.45, '2025-05-31 10:00:00');
 
 INSERT INTO tipomovimientos (flujo,tipomov) 
-VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion'),('salida', 'devolucion');
-
+VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion'),('salida', 'devolucion'),('entrada', 'stock inicial');
 -- ***************************************************************************************************************
 -- KARDEX - MOVIMIENTOS - TIPO DE MOVIMIENTO
 -- 1. Insertar registros en kardex solo si no existen

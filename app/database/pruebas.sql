@@ -321,7 +321,7 @@ END$$
 DELIMITER ;
 
 
-
+--
 -- 1) Iniciamos transacción para no ensuciar datos
 START TRANSACTION;
 
@@ -329,8 +329,8 @@ START TRANSACTION;
 CALL spRegisterVentaConOrden(
   1,                    -- _conOrden         : 1 = sí quiero crear orden
   1,                    -- _idadmin          : id del colaborador que registra
-  10,                   -- _idpropietario    : cliente/propietario (puede ser mismo que idcliente)
-  10,                   -- _idcliente        : quien paga
+  2,                   -- _idpropietario    : cliente/propietario (puede ser mismo que idcliente)
+  2,                   -- _idcliente        : quien paga
   3,                    -- _idvehiculo       : vehículo asociado
   12000.50,             -- _kilometraje      : km actual
   'Cambio de aceite',   -- _observaciones    : texto libre
@@ -353,13 +353,222 @@ CALL spRegisterVentaConOrden(
 
 -- 3) Suponiendo que nos devolvió idventa=123 e idorden=45,
 --    insertamos un par de líneas de detalle de venta:
-CALL spuInsertDetalleVenta(123,  7,  2, 'SN001,SN002',  150.00,  10.00);
-CALL spuInsertDetalleVenta(123, 12,  1, 'SN010',      200.00,   0.00);
+CALL spuInsertDetalleVenta(3,  2,  2, 'SN001,SN002',  150.00,  10.00);
+CALL spuInsertDetalleVenta(3, 2,  1, 'SN010',      200.00,   0.00);
 
 -- 4) Y detalle de servicios en la misma orden (si aplica):
 CALL spInsertDetalleOrdenServicio(45,  4 /*idservicio*/,  2 /*idmecánico*/, 250.00);
 
 -- 5) Confirmamos
 COMMIT;
+
+
+-- call spRegisterProducto(2,2,'dddddsasd',1,'ssssss','UNDDD',10,null,10,15,100,@newIdProd); SELECT @newIdProd;
+-- select * from productos where idproducto = 52;
+-- select * from movimientos where idkardex = 52;
+-- select * from kardex where idproducto =52;
+-- select * from tipomovimientos;
+-- insert into tipomovimientos (flujo,tipomov)values ('entrada', 'stock inicial')
+DROP PROCEDURE IF EXISTS spRegisterProducto;
+DELIMITER $$
+CREATE PROCEDURE spRegisterProducto(
+  IN  _idsubcategoria INT,
+  IN  _idmarca        INT,
+  IN  _descripcion    VARCHAR(50),
+  IN  _precio         DECIMAL(7,2),
+  IN  _presentacion   VARCHAR(40),
+  IN  _undmedida      VARCHAR(40),
+  IN  _cantidad       DECIMAL(10,2),  -- sólo para presentacion
+  IN  _img            VARCHAR(255),
+  IN  _stockInicial   INT,            -- NUEVO: stock real inicial
+  IN  _stockmin       INT,
+  IN  _stockmax       INT,            -- puede ser NULL
+  OUT _idproducto     INT
+)
+BEGIN
+  DECLARE _idkardex   INT;
+  DECLARE _idtipomov  INT;
+
+  -- 1) Inserto el producto (cantidad = presentacion)
+  INSERT INTO productos 
+    (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img)
+  VALUES 
+    (_idsubcategoria,
+     _idmarca,
+     _descripcion,
+     _precio,
+     _presentacion,
+     _undmedida,
+     _cantidad,
+     NULLIF(_img, '')
+    );
+
+  SET _idproducto = LAST_INSERT_ID();
+
+  -- 2) Creo el kardex con los umbrales
+  INSERT INTO kardex
+    (idproducto, fecha, stockmin, stockmax)
+  VALUES
+    (_idproducto,
+     CURDATE(),
+     _stockmin,
+     NULLIF(_stockmax,'')
+    );
+  SET _idkardex = LAST_INSERT_ID();
+
+  -- 3) Obtengo un tipo de movimiento de ENTRADA
+  SELECT idtipomov
+    INTO _idtipomov
+  FROM tipomovimientos
+  WHERE flujo = 'entrada' AND tipomov = 'stock inicial'
+  ORDER BY idtipomov
+  LIMIT 1;
+
+  -- 4) Registro el movimiento inicial con el stock real
+  INSERT INTO movimientos
+    (idkardex, idtipomov, fecha, cantidad, saldorestante)
+  VALUES
+    (_idkardex,
+     _idtipomov,
+     CURDATE(),
+     _stockInicial,
+     _stockInicial
+    );
+
+END$$
+DELIMITER ;
+
+
+
+-- 1) Eliminar viejo SP si existiera
+
+DROP PROCEDURE IF EXISTS spUpdateProducto;
+DELIMITER $$
+CREATE PROCEDURE spUpdateProducto(
+  IN  _idproducto   INT,
+  IN  _descripcion  VARCHAR(50),
+  IN  _cantidad     DECIMAL(10,2),
+  IN  _precio       DECIMAL(7,2),
+  IN  _img          VARCHAR(255),    -- ruta o '' para no cambiar
+  IN  _stockmin     INT,
+  IN  _stockmax     INT               -- puede venir NULL para no cambiar
+)
+BEGIN
+  -- 0) Validaciones de rangos
+  IF _cantidad < 0 THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spUpdateProducto: La cantidad no puede ser negativa';
+  END IF;
+
+  IF _precio < 0 THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spUpdateProducto: El precio no puede ser negativo';
+  END IF;
+
+  IF _stockmin < 0 THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spUpdateProducto: stockmin no puede ser negativo';
+  END IF;
+
+  IF _stockmax IS NOT NULL AND _stockmax < 0 THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spUpdateProducto: stockmax no puede ser negativo';
+  END IF;
+
+  IF _stockmax IS NOT NULL AND _stockmax < _stockmin THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spUpdateProducto: stockmax debe ser mayor o igual a stockmin';
+  END IF;
+
+  -- 1) Verificar que el producto exista
+  IF NOT EXISTS (SELECT 1 FROM productos WHERE idproducto = _idproducto) THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spUpdateProducto: Producto no existe';
+  END IF;
+
+  -- 2) Actualizar la tabla productos
+  UPDATE productos
+  SET
+    descripcion = _descripcion,
+    cantidad    = _cantidad,
+    precio      = _precio,
+    -- Solo actualizar imagen si se envía un valor no vacío
+    img         = CASE 
+                    WHEN TRIM(_img) <> '' THEN _img 
+                    ELSE img 
+                  END
+  WHERE idproducto = _idproducto;
+
+  -- 3) Actualizar la tabla kardex asociada
+  UPDATE kardex
+  SET
+    stockmin = _stockmin,
+    -- Solo actualizar stockmax si no es NULL
+    stockmax = CASE 
+                 WHEN _stockmax IS NOT NULL THEN _stockmax 
+                 ELSE stockmax 
+               END
+  WHERE idproducto = _idproducto;
+END$$
+
+
+DELIMITER ;
+
+
+CALL spUpdateProducto(
+  53,               -- _idproducto
+  'Nueva descripción del producto',
+  24,               -- _cantidad (presentación)
+  15.75,            -- _precio
+  'ruta/nueva.jpg', -- _img (o '' para dejar la misma)
+  5,                -- _stockmin
+  100               -- _stockmax (o NULL para no cambiar)
+);
+
+DROP PROCEDURE IF EXISTS spGetProductoById;
+DELIMITER $$
+CREATE PROCEDURE spGetProductoById(
+  IN  _idproducto   INT
+)
+BEGIN
+  -- 1) Verificar que el producto existe
+  IF NOT EXISTS (SELECT 1 FROM productos WHERE idproducto = _idproducto) THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spGetProductoById: Producto no existe';
+  END IF;
+
+  -- 2) Devolver datos de producto + marca, categoría, subcategoría + stocks
+  SELECT
+    p.idproducto,
+    p.idmarca,                  -- PARA el <select> de Marca
+    sc.idcategoria,             -- PARA el <select> de Categoría
+    p.idsubcategoria,           -- PARA el <select> de Subcategoría
+    p.descripcion,
+    p.presentacion,
+    p.undmedida,
+    p.cantidad       AS cantidad_por_presentacion,
+    p.precio,
+    p.img,
+    k.stockmin,
+    k.stockmax,
+    COALESCE(
+      (
+        SELECT m.saldorestante
+        FROM movimientos AS m
+        WHERE m.idkardex = k.idkardex
+        ORDER BY m.idmovimiento DESC
+        LIMIT 1
+      ), 
+      0
+    ) AS stock_actual
+  FROM productos AS p
+  LEFT JOIN kardex AS k
+    ON p.idproducto = k.idproducto
+  LEFT JOIN subcategorias AS sc
+    ON p.idsubcategoria = sc.idsubcategoria
+  WHERE p.idproducto = _idproducto;
+END$$
+
+DELIMITER ;
 
 -- select * from ordenservicios;

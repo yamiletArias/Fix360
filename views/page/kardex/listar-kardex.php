@@ -190,10 +190,10 @@ require_once "../../partials/header.php";
         const mx = parseFloat(max);
 
         if (!isNaN(a) && !isNaN(mn) && a < mn) {
-          showToast(`¡Atención! El stock actual (${a}) ha bajado por debajo del mínimo (${mn}).`, 'WARNING', 1500);
+          showToast(`¡Atención! El stock actual (${a}) ha bajado por debajo del mínimo (${mn}).`, 'WARNING', 5000);
         }
         if (!isNaN(a) && !isNaN(mx) && a > mx) {
-          showToast(`¡Atención! El stock actual (${a}) ha superado el máximo (${mx}).`, 'WARNING', 1500);
+          showToast(`¡Atención! El stock actual (${a}) ha superado el máximo (${mx}).`, 'WARNING', 5000);
         }
 
       } catch (e) {

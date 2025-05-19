@@ -8,73 +8,73 @@ require_once "../../partials/header.php";
 <div class="container-main mt-5">
     <div class="card border">
         <div class="card-header">
-    <div class="row align-items-center">
-        <div class="col-md-12 d-flex justify-content-between align-items-center mb-md-0">
-            <div class="btn-group" role="group" aria-label="Filtros periodo">
-                <button type="button" data-modo="dia" class="btn btn-primary text-white">Día</button>
-                <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
-                <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
-                <!-- Ver eliminados -->
-                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white" title="Ver eliminados">
-                    <i class="fa-solid fa-eye-slash"></i>
-                </button>
-                <!-- Exportar PDF -->
-                <button type="button" class="btn btn-danger text-white" title="Exportar PDF">
-                    <i class="fa-solid fa-file-pdf"></i>
-                </button>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="input-group">
-                        <input type="date" class="form-control input" id="Fecha">
-                        <a href="registrar-egresos.php" class="btn btn-success" id="btnRegistrar">Registrar</a>
+            <div class="row align-items-center">
+                <div class="col-md-12 d-flex justify-content-between align-items-center mb-md-0">
+                    <div class="btn-group" role="group" aria-label="Filtros periodo">
+                        <button type="button" data-modo="dia" class="btn btn-primary text-white">Día</button>
+                        <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
+                        <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
+                        <!-- Ver eliminados -->
+                        <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white" title="Ver eliminados">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                        <!-- Exportar PDF -->
+                        <button type="button" class="btn btn-danger text-white" title="Exportar PDF">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </button>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="input-group">
+                                <input type="date" class="form-control input" id="Fecha">
+                                <a href="registrar-egresos.php" class="btn btn-success" id="btnRegistrar">Registrar</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-<div class="card-body">
+        <div class="card-body">
 
-    <!-- Tabla egresos activos -->
-    <div id="tableDia" class="col-12">
-        <table class="table table-striped display" id="tablaegresosdia">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Fecha</th>
-                    <th>Registrador</th>
-                    <th>Receptor</th>
-                    <th>Concepto</th>
-                    <th class="text-end">Monto</th>
-                    <th>N° Comprobante</th>
-                    <th class="text-center">Opciones</th>
-                </tr>
-            </thead>
-            <tbody class="text-center"></tbody>
-        </table>
-    </div>
+            <!-- Tabla egresos activos -->
+            <div id="tableDia" class="col-12">
+                <table class="table table-striped display" id="tablaegresosdia">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>Registrador</th>
+                            <th>Receptor</th>
+                            <th>Concepto</th>
+                            <th class="text-end">Monto</th>
+                            <th>N° Comprobante</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center"></tbody>
+                </table>
+            </div>
 
-    <!-- Tabla egresos eliminados -->
-    <div id="tableEliminados" class="col-12" style="display: none;">
-        <table class="table table-striped display" id="tablaegresoseliminados">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Fecha</th>
-                    <th>Registrador</th>
-                    <th>Receptor</th>
-                    <th>Concepto</th>
-                    <th class="text-end">Monto</th>
-                    <th>N° Comprobante</th>
-                    <th class="text-center">Opciones</th>
-                </tr>
-            </thead>
-            <tbody class="text-center"></tbody>
-        </table>
+            <!-- Tabla egresos eliminados -->
+            <div id="tableEliminados" class="col-12" style="display: none;">
+                <table class="table table-striped display" id="tablaegresoseliminados">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>Registrador</th>
+                            <th>Receptor</th>
+                            <th>Concepto</th>
+                            <th class="text-end">Monto</th>
+                            <th>N° Comprobante</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    </div>
-</div>
 </div>
 </div>
 </div>
@@ -90,7 +90,7 @@ require_once "../../partials/header.php";
             <div class="modal-body">
                 <p>¿Por qué deseas eliminar este egreso?</p>
                 <textarea id="justificacion" class="form-control input" rows="3" placeholder="Escribe tu justificación..."></textarea>
-            </div> 
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" id="btnEliminarEgreso" class="btn btn-sm btn-danger">Eliminar</button>
@@ -102,20 +102,20 @@ require_once "../../partials/header.php";
 
 <!-- Modal Ver Justificación -->
 <div class="modal fade" id="modalVerJustificacion" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Justificación de Eliminación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p id="textoJustificacion"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Justificación de Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="textoJustificacion"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
@@ -186,12 +186,12 @@ require_once "../../partials/header.php";
                     render: $.fn.dataTable.render.number(',', '.', 2)
                 },
                 {
-  data: 'numcomprobante',
-  class: 'text-end',
-  render: function(data, type, row) {
-    return data && data.trim() !== '' ? data : 'No registrado';
-  }
-},
+                    data: 'numcomprobante',
+                    class: 'text-end',
+                    render: function(data, type, row) {
+                        return data && data.trim() !== '' ? data : 'No registrado';
+                    }
+                },
                 {
                     data: null,
                     class: 'text-center',
@@ -210,23 +210,23 @@ require_once "../../partials/header.php";
         });
     }
 
-function renderOpciones(data) {
-    const id         = data.idegreso;
-    const recordDate = data.fecha;          // ahora es "DD/MM/YYYY"
-    // calculamos hoy en DD/MM/YYYY
-    const d  = new Date();
-    const dd = String(d.getDate()).padStart(2,'0');
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const yyyy = d.getFullYear();
-    const todayStr = `${dd}/${mm}/${yyyy}`;
+    function renderOpciones(data) {
+        const id = data.idegreso;
+        const recordDate = data.fecha; // ahora es "DD/MM/YYYY"
+        // calculamos hoy en DD/MM/YYYY
+        const d = new Date();
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        const todayStr = `${dd}/${mm}/${yyyy}`;
 
-    if (!showingDeleted) {
-  // botón de detalle siempre
-  let html = ``;
+        if (!showingDeleted) {
+            // botón de detalle siempre
+            let html = ``;
 
-  const isToday = recordDate === todayStr;
+            const isToday = recordDate === todayStr;
 
-  html += `
+            html += `
     <button
       class="btn btn-sm ${isToday ? 'btn-danger' : 'btn-secondary'} btn-eliminar"
       data-id="${id}"
@@ -237,11 +237,11 @@ function renderOpciones(data) {
     </button>
   `;
 
-  return html;
+            return html;
 
-} else {
-  // vista eliminados: botón “ver justificación”
-  return `
+        } else {
+            // vista eliminados: botón “ver justificación”
+            return `
     <button
       class="btn btn-primary btn-sm btn-view-just"
       data-just="${encodeURIComponent(data.justificacion)}"
@@ -250,9 +250,9 @@ function renderOpciones(data) {
       <i class="fa-solid fa-eye"></i>
     </button>
   `;
-}
+        }
 
-}
+    }
 
 
 
@@ -280,20 +280,20 @@ function renderOpciones(data) {
         }));
 
         // al cambiar fecha -> vuelvo a recargar con la bandera actual
-fechaInput.addEventListener('change', ()=>{
-    currentModo = 'dia';
-    marcarActivo(btnDia);
+        fechaInput.addEventListener('change', () => {
+            currentModo = 'dia';
+            marcarActivo(btnDia);
 
-    
-    if (showingDeleted) {
-        $('#tableDia').hide();
-        $('#tableEliminados').show();
-    } else {
-        $('#tableEliminados').hide();
-        $('#tableDia').show();
-    }
-    cargarTabla(currentModo, fechaInput.value, showingDeleted);
-});
+
+            if (showingDeleted) {
+                $('#tableDia').hide();
+                $('#tableEliminados').show();
+            } else {
+                $('#tableEliminados').hide();
+                $('#tableDia').show();
+            }
+            cargarTabla(currentModo, fechaInput.value, showingDeleted);
+        });
 
 
         // toggle ver/ocultar eliminados
@@ -308,7 +308,7 @@ fechaInput.addEventListener('change', ()=>{
                 $('#tableEliminados').show();
 
                 // cambio estilos y icono: ahora mostramos el ojo (ver)
-                btnVerEliminados.classList.replace('btn-secondary', 'btn-primary');
+                btnVerEliminados.classList.replace('btn-secondary', 'btn-warning');
                 btnVerEliminados.querySelector('i')
                     .classList.replace('fa-eye-slash', 'fa-eye');
                 btnVerEliminados.title = 'Ver activos';
@@ -317,7 +317,7 @@ fechaInput.addEventListener('change', ()=>{
                 $('#tableDia').show();
 
                 // restauramos botón de eliminar (ojo tachado)
-                btnVerEliminados.classList.replace('btn-primary', 'btn-secondary');
+                btnVerEliminados.classList.replace('btn-warning', 'btn-secondary');
                 btnVerEliminados.querySelector('i')
                     .classList.replace('fa-eye', 'fa-eye-slash');
                 btnVerEliminados.title = 'Ver eliminados';
@@ -358,9 +358,9 @@ fechaInput.addEventListener('change', ()=>{
         });
 
         $(document).on('click', '.btn-view-just', function() {
-    const just = decodeURIComponent($(this).data('just'));
-    $('#textoJustificacion').text(just);
-    $('#modalVerJustificacion').modal('show');
-});
+            const just = decodeURIComponent($(this).data('just'));
+            $('#textoJustificacion').text(just);
+            $('#modalVerJustificacion').modal('show');
+        });
     });
 </script>

@@ -515,8 +515,9 @@ END$$
 DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListOrdenesPorPeriodo(
-  IN _modo   ENUM('semana','mes','dia'),
-  IN _fecha  DATE
+  IN _modo    ENUM('semana','mes','dia'),
+  IN _fecha   DATE,
+  IN _estado  CHAR(1)          -- 'A' para activas, 'D' para desactivadas
 )
 BEGIN
   DECLARE start_date DATE;
@@ -538,45 +539,38 @@ BEGIN
     o.fechaingreso,
     o.fechasalida,
     v.placa,
-    -- propietario: ahora enlazamos correctamente desde clientes
+    -- propietario
     CASE
       WHEN cli_prop.idpersona IS NOT NULL
         THEN CONCAT(cli_prop_pe.nombres, ' ', cli_prop_pe.apellidos)
       ELSE cli_prop_em.nomcomercial
     END AS propietario,
-
     -- cliente que hace la orden
     CASE
       WHEN cli_c.idpersona IS NOT NULL
         THEN CONCAT(cli_c_pe.nombres, ' ', cli_c_pe.apellidos)
       ELSE cli_c_em.nomcomercial
     END AS cliente
-
   FROM ordenservicios o
     JOIN vehiculos v
       ON o.idvehiculo = v.idvehiculo
-
-    -- ← CORRECCIÓN: idpropietario → clientes directamente
     JOIN clientes cli_prop
       ON o.idpropietario = cli_prop.idcliente
     LEFT JOIN personas cli_prop_pe
       ON cli_prop.idpersona = cli_prop_pe.idpersona
     LEFT JOIN empresas cli_prop_em
       ON cli_prop.idempresa = cli_prop_em.idempresa
-
-    -- cliente que hace la orden
     JOIN clientes cli_c
       ON o.idcliente = cli_c.idcliente
     LEFT JOIN personas cli_c_pe
       ON cli_c.idpersona = cli_c_pe.idpersona
     LEFT JOIN empresas cli_c_em
       ON cli_c.idempresa = cli_c_em.idempresa
-
   WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
-    AND o.estado = 'A'
+    AND o.estado = _estado           -- filtro por estado
   ORDER BY o.fechaingreso;
-
 END$$
+
 
 DROP PROCEDURE IF EXISTS spInsertFechaSalida;
 DELIMITER $$
@@ -994,16 +988,90 @@ estado = 'D',
 justificacion = _justificacion
 WHERE idorden = _idorden;
 END $$
-
-
-DROP PROCEDURE spGetDetOrden;
+-- select * from detalleordenservicios where idorden = 1;
+-- call spGetDetalleOrdenServicio(1)
+DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio;
 DELIMITER $$
-CREATE PROCEDURE spGetDetOrden(
-IN _idorden INT
+CREATE PROCEDURE spGetDetalleOrdenServicio(
+  IN _idorden INT
 )
 BEGIN
 
-END $$
+  -- 1) Cabecera de la orden
+  SELECT
+    o.idorden,
+    DATE_FORMAT(o.fechaingreso, '%d/%m/%Y %H:%i') AS fecha_ingreso,
+    CASE WHEN o.fechasalida IS NULL 
+         THEN NULL 
+         ELSE DATE_FORMAT(o.fechasalida, '%d/%m/%Y %H:%i') 
+    END AS fecha_salida,
+    o.ingresogrua,
+    o.kilometraje,
+    o.observaciones,
+
+    -- Propietario
+    COALESCE(
+      CONCAT(pp.apellidos, ' ', pp.nombres),
+      pe.nomcomercial
+    ) AS propietario,
+
+    -- Cliente
+    COALESCE(
+      CONCAT(cp.apellidos, ' ', cp.nombres),
+      ce.nomcomercial
+    ) AS cliente,
+
+    -- Vehículo
+    CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo
+
+  FROM ordenservicios o
+    JOIN clientes cprop ON o.idpropietario = cprop.idcliente
+    LEFT JOIN personas pp    ON cprop.idpersona = pp.idpersona
+    LEFT JOIN empresas pe    ON cprop.idempresa = pe.idempresa
+
+    JOIN clientes ccli  ON o.idcliente = ccli.idcliente
+    LEFT JOIN personas cp    ON ccli.idpersona = cp.idpersona
+    LEFT JOIN empresas ce    ON ccli.idempresa = ce.idempresa
+
+    JOIN vehiculos vh   ON o.idvehiculo = vh.idvehiculo
+    JOIN modelos m      ON vh.idmodelo   = m.idmodelo
+    JOIN tipovehiculos tv ON m.idtipov   = tv.idtipov
+    JOIN marcas ma      ON m.idmarca     = ma.idmarca
+
+  WHERE o.idorden = _idorden
+    AND o.estado = 'A';
+
+  -- 2) Detalle de servicios y mecánicos
+  SELECT
+    dos.iddetorden,
+    -- Nombre del mecánico (persona o username si no hay persona)
+    COALESCE(
+      CONCAT(mp.apellidos, ' ', mp.nombres),
+      col.namuser
+    ) AS mecanico,
+    s.servicio,
+    dos.precio
+
+  FROM detalleordenservicios dos
+    JOIN ordenservicios o ON dos.idorden = o.idorden
+    JOIN colaboradores col ON dos.idmecanico = col.idcolaborador
+    LEFT JOIN contratos ct ON col.idcontrato = ct.idcontrato
+    LEFT JOIN personas mp  ON ct.idpersona = mp.idpersona
+
+    JOIN servicios s      ON dos.idservicio = s.idservicio
+
+  WHERE dos.idorden = _idorden
+    AND dos.estado = 'A'
+  ORDER BY dos.iddetorden;
+
+  -- 3) Total de la orden
+  SELECT
+    ROUND(SUM(dos.precio),2) AS total_orden
+  FROM detalleordenservicios dos
+  WHERE dos.idorden = _idorden
+    AND dos.estado = 'A';
+
+END$$
 
 -- select * from vehiculos
 -- call spGetUltimoKilometraje(9)

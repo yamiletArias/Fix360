@@ -97,17 +97,17 @@ class OrdenServicio extends Conexion
      * @param string $fecha Fecha en formato 'YYYY-MM-DD'
      * @return array
      */
-    public function listarPorPeriodo(string $modo, string $fecha): array
-    {
-        try {
-            $stmt = $this->pdo->prepare("CALL spListOrdenesPorPeriodo(:modo, :fecha)");
+    public function listarPorPeriodo(string $modo, string $fecha, string $estado = 'A'): array{
+         try {     
+            $stmt = $this->pdo->prepare("CALL spListOrdenesPorPeriodo(:modo, :fecha, :estado)");
             $stmt->execute([
-                ':modo'  => $modo,
-                ':fecha' => $fecha,
-            ]);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt->closeCursor();
-            return $result;
+                ':modo'   => $modo,
+                ':fecha'  => $fecha,
+                ':estado' => $estado,
+             ]);
+             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+             $stmt->closeCursor();
+             return $result;
         } catch (Exception $e) {
             error_log("OrdenServicio::listarPorPeriodo error: " . $e->getMessage());
             return [];
@@ -130,6 +130,78 @@ class OrdenServicio extends Conexion
         return 0;
     }
 }
+
+/**
+ * Obtiene todos los datos de una orden (cabecera, detalle y total) desde el SP
+ *
+ * @param int $idorden
+ * @return array{
+ *   cabecera: array<string,mixed>,
+ *   detalle: array<array<string,mixed>>,
+ *   total: float
+ * }
+ */
+public function getDetalleOrden(int $idorden): array
+{
+    $pdo = $this->pdo;
+    try {
+        $stmt = $pdo->prepare("CALL spGetDetalleOrdenServicio(:idorden)");
+        $stmt->execute([':idorden' => $idorden]);
+
+        $resultSets = [];
+        // Recorremos cada resultset que devuelve el SP
+        do {
+            $resultSets[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } while ($stmt->nextRowset());
+        $stmt->closeCursor();
+
+        // Desempaquetamos: 0 = cabecera, 1 = detalle, 2 = total
+        $cabecera = $resultSets[0][0] ?? [];
+        $detalle  = $resultSets[1]    ?? [];
+        $total    = isset($resultSets[2][0]['total_orden'])
+                  ? (float)$resultSets[2][0]['total_orden']
+                  : 0.0;
+
+        return [
+            'cabecera' => $cabecera,
+            'detalle'  => $detalle,
+            'total'    => $total,
+        ];
+    } catch (\PDOException $e) {
+        error_log("OrdenServicio::getDetalleOrden error: " . $e->getMessage());
+        return [
+            'cabecera' => [],
+            'detalle'  => [],
+            'total'    => 0.0,
+        ];
+    }
+}
+
+/**
+ * Marca una orden como eliminada (soft–delete) y registra la justificación.
+ *
+ * @param int    $idorden
+ * @param string $justificacion
+ * @return int  Número de filas afectadas (1 si tuvo éxito, 0 si no)
+ */
+public function deleteOrdenServicio(int $idorden, string $justificacion): int
+{
+    try {
+        $stmt = $this->pdo->prepare("CALL spDeleteOrdenServicio(:idorden, :justificacion)");
+        $stmt->execute([
+            ':idorden'       => $idorden,
+            ':justificacion' => $justificacion
+        ]);
+        $affected = $stmt->rowCount();
+        $stmt->closeCursor();
+        return $affected;
+    } catch (\PDOException $e) {
+        error_log("OrdenServicio::deleteOrdenServicio error: " . $e->getMessage());
+        return 0;
+    }
+}
+
+
 
 
 }

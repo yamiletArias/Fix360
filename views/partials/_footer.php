@@ -23,8 +23,9 @@
 <!-- 3) jQuery UI (solo si lo usas) -->
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
-<!-- 4) Lightbox2 JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+<!-- Lightbox2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+
 
 <!-- 5) Plugins/Vendor JS -->
 <script src="<?= SERVERURL ?>views/assets/vendors/chart.js/chart.umd.js"></script>

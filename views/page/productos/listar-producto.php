@@ -136,12 +136,10 @@ require_once "../../partials/_footer.php";
           data: null,
           render: function(data, type, row) { // Inicio de render de opciones
             return `
-              <a href="editar-productos.php?id=${row.idproducto}"   class="btn btn-sm btn-warning" title="Editar">
+              <a href="editar-productos.php?idproducto=${row.idproducto}"   class="btn btn-sm btn-warning" title="Editar">
                 <i class="fa-solid fa-pen-to-square"></i>
               </a>
-              <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${row.idproducto})" title="Eliminar">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+
             `;
           } // Cierra render de opciones
         } // Cierra columna 10

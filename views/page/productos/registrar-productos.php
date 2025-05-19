@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Registro de producto";
+const NAMEVIEW = "Productos | Registro";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -88,14 +88,21 @@ require_once "../../partials/header.php";
           </div>
         </div>
 
-          <div class="col-md-3">
+        <div class="col-md-2">
+          <div class="form-floating ">
+            <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial" placeholder="stockInicial" min="0" />
+            <label for="stockInicial">Stock Actual</label>
+          </div>
+        </div>
+
+          <div class="col-md-2">
           <div class="form-floating ">
             <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin" placeholder="stockmin" min="0" />
             <label for="stockmin">Stock min.</label>
           </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
           <div class="form-floating ">
             <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax" placeholder="stockmax" min="0" />
             <label for="stockmax">Stock max.</label>
@@ -134,40 +141,39 @@ require_once "../../partials/_footer.php";
 
 ?>
 <script>
-document.getElementById("btnRegistrarProducto").addEventListener("click", function (e){
-e.preventDefault();
+document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
+  e.preventDefault();
 
-const form = document.getElementById("formProducto");
-const formData = new FormData(form);
+  const confirmacion = window.confirm("¿Estás seguro de que deseas registrar el producto?");
+  if (!confirmacion) {
+    return; // Si el usuario cancela, no hace nada
+  }
 
-for(let pair of formData.entries()){
-  console.log(pair[0]+ ': ' + pair[1]);
-}
+  const form = document.getElementById("formProducto");
+  const formData = new FormData(form);
 
+  for (let pair of formData.entries()) {
+    console.log(pair[0] + ': ' + pair[1]);
+  }
 
-fetch("http://localhost/fix360/app/controllers/producto.controller.php",{
-method: "POST",
-//headers: {"Content-Type": "application/json"},
-//body: JSON.stringify(data)
-body: formData
-})
-.then(response => response.json())
-.then(resp => {
-  if(resp.rows > 0){
-    showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
+  fetch("http://localhost/fix360/app/controllers/producto.controller.php", {
+    method: "POST",
+    body: formData
+  })
+    .then(response => response.json())
+    .then(resp => {
+      if (resp.rows > 0) {
+        showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
         setTimeout(() => {
           window.location.href = 'listar-producto.php';
         }, 1500);
-  } else{
-    console.log("Error en el registro");
-    err => {
-      console.error("Error en la solicitud:", err);
-    }
-  }
-})
-.catch(err =>{
-  console.log("Error en la solicitud", err);
-});
+      } else {
+        console.log("Error en el registro");
+      }
+    })
+    .catch(err => {
+      console.log("Error en la solicitud", err);
+    });
 });
 </script>
 
