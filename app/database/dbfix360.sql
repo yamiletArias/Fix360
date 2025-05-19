@@ -288,7 +288,6 @@ observaciones 		VARCHAR(255)	NULL,
 ingresogrua 		BOOLEAN 			NOT NULL,
 fechaingreso 		DATETIME 		DEFAULT 			CURRENT_TIMESTAMP,
 fechasalida 		DATETIME 		NULL, 
-fecharecordatorio DATE 				NULL,
 estado 				ENUM('A','D') 	DEFAULT 'A' NOT NULL,
 justificacion 		VARCHAR(255)	NULL, 
 notificado 			BOOLEAN     DEFAULT FALSE,
@@ -466,7 +465,8 @@ DROP TABLE IF EXISTS ventas;
 CREATE TABLE ventas (
 
 idventa 			INT 		PRIMARY KEY 	AUTO_INCREMENT,
-idcliente 			INT 			NOT NULL,
+idpropietario 			INT 			NOT NULL,
+idcliente 				INT 			NOT NULL,
 idcolaborador 		INT 			NOT NULL,
 idvehiculo 			INT 			NULL,
 tipocom 			ENUM('boleta', 'factura') 		NOT NULL,
@@ -479,6 +479,7 @@ justificacion 		VARCHAR(255)	,
 estado 				BOOLEAN 			DEFAULT TRUE,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+CONSTRAINT fk_idpropietario_6 FOREIGN KEY (idpropietario) REFERENCES clientes (idcliente),
 CONSTRAINT fk_idcliente_6 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
 CONSTRAINT fk_idvehiculo_6 FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo),
 CONSTRAINT fk_idcolaborador_6 FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
@@ -510,8 +511,8 @@ CREATE TABLE detalleventa(
 iddetventa 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idproducto 		INT 				NOT NULL,
 idventa 			INT 				NOT NULL,
-idorden 			INT  				NOT NULL,
-idpromocion 	INT 				NOT NULL,
+idpromocion 	INT 				NULL,
+iddetorden 		INT 				NULL,
 cantidad 		INT 				NOT NULL,
 numserie 		JSON 				NOT NULL,
 precioventa 	DECIMAL(7,2)	NOT NULL,
@@ -523,8 +524,7 @@ CONSTRAINT fk_idproducto_1 FOREIGN KEY (idproducto) REFERENCES productos (idprod
 CONSTRAINT fk_idventa_2 FOREIGN KEY(idventa) REFERENCES ventas (idventa),
 CONSTRAINT chk_detalleventa CHECK (cantidad > 0 AND precioventa > 0),
 CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100),
-CONSTRAINT fk_idorden_5 FOREIGN KEY (idorden) REFERENCES ordenservicios (idorden)
-
+CONSTRAINT fk_iddetorden    FOREIGN KEY (iddetorden)   REFERENCES detalleordenservicios (iddetorden)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS detallecompra;

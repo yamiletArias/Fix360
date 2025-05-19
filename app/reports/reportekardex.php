@@ -2,11 +2,23 @@
 // reportekardex.php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once dirname(__DIR__, 2) . '/app/models/sesion.php';
+
+// 1) Incluyo el header para tener sesión y $usuario
+require_once dirname(__DIR__, 2) . '/app/config/app.php';
+require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
+require_once dirname(__DIR__, 2) . '/app/models/Colaborador.php';
+
+
 
 use Spipu\Html2Pdf\Html2Pdf;
 use Spipu\Html2Pdf\Exception\Html2PdfException;
 use Spipu\Html2Pdf\Exception\ExceptionFormatter;
 
+// Parámetros básicos
+$colModel       = new Colaborador();
+$usuario        = $colModel->getById($idadmin);
+$usuarioNombre  = $usuario['nombreCompleto'];
 $idproducto = $_GET['idproducto'] ?? null;
 $fecha      = $_GET['fecha']      ?? date('Y-m-d');
 $modo       = $_GET['modo']       ?? 'dia';
@@ -16,36 +28,47 @@ if (!$idproducto) {
     die('Falta id de producto');
 }
 
-// 1) Recuperar datos de movimientos vía tu API
+// 2) Recuperar movimientos
 $apiMovUrl = sprintf(
     'http://localhost/Fix360/app/controllers/Movimiento.controller.php?idproducto=%s&modo=%s&fecha=%s',
     urlencode($idproducto),
     urlencode($modo),
     urlencode($fecha)
-);  
+);
+$jsonMov = @file_get_contents($apiMovUrl);
+$objMov  = $jsonMov ? json_decode($jsonMov, true) : null;
+$datos   = ($objMov && isset($objMov['status']) && $objMov['status']==='success')
+           ? $objMov['data']
+           : [];
 
-$json = @file_get_contents($apiMovUrl);
-if ($json === false) {
-    die("Error al llamar a la API de movimientos");
-}
+// 3) Recuperar stock via API de Kardex.Controller.php
+$apiStockUrl = sprintf(
+    'http://localhost/Fix360/app/controllers/Kardex.Controller.php?task=getStock&idproducto=%s',
+    urlencode($idproducto)
+);
+$jsonStock = @file_get_contents($apiStockUrl);
+$objStock  = $jsonStock ? json_decode($jsonStock, true) : [];
+$stock_actual = $objStock['stock_actual'] ?? '';
+$stock_min    = $objStock['stockmin']      ?? '';
+$stock_max    = $objStock['stockmax']      ?? '';
 
-$obj = json_decode($json, true);
-if (!isset($obj['status']) || $obj['status'] !== 'success') {
-    // Si la API devuelve status distinto, asumimos sin datos
-    $datos = [];
-} else {
-    $datos = $obj['data'];
-}
+// 4) Nombre de usuario (viene de header.php)
+$usuarioNombre = $usuario['nombreCompleto'];
 
-// 2) Ahora podemos capturar la plantilla
+// 5) Capturar plantilla
 ob_start();
-  // dentro de data-reporte-kardex.php tendrás acceso a $datos
+
+  // variables disponibles en la plantilla:
+  //   $datos, $stock_actual, $stock_min, $stock_max, $usuarioNombre, $nombre, $fecha, $modo
+  require __DIR__ . '/css/estilos_pdf.html';
   require __DIR__ . '/content/data-reporte-kardex.php';
-  require __DIR__ . '/css/estilos.html';
 $content = ob_get_clean();
 
-// 3) Generar el PDF con html2pdf…
+// 6) Generar PDF
 $html2pdf = new Html2Pdf('P','A4','es', true,'UTF-8',[10,10,10,10]);
 $html2pdf->setDefaultFont('helvetica');
 $html2pdf->writeHTML($content);
+if (ob_get_length()) {
+    ob_end_clean();
+}
 $html2pdf->output("kardex-{$idproducto}.pdf", 'I');
