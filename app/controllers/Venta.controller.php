@@ -1,5 +1,5 @@
 <?php
-//Venta.controller.php
+//Venta.controller.php /si
 if (isset($_SERVER['REQUEST_METHOD'])) {
 
     header('Content-Type: application/json; charset=utf-8');
@@ -94,17 +94,20 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             }
 
             if (
-                isset($_GET['task'], $_GET['idcotizacion'])
-                && $_GET['task'] === 'getClienteCotizacion'
+                isset($_GET['action'], $_GET['idcotizacion'])
+                && $_GET['action'] === 'getClienteCotizacion'
             ) {
+                header('Content-Type: application/json');
+                require_once __DIR__ . '/../models/Cotizacion.php';
+                $m = new Cotizacion();
                 $cab = $m->getCabeceraById((int) $_GET['idcotizacion']);
-                // ahora devolvemos idcliente además de cliente
                 echo json_encode([
                     'idcliente' => $cab['idcliente'] ?? null,
                     'cliente' => $cab['cliente'] ?? null
                 ]);
                 exit;
             }
+
             // 6) Listar todas las ventas si no se especifica nada
             echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);
             exit;

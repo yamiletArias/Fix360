@@ -273,10 +273,12 @@ require_once "../../partials/header.php";
   </div>
 </div>
 <!-- Formulario Venta -->
-</body>
-
-</html>
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+<!-- js de carga moneda -->
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+<?php
+require_once "../../partials/_footer.php";
+?>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
 
@@ -449,6 +451,66 @@ require_once "../../partials/header.php";
 
     function estaDuplicado(idproducto = 0) {
       return detalleVenta.some(d => d.idproducto == idproducto);
+    }
+    const params = new URLSearchParams(window.location.search);
+    const cotId = params.get('id');
+    if (cotId) {
+      // 1) Cabecera
+      fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=getCabecera&idcotizacion=${cotId}`)
+        .then(res => res.json())
+        .then(cab => {
+          hiddenIdCliente.value = cab.idcliente; // ID interno de cliente
+          inputProp.value = cab.cliente; // Nombre para el input “Propietario”
+          fechaInput.value = cab.fechahora.split(' ')[0]; // (el resto: monedaSelect, fechaInput…)
+          monedaSelect.value = cab.moneda;
+          hiddenIdCliente.dispatchEvent(new Event('change')); // Dispara el change para recargar “vehículos”
+        })
+        .catch(console.error);
+
+      // 2) Detalle: insertar directo en la tabla
+      fetch(`<?= SERVERURL ?>app/controllers/Detcotizacion.controller.php`
+        + `?idcotizacion=${cotId}`)
+        .then(res => res.json())
+        .then(items => {
+          items.forEach(item => {
+            console.log(item);
+            const precio = parseFloat(item.precio);
+            const cantidad = parseFloat(item.cantidad);
+            const descuento = parseFloat(item.descuento);
+            const importe = precio * cantidad - descuento;
+
+            const fila = document.createElement("tr");
+            fila.dataset.idproducto = item.idproducto;
+            fila.innerHTML = `
+            <td>0</td>
+            <td>${item.producto}</td>
+            <td>${precio.toFixed(2)}</td>
+            <td>${cantidad}</td>
+            <td>${descuento.toFixed(2)}</td>
+            <td>${importe.toFixed(2)}</td>
+            <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+          `;
+
+            // Listener de “quitar”
+            fila.querySelector(".btn-quitar").addEventListener("click", () => {
+              fila.remove();
+              const idx = detalleVenta.findIndex(d => d.idproducto == item.idproducto);
+              if (idx >= 0) detalleVenta.splice(idx, 1);
+              actualizarNumeros();
+              calcularTotales();
+            });
+
+            tabla.appendChild(fila);
+            detalleVenta.push({
+              idproducto: item.idproducto, producto: item.producto,
+              precio, cantidad, descuento,
+              importe: importe.toFixed(2)
+            });
+          });
+          actualizarNumeros();
+          calcularTotales();
+        })
+        .catch(console.error);
     }
 
     // --- Agregar Producto al Detalle ---
@@ -826,11 +888,24 @@ require_once "../../partials/header.php";
     });
   });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const cotId = new URLSearchParams(window.location.search).get('id');
+  if (!cotId) return;
 
-<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+  const hiddenIdCli = document.getElementById('hiddenIdCliente');
+  const inputProp   = document.getElementById('propietario');
+  if (!hiddenIdCli || !inputProp) return;
 
-<!-- js de carga moneda -->
-<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-<?php
-require_once "../../partials/_footer.php";
-?>
+  fetch(`<?= SERVERURL ?>app/controllers/cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
+  .then(res => res.json())
+  .then(data => {
+    hiddenIdCliente.value = data.idcliente;
+    inputProp.value   = data.cliente;
+    hiddenIdCliente.dispatchEvent(new Event('change'));
+  })
+  .catch(console.error);
+});
+</script>
+</body>
+</html>

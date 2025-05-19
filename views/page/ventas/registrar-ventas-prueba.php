@@ -281,7 +281,6 @@ require_once "../../partials/_footer.php";
 ?>
 
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
-
 <script>
   document.addEventListener('DOMContentLoaded', () => {
 
@@ -294,18 +293,21 @@ require_once "../../partials/_footer.php";
     const tablaRes = document.querySelector("#tabla-resultado tbody");
     let propietarioTimer;
 
-    // 1) Cargo el cliente de la cotización y lo pinto en “Propietario”
-    const cotId = new URLSearchParams(window.location.search).get('id');
+    /*     // 1) Cargo el cliente de la cotización y lo pinto en “Propietario”
+        const cotId = new URLSearchParams(window.location.search).get('id');
     if (cotId) {
-      fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=getClienteCotizacion&idcotizacion=${cotId}`)
-        .then(res => res.json())
+      fetch(`${SERVERURL}app/controllers/Venta.controller.php?task=getClienteCotizacion&idcotizacion=${cotId}`)
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
         .then(cab => {
-          hiddenIdCli.value = cab.cliente;
-          inputProp.value = cab.cliente;
+          hiddenIdCli.value = cab.idcliente;
+          inputProp.value   = cab.cliente;
           hiddenIdCli.dispatchEvent(new Event('change'));
         })
         .catch(console.error);
-    }
+    } */
 
     // 3) Cuando cambia hiddenIdCli, cargo sus vehículos
     function cargarVehiculos() {
@@ -830,7 +832,25 @@ require_once "../../partials/_footer.php";
 <!-- js de carga moneda -->
 
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cotId = new URLSearchParams(window.location.search).get('id');
+    if (!cotId) return;
 
+    const hiddenIdCli = document.getElementById('hiddenIdCliente');
+    const inputProp = document.getElementById('propietario');
+    if (!hiddenIdCli || !inputProp) return;
+
+    fetch(`<?= SERVERURL ?>app/controllers/cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
+      .then(res => res.json())
+      .then(data => {
+        hiddenIdCliente.value = data.idcliente;
+        inputProp.value = data.cliente;
+        hiddenIdCliente.dispatchEvent(new Event('change'));
+      })
+      .catch(console.error);
+  });
+</script>
 </body>
 
 </html>

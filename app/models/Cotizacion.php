@@ -15,17 +15,23 @@ class Cotizacion extends Conexion
   public function getCabeceraById(int $id): array
   {
     $sql = "
-            SELECT 
-                c.idcotizacion,
-                c.idcliente,
-                cli.nombre AS cliente,
-                c.moneda,
-                DATE_FORMAT(c.fechahora, '%Y-%m-%d %H:%i:%s') AS fechahora
-            FROM cotizaciones c
-            JOIN clientes cli ON cli.idcliente = c.idcliente
-            WHERE c.idcotizacion = ?
-            LIMIT 1
-        ";
+        SELECT 
+            c.idcotizacion,
+            c.idcliente,
+            -- si tiene persona, concatena apellidos+nombres, si no toma nomcomercial de empresa
+            COALESCE(
+              CONCAT(p.nombres, ' ', p.apellidos), 
+              e.nomcomercial
+            ) AS cliente,
+            c.moneda,
+            DATE_FORMAT(c.fechahora, '%Y-%m-%d %H:%i:%s') AS fechahora
+        FROM cotizaciones c
+        LEFT JOIN clientes cli ON cli.idcliente = c.idcliente
+        LEFT JOIN personas p  ON cli.idpersona = p.idpersona
+        LEFT JOIN empresas e  ON cli.idempresa = e.idempresa
+        WHERE c.idcotizacion = ?
+        LIMIT 1
+    ";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];

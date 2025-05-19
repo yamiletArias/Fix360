@@ -208,6 +208,26 @@ DROP VIEW IF EXISTS vista_detalle_cotizacion;
 CREATE VIEW vista_detalle_cotizacion AS
 SELECT 
   c.idcotizacion,
+  c.idcliente,                                -- <---- lo agregamos
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.precio,
+  dc.cantidad,
+  dc.descuento
+FROM cotizaciones c
+  JOIN clientes cli ON c.idcliente = cli.idcliente
+  LEFT JOIN personas p ON cli.idpersona = p.idpersona
+  LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+  JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+  JOIN productos pr ON dc.idproducto = pr.idproducto
+  INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria
+WHERE c.estado = TRUE;
+/* 
+-- sin cantidad
+DROP VIEW IF EXISTS vista_detalle_cotizacion;
+CREATE VIEW vista_detalle_cotizacion AS
+SELECT 
+  c.idcotizacion,
   COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
   CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
   dc.precio,
@@ -219,7 +239,9 @@ LEFT JOIN empresas e ON cli.idempresa = e.idempresa
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
 INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
-
+*/
+/*
+-- real
 DROP VIEW IF EXISTS vista_detalle_cotizacion;
 CREATE VIEW vista_detalle_cotizacion AS
 SELECT 
@@ -235,7 +257,7 @@ LEFT JOIN personas p ON cli.idpersona = p.idpersona
 LEFT JOIN empresas e ON cli.idempresa = e.idempresa
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
-INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;*/
 
 -- ************************* VISTA PARA LOS ESTADO FALSE *************************
 
