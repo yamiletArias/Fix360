@@ -41,6 +41,7 @@ if (!isset($obj['status']) || $obj['status'] !== 'success') {
 ob_start();
   // dentro de data-reporte-kardex.php tendrás acceso a $datos
   require __DIR__ . '/content/data-reporte-kardex.php';
+  require __DIR__ . '/css/estilos.html';
 $content = ob_get_clean();
 
 // 3) Generar el PDF con html2pdf…

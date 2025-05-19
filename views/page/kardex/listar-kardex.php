@@ -309,26 +309,26 @@ require_once "../../partials/header.php";
     initWithFirstProduct();
 
     fechaInput.addEventListener('change', cargarMovimientos);
-    
-    document.getElementById('btnPdfKardex').addEventListener('click', () => {
-      if (!selectedProduct.idproducto) {
+
+document.getElementById('btnPdfKardex').addEventListener('click', () => {
+  if (!selectedProduct.idproducto) {
     alert('Selecciona primero un producto.');
     return;
   }
-  const idp   = selectedProduct.idproducto;
-  const fecha = fechaInput.value;
-  const modo  = currentModo;
-    const nombre  = selectedProduct.subcategoria_producto; 
+  const idp     = selectedProduct.idproducto;
+  const fecha   = fechaInput.value;
+  const modo    = currentModo;
+  const nombre  = selectedProduct.subcategoria_producto;
 
-  // Ajusta el path según dónde sirvas tu PHP:
   const url = `http://localhost/Fix360/app/reports/reportekardex.php`
     + `?idproducto=${encodeURIComponent(idp)}`
     + `&fecha=${encodeURIComponent(fecha)}`
-    + `&modo=${encodeURIComponent(modo)}`;
+    + `&modo=${encodeURIComponent(modo)}`
+    + `&nombre=${encodeURIComponent(nombre)}`;  // ← lo agregamos aquí
 
-    window.open(url, '_blank');
+  window.open(url, '_blank');
 });
 
-});
+
+  });
 </script>
-
