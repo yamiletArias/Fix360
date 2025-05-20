@@ -185,16 +185,23 @@ require_once "../../partials/_footer.php";
       }
     });
   });
-
-  function verDetalle(modelo, anio, serie, combustible, modificado, vin, numchasis) {
-    document.querySelector("#modeloInput").value = modelo || 'No proporcionado';
-    document.querySelector("#anioInput").value = anio || 'No proporcionado';
-    document.querySelector("#serieInput").value = serie || 'No proporcionado';
-    document.querySelector("#combustibleInput").value = combustible || 'No proporcionado';
-    document.querySelector("#modificadoInput").value = modificado || 'No proporcionado';
-    document.querySelector("#vinInput").value = vin || 'No proporcionado';
-    document.querySelector("#numchasisInput").value = numchasis || 'No proporcionado';
-    let modal = new bootstrap.Modal(document.getElementById("miModal"));
-    modal.show();
+  function cleanField(value) {
+  // si viene null, undefined, cadena 'null' o cadena vacía
+  if (value == null || value === 'null' || value === '') {
+    return 'No proporcionado';
   }
+  return value;
+}
+
+function verDetalle(modelo, anio, serie, combustible, modificado, vin, numchasis) {
+  document.querySelector("#modeloInput").value      = cleanField(modelo);
+  document.querySelector("#anioInput").value        = cleanField(anio);
+  document.querySelector("#serieInput").value       = cleanField(serie);
+  document.querySelector("#combustibleInput").value = cleanField(combustible);
+  document.querySelector("#modificadoInput").value  = cleanField(modificado);
+  document.querySelector("#vinInput").value         = cleanField(vin);
+  document.querySelector("#numchasisInput").value   = cleanField(numchasis);
+
+  new bootstrap.Modal(document.getElementById("miModal")).show();
+}
 </script>

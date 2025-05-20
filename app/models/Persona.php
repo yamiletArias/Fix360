@@ -67,7 +67,7 @@ class Persona extends Conexion {
       "message" => ""
     ];
     try {
-      $query = "CALL spUpdatePersona(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      $query = "CALL spUpdatePersona(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["idpersona"],
@@ -75,6 +75,7 @@ class Persona extends Conexion {
         $params["apellidos"],
         $params["tipodoc"],
         $params["numdoc"],
+        $params["numruc"],
         $params["direccion"],
         $params["correo"],
         $params["telprincipal"],

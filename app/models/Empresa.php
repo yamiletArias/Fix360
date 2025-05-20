@@ -64,11 +64,11 @@ class Empresa extends Conexion {
    * @param string $ruc Número de RUC
    * @return array Datos de la empresa encontrada
    */
-  public function find($ruc) {
+  public function find($id) {
     try {
-      $query = "CALL spGetEmpresaByRUC(?)";
+      $query = "CALL spGetEmpresaById(?)";
       $cmd = $this->pdo->prepare($query);
-      $cmd->execute([$ruc]);
+      $cmd->execute([$id]);
       return $cmd->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
@@ -83,15 +83,14 @@ class Empresa extends Conexion {
   public function update($params = []) {
     $resultado = ["status" => false, "message" => ""];
     try {
-      $query = "CALL spUpdateEmpresa(?, ?, ?, ?, ?, ?)";
+      $query = "CALL spUpdateEmpresa( ?, ?, ?, ?, ?)";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute([
         $params["idempresa"],
         $params["nomcomercial"],
         $params["razonsocial"],
         $params["telefono"],
-        $params["correo"],
-        $params["ruc"]
+        $params["correo"]
       ]);
       $resultado["status"] = true;
       $resultado["message"] = "Empresa actualizada correctamente";

@@ -387,15 +387,16 @@ require_once "../../partials/_footer.php";
 
       <!-- Cuerpo -->
       <div class="modal-body">
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-floating">
-              <select id="selectMetodo" class="form-select input" style="color: black;">
-              </select>
-              <label for="selectMetodo">Tipo de Servicio:</label>
-            </div>
-          </div>
-        </div>
+  <div class="row mb-3">
+    <div class="col">
+      <div class="form-floating">
+        <select id="selectTipoServicioModal" class="form-select input" style="color: black;background-color:white;">
+          <option value="">Cargando...</option>
+        </select>
+        <label for="selectTipoServicioModal">Tipo de Servicio:</label>
+      </div>
+    </div>
+  </div>
 
         <!-- Fila para Valor Buscado -->
         <div class="row mb-3">

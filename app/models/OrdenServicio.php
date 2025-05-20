@@ -35,7 +35,7 @@ class OrdenServicio extends Conexion
             $pdo->beginTransaction();
             error_log("Parametros para spRegisterOrdenServicio: ". print_r($params,true));
 
-            $stmtOrden = $pdo->prepare("CALL spRegisterOrdenServicio(?,?,?,?,?,?,?,?,?)");
+            $stmtOrden = $pdo->prepare("CALL spRegisterOrdenServicio(?,?,?,?,?,?,?,?)");
             $stmtOrden->execute([
                 $params["idadmin"],
                 $params["idpropietario"],
@@ -44,8 +44,7 @@ class OrdenServicio extends Conexion
                 $params["kilometraje"],
                 $params["observaciones"],
                 $params["ingresogrua"],
-                $params["fechaingreso"],
-                $params["fecharecordatorio"]
+                $params["fechaingreso"]
             ]);
             error_log("Sp SpRegisterOrdenServicio ejecutado");
 

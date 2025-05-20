@@ -26,9 +26,17 @@ $usuario  = $colModel->getById($idadmin);
 require_once dirname(__DIR__, 2) . '/app/models/Agenda.php';
 require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
 
+
+
 $agendaModel = new Agenda();
 $hoy = $agendaModel->getRecordatoriosHoy();
 $hoy_count = count($hoy);
+  $maxMostrar     = 4;
+  $totalHoy       = $hoy_count;
+  $hoyParaMostrar = array_slice($hoy, 0, $maxMostrar);
+  $restantes      = $totalHoy - count($hoyParaMostrar);
+  // Máximo a mostrar en el dropdown
+
 ?>
 
 
@@ -66,8 +74,8 @@ $hoy_count = count($hoy);
   <!--link rel="shortcut icon" href="<?= SERVERURL ?>views/assets/images/favicon.png" /-->
   <link rel="shortcut icon" href="<?= SERVERURL ?>images/minilogo.jpg" />
 
-<!-- Lightbox2 CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
+  <!-- Lightbox2 CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
 
 
 
@@ -239,39 +247,37 @@ $hoy_count = count($hoy);
               <i class="icon-speech"></i>
               <span class="count"><?= $hoy_count ?></span>
             </a>
-            <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
-              aria-labelledby="messageDropdown" style="min-width: 250px;">
-              <!-- Barra superior con los dos botones -->
-
-              <!-- Cabecera de “tienes X recordatorios” -->
+            <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0" aria-labelledby="messageDropdown" style="min-width:250px;">
               <div class="dropdown-header mb-0 px-3 py-2">
-
-                <h7><strong> <?= $hoy_count ?> recordatorio<?= $hoy_count !== 1 ? 's' : '' ?> </strong></h7>
-                <a class="btn btn-sm btn-primary text-end" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
-                  title="Ver todos los recordatorios">
+                <strong class="input"><?= $totalHoy ?> recordatorio<?= $totalHoy !== 1 ? 's' : '' ?></strong>
+                <a class="btn btn-sm btn-primary float-end" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php" title="Ver todos los recordatorios">
                   <i class="fa fa-list-alt"></i>
                 </a>
               </div>
               <div class="dropdown-divider"></div>
 
-              <?php if ($hoy_count): ?>
-                <?php foreach ($hoy as $r): ?>
-                  <a class="dropdown-item preview-item" href="#">
+              <?php if ($totalHoy): ?>
+                <?php foreach ($hoyParaMostrar as $r): ?>
+                  <a class="dropdown-item preview-item" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
                     <div class="preview-item-content">
-                      <p class="preview-subject mb-1">
-                        <?= htmlspecialchars($r['nomcliente']) ?>
-                      </p>
-                      <p class="small-text text-muted mb-0">
-                        <?= htmlspecialchars($r['comentario']) ?>
-                      </p>
+                      <p class="preview-subject mb-1"><?= htmlspecialchars($r['nomcliente']) ?></p>
+                      <p class="small-text text-muted mb-0"><?= htmlspecialchars($r['comentario']) ?></p>
                     </div>
                   </a>
                 <?php endforeach; ?>
+
+                <?php if ($restantes > 0): ?>
+                  <a class="dropdown-item text-center small text-dark" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
+                    y <?= $restantes ?> recordatorio<?= $restantes !== 1 ? 's' : '' ?> más
+                  </a>
+                <?php endif; ?>
+
               <?php else: ?>
                 <div class="px-3 py-2 text-center text-muted">No hay recordatorios hoy</div>
               <?php endif; ?>
-
             </div>
+
+
           </li>
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
             <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
@@ -438,8 +444,12 @@ $hoy_count = count($hoy);
           try {
             const resp = await fetch('<?= SERVERURL ?>app/controllers/colaborador.controller.php', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: new URLSearchParams({ operation: 'logout' })
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: new URLSearchParams({
+                operation: 'logout'
+              })
             });
             const data = await resp.json();
             if (data.status) {
