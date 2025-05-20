@@ -5,6 +5,122 @@ ALTER TABLE detalleventa
 MODIFY COLUMN idorden INT NULL,
 MODIFY COLUMN idpromocion INT NULL;
 
+
+-- registro de venta con orden
+DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
+DELIMITER $$
+CREATE PROCEDURE spRegisterVentaConOrden (
+  IN _conOrden      BOOLEAN,
+  IN _idadmin       INT,
+  IN _idpropietario INT,
+  IN _idcliente     INT,
+  IN _idvehiculo    INT,
+  IN _kilometraje   DECIMAL(10,2),
+  IN _observaciones VARCHAR(255),
+  IN _ingresogrua   BOOLEAN,
+  IN _fechaingreso  DATETIME,
+  IN _tipocom       ENUM('boleta','factura'),
+  IN _fechahora     DATETIME,
+  IN _numserie      VARCHAR(10),
+  IN _numcom        VARCHAR(10),
+  IN _moneda        VARCHAR(20),
+  IN _idcolaborador INT
+)
+BEGIN
+  DECLARE v_idorden INT DEFAULT NULL;
+  DECLARE v_idventa INT DEFAULT 0;
+  DECLARE v_fechaing DATETIME;
+
+  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
+
+  -- 1) Inserta orden de servicio si corresponde
+  IF _conOrden THEN
+    INSERT INTO ordenservicios (
+      idadmin,
+      idpropietario,
+      idcliente,
+      idvehiculo,
+      kilometraje,
+      observaciones,
+      ingresogrua,
+      fechaingreso,
+      fechasalida,
+      estado
+    ) VALUES (
+      _idadmin,
+      _idpropietario,
+      _idcliente,
+      _idvehiculo,
+      _kilometraje,
+      _observaciones,
+      _ingresogrua,
+      v_fechaing,
+      NULL,
+      'A'
+    );
+    SET v_idorden = LAST_INSERT_ID();
+  END IF;
+
+  -- 2) Inserta venta (sin idpropietario)
+  INSERT INTO ventas (
+    idcliente,
+    idcolaborador,
+    idvehiculo,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda,
+    kilometraje,
+    justificacion,
+    estado
+  ) VALUES (
+    _idcliente,
+    _idcolaborador,
+    NULLIF(_idvehiculo,0),
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda,
+    NULLIF(_kilometraje,0),
+    NULL,
+    TRUE
+  );
+  SET v_idventa = LAST_INSERT_ID();
+
+  -- 3) Devuelve IDs
+  SELECT v_idventa AS idventa,
+         v_idorden AS idorden;
+END$$
+
+DELIMITER ;
+/*
+SELECT
+  v.idventa,
+  v.tipocom,
+  v.numserie,
+  v.numcom,
+  v.moneda,
+  v.fechahora AS fecha_venta,
+  v.kilometraje AS km_venta,
+  o.idorden,
+  o.fechaingreso,
+  o.kilometraje AS km_orden,
+  o.observaciones,
+  o.ingresogrua,
+  d.iddetorden,
+  s.servicio AS nombreservicio,
+  d.precio,
+  d.estado AS estado_servicio,
+  m.namuser AS mecanico
+FROM ventas v
+LEFT JOIN ordenservicios o ON v.idcliente = o.idcliente AND DATE(v.fechahora) = DATE(o.fechaingreso)
+LEFT JOIN detalleordenservicios d ON o.idorden = d.idorden
+LEFT JOIN servicios s ON d.idservicio = s.idservicio
+LEFT JOIN colaboradores m ON d.idmecanico = m.idcolaborador
+ORDER BY v.idventa DESC, d.iddetorden;
+*/
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
 DELIMITER $$

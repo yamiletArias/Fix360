@@ -37,7 +37,8 @@ require_once "../../partials/header.php";
             <div class="form-floating input-group mb-3">
               <input type="text" disabled class="form-control input" id="propietario" placeholder="Propietario" />
               <label for="propietario"><strong>Propietario</strong></label>
-              <input type="hidden" id="hiddenIdCliente" />
+              <input type="hidden" id="hiddenIdPropietario" name="idpropietario" />
+              <!-- <input type="hidden" id="hiddenIdCliente" /> -->
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                 data-bs-target="#miModal">
                 ...
@@ -49,13 +50,15 @@ require_once "../../partials/header.php";
               <input type="text" disabled class="form-control input" id="cliente" placeholder="Cliente">
               <input type="hidden" id="hiddenIdCliente" name="idcliente">
               <label for="cliente">Cliente</label>
-              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ModalCliente">…</button>
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                data-bs-target="#ModalCliente">…</button>
             </div>
           </div>
 
           <div class="col-md-4 ">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="observaciones" placeholder="observaciones" maxlength="255">
+              <input type="text" class="form-control input" id="observaciones" placeholder="observaciones"
+                maxlength="255">
               <label for="observaciones">Observaciones</label>
             </div>
           </div>
@@ -81,12 +84,12 @@ require_once "../../partials/header.php";
               <label for="kilometraje"><strong>Kilometraje</strong></label>
             </div>
           </div>
-          <div class="col-md-3">
-  <div class="form-floating">
-    <input type="datetime-local" class="form-control input" id="fechaVenta" name="fechaVenta" required />
-    <label for="fechaVenta">Fecha de venta</label>
-  </div>
-</div>
+          <div class="col-md-2">
+            <div class="form-floating">
+              <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
+              <label for="fechaIngreso">Fecha de venta:</label>
+            </div>
+          </div>
           <div class="col-md-2">
             <div class="form-floating">
               <select class="form-select input" id="moneda" name="moneda" style="color: black;" required>
@@ -98,9 +101,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
         </div>
-
-
-
         <!-- Sección Producto, Precio, Cantidad y Descuento -->
         <div class="row g-2 mt-3">
           <div class="col-md-5">
@@ -145,8 +145,7 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-3">
             <div class="form-floating">
-              <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
-                required>
+              <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
                 <option selected>Eliga un tipo de servicio</option>
 
               </select>
@@ -161,7 +160,8 @@ require_once "../../partials/header.php";
                 </select>
                 <label for="servicio">Servicio:</label>
               </div>
-              <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle" data-bs-toggle="modal" data-bs-target="#ModalServicio">
+              <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle" data-bs-toggle="modal"
+                data-bs-target="#ModalServicio">
                 <i class="fa-solid fa-circle-plus"></i>
               </button>
             </div>
@@ -174,20 +174,20 @@ require_once "../../partials/header.php";
               <label for="mecanico">Mecánico:</label>
             </div>
           </div>
-          <div class="col-md-3 ">
-            <div class="input-group ">
+          <div class="col-md-3">
+            <div class="input-group">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0" id="precio">
-                <label for="precio">Precio</label>
+                <input type="number" class="form-control input" step="0.1" placeholder="Precio Servicio"
+                  aria-label="Precio Servicio" min="0.01" id="precioServicio" />
+                <label for="precioServicio">Precio Servicio</label>
               </div>
-              <button class="btn btn-sm btn-success" type="button" id="btnAgregar">Agregar</button>
+              <button class="btn btn-sm btn-success" type="button" id="btnAgregarServicio">Agregar</button>
             </div>
           </div>
         </div>
       </form>
     </div>
   </div>
-
   <!-- Sección de Detalles de la Venta -->
   <div class="card mt-2 border">
     <!-- <div class="card border"> -->
@@ -210,10 +210,9 @@ require_once "../../partials/header.php";
       </table>
     </div>
   </div>
-
   <div class="card mt-2 border">
     <div class="card-body">
-      <table class="table table-striped table-sm" id="tabla-detalle">
+      <table class="table table-striped table-sm" id="tabla-detalle-servicios">
         <thead>
           <tr>
             <th>#</th>
@@ -356,7 +355,6 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
-
 <div class="modal fade" id="ModalCliente" tabindex="-1" aria-labelledby="ModalClienteLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -389,7 +387,8 @@ require_once "../../partials/header.php";
         <div class="row mb-3">
           <div class="col">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;" placeholder="Valor buscado" autofocus>
+              <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;"
+                placeholder="Valor buscado" autofocus>
               <label for="vbuscadoCliente">Valor buscado</label>
             </div>
           </div>
@@ -397,9 +396,7 @@ require_once "../../partials/header.php";
         <!-- Resultados -->
         <p class="mt-3"><strong>Resultado:</strong></p>
         <div class="table-responsive">
-          <table
-            id="tabla-resultado-cliente"
-            class="table table-striped">
+          <table id="tabla-resultado-cliente" class="table table-striped">
             <thead>
               <tr>
                 <th>#</th>
@@ -417,123 +414,22 @@ require_once "../../partials/header.php";
 
       <!-- Footer -->
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
 
     </div>
   </div>
 </div>
+
+<?php
+require_once "../../partials/_footer.php";
+?>
 <!-- Formulario Venta -->
-</body>
-
-</html>
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+<!-- js de carga moneda -->
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-
-    // — variables del modal de Propietario —
-    const selectMetodo = document.getElementById("selectMetodo");
-    const vbuscado = document.getElementById("vbuscado");
-    const tablaRes = document.getElementById("tabla-resultado").getElementsByTagName("tbody")[0];
-    const hiddenIdCli = document.getElementById("hiddenIdCliente");
-    const vehiculoSelect = document.getElementById("vehiculo");
-    const inputProp = document.getElementById("propietario");
-
-    let propietarioTimer;
-
-    // --- NUEVO: cargarVehiculos y listener ---
-    function cargarVehiculos() {
-      const id = hiddenIdCliente.value;
-      vehiculoSelect.innerHTML = '<option value="">Sin vehículo</option>';
-      if (!id) return;
-      fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(id)}`)
-        .then(res => res.json())
-        .then(data => {
-          data.forEach(item => {
-            const opt = document.createElement("option");
-            opt.value = item.idvehiculo;
-            opt.textContent = item.vehiculo;
-            vehiculoSelect.appendChild(opt);
-          });
-        })
-        .catch(err => console.error("Error al cargar vehículos:", err));
-    }
-    hiddenIdCliente.addEventListener("change", cargarVehiculos);
-    // — FIN cargarVehiculos —
-
-    // 1) Actualiza las opciones de búsqueda según Persona / Empresa
-    window.actualizarOpciones = function() {
-      const esEmpresa = document.getElementById("rbtnempresa").checked;
-      // redefinimos los métodos disponibles
-      selectMetodo.innerHTML = esEmpresa ?
-        '<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>' :
-        '<option value="dni">DNI</option><option value="nombre">Apellidos y Nombres</option>';
-    };
-
-    // 2) Función que invoca al controlador y pinta resultados
-    window.buscarPropietario = function() {
-      const tipo = document.querySelector('input[name="tipoBusqueda"]:checked').id === 'rbtnempresa' ? 'empresa' : 'persona';
-      const metodo = selectMetodo.value;
-      const valor = vbuscado.value.trim();
-      if (!valor) {
-        tablaRes.innerHTML = '';
-        return;
-      }
-      fetch(`http://localhost/fix360/app/controllers/propietario.controller.php?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`)
-        .then(r => r.json())
-        .then(data => {
-          tablaRes.innerHTML = '';
-          data.forEach((item, i) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td>${item.nombre}</td>
-            <td>${item.documento}</td>
-            <td>
-              <button class="btn btn-success btn-sm" data-id="${item.idcliente}">
-                <i class="fa-solid fa-circle-check"></i>
-              </button>
-            </td>`;
-            tablaRes.appendChild(tr);
-          });
-        })
-        .catch(console.error);
-    };
-
-    // 3) Dispara búsqueda con debounce al tipear o cambiar método
-    vbuscado.addEventListener('input', () => {
-      clearTimeout(propietarioTimer);
-      propietarioTimer = setTimeout(buscarPropietario, 300);
-    });
-    selectMetodo.addEventListener('change', () => {
-      clearTimeout(propietarioTimer);
-      propietarioTimer = setTimeout(buscarPropietario, 300);
-    });
-
-    // 4) Cuando el usuario hace click en “✔” asignamos ID y nombre, y cerramos modal
-    document.querySelector("#tabla-resultado").addEventListener("click", function(e) {
-      const btn = e.target.closest(".btn-success");
-      if (!btn) return;
-      const id = btn.getAttribute("data-id");
-      const nombre = btn.closest("tr").cells[1].textContent;
-      hiddenIdCli.value = id;
-      inputProp.value = nombre;
-      // disparar evento change para que cargue vehículos, si aplica
-      hiddenIdCli.dispatchEvent(new Event("change"));
-      // cerrar modal
-      document.querySelector("#miModal .btn-close").click();
-    });
-
-    // Inicializamos las opciones al abrir el modal
-    actualizarOpciones();
-
-  });
-</script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     /* const inputCliente = document.getElementById("cliente"); */
     const inputProductElement = document.getElementById("producto");
@@ -550,7 +446,14 @@ require_once "../../partials/header.php";
     const detalleVenta = [];
     const vehiculoSelect = document.getElementById("vehiculo");
     const btnFinalizarVenta = document.getElementById('btnFinalizarVenta');
-
+    const detalleServicios = [];
+    const tablaServ = document.querySelector("#tabla-detalle-servicios tbody");
+    const btnAgregarServicio = document.getElementById("btnAgregarServicio");
+    const selectServicio = document.getElementById("servicio");
+    const selectMecanico = document.getElementById("mecanico");
+    const inputPrecioServicio = document.getElementById("precioServicio");
+    const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+    /* const inputPrecioServicio = document.getElementById("precioServicio"); */
     function initDateField(id) {
       const el = document.getElementById(id);
       if (!el) return; // si no existe, no hace nada
@@ -603,6 +506,45 @@ require_once "../../partials/header.php";
     function estaDuplicado(idproducto = 0) {
       return detalleVenta.some(d => d.idproducto == idproducto);
     }
+    btnAgregarServicio.addEventListener("click", () => {
+      // 1) Lee y valida cada cosa por separado
+      const idserv = parseInt(selectServicio.value, 10);
+      const idmec = parseInt(selectMecanico.value, 10);
+      const precioServ = parseFloat(inputPrecioServicio.value);
+
+      if (!idserv) return alert("Por favor selecciona un servicio válido.");
+      if (!idmec) return alert("Por favor selecciona un mecánico válido.");
+      if (isNaN(precioServ) || precioServ <= 0)
+        return alert("El precio debe ser un número mayor a cero.");
+      if (detalleServicios.some(s => s.idservicio === idserv)) {
+        return alert("Ese servicio ya fue agregado.");
+      }
+
+      // 2) Si todo OK, crear la fila
+      const nombreServ = selectServicio.selectedOptions[0].text;
+      const nombreMec = selectMecanico.selectedOptions[0].text;
+
+      detalleServicios.push({ idservicio: idserv, idmecanico: idmec, precio: precioServ });
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+    <td>${tablaServ.rows.length + 1}</td>
+    <td>${nombreServ}</td>
+    <td>${nombreMec}</td>
+    <td>${precioServ.toFixed(2)}</td>
+    <td><button class="btn btn-danger btn-sm btn-quitar-serv">X</button></td>
+  `;
+      tr.querySelector(".btn-quitar-serv").addEventListener("click", () => {
+        const idx = detalleServicios.findIndex(s => s.idservicio === idserv);
+        detalleServicios.splice(idx, 1);
+        tr.remove();
+        [...tablaServ.rows].forEach((r, i) => r.cells[0].textContent = i + 1);
+      });
+      tablaServ.appendChild(tr);
+
+      // 3) Limpia el campo de precio para la próxima vez
+      inputPrecioServicio.value = "";
+    });
 
     // --- Agregar Producto al Detalle ---
     agregarProductoBtn.addEventListener("click", () => {
@@ -764,7 +706,7 @@ require_once "../../partials/header.php";
     // Función de debounce para evitar demasiadas llamadas en tiempo real
     function debounce(func, delay) {
       let timeout;
-      return function(...args) {
+      return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), delay);
       };
@@ -773,7 +715,7 @@ require_once "../../partials/header.php";
     // Función de navegación con el teclado para autocompletar
     function agregaNavegacion(input, itemsDiv) {
       let currentFocus = -1;
-      input.addEventListener("keydown", function(e) {
+      input.addEventListener("keydown", function (e) {
         const items = itemsDiv.getElementsByTagName("div");
         if (!items.length) return;
         if (e.key === "ArrowDown") {
@@ -823,23 +765,23 @@ require_once "../../partials/header.php";
             itemsDiv.appendChild(noResultsDiv);
             return;
           }
-          data.forEach(function(producto) {
+          data.forEach(function (producto) {
             const optionDiv = document.createElement("div");
             optionDiv.textContent = producto.subcategoria_producto;
-            optionDiv.addEventListener("click", function() {
+            optionDiv.addEventListener("click", function () {
               input.value = producto.subcategoria_producto;
               inputPrecio.value = producto.precio;
               inputStock.value = producto.stock;
               inputCantidad.value = 1;
               inputDescuento.value = 0;
 
-              inputDescuento.addEventListener("focus", function() {
+              inputDescuento.addEventListener("focus", function () {
                 if (inputDescuento.value === "0") {
                   inputDescuento.value = "";
                 }
               });
 
-              inputDescuento.addEventListener("keydown", function(e) {
+              inputDescuento.addEventListener("keydown", function (e) {
                 if (inputDescuento.value === "0" && e.key >= "0" && e.key <= "9") {
                   inputDescuento.value = "";
                 }
@@ -874,13 +816,13 @@ require_once "../../partials/header.php";
 
     // Listeners para el autocompletado de productos usando debounce
     const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
-    inputProductElement.addEventListener("input", function() {
+    inputProductElement.addEventListener("input", function () {
       debouncedMostrarOpcionesProducto(this);
     });
-    inputProductElement.addEventListener("click", function() {
+    inputProductElement.addEventListener("click", function () {
       debouncedMostrarOpcionesProducto(this);
     });
-    document.addEventListener("click", function(e) {
+    document.addEventListener("click", function (e) {
       cerrarListas(e.target);
     });
 
@@ -905,7 +847,6 @@ require_once "../../partials/header.php";
     }
     tipoInputs.forEach(i => i.addEventListener("change", inicializarCampos));
     inicializarCampos();
-
     // --- Navegación con Enter entre campos de producto ---
     inputProductElement.addEventListener("keydown", e => {
       if (e.key === "Enter") {
@@ -928,18 +869,18 @@ require_once "../../partials/header.php";
     inputDescuento.addEventListener("keydown", e => {
       if (e.key === "Enter") {
         e.preventDefault();
-        agregarProductoBtn.focus();
-        // o : agregarProductoBtn.click();
+        agregarProductoBtn.focus(); // o : agregarProductoBtn.click();
       }
     });
-
     // --- Guardar Venta ---
-    btnFinalizarVenta.addEventListener('click', function(e) {
+    btnFinalizarVenta.addEventListener('click', function (e) {
       e.preventDefault();
 
-      if (detalleVenta.length === 0) {
-        showToast("Agrega al menos un producto.", "WARNING", 2000);
-        return;
+      // 0) Capturo hiddenIdCliente (¡muy importante!)
+      const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+
+      if (detalleVenta.length === 0 && detalleServicios.length === 0) {
+        return showToast("Agrega al menos un producto o servicio.", "WARNING", 2000);
       }
 
       Swal.fire({
@@ -953,44 +894,61 @@ require_once "../../partials/header.php";
       }).then(result => {
         if (!result.isConfirmed) return;
 
+        // Deshabilito el botón
         btnFinalizarVenta.disabled = true;
         btnFinalizarVenta.textContent = 'Guardando...';
-        numSerieInput.disabled = numComInput.disabled = false;
 
-        const idVehiculo = vehiculoSelect.value ? parseInt(vehiculoSelect.value) : null;
-        const km = parseFloat(document.getElementById("kilometraje").value) || 0;
-
+        // 1) Construyo el objeto de datos
         const data = {
           tipocom: document.querySelector('input[name="tipo"]:checked').value,
-          fechahora: fechaInput.value.trim(),
+          fechahora: fechaInput.value.trim(),   // ya no usas fechaVenta
+          fechaingreso: null,
           numserie: numSerieInput.value.trim(),
           numcom: numComInput.value.trim(),
           moneda: monedaSelect.value,
-          idcliente: hiddenIdCliente.value,
-          idvehiculo: idVehiculo,
-          kilometraje: km,
-          productos: detalleVenta
+          idpropietario: +document.getElementById("hiddenIdPropietario").value,
+          idcliente: +hiddenIdCliente.value,
+          idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
+          kilometraje: parseFloat(document.getElementById("kilometraje").value) || 0,
+          observaciones: document.getElementById("observaciones").value.trim(),
+          ingresogrua: document.getElementById("ingresogrua").checked ? 1 : 0,
+          productos: detalleVenta,
+          servicios: detalleServicios
         };
 
+        console.log("Payload a enviar:", data);
+
+        // 2) Disparo el fetch
         fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-          })
-          .then(res => res.json())
-          .then(json => {
-            if (json.status === "success") {
-              showToast('Venta registrada exitosamente.', 'SUCCESS', 1500);
-              setTimeout(() => {
-                window.location.href = 'listar-ventas.php';
-              }, 1500);
-            } else {
-              Swal.fire('Error', json.message || 'No se pudo registrar la venta.', 'error');
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        })
+          .then(async res => {
+            const text = await res.text();           // leo texto bruto
+            console.log("Respuesta HTTP:", res.status, text);
+            try {
+              return JSON.parse(text);               // intento parsear JSON
+            } catch {
+              throw new Error("Respuesta no es JSON válido");
             }
           })
-          .catch(() => Swal.fire('Error', 'Fallo de conexión.', 'error'))
+          .then(json => {
+            if (json.status === "success") {
+              showToast(
+                'Guardado con éxito. Venta #' + json.idventa +
+                (json.idorden ? ', Orden #' + json.idorden : ''),
+                'SUCCESS', 1500
+              );
+              setTimeout(() => location.href = 'listar-ventas.php', 1500);
+            } else {
+              Swal.fire('Error', json.message || 'No se pudo registrar.', 'error');
+            }
+          })
+          .catch(err => {
+            console.error("Error en fetch:", err);
+            Swal.fire('Error', err.message, 'error');
+          })
           .finally(() => {
             btnFinalizarVenta.disabled = false;
             btnFinalizarVenta.textContent = "Guardar";
@@ -999,10 +957,106 @@ require_once "../../partials/header.php";
     });
   });
 </script>
-<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 
-<!-- js de carga moneda -->
-<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-<?php
-require_once "../../partials/_footer.php";
-?>
+</body>
+
+</html>
+<!-- <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // — variables del modal de Propietario —
+    const selectMetodo = document.getElementById("selectMetodo");
+    const vbuscado = document.getElementById("vbuscado");
+    const tablaRes = document.getElementById("tabla-resultado").getElementsByTagName("tbody")[0];
+    const hiddenIdCli = document.getElementById("hiddenIdCliente");
+    const vehiculoSelect = document.getElementById("vehiculo");
+    const inputProp = document.getElementById("propietario");
+    let propietarioTimer;
+
+    // --- NUEVO: cargarVehiculos y listener ---
+    function cargarVehiculos() {
+      const id = hiddenIdCliente.value;
+      vehiculoSelect.innerHTML = '<option value="">Sin vehículo</option>';
+      if (!id) return;
+      fetch(`http://localhost/fix360/app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(id)}`)
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.idvehiculo;
+            opt.textContent = item.vehiculo;
+            vehiculoSelect.appendChild(opt);
+          });
+        })
+        .catch(err => console.error("Error al cargar vehículos:", err));
+    }
+    hiddenIdCliente.addEventListener("change", cargarVehiculos);
+    // — FIN cargarVehiculos —
+
+    // 1) Actualiza las opciones de búsqueda según Persona / Empresa
+    window.actualizarOpciones = function () {
+      const esEmpresa = document.getElementById("rbtnempresa").checked;
+      // redefinimos los métodos disponibles
+      selectMetodo.innerHTML = esEmpresa ?
+        '<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>' :
+        '<option value="dni">DNI</option><option value="nombre">Apellidos y Nombres</option>';
+    };
+
+    // 2) Función que invoca al controlador y pinta resultados
+    window.buscarPropietario = function () {
+      const tipo = document.querySelector('input[name="tipoBusqueda"]:checked').id === 'rbtnempresa' ? 'empresa' : 'persona';
+      const metodo = selectMetodo.value;
+      const valor = vbuscado.value.trim();
+      if (!valor) {
+        tablaRes.innerHTML = '';
+        return;
+      }
+      fetch(`http://localhost/fix360/app/controllers/propietario.controller.php?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`)
+        .then(r => r.json())
+        .then(data => {
+          tablaRes.innerHTML = '';
+          data.forEach((item, i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${item.nombre}</td>
+            <td>${item.documento}</td>
+            <td>
+              <button class="btn btn-success btn-sm" data-id="${item.idcliente}">
+                <i class="fa-solid fa-circle-check"></i>
+              </button>
+            </td>`;
+            tablaRes.appendChild(tr);
+          });
+        })
+        .catch(console.error);
+    };
+
+    // 3) Dispara búsqueda con debounce al tipear o cambiar método
+    vbuscado.addEventListener('input', () => {
+      clearTimeout(propietarioTimer);
+      propietarioTimer = setTimeout(buscarPropietario, 300);
+    });
+    selectMetodo.addEventListener('change', () => {
+      clearTimeout(propietarioTimer);
+      propietarioTimer = setTimeout(buscarPropietario, 300);
+    });
+
+    // 4) Cuando el usuario hace click en “✔” asignamos ID y nombre, y cerramos modal
+    document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
+      const btn = e.target.closest(".btn-success");
+      if (!btn) return;
+      const id = btn.getAttribute("data-id");
+      const nombre = btn.closest("tr").cells[1].textContent;
+      hiddenIdCli.value = id;
+      inputProp.value = nombre;
+      // disparar evento change para que cargue vehículos, si aplica
+      hiddenIdCli.dispatchEvent(new Event("change"));
+      // cerrar modal
+      document.querySelector("#miModal .btn-close").click();
+    });
+
+    // Inicializamos las opciones al abrir el modal
+    actualizarOpciones();
+
+  });
+</script> -->

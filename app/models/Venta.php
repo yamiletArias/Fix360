@@ -234,13 +234,13 @@ class Venta extends Conexion
     }
 
     public function registerVentasConOrden(array $params): array
-{
-    try {
-        $pdo = $this->pdo;
-        $pdo->beginTransaction();
+    {
+        try {
+            $pdo = $this->pdo;
+            $pdo->beginTransaction();
 
-        // 1) Llamo al SP unificado
-        $sql = "CALL spRegisterVentaConOrden(
+            // 1) Llamo al SP unificado
+            $sql = "CALL spRegisterVentaConOrden(
             ?,  -- conOrden (BOOLEAN)
             ?,  -- idadmin
             ?,  -- idpropietario
@@ -258,77 +258,76 @@ class Venta extends Conexion
             ?   -- idcolaborador
         )";
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $params['conOrden'], 
-            $params['idcolaborador'],        // _idadmin
-            $params['idpropietario'],       // si no creas orden, el mismo cliente
-            $params['idcliente'],
-            $params['idvehiculo'],
-            $params['kilometraje'],
-            $params['observaciones'],
-            $params['ingresogrua'],
-            $params['fechaingreso'] ?? null,
-            $params['tipocom'],
-            $params['fechahora'],
-            $params['numserie'],
-            $params['numcom'],
-            $params['moneda'],
-            $params['idcolaborador']
-        ]);
-
-        // 2) Capturo el primer conjunto de resultados (idventa, idorden)
-        $result = [];
-        do {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row && isset($row['idventa'])) {
-                $result = $row;
-                break;
-            }
-        } while ($stmt->nextRowset());
-        $stmt->closeCursor();
-
-        if (empty($result['idventa'])) {
-            throw new Exception("No se obtuvo idventa");
-        }
-
-        $idventa  = (int)$result['idventa'];
-        $idorden  = isset($result['idorden']) ? (int)$result['idorden'] : null;
-
-        // 3) Detalle de productos
-        $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
-        foreach ($params['productos'] as $prod) {
-            $stmtProd->execute([
-                $idventa,
-                $prod['idproducto'],
-                $prod['cantidad'],
-                $prod['numserie'] ?? null,
-                $prod['precio'],
-                $prod['descuento']
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                $params['conOrden'],
+                $params['idcolaborador'],        // _idadmin
+                $params['idpropietario'],       // si no creas orden, el mismo cliente
+                $params['idcliente'],
+                $params['idvehiculo'],
+                $params['kilometraje'],
+                $params['observaciones'],
+                $params['ingresogrua'],
+                $params['fechaingreso'] ?? null,
+                $params['tipocom'],
+                $params['fechahora'],
+                $params['numserie'],
+                $params['numcom'],
+                $params['moneda'],
+                $params['idcolaborador']
             ]);
-        }
 
-        // 4) Detalle de servicios (si conOrden = true y tienes un array 'servicios')
-        if ($params['conOrden'] && !empty($params['servicios'])) {
-            $stmtServ = $pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
-            foreach ($params['servicios'] as $srv) {
-                $stmtServ->execute([
-                    $idorden,
-                    $srv['idservicio'],
-                    $srv['idmecanico'],
-                    $srv['precio']
+            // 2) Capturo el primer conjunto de resultados (idventa, idorden)
+            $result = [];
+            do {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($row && isset($row['idventa'])) {
+                    $result = $row;
+                    break;
+                }
+            } while ($stmt->nextRowset());
+            $stmt->closeCursor();
+
+            if (empty($result['idventa'])) {
+                throw new Exception("No se obtuvo idventa");
+            }
+
+            $idventa = (int) $result['idventa'];
+            $idorden = isset($result['idorden']) ? (int) $result['idorden'] : null;
+
+            // 3) Detalle de productos
+            $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
+            foreach ($params['productos'] as $prod) {
+                $stmtProd->execute([
+                    $idventa,
+                    $prod['idproducto'],
+                    $prod['cantidad'],
+                    $prod['numserie'] ?? null,
+                    $prod['precio'],
+                    $prod['descuento']
                 ]);
             }
-        }
 
-        $pdo->commit();
-        return ['idventa' => $idventa, 'idorden' => $idorden];
+            // 4) Detalle de servicios (si conOrden = true y tienes un array 'servicios')
+            if ($params['conOrden'] && !empty($params['servicios'])) {
+                $stmtServ = $pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
+                foreach ($params['servicios'] as $srv) {
+                    $stmtServ->execute([
+                        $idorden,
+                        $srv['idservicio'],
+                        $srv['idmecanico'],
+                        $srv['precio']
+                    ]);
+                }
+            }
+
+            $pdo->commit();
+            return ['idventa' => $idventa, 'idorden' => $idorden];
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
     }
-    catch (Exception $e) {
-        $pdo->rollBack();
-        throw $e;
-    }
-}
 
 
 }

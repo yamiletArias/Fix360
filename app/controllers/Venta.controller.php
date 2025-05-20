@@ -113,52 +113,52 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             exit;
 
         // …
-case 'POST':
-    // …
-    $data = json_decode(file_get_contents('php://input'), true);
+        case 'POST':
+            // …
+            $data = json_decode(file_get_contents('php://input'), true);
 
-    // Recojo todos los campos nuevos
-    $conOrden       = !empty($data['servicios']);      // si hay servicios, creamos orden
-    $idpropietario  = $data['idpropietario'] ?? 0;
-    $observaciones  = trim($data['observaciones'] ?? '');
-    $ingresogrua    = !empty($data['ingresogrua']) ? 1 : 0;
-    // Solo envío fechaingreso si la quiero distinta; si no, lo omito y el SP la iguala a fechahora
-    $fechaingreso   = $data['fechaingreso'] ?? null;
+            // Recojo todos los campos nuevos
+            $conOrden = !empty($data['servicios']);      // si hay servicios, creamos orden
+            $idpropietario = $data['idpropietario'] ?? 0;
+            $observaciones = trim($data['observaciones'] ?? '');
+            $ingresogrua = !empty($data['ingresogrua']) ? 1 : 0;
+            // Solo envío fechaingreso si la quiero distinta; si no, lo omito y el SP la iguala a fechahora
+            $fechaingreso = $data['fechaingreso'] ?? null;
 
-    $params = [
-        'conOrden'       => $conOrden,
-        'idcolaborador'  => $_SESSION['login']['idcolaborador'],
-        'idpropietario'  => $idpropietario,
-        'idcliente'      => (int)$data['idcliente'],
-        'idvehiculo'     => (int)$data['idvehiculo'],
-        'kilometraje'    => $data['kilometraje'] ?? 0,
-        'observaciones'  => $observaciones,
-        'ingresogrua'    => $ingresogrua,
-        'fechaingreso'   => $fechaingreso,          // o null
-        'tipocom'        => $data['tipocom'],
-        'fechahora'      => $data['fechahora'],
-        'numserie'       => $data['numserie'],
-        'numcom'         => $data['numcom'],
-        'moneda'         => $data['moneda'],
-        'productos'      => $data['productos'],
-        'servicios'      => $data['servicios'] ?? [],  // array de servicios {idservicio,idmecanico,precio}
-    ];
+            $params = [
+                'conOrden' => $conOrden,
+                'idcolaborador' => $_SESSION['login']['idcolaborador'],
+                'idpropietario' => $idpropietario,
+                'idcliente' => (int) $data['idcliente'],
+                'idvehiculo' => (int) $data['idvehiculo'],
+                'kilometraje' => $data['kilometraje'] ?? 0,
+                'observaciones' => $observaciones,
+                'ingresogrua' => $ingresogrua,
+                'fechaingreso' => $fechaingreso,          // o null
+                'tipocom' => $data['tipocom'],
+                'fechahora' => $data['fechahora'],
+                'numserie' => $data['numserie'],
+                'numcom' => $data['numcom'],
+                'moneda' => $data['moneda'],
+                'productos' => $data['productos'],
+                'servicios' => $data['servicios'] ?? [],  // array de servicios {idservicio,idmecanico,precio}
+            ];
 
-    try {
-        $res = (new Venta())->registerVentasConOrden($params);
-        echo json_encode([
-            'status'  => 'success',
-            'idventa' => $res['idventa'],
-            'idorden' => $res['idorden']  // null si no hubo orden
-        ]);
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode([
-            'status'  => 'error',
-            'message' => $e->getMessage()
-        ]);
-    }
-    exit;
+            try {
+                $res = (new Venta())->registerVentasConOrden($params);
+                echo json_encode([
+                    'status' => 'success',
+                    'idventa' => $res['idventa'],
+                    'idorden' => $res['idorden']  // null si no hubo orden
+                ]);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+            exit;
 
 
     }
