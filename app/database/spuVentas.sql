@@ -1,14 +1,9 @@
 -- PROCEDIMIENTO ALMACENADOS DE VENTAS REAL
 
--- ALTERAR POR AHORA (IDORDEN, IDPROMOCION, IDCOLABORADOR, IDVEHICULO) EN VENTAS
-ALTER TABLE detalleventa
-MODIFY COLUMN idorden INT NULL,
-MODIFY COLUMN idpromocion INT NULL;
-
-
 -- registro de venta con orden
 DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
 DELIMITER $$
+
 CREATE PROCEDURE spRegisterVentaConOrden (
   IN _conOrden      BOOLEAN,
   IN _idadmin       INT,
@@ -64,6 +59,7 @@ BEGIN
   -- 2) Inserta venta (sin idpropietario)
   INSERT INTO ventas (
     idcliente,
+    idpropietario,
     idcolaborador,
     idvehiculo,
     tipocom,
@@ -76,6 +72,7 @@ BEGIN
     estado
   ) VALUES (
     _idcliente,
+    _idpropietario,
     _idcolaborador,
     NULLIF(_idvehiculo,0),
     _tipocom,
@@ -121,6 +118,7 @@ LEFT JOIN servicios s ON d.idservicio = s.idservicio
 LEFT JOIN colaboradores m ON d.idmecanico = m.idcolaborador
 ORDER BY v.idventa DESC, d.iddetorden;
 */
+/*
 -- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
 DROP PROCEDURE IF EXISTS spuRegisterVenta;
 DELIMITER $$
@@ -160,7 +158,7 @@ BEGIN
   );
   SELECT LAST_INSERT_ID() AS idventa;
 END$$
-
+*/
 -- 2) CALCULAR SALDO RESTANTE
 DROP FUNCTION IF EXISTS calcularSaldoRestante;
 DELIMITER $$

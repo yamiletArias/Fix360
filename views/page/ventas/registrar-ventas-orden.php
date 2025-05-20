@@ -906,8 +906,8 @@ require_once "../../partials/_footer.php";
           numserie: numSerieInput.value.trim(),
           numcom: numComInput.value.trim(),
           moneda: monedaSelect.value,
-          idpropietario: +document.getElementById("hiddenIdPropietario").value,
-          idcliente: +hiddenIdCliente.value,
+          idpropietario: document.getElementById("hiddenIdPropietario").value,
+          idcliente: document.getElementById("hiddenIdCliente").value,
           idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
           kilometraje: parseFloat(document.getElementById("kilometraje").value) || 0,
           observaciones: document.getElementById("observaciones").value.trim(),
@@ -915,9 +915,7 @@ require_once "../../partials/_footer.php";
           productos: detalleVenta,
           servicios: detalleServicios
         };
-
         console.log("Payload a enviar:", data);
-
         // 2) Disparo el fetch
         fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
           method: "POST",
@@ -957,7 +955,30 @@ require_once "../../partials/_footer.php";
     });
   });
 </script>
+<script>
+  // 1) Selección de PROPIETARIO
+  document.querySelector("#tabla-resultado").addEventListener("click", e => {
+    const btn = e.target.closest(".btn-success");
+    if (!btn) return;
+    const idProp = btn.getAttribute("data-id");               // item.idcliente del propietario
+    const nombreProp = btn.closest("tr").cells[1].textContent;
+    document.getElementById("hiddenIdPropietario").value = idProp;
+    document.getElementById("propietario").value = nombreProp;
+    document.querySelector("#miModal .btn-close").click();
+  });
 
+  // ——————————————
+  // 2) Selección de CLIENTE
+  document.querySelector("#tabla-resultado-cliente").addEventListener("click", e => {
+    const btn = e.target.closest(".btn-success");
+    if (!btn) return;
+    const idCli = btn.getAttribute("data-id");               // item.idcliente del cliente
+    const nombreCli = btn.closest("tr").cells[1].textContent;
+    document.getElementById("hiddenIdCliente").value = idCli;
+    document.getElementById("cliente").value = nombreCli;
+    document.querySelector("#ModalCliente .btn-close").click();
+  });
+</script>
 </body>
 
 </html>
