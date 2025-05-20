@@ -35,11 +35,11 @@
       <thead>
         <tr>
           <th style="padding:6px; border:1px solid #333;">#</th>
-          <th style="padding:6px; border:1px solid #333;">Fecha</th>
-          <th style="padding:6px; border:1px solid #333;">Flujo</th>
-          <th style="padding:6px; border:1px solid #333;">Tipo</th>
-          <th style="padding:6px; border:1px solid #333;">Cantidad</th>
-          <th style="padding:6px; border:1px solid #333;">Saldo</th>
+          <th style="padding:6px; border:1px solid #333;text-align:center;">Fecha</th>
+          <th style="padding:6px; border:1px solid #333;text-align:center;">Flujo</th>
+          <th style="padding:6px; border:1px solid #333;text-align:center;">Tipo</th>
+          <th style="padding:6px; border:1px solid #333;text-align:center;">Cantidad</th>
+          <th style="padding:6px; border:1px solid #333;text-align:center;">Saldo</th>
         </tr>
       </thead>
       <tbody>
@@ -47,8 +47,8 @@
           <tr <?= $i % 2 ? 'style="background-color:#f9f9f9;"' : '' ?>>
             <td style="padding:6px; border:1px solid #333;"><?= $i + 1 ?></td>
             <td style="padding:6px; border:1px solid #333; text-align:center;"><?= date('d/m/Y', strtotime($fila['fecha'])) ?></td>
-            <td style="padding:6px; border:1px solid #333;"><?= htmlspecialchars($fila['flujo'], ENT_QUOTES, 'UTF-8') ?></td>
-            <td style="padding:6px; border:1px solid #333;"><?= htmlspecialchars($fila['tipo_movimiento'], ENT_QUOTES, 'UTF-8') ?></td>
+            <td style="padding:6px; border:1px solid #333;text-align:center;"><?= htmlspecialchars($fila['flujo'], ENT_QUOTES, 'UTF-8') ?></td>
+            <td style="padding:6px; border:1px solid #333;text-align:center;"><?= htmlspecialchars($fila['tipo_movimiento'], ENT_QUOTES, 'UTF-8') ?></td>
             <td style="padding:6px; border:1px solid #333; text-align:right;"><?= htmlspecialchars($fila['cantidad'], ENT_QUOTES, 'UTF-8') ?></td>
             <td style="padding:6px; border:1px solid #333; text-align:right;"><?= htmlspecialchars($fila['saldo_restante'], ENT_QUOTES, 'UTF-8') ?></td>
           </tr>

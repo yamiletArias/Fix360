@@ -1,7 +1,9 @@
 <?php
 
-require_once "../models/EmpresaModel.php";
+require_once "../models/Empresa.php";
+require_once "../helpers/helper.php";
 header('Content-Type: application/json');
+
 
 $empresa = new Empresa();
 
@@ -15,29 +17,29 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         switch ($_POST["operation"]) {
             case "register":
                 $result = $empresa->add([
-                    "nomcomercial" => Conexion::limpiarCadena($_POST["nomcomercial"]),
-                    "razonsocial" => Conexion::limpiarCadena($_POST["razonsocial"]),
-                    "telefono" => Conexion::limpiarCadena($_POST["telefono"]),
-                    "correo" => Conexion::limpiarCadena($_POST["correo"]),
-                    "ruc" => Conexion::limpiarCadena($_POST["ruc"])
+                    "nomcomercial" => Helper::limpiarCadena($_POST["nomcomercial"]),
+                    "razonsocial" => Helper::limpiarCadena($_POST["razonsocial"]),
+                    "telefono" => Helper::limpiarCadena($_POST["telefono"]),
+                    "correo" => Helper::limpiarCadena($_POST["correo"]),
+                    "ruc" => Helper::limpiarCadena($_POST["ruc"])
                 ]);
                 echo json_encode($result);
                 break;
 
             case "update":
                 $result = $empresa->update([
-                    "idempresa" => Conexion::limpiarCadena($_POST["idempresa"]),
-                    "nomcomercial" => Conexion::limpiarCadena($_POST["nomcomercial"]),
-                    "razonsocial" => Conexion::limpiarCadena($_POST["razonsocial"]),
-                    "telefono" => Conexion::limpiarCadena($_POST["telefono"]),
-                    "correo" => Conexion::limpiarCadena($_POST["correo"]),
-                    "ruc" => Conexion::limpiarCadena($_POST["ruc"])
+                    "idempresa" => Helper::limpiarCadena($_POST["idempresa"]),
+                    "nomcomercial" => Helper::limpiarCadena($_POST["nomcomercial"]),
+                    "razonsocial" => Helper::limpiarCadena($_POST["razonsocial"]),
+                    "telefono" => Helper::limpiarCadena($_POST["telefono"]),
+                    "correo" => Helper::limpiarCadena($_POST["correo"]),
+                    "ruc" => Helper::limpiarCadena($_POST["ruc"])
                 ]);
                 echo json_encode($result);
                 break;
 
             case "delete":
-                $idempresa = Conexion::limpiarCadena($_POST["idempresa"]);
+                $idempresa = Helper::limpiarCadena($_POST["idempresa"]);
                 echo json_encode($empresa->delete($idempresa));
                 break;
 
@@ -47,14 +49,19 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;
 
     case "GET":
-        if (isset($_GET["ruc"])) {
-            $ruc = Conexion::limpiarCadena($_GET["ruc"]);
-            echo json_encode($empresa->find($ruc));
-        } else {
+        if (isset($_GET['task']) && $_GET['task'] === 'getAll') {
             echo json_encode($empresa->getAll());
+        } elseif (isset($_GET['task']) && $_GET['task'] === 'getById') {
+            $id = intval($_GET['idempresa'] ?? 0);
+            if ($id > 0) {
+                echo json_encode($empresa->GetById($id));
+            } else {
+                echo json_encode(['status' => false, 'message' => 'ID inválido']);
+            }
         }
         break;
-    
+
+
     default:
         echo json_encode(["status" => false, "message" => "Método no permitido"]);
 }

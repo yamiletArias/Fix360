@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'observaciones'     => Helper::limpiarCadena($data['observaciones'] ?? ''),
         'ingresogrua'       => boolval($data['ingresogrua'] ?? false),
         'fechaingreso'      => Helper::limpiarCadena($data['fechaingreso']),
-        'fecharecordatorio' => Helper::limpiarCadena($data['fecharecordatorio'] ?? null),
         'servicios'         => array_map(function($item) {
             return [
                 'idservicio' => intval($item['idservicio']),

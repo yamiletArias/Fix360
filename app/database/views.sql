@@ -250,3 +250,15 @@ ORDER BY nombre_completo;
 DROP VIEW IF EXISTS vwFormaPagos;
 CREATE VIEW vwFormapagos AS
 SELECT * FROM formapagos;
+
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT IF NOT EXISTS ev_CancelarRecordatoriosVencidos
+  ON SCHEDULE
+    EVERY 1 DAY
+    STARTS DATE_ADD(CURDATE(), INTERVAL 1 DAY) + INTERVAL 0 HOUR
+  DO
+    UPDATE agendas
+       SET estado = 'C'
+     WHERE estado IN ('P','R')
+       AND fchproxvisita < CURDATE();

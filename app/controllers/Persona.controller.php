@@ -20,6 +20,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                     "apellidos"         => Helper::limpiarCadena($_POST["apellidos"]),
                     "tipodoc"           => Helper::limpiarCadena($_POST["tipodoc"]),
                     "numdoc"            => Helper::limpiarCadena($_POST["numdoc"]),
+                    "numruc"            => Helper::limpiarCadena($_POST["numruc"]),
                     "direccion"         => Helper::limpiarCadena($_POST["direccion"]),
                     "correo"            => Helper::limpiarCadena($_POST["correo"]),
                     "telprincipal"      => Helper::limpiarCadena($_POST["telprincipal"]),
@@ -54,12 +55,15 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;
 
     case "GET":
-       if($_GET['task'] == 'getAll'){
-        echo json_encode($persona->getAll());
-       }
-       if($_GET['task'] == 'getById'){
-        echo json_encode($persona->GetById($idpersona));
-       }
-       break;
-
+        if (isset($_GET['task']) && $_GET['task'] === 'getAll') {
+            echo json_encode($persona->getAll());
+        } elseif (isset($_GET['task']) && $_GET['task'] === 'getById') {
+            $id = intval($_GET['idpersona'] ?? 0);
+            if ($id > 0) {
+                echo json_encode($persona->GetById($id));
+            } else {
+                echo json_encode(['status' => false, 'message' => 'ID inválido']);
+            }
+        }
+        break;
 }

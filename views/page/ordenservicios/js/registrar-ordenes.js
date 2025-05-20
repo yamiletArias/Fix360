@@ -1,3 +1,4 @@
+let prevKilometraje = null;
 let detalleArr = [];
 function fetchHandler() {
   document.getElementById("kilometraje").value = "";
@@ -9,7 +10,10 @@ function fetchHandler() {
 // --------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOMContentLoaded fired");
-
+ const modalServ = document.getElementById('ModalServicio');
+  if (modalServ) {
+    modalServ.addEventListener('shown.bs.modal', cargarTiposServicioModal);
+  }
   // Verificar existencia del select de vehículo y registrar listener
   const vehiculoSelect = document.getElementById("vehiculo");
   console.log("→ #vehiculo existe?", vehiculoSelect);
@@ -38,12 +42,13 @@ document.addEventListener("DOMContentLoaded", () => {
    const kmInput = document.getElementById("kilometraje");
   if (kmInput) {
     kmInput.addEventListener("change", () => {
-      const nuevo = parseFloat(kmInput.value);
-      if (prevKilometraje !== null && nuevo < prevKilometraje) {
-        alert(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`);
-        kmInput.value = prevKilometraje;  // restablecer al valor válido
-      }
-    });
+  const nuevo = parseFloat(kmInput.value);
+  if (prevKilometraje !== null && nuevo < prevKilometraje) {
+    alert(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`);
+    kmInput.value = prevKilometraje;
+  }
+});
+
   }
 
   // 2) Selección de Cliente
@@ -107,6 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // Funciones auxiliares externas
 // -----------------------------
 
+
+
 async function fetchUltimoKilometraje(idvehiculo) {
   console.log("🔍 fetchKilometraje(", idvehiculo, ")");
   try {
@@ -134,6 +141,23 @@ function actualizarOpciones() {
   select.innerHTML = isPersona
     ? `<option value="dni">DNI</option><option value="nombre">Apellidos y nombres</option>`
     : `<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>`;
+}
+
+async function cargarTiposServicioModal() {
+  const sel = document.getElementById('selectTipoServicioModal');
+  sel.innerHTML = '<option value="">Seleccione un tipo de servicio</option>';
+  try {
+    const res = await fetch(`${SERVERURL}app/controllers/subcategoria.controller.php?task=getServicioSubcategoria`);
+    const data = await res.json();
+    data.forEach(item => {
+      sel.insertAdjacentHTML('beforeend',
+        `<option value="${item.idsubcategoria}">${item.subcategoria}</option>`
+      );
+    });
+  } catch (err) {
+    console.error('Error cargando tipos de servicio (modal):', err);
+    sel.innerHTML = '<option value="">Error al cargar</option>';
+  }
 }
 
 /**

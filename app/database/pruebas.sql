@@ -3,6 +3,7 @@ USE dbfix360;
 
 
 DELIMITER $$
+-- call fetchKilometraje(1)
 -- select * from kardex;
 -- select * from movimientos;
 -- Stored procedure to generate test kardex and movimientos for all products

@@ -914,7 +914,8 @@ BEGIN
       numserie       = NULLIF(p_numserie, ''),
       color          = p_color,
       vin            = NULLIF(p_vin,    ''),
-      numchasis      = NULLIF(p_numchasis, '')
+      numchasis      = NULLIF(p_numchasis, ''),
+      modificado = NOW()
     WHERE idvehiculo = p_idvehiculo;
 
     -- 2) Obtenemos el propietario actual (el que no tiene fechafinal)
@@ -1243,8 +1244,56 @@ BEGIN
     ORDER BY m.fecha
     ;
 END $$
- 
-DELIMITER ;
 
--- CALL spListMovimientosPorProductoPorPeriodo(2, 'mes', '2025-05-01');
+-- 1) Actualizar Persona
+DROP PROCEDURE IF EXISTS spUpdatePersona;
+DELIMITER $$
+CREATE PROCEDURE spUpdatePersona(
+  IN _idpersona       INT,
+  IN _nombres         VARCHAR(50),
+  IN _apellidos       VARCHAR(50),
+  IN _tipodoc         VARCHAR(30),
+  IN _numdoc          CHAR(20),
+  IN _numruc          CHAR(11),
+  IN _direccion       VARCHAR(70),
+  IN _correo          VARCHAR(100),
+  IN _telprincipal    VARCHAR(20),
+  IN _telalternativo  VARCHAR(20)
+)
+BEGIN
+  UPDATE personas
+     SET nombres        = _nombres,
+         apellidos      = _apellidos,
+         tipodoc        = _tipodoc,
+         numdoc         = _numdoc,
+         numruc         = NULLIF(_numruc, ''),
+         direccion      = NULLIF(_direccion, ''),
+         correo         = NULLIF(_correo, ''),
+         telprincipal   = _telprincipal,
+         telalternativo = NULLIF(_telalternativo, ''),
+         modificado = NOW()
+   WHERE idpersona      = _idpersona;
+END$$
+
+-- 2) Actualizar Empresa
+DROP PROCEDURE IF EXISTS spUpdateEmpresa;
+DELIMITER $$
+CREATE PROCEDURE spUpdateEmpresa(
+  IN _idempresa     INT,
+  IN _nomcomercial  VARCHAR(80),
+  IN _razonsocial   VARCHAR(80),
+  IN _telefono      VARCHAR(20),
+  IN _correo        VARCHAR(100)
+)
+BEGIN
+  UPDATE empresas
+     SET nomcomercial = _nomcomercial,
+         razonsocial  = _razonsocial,
+         telefono     = NULLIF(_telefono, ''),
+         correo       = NULLIF(_correo, ''),
+         modificado = NOW()
+   WHERE idempresa    = _idempresa;
+END$$
+
+
 

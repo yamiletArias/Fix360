@@ -388,16 +388,16 @@ require_once "../../partials/header.php";
         });
 
         btnDia.addEventListener('click', () => {
-    const hoy = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
-    fechaInput.value = hoy;
-    currentModo = 'dia';
+            const hoy = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+            fechaInput.value = hoy;
+            currentModo = 'dia';
 
-    // Actualiza el estado visual de los botones
-    filtros.forEach(x => x.classList.remove('active'));
-    btnDia.classList.add('active');
+            // Actualiza el estado visual de los botones
+            filtros.forEach(x => x.classList.remove('active'));
+            btnDia.classList.add('active');
 
-    cargar();
-});
+            cargar();
+        });
 
 
         // Delegación de acciones
@@ -410,9 +410,12 @@ require_once "../../partials/header.php";
 
             switch (action) {
                 case 'detail':
-                    document.getElementById('det-tel1').textContent = selectedRec.telprincipal;
-                    document.getElementById('det-tel2').textContent = selectedRec.telalternativo;
-                    document.getElementById('det-email').textContent = selectedRec.correo;
+                    document.getElementById('det-tel1').textContent =
+                        selectedRec.telprincipal ?? 'no proporcionado';
+                    document.getElementById('det-tel2').textContent =
+                        selectedRec.telalternativo ?? 'no proporcionado';
+                    document.getElementById('det-email').textContent =
+                        selectedRec.correo ?? 'no proporcionado';
                     new bootstrap.Modal(document.getElementById('modalDetalle')).show();
                     break;
                 case 'reprog':
@@ -434,51 +437,55 @@ require_once "../../partials/header.php";
                     break;
 
                 case 'estado':
-  Swal.fire({
-    title: '¿Qué quieres hacer con este recordatorio?',
-    icon: 'question',
-    showCancelButton: true,
-    showDenyButton: true,
-    confirmButtonText: 'Hecho',
-    confirmButtonColor: '#56d559',
-    denyButtonText: 'Cancelado',
-    denyButtonColor: '#ff4d6b',
-    cancelButtonText: 'Cerrar',
-    cancelButtonColor: '#d8d8d8', // #ff4d6b
-    timerProgressBar: true,
-    timer: 3500
-  }).then(async (result) => {
-    // Si el usuario confirma “Hecho”
-    if (result.isConfirmed) {
-      await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'updateEstado',
-          idagenda: selectedId,
-          estado: 'H'
-        })
-      });
-      showToast('Recordatorio realizado exitosamente', 'SUCCESS', 1500);
-      cargar();
-    }
-    // Si el usuario elige “Cancelar Recordatorio”
-    else if (result.isDenied) {
-      await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'updateEstado',
-          idagenda: selectedId,
-          estado: 'C'
-        })
-      });
-      showToast('Recordatorio cancelado correctamente', 'SUCCESS', 1500);
-      cargar();
-    }
-    // Si el usuario pulsa “Cerrar”, no hacemos nada
-  });
-  break;
+                    Swal.fire({
+                        title: '¿Qué quieres hacer con este recordatorio?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        showDenyButton: true,
+                        confirmButtonText: 'Hecho',
+                        confirmButtonColor: '#56d559',
+                        denyButtonText: 'Cancelado',
+                        denyButtonColor: '#ff4d6b',
+                        cancelButtonText: 'Cerrar',
+                        cancelButtonColor: '#d8d8d8', // #ff4d6b
+                        timerProgressBar: true,
+                        timer: 3500
+                    }).then(async (result) => {
+                        // Si el usuario confirma “Hecho”
+                        if (result.isConfirmed) {
+                            await fetch(API, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    action: 'updateEstado',
+                                    idagenda: selectedId,
+                                    estado: 'H'
+                                })
+                            });
+                            showToast('Recordatorio realizado exitosamente', 'SUCCESS', 1500);
+                            cargar();
+                        }
+                        // Si el usuario elige “Cancelar Recordatorio”
+                        else if (result.isDenied) {
+                            await fetch(API, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    action: 'updateEstado',
+                                    idagenda: selectedId,
+                                    estado: 'C'
+                                })
+                            });
+                            showToast('Recordatorio cancelado correctamente', 'SUCCESS', 1500);
+                            cargar();
+                        }
+                        // Si el usuario pulsa “Cerrar”, no hacemos nada
+                    });
+                    break;
 
             }
         });

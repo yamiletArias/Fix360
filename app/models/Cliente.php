@@ -108,5 +108,43 @@ class Cliente extends Conexion {
     return $result;
   }
 
+  public function getPersonaById($idpersona):array{
+
+    $result = [];
+
+    try {
+      $sql = " CALL spGetPersonaById(?)";
+      $cmd = $this->pdo->prepare($sql);
+      $cmd->execute(
+        array($idpersona)
+      );
+     $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+      die($e->getMessage());
+    }
+    return $result;
+  }
+
+  public function getEmpresaById($idempresa):array{
+
+    $result = [];
+
+    try {
+      $sql = " CALL spGetEmpresaById(?)";
+      $cmd = $this->pdo->prepare($sql);
+      $cmd->execute(
+        array($idempresa)
+      );
+     $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+      die($e->getMessage());
+    }
+    return $result;
+  }
+
+  
+
+
+
   
 }

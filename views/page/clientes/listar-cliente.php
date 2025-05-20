@@ -335,6 +335,12 @@ require_once "../../partials/_footer.php";
 
 
 <script>
+
+  function cleanField(v) {
+  return (v == null || v === '' || v === 'null')
+    ? 'No proporcionado'
+    : v;
+}
   // Función para inicializar el DataTable para clientes Persona
   function cargarTablaPersona() { // Inicio de cargarTablaPersona()
     // Si ya está inicializado, se destruye la instancia anterior
@@ -369,7 +375,7 @@ require_once "../../partials/_footer.php";
         },
         {
           data: "telprincipal",
-          defaultContent: "No proporcionado",
+           render: data => cleanField(data)
         },
         {
           data: null,
@@ -377,7 +383,7 @@ require_once "../../partials/_footer.php";
             const nombreCliente = `${row.nombres || ''} ${row.apellidos || ''}`.trim();
 
             return `
-                    <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idpersona}">
+                    <a class="btn btn-warning btn-sm" title="Editar datos" href="editar-cliente.php?idpersona=${row.idpersona}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetallePersona('${row.numruc}', '${row.direccion}', '${row.correo}', '${row.telalternativo}','${row.modificado}')">
@@ -419,13 +425,20 @@ require_once "../../partials/_footer.php";
   function noProporcionado(valor) {
     return (!valor || String(valor).toLowerCase() === "null") ? "No proporcionado" : valor;
   }
+    function cleanField(value) {
+  // si viene null, undefined, cadena 'null' o cadena vacía
+  if (value == null || value === 'null' || value === '') {
+    return 'No proporcionado';
+  }
+  return value;
+}
 
   function verDetallePersona(numruc, direccion, correo, telalternativo, modificado) {
-    document.querySelector("#RUCPersonaInput").value = numruc || 'No proporcionado';
-    document.querySelector("#DireccionPersonaInput").value = direccion || 'No proporcionado';
-    document.querySelector("#CorreoPersonaInput").value = correo || 'No proporcionado';
-    document.querySelector("#TelAlternativoPersonaInput").value = telalternativo || 'No proporcionado';
-    document.querySelector("#ModificacionPersonaInput").value = modificado || 'No se han modificado los datos';
+    document.querySelector("#RUCPersonaInput").value = cleanField(numruc);
+    document.querySelector("#DireccionPersonaInput").value = cleanField(direccion);
+    document.querySelector("#CorreoPersonaInput").value = cleanField(correo);
+    document.querySelector("#TelAlternativoPersonaInput").value = cleanField(telalternativo)
+    document.querySelector("#ModificacionPersonaInput").value = cleanField(modificado);
 
     // Mostrar el modal de Bootstrap
     let modal = new bootstrap.Modal(document.getElementById("miModalPersona"));
@@ -433,9 +446,9 @@ require_once "../../partials/_footer.php";
   }
 
   function verDetalleEmpresa(razonsocial, correo, modificado) {
-    document.querySelector("#RazonSocialEmpresaInput").value = razonsocial || 'No proporcionado';
-    document.querySelector("#CorreoEmpresaInput").value = correo || 'No proporcionado';
-    document.querySelector("#ModificacionEmpresaInput").value = modificado || 'No se han modificado los datos';
+    document.querySelector("#RazonSocialEmpresaInput").value = cleanField(razonsocial);
+    document.querySelector("#CorreoEmpresaInput").value = cleanField(correo);
+    document.querySelector("#ModificacionEmpresaInput").value = cleanField(modificado);
 
     // Mostrar el modal de Bootstrap
     let modal = new bootstrap.Modal(document.getElementById("miModalEmpresa"));
@@ -471,7 +484,7 @@ require_once "../../partials/_footer.php";
           data: null,
           render: (data, type, row) => {
             return `
-            <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?id=${row.idempresa}">
+            <a class="btn btn-warning btn-sm" title="Ver detalles" href="editar-cliente.php?idempresa=${row.idempresa}">
                     <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     <button class="btn btn-info btn-sm" title="Ver detalles" onclick="verDetalleEmpresa('${row.razonsocial}','${row.correo}','${row.modificado}')">
