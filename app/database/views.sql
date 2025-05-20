@@ -252,8 +252,8 @@ CREATE VIEW vwFormapagos AS
 SELECT * FROM formapagos;
 
 SET GLOBAL event_scheduler = ON;
-
-CREATE EVENT IF NOT EXISTS ev_CancelarRecordatoriosVencidos
+-- Evento para cancelar automaticamente los recordatorios si tiene el estado de 'P' o 'R'
+CREATE EVENT IF NOT EXISTS evCancelarRecordatoriosVencidos
   ON SCHEDULE
     EVERY 1 DAY
     STARTS DATE_ADD(CURDATE(), INTERVAL 1 DAY) + INTERVAL 0 HOUR
