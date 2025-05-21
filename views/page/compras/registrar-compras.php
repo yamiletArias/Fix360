@@ -4,7 +4,6 @@ require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
-
 <div class="container-main mt-5">
   <div class="card border">
     <!-- <div class="card-header d-flex justify-content-between align-items-center">
@@ -194,7 +193,6 @@ require_once "../../partials/header.php";
     </div>
   </div>
 
-
 </div>
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
@@ -262,11 +260,32 @@ require_once "../../partials/header.php";
                 <label for="undmedida">Und. Medida:</label>
               </div>
             </div>
-            <div class="col-12">
+            <div class="col-6">
               <div class="form-floating">
                 <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
                   style="background-color: white; color: black;" />
                 <label for="precio">Precio:</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating ">
+                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial"
+                  placeholder="stockInicial" min="0" />
+                <label for="stockInicial">Stock Actual</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating ">
+                <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin"
+                  placeholder="stockmin" min="0" />
+                <label for="stockmin">Stock min.</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating ">
+                <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax"
+                  placeholder="stockmax" min="0" />
+                <label for="stockmax">Stock max.</label>
               </div>
             </div>
             <div class="col-12">
@@ -284,13 +303,14 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
-
 </div>
 </div>
-</body>
-
-</html>
-
+<?php
+require_once "../../partials/_footer.php";
+?>
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+<!-- js de carga moneda -->
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script>
   // 1) Declárala UNA sola vez, arriba de todo:
   let selectedProduct = {};
@@ -432,7 +452,6 @@ require_once "../../partials/header.php";
     const agregarProductoBtn = document.querySelector("#agregarProducto");
     const tabla = document.querySelector("#tabla-detalle-compra tbody");
     const btnFinalizarCompra = document.getElementById('btnFinalizarCompra');
-
     // Nuevos elementos de input para los detalles del producto
     const inputStock = document.getElementById("stock");
     const inputPrecio = document.getElementById("preciocompra");
@@ -450,39 +469,32 @@ require_once "../../partials/header.php";
       el.min = fmt(twoAgo);
       el.max = fmt(today);
     }
-
     initDateField('fechaIngreso');
     const fechaInput = document.getElementById("fechaIngreso");
-
     // --- Funciones auxiliares ---
     function calcularTotales() {
       let totalImporte = 0;
       let totalDescuento = 0;
-
       tabla.querySelectorAll("tr").forEach(fila => {
         // 1) cantidad desde el input de la celda
         const cantidadLinea = parseFloat(fila.querySelector('.cantidad-input').value) || 0;
         // 2) precio y descuento unitario de las celdas
         const precioUnitario = parseFloat(fila.children[2].textContent) || 0;
         const descUnitario = parseFloat(fila.children[4].textContent) || 0;
-
         // 3) neto y acumulados
         const importeLinea = (precioUnitario - descUnitario) * cantidadLinea;
         totalImporte += importeLinea;
         totalDescuento += descUnitario * cantidadLinea;
       });
-
       // 4) IGV 18% y neto
       const igv = totalImporte - (totalImporte / 1.18);
       const neto = totalImporte / 1.18;
-
       // 5) resultado a inputs
       document.getElementById("neto").value = neto.toFixed(2);
       document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
       document.getElementById("igv").value = igv.toFixed(2);
       document.getElementById("total").value = totalImporte.toFixed(2);
     }
-
     // Función para evitar duplicados en productos
     function estaDuplicado(idproducto = 0) {
       let duplicado = false;
@@ -814,16 +826,13 @@ require_once "../../partials/header.php";
         inputDescuento.focus();
       }
     });
-
     inputDescuento.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
         // Opcional: puedes mover el foco al botón de agregar o ejecutar su acción directamente
-        agregarProductoBtn.focus();
-        // agregarProductoBtn.click();  // Si prefieres ejecutar la acción
+        agregarProductoBtn.focus(); // agregarProductoBtn.click();  // Si prefieres ejecutar la acción
       }
     });
-
     // Evento del botón "Guardar" para enviar la compra
     btnFinalizarCompra.addEventListener('click', function (e) {
       e.preventDefault();
@@ -832,12 +841,10 @@ require_once "../../partials/header.php";
         showToast('Por favor selecciona un proveedor', 'ERROR', 2000);
         return;
       }
-
       if (detalleCompra.length === 0) {
         showToast('Agrega al menos un producto', 'WARNING', 2000);
         return;
       }
-
       Swal.fire({
         title: '¿Deseas guardar la compra?',
         icon: 'question',
@@ -885,13 +892,6 @@ require_once "../../partials/header.php";
     });
   });
 </script>
+</body>
 
-<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
-
-<!-- js de carga moneda -->
-
-<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-
-<?php
-require_once "../../partials/_footer.php";
-?>
+</html>

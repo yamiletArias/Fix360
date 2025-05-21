@@ -85,26 +85,26 @@ require_once "../../partials/_footer.php";
 
 <!-- Logica para obetner la justificacion en el modal -->
 <script>
-  let mostrandoEliminados = false;
-  const btnVerEliminados = document.getElementById("btnVerEliminados");
-  const contActivos      = document.getElementById("tableDia");
-  const contEliminados   = document.getElementById("tableEliminados");
+    let mostrandoEliminados = false;
+    const btnVerEliminados = document.getElementById("btnVerEliminados");
+    const contActivos = document.getElementById("tableDia");
+    const contEliminados = document.getElementById("tableEliminados");
 
-  btnVerEliminados.addEventListener("click", function () {
-    if (!mostrandoEliminados) {
-      contActivos.style.display    = "none";
-      contEliminados.style.display = "block";
-      cargarVentasEliminadas();
-      this.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
-      this.title     = "Volver a ventas activas";
-    } else {
-      contEliminados.style.display = "none";
-      contActivos.style.display    = "block";
-      this.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
-      this.title     = "Ver eliminados";
-    }
-    mostrandoEliminados = !mostrandoEliminados;
-  });
+    btnVerEliminados.addEventListener("click", function () {
+        if (!mostrandoEliminados) {
+            contActivos.style.display = "none";
+            contEliminados.style.display = "block";
+            cargarVentasEliminadas();
+            this.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
+            this.title = "Volver a ventas activas";
+        } else {
+            contEliminados.style.display = "none";
+            contActivos.style.display = "block";
+            this.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
+            this.title = "Ver eliminados";
+        }
+        mostrandoEliminados = !mostrandoEliminados;
+    });
 </script>
 <script>
     $(document).on('click', '.btn-ver-justificacion', async function () {
@@ -231,6 +231,36 @@ require_once "../../partials/_footer.php";
                         <td>${item.total_producto} $</td>
                     </tr>`);
                 });
+                // ── NUEVO: cargar detalle de servicios ──
+                const $servTableBody = $("#tabla-detalle-servicios-modal tbody").empty();
+                fetch(`<?= SERVERURL ?>app/controllers/Detventa.controller.php?action=servicios&idventa=${idventa}`)
+                    .then(r => r.json())
+                    .then(json => {
+                        if (!json.length) {
+                            $servTableBody.append(
+                                `<tr><td colspan="5" class="text-center text-muted">No hay servicios asociados</td></tr>`
+                            );
+                        } else {
+                            json.forEach((item, i) => {
+                                $servTableBody.append(`
+            <tr>
+              <td>${i + 1}</td>
+              <td>${item.tiposervicio}</td>
+              <td>${item.nombreservicio}</td>
+              <td>${item.mecanico}</td>
+              <td>${parseFloat(item.precio_servicio).toFixed(2)}</td>
+            </tr>
+          `);
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error al cargar servicios:", err);
+                        $servTableBody.append(
+                            `<tr><td colspan="5" class="text-center text-danger">Error al cargar servicios</td></tr>`
+                        );
+                    });
+
 
                 // ─── AÑADE ESTE BLOQUE PARA LAS AMORTIZACIONES ───
                 fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idventa=${idventa}`)
@@ -556,7 +586,7 @@ require_once "../../partials/_footer.php";
 
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 900px;">
+    <div class="modal-dialog" style="max-width: 950px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Venta</h5>
@@ -620,6 +650,22 @@ require_once "../../partials/_footer.php";
 
                         </tbody>
                     </table>
+                    <hr>
+                    <h6>Servicios asociados</h6>
+                    <table class="table table-striped table-bordered" id="tabla-detalle-servicios-modal">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tipo Servicio</th>
+                                <th>Servicio</th>
+                                <th>Mecánico</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán con JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
@@ -649,10 +695,9 @@ require_once "../../partials/_footer.php";
         </div>
     </div>
 </div>
-
 </body>
-</html>
 
+</html>
 <!-- Logica para ver los registro eliminados -->
 <!-- <script>
     document.addEventListener("DOMContentLoaded", function () {

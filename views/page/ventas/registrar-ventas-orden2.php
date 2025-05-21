@@ -16,6 +16,9 @@ require_once "../../partials/header.php";
                 <a href="listar-ventas.php" class="btn btn-sm btn-success">
                     Mostrar Lista
                 </a>
+                <a href="#" id="btnToggleService" class="btn btn-sm btn-success">
+                    Agregar servicio
+                </a>
             </div>
         </div>
         <div class="card-body">
@@ -83,7 +86,7 @@ require_once "../../partials/header.php";
                             <label for="vehiculo"><strong>Eliga un vehículo</strong></label>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-floating">
                             <input type="number" step="0.1" class="form-control input" id="kilometraje"
                                 placeholder="201">
@@ -162,47 +165,50 @@ require_once "../../partials/header.php";
                             <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-floating">
-                            <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
-                                required>
-                                <option selected>Eliga un tipo de servicio</option>
-
-                            </select>
-                            <label for="subcategoria">Tipo de Servicio:</label>
-                        </div>
-                    </div>
-                    <div class="col-md-3 ">
-                        <div class="input-group ">
+                    <!-- Pon esto donde estaban tus columnas de servicio -->
+                    <div id="serviceSection" class="row g-2 mt-3 d-none">
+                        <div class="col-md-3">
                             <div class="form-floating">
-                                <select class="form-select" id="servicio" name="servicio" style="color:black;">
-                                    <option selected>Eliga un servicio</option>
+                                <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
+                                    required>
+                                    <option selected>Eliga un tipo de servicio</option>
                                 </select>
-                                <label for="servicio">Servicio:</label>
+                                <label for="subcategoria">Tipo de Servicio:</label>
                             </div>
-                            <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle"
-                                data-bs-toggle="modal" data-bs-target="#ModalServicio">
-                                <i class="fa-solid fa-circle-plus"></i>
-                            </button>
                         </div>
-                    </div>
-                    <div class="col-md-3 ">
-                        <div class="form-floating">
-                            <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
-                                <option selected>Eliga un mecánico</option>
-                            </select>
-                            <label for="mecanico">Mecánico:</label>
+                        <div class="col-md-3 ">
+                            <div class="input-group ">
+                                <div class="form-floating">
+                                    <select class="form-select" id="servicio" name="servicio" style="color:black;">
+                                        <option selected>Eliga un servicio</option>
+                                    </select>
+                                    <label for="servicio">Servicio:</label>
+                                </div>
+                                <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle"
+                                    data-bs-toggle="modal" data-bs-target="#ModalServicio">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="input-group">
+                        <div class="col-md-3 ">
                             <div class="form-floating">
-                                <input type="number" class="form-control input" step="0.1" placeholder="Precio Servicio"
-                                    aria-label="Precio Servicio" min="0.01" id="precioServicio" />
-                                <label for="precioServicio">Precio Servicio</label>
+                                <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
+                                    <option selected>Eliga un mecánico</option>
+                                </select>
+                                <label for="mecanico">Mecánico:</label>
                             </div>
-                            <button class="btn btn-sm btn-success" type="button"
-                                id="btnAgregarServicio">Agregar</button>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control input" step="0.1"
+                                        placeholder="Precio Servicio" aria-label="Precio Servicio" min="0.01"
+                                        id="precioServicio" />
+                                    <label for="precioServicio">Precio Servicio</label>
+                                </div>
+                                <button class="btn btn-sm btn-success" type="button"
+                                    id="btnAgregarServicio">Agregar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -231,14 +237,14 @@ require_once "../../partials/header.php";
             </table>
         </div>
     </div>
-    <div class="card mt-2 border">
+    <div id="serviceListCard" class="card mt-2 border d-none">
         <div class="card-body">
             <table class="table table-striped table-sm" id="tabla-detalle-servicios">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Servicio</th>
-                        <th>Mecanico</th>
+                        <th>Mecánico</th>
                         <th>Precio</th>
                         <th>Acciones</th>
                     </tr>
@@ -246,7 +252,6 @@ require_once "../../partials/header.php";
                 <tbody>
                     <!-- Datos asíncronos -->
                 </tbody>
-
             </table>
         </div>
     </div>
@@ -290,9 +295,6 @@ require_once "../../partials/header.php";
                 </tbody>
             </table>
             <div class="mt-4">
-                <!-- <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
-            Aceptar
-          </a> -->
                 <button id="btnFinalizarVenta" type="button" class="btn btn-success text-end">Aceptar</button>
                 <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
                     Cancelar
@@ -453,7 +455,20 @@ require_once "../../partials/_footer.php";
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+<script src="<?= SERVERURL ?>views/page/ventas/js/registrar-ventas-orden2.js"></script>
 <script>
+    document.getElementById('btnToggleService').addEventListener('click', function (e) {
+        e.preventDefault();
+        // Alterna la visibilidad de la sección de inputs
+        document.getElementById('serviceSection').classList.toggle('d-none');
+        // Y también de la tabla de servicios
+        document.getElementById('serviceListCard').classList.toggle('d-none');
+    });
+</script>
+</body>
+</html>
+<!-- real -->
+<!-- <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Variables y elementos
         /* const inputCliente = document.getElementById("cliente"); */
@@ -981,11 +996,8 @@ require_once "../../partials/_footer.php";
             });
         });
     });
-</script>
+</script> -->
 
-</body>
-
-</html>
 <!-- <script>
   document.addEventListener('DOMContentLoaded', () => {
     // — variables del modal de Propietario —

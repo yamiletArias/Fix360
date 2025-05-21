@@ -2,14 +2,26 @@
 -- ************************* VISTA DE AMORTIZACION *************************
 
 -- 1) VISTA PARA VER EL TOTAL DE LAS VENTAS (ID)
-DROP VIEW IF EXISTS vista_total_por_venta;
+
+/*DROP VIEW IF EXISTS vista_total_por_venta;
 CREATE VIEW vista_total_por_venta AS
 SELECT
   dv.idventa,
   -- Suma para cada línea: (precio unitario - descuento unitario) × cantidad
   ROUND(SUM((dv.precioventa - dv.descuento) * dv.cantidad), 2) AS total
 FROM detalleventa AS dv
-GROUP BY dv.idventa;
+GROUP BY dv.idventa;*/
+
+DROP VIEW IF EXISTS vista_total_por_venta;
+CREATE VIEW vista_total_por_venta AS
+SELECT
+  idventa,
+  ROUND(
+    SUM(total_producto)             /* suma los productos */
+    + SUM(COALESCE(precio_servicio,0)) /* + suma los servicios */
+  , 2) AS total
+FROM vista_detalle_venta
+GROUP BY idventa;
 
 -- 1) VISTA PARA VER EL TOTAL DE LAS COMPRAS (ID)
 DROP VIEW IF EXISTS vista_total_por_compra;
@@ -110,6 +122,7 @@ LEFT  JOIN personas p      ON c.idpersona  = p.idpersona
 JOIN  vista_saldos_por_venta vt ON v.idventa   = vt.idventa
 WHERE v.estado = TRUE;
 
+/*
 -- 2) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA IDVENTA 
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
@@ -139,68 +152,47 @@ JOIN detalleventa dv   ON v.idventa        = dv.idventa
 JOIN productos pr      ON dv.idproducto    = pr.idproducto
 JOIN subcategorias s   ON pr.idsubcategoria = s.idsubcategoria
 WHERE v.estado = TRUE;
+*/
 
 -- VISTA DE VENTAS CON ORDEN DE SERVICIO
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
-
--- A) líneas de PRODUCTOS
-SELECT
+SELECT 
   v.idventa,
   v.fechahora,
-  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+  COALESCE(CONCAT(p.apellidos, ' ', p.nombres), e.nomcomercial) AS cliente,
   v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-  'PRODUCTO'               AS tipo_linea,
-  CONCAT(s.subcategoria,' ',pr.descripcion) AS detalle,
+  -- Vehículo completo
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+  -- Producto
+  CONCAT(su.subcategoria, ' ', pr.descripcion) AS producto,
   dv.cantidad,
-  dv.precioventa           AS precio_unitario,
+  dv.precioventa AS precio,
   dv.descuento,
-  ROUND((dv.precioventa-dv.descuento)*dv.cantidad,2) AS total_linea
+  -- Total a pagar por línea: (precio - descuento) * cantidad
+  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
+  -- NUEVOS CAMPOS DEL SERVICIO RELACIONADO A LA ORDEN
+  sc.subcategoria AS tiposervicio,
+  se.servicio AS nombreservicio,
+  c.namuser AS mecanico,
+  dos.precio AS precio_servicio
 FROM ventas v
-JOIN clientes c            ON v.idcliente      = c.idcliente
-LEFT JOIN personas p       ON c.idpersona      = p.idpersona
-LEFT JOIN empresas e       ON c.idempresa      = e.idempresa
-LEFT JOIN vehiculos vh     ON v.idvehiculo     = vh.idvehiculo
-LEFT JOIN modelos m        ON vh.idmodelo      = m.idmodelo
-LEFT JOIN tipovehiculos tv ON m.idtipov        = tv.idtipov
-LEFT JOIN marcas ma        ON m.idmarca        = ma.idmarca
-JOIN detalleventa dv       ON v.idventa        = dv.idventa
-JOIN productos pr          ON dv.idproducto    = pr.idproducto
-JOIN subcategorias s       ON pr.idsubcategoria = s.idsubcategoria
-WHERE v.estado = TRUE
-
-UNION ALL
-
--- B) líneas de SERVICIOS
-SELECT
-  v.idventa,
-  v.fechahora,
-  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-  'SERVICIO'               AS tipo_linea,
-  se.servicio              AS detalle,
-  1                        AS cantidad,
-  dos.precio               AS precio_unitario,
-  0                        AS descuento,
-  ROUND(dos.precio*1,2)    AS total_linea
-FROM ventas v
--- emparejamos con la orden según cliente, propietario y fechaingreso = fechahora
-JOIN ordenservicios os 
-  ON os.idcliente    = v.idcliente
- AND os.idpropietario = v.idpropietario
- AND os.fechaingreso  = v.fechahora
-JOIN detalleordenservicios dos 
-  ON os.idorden      = dos.idorden
-JOIN servicios se     ON dos.idservicio  = se.idservicio
-JOIN clientes c       ON v.idcliente      = c.idcliente
-LEFT JOIN personas p  ON c.idpersona      = p.idpersona
-LEFT JOIN empresas e  ON c.idempresa      = e.idempresa
-LEFT JOIN vehiculos vh ON v.idvehiculo    = vh.idvehiculo
-LEFT JOIN modelos m    ON vh.idmodelo     = m.idmodelo
-LEFT JOIN tipovehiculos tv ON m.idtipov    = tv.idtipov
-LEFT JOIN marcas ma    ON m.idmarca        = ma.idmarca
+JOIN clientes cte        ON v.idcliente      = cte.idcliente
+LEFT JOIN personas p     ON cte.idpersona    = p.idpersona
+LEFT JOIN empresas e     ON cte.idempresa    = e.idempresa
+LEFT JOIN vehiculos vh   ON v.idvehiculo     = vh.idvehiculo
+LEFT JOIN modelos m      ON vh.idmodelo      = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov      = tv.idtipov
+LEFT JOIN marcas ma      ON m.idmarca        = ma.idmarca
+JOIN detalleventa dv     ON v.idventa        = dv.idventa
+JOIN productos pr        ON dv.idproducto    = pr.idproducto
+JOIN subcategorias su    ON pr.idsubcategoria = su.idsubcategoria
+-- ORDEN Y SERVICIO ASOCIADO
+LEFT JOIN ordenservicios os      ON v.idcliente = os.idcliente AND DATE(v.fechahora) = DATE(os.fechaingreso)
+LEFT JOIN detalleordenservicios dos ON os.idorden = dos.idorden
+LEFT JOIN servicios se           ON dos.idservicio = se.idservicio
+LEFT JOIN subcategorias sc       ON se.idsubcategoria = sc.idsubcategoria
+LEFT JOIN colaboradores c        ON dos.idmecanico = c.idcolaborador
 WHERE v.estado = TRUE;
 
 -- ************************* VISTA DE COMPRAS *************************
