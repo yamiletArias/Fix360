@@ -2,35 +2,61 @@
 
 if (isset($_SERVER['REQUEST_METHOD'])) {
     header('Content-type: application/json; charset=utf-8');
-
+require_once "../models/Persona.php";
+require_once "../models/Empresa.php";
     require_once "../models/Cliente.php";
     require_once "../helpers/helper.php";
     $cliente = new Cliente();
+    $persona = new Persona();
+$empresa = new Empresa();
 
     if (isset($_SERVER['REQUEST_METHOD'])) {  // Inicio de control de método
         switch ($_SERVER['REQUEST_METHOD']) {
-          case 'GET':  // -- GET: listado de clientes o detalle por ID
-            // 1) Obtener cliente por ID (task=getClienteById)
-            if (isset($_GET['task']) && $_GET['task'] === 'getClienteById') {
-              $idcliente = intval($_GET['idcliente'] ?? 0);
-              $data = $cliente->getClienteById($idcliente);
-              echo json_encode($data);
-              exit;  // <---- Salimos para no procesar más JSON
-            }  // cierra if getClienteById
-      
-            // 2) Listar todos los clientes según tipo (persona o empresa)
-            $tipo = Helper::limpiarCadena($_GET['tipo'] ?? 'persona');
-            if ($tipo === 'persona') {
-              $data = $cliente->getAllClientesPersona();
-              echo json_encode($data);
-            } elseif ($tipo === 'empresa') {
-              $data = $cliente->getAllClientesEmpresa();
-              echo json_encode($data);
-            } else {
-              http_response_code(400);  // Bad Request
-              echo json_encode(['error' => 'Tipo de cliente no válido']);
-            }  // cierra if tipo
-      
+          case "GET":
+    // 1) Detalle único (editar)
+    if (isset($_GET['task']) && $_GET['task'] === 'getById') {
+      $tipo = $_GET['tipo'] ?? '';
+      if ($tipo === 'persona') {
+        $id = intval($_GET['idpersona'] ?? 0);
+        echo $id > 0
+          ? json_encode($cliente->getPersonaById($id))
+          : json_encode(['status' => false, 'message' => 'ID persona inválido']);
+      }
+      elseif ($tipo === 'empresa') {
+        $id = intval($_GET['idempresa'] ?? 0);
+        echo $id > 0
+          ? json_encode($cliente->getEmpresaById($id))
+          : json_encode(['status' => false, 'message' => 'ID empresa inválido']);
+      }
+      else {
+        echo json_encode(['status' => false, 'message' => 'Tipo no válido']);
+      }
+      break;
+    }
+
+    // 2) Listado para DataTables
+    if (isset($_GET['tipo']) && $_GET['tipo'] === 'persona') {
+      echo json_encode($cliente->getAllClientesPersona());
+      break;
+    }
+    if (isset($_GET['tipo']) && $_GET['tipo'] === 'empresa') {
+      echo json_encode($cliente->getAllClientesEmpresa());
+      break;
+    }
+
+    // 3) En caso se quiera un solo endpoint getAll
+    if (isset($_GET['task']) && $_GET['task'] === 'getAll') {
+      // podrías fusionar ambos arrays si lo necesitas
+      echo json_encode([
+        'personas' => $cliente->getAllClientesPersona(),
+        'empresas' => $cliente->getAllClientesEmpresa(),
+      ]);
+      break;
+    }
+
+    // Default
+    echo json_encode(['status' => false, 'message' => 'Parámetros GET inválidos']);
+    break;
             break;
 
         case 'POST':

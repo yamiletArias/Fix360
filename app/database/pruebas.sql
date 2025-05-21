@@ -69,7 +69,7 @@ SELECT
   ) AS stock_actual
 FROM kardex AS k;
 
-SELECT * FROM v_stock_actual;
+-- SELECT * FROM v_stock_actual;
 
 
 
@@ -162,7 +162,7 @@ BEGIN
   END IF;
 END$$
 
-CALL buscar_producto('s')
+-- CALL buscar_producto('s')
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS buscar_producto $$
@@ -437,7 +437,7 @@ BEGIN
     );
 
 END$$
-DELIMITER ;
+
 
 
 

@@ -134,7 +134,8 @@ SELECT
   v.placa,
   v.color,
   v.vin,
-  v.numchasis
+  v.numchasis,
+  v.modificado
 FROM propietarios p
 LEFT JOIN vehiculos v
   ON p.idvehiculo = v.idvehiculo

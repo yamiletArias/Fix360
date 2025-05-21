@@ -71,6 +71,24 @@ require_once "../../partials/header.php";
               <label for="combustibleInput">Tipo de combustible:</label>
             </div>
           </div>
+          <div class="form-group" style="margin: 10px">
+            <div class="form-floating input-group">
+              <input type="text" disabled class="form-control input" id="modificadoInput" />
+              <label for="modificadoInput">Ultima vez modificado:</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 10px">
+            <div class="form-floating input-group">
+              <input type="text" disabled class="form-control input" id="vinInput" />
+              <label for="vinInput">VIN:</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 10px">
+            <div class="form-floating input-group">
+              <input type="text" disabled class="form-control input" id="numchasisInput" />
+              <label for="numchasisInput">N° Chasis:</label>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -132,7 +150,7 @@ require_once "../../partials/_footer.php";
               <a href="editar-vehiculos.php?id=${row.idvehiculo}" class="btn btn-sm btn-warning" title="Editar">
                 <i class="fa-solid fa-pen-to-square"></i>
               </a>
-              <button class="btn btn-sm btn-info" title="Detalle" onclick="verDetalle('${row.modelo}', '${row.anio}', '${row.numserie}', '${row.tcombustible}')">
+              <button class="btn btn-sm btn-info" title="Detalle" onclick="verDetalle('${row.modelo}', '${row.anio}', '${row.numserie}', '${row.tcombustible}','${row.modificado}','${row.vin}','${row.numchasis}')">
                 <i class="fa-solid fa-clipboard-list"></i>
               </button>
               <a href="historial-vehiculos.php?id=${row.idvehiculo}" class="btn btn-sm btn-outline-primary" title="Ver más">
@@ -160,15 +178,25 @@ require_once "../../partials/_footer.php";
     cargarTablaVehiculos();
   });
 
-  // Función para ver los detalles del vehículo en el modal
-  function verDetalle(modelo, anio, serie, tcombustible) { // Inicio de verDetalle()
-    document.querySelector("#modeloInput").value = modelo || 'No proporcionado';
-    document.querySelector("#anioInput").value = anio || 'No proporcionado';
-    document.querySelector("#serieInput").value = serie || 'No proporcionado';
-    document.querySelector("#combustibleInput").value = tcombustible || 'No proporcionado';
-    let modal = new bootstrap.Modal(document.getElementById("miModal"));
-    modal.show();
-  } // Cierra verDetalle()
+function cleanField(value) {
+  // si viene null, undefined, cadena 'null' o cadena vacía
+  if (value == null || value === 'null' || value === '') {
+    return 'No proporcionado';
+  }
+  return value;
+}
+
+function verDetalle(modelo, anio, serie, combustible, modificado, vin, numchasis) {
+  document.querySelector("#modeloInput").value      = cleanField(modelo);
+  document.querySelector("#anioInput").value        = cleanField(anio);
+  document.querySelector("#serieInput").value       = cleanField(serie);
+  document.querySelector("#combustibleInput").value = cleanField(combustible);
+  document.querySelector("#modificadoInput").value  = cleanField(modificado);
+  document.querySelector("#vinInput").value         = cleanField(vin);
+  document.querySelector("#numchasisInput").value   = cleanField(numchasis);
+
+  new bootstrap.Modal(document.getElementById("miModal")).show();
+} // Cierra verDetalle()
 </script>
 
 </body>

@@ -4,8 +4,10 @@ USE dbfix360;
 -- 2) Login de colaborador (verifica credenciales, estado activo y contrato vigente)
 */
 -- 1) Registrar colaborador
-CALL spRegisterColaborador('ejemplo1','ejemplo1',1)
-
+-- CALL spRegisterColaborador('ejemplo2','ejemplo2',2)
+-- CALL spRegisterColaborador('ejemplo1','ejemplo1',1)
+-- select * from colaboradores where idcontrato = 1;
+-- select * from egresos;
 DROP PROCEDURE IF EXISTS spRegisterColaborador;
 DELIMITER $$
 CREATE PROCEDURE spRegisterColaborador(
