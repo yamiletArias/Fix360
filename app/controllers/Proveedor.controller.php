@@ -1,7 +1,10 @@
 <?php
 
-require_once "../models/ProveedoresModel.php";
+require_once "../models/Proveedor.php";
+require_once "../models/Empresa.php";
+require_once "../helpers/helper.php";
 header('Content-Type: application/json');
+$empresa = new Empresa();
 
 $proveedor = new Proveedores();
 
@@ -13,23 +16,50 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         }
 
         switch ($_POST["operation"]) {
-            case "register":
-                $result = $proveedor->add(
-                    Conexion::limpiarCadena($_POST["idempresa"])
-                );
+            case "registerEmpresa":
+                // 1) Registrar empresa
+                $empresaData = [
+                    "ruc" => Helper::limpiarCadena($_POST["ruc"]),
+                    "nomcomercial" => Helper::limpiarCadena($_POST["nomcomercial"]),
+                    "razonsocial" => Helper::limpiarCadena($_POST["razonsocial"]),
+                    "telefono" => Helper::limpiarCadena($_POST["telempresa"]),
+                    "correo" => Helper::limpiarCadena($_POST["correoemp"])
+                ];
+
+                $resultEmpresa = $empresa->add($empresaData);
+                if (!$resultEmpresa["status"] || !$resultEmpresa["idempresa"]) {
+                    // devuelve detalle de error
+                    echo json_encode($resultEmpresa);
+                    exit;
+                }
+
+                // 2) Registrar proveedor con ese idempresa
+                $idempresa = $resultEmpresa["idempresa"];
+                $result = $proveedor->add($idempresa);
+
+                // 3) Añadir datos para el frontend
+                $result["idempresa"] = $idempresa;
+                $result["nomcomercial"] = $empresaData["nomcomercial"];
+
                 echo json_encode($result);
                 break;
+            /* case "register":
+                $result = $proveedor->add(
+                    Helper::limpiarCadena($_POST["idempresa"])
+                );
+                echo json_encode($result);
+                break; */
 
             case "update":
                 $result = $proveedor->update(
-                    Conexion::limpiarCadena($_POST["idproveedor"]),
-                    Conexion::limpiarCadena($_POST["idempresa"])
+                    Helper::limpiarCadena($_POST["idproveedor"]),
+                    Helper::limpiarCadena($_POST["idempresa"])
                 );
                 echo json_encode($result);
                 break;
 
             case "delete":
-                $idproveedor = Conexion::limpiarCadena($_POST["idproveedor"]);
+                $idproveedor = Helper::limpiarCadena($_POST["idproveedor"]);
                 echo json_encode($proveedor->delete($idproveedor));
                 break;
 
@@ -40,13 +70,13 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
     case "GET":
         if (isset($_GET["idproveedor"])) {
-            $idproveedor = Conexion::limpiarCadena($_GET["idproveedor"]);
+            $idproveedor = Helper::limpiarCadena($_GET["idproveedor"]);
             echo json_encode($proveedor->find($idproveedor));
         } else {
             echo json_encode($proveedor->getAll());
         }
         break;
-    
+
     default:
         echo json_encode(["status" => false, "message" => "Método no permitido"]);
 }

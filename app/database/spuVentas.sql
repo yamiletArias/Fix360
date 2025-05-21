@@ -1,5 +1,24 @@
 -- PROCEDIMIENTO ALMACENADOS DE VENTAS REAL
 
+-- PROCEDIMINETO PARA REGISTRAR EMPRESA
+DELIMITER $$
+
+CREATE PROCEDURE spRegisterEmpresa (
+  IN _nomcomercial VARCHAR(80),
+  IN _razonsocial VARCHAR(80),
+  IN _telefono VARCHAR(20),
+  IN _correo VARCHAR(100),
+  IN _ruc CHAR(11)
+)
+BEGIN
+  INSERT INTO empresas (nomcomercial, razonsocial, telefono, correo, ruc)
+  VALUES (_nomcomercial, _razonsocial, _telefono, _correo, _ruc);
+
+  SELECT LAST_INSERT_ID() AS idempresa;
+END$$
+
+DELIMITER ;	
+
 -- registro de venta con orden
 DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
 DELIMITER $$
