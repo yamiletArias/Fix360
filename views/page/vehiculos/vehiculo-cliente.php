@@ -9,14 +9,23 @@ require_once "../../partials/header.php";
 
 // 1) Leer el id de cliente que llega por GET
 $idcliente = isset($_GET['idcliente']) ? intval($_GET['idcliente']) : 0;
-// 2) (Opcional) Obtener el nombre del cliente para el título
-//    Puedes llamar a tu modelo o hacer una consulta directa aquí.
+
+// 2) Obtener el nombre del cliente para el título
 $nombreCliente = "";
 if ($idcliente) {
-  // Ejemplo rápido con tu controlador Cliente.controller.php:
-  $info = file_get_contents("http://localhost/fix360/app/controllers/Cliente.controller.php?task=getClienteById&idcliente=$idcliente");
-  $cli  = json_decode($info, true);
-  $nombreCliente = $cli[0]['propietario'] ?? "Cliente #$idcliente";
+  $info = file_get_contents(
+    "http://localhost/fix360/app/controllers/Cliente.controller.php?task=getClienteById&idcliente=$idcliente"
+  );
+  $cli = json_decode($info, true);
+
+  // Extraer correctamente "propietario" desde el objeto JSON
+  if (isset($cli['status']) && $cli['status'] === true && isset($cli['propietario'])) {
+    $nombreCliente = htmlspecialchars($cli['propietario']);
+  } else {
+    $nombreCliente = "Cliente #$idcliente";
+  }
+} else {
+  $nombreCliente = "Cliente no especificado";
 }
 
 ?>

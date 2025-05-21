@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Lista de vehiculos";
+const NAMEVIEW = "Vehiculo";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";

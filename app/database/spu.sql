@@ -404,36 +404,26 @@ INSERT INTO tipocombustibles (tcombustible) VALUES
 END $$
 
 -- Restaurar delimitador por defecto
-
+CALL spGetClienteById(12);
 DROP PROCEDURE IF EXISTS spGetClienteById;
 DELIMITER $$
 CREATE PROCEDURE spGetClienteById(
-IN _idcliente INT
+  IN _idcliente INT
 )
 BEGIN
-SELECT
-  CASE
-    WHEN c.idpersona IS NULL THEN em.nomcomercial
-    ELSE CONCAT(pe.apellidos,  ' ' ,pe.nombres)
-  END AS propietario
-FROM propietarios p
-LEFT JOIN vehiculos v
-  ON p.idvehiculo = v.idvehiculo
-LEFT JOIN clientes c
-  ON p.idcliente = c.idcliente
-LEFT JOIN modelos m
-  ON v.idmodelo = m.idmodelo
-LEFT JOIN tipovehiculos t
-  ON m.idtipov = t.idtipov
-LEFT JOIN marcas ma
-  ON m.idmarca = ma.idmarca
-LEFT JOIN personas pe
-  ON c.idpersona = pe.idpersona
-LEFT JOIN empresas em
-  ON c.idempresa = em.idempresa
-  LEFT JOIN tipocombustibles tc
-  ON v.idtcombustible = tc.idtcombustible
-  WHERE c.idcliente = _idcliente;
+  SELECT
+    CASE
+      WHEN c.idpersona IS NOT NULL
+        THEN CONCAT(pe.apellidos, ' ', pe.nombres)
+      ELSE em.nomcomercial
+    END AS propietario
+  FROM clientes AS c
+  LEFT JOIN personas AS pe
+    ON c.idpersona = pe.idpersona
+  LEFT JOIN empresas AS em
+    ON c.idempresa = em.idempresa
+  WHERE c.idcliente = _idcliente
+  LIMIT 1;
 END $$
 -- Semana actual
 -- CALL spListOrdenesPorPeriodo('semana', '2025-04-15');
@@ -910,15 +900,15 @@ BEGIN
       idmodelo       = p_idmodelo,
       idtcombustible = p_idtcombustible,
       placa          = p_placa,
-      anio           = NULLIF(p_anio,   ''),
-      numserie       = NULLIF(p_numserie, ''),
+      anio           = NULLIF(p_idanio,   ''),    -- Si p_anio = '', se pone NULL
+      numserie       = NULLIF(p_numserie, ''),    -- Si p_numserie = '', se pone NULL
       color          = p_color,
-      vin            = NULLIF(p_vin,    ''),
+      vin            = NULLIF(p_vin,    ''),      -- Si p_vin = '', se pone NULL
       numchasis      = NULLIF(p_numchasis, ''),
-      modificado = NOW()
+      modificado     = NOW()
     WHERE idvehiculo = p_idvehiculo;
 
-    -- 2) Obtenemos el propietario actual (el que no tiene fechafinal)
+    -- 2) Obtenemos el propietario actual (sin fechafinal)
     SELECT idcliente
       INTO v_idcliente_actual
     FROM propietarios
@@ -926,17 +916,17 @@ BEGIN
       AND fechafinal IS NULL
     LIMIT 1;
 
-    -- 3) Si cambió de propietario, cerramos el antiguo e insertamos el nuevo
+    -- 3) Si cambió de propietario, cerramos el anterior e insertamos el nuevo
     IF v_idcliente_actual IS NULL
        OR v_idcliente_actual <> p_idcliente_nuevo
     THEN
-      -- 3a) cerramos la relación anterior
+      -- 3a) Cerramos la relación anterior (si existía)
       UPDATE propietarios
       SET fechafinal = CURDATE()
       WHERE idvehiculo  = p_idvehiculo
         AND fechafinal IS NULL;
 
-      -- 3b) insertamos la nueva relación
+      -- 3b) Insertamos la nueva relación
       INSERT INTO propietarios (
         idcliente, idvehiculo, fechainicio, fechafinal
       ) VALUES (
@@ -948,7 +938,16 @@ BEGIN
     END IF;
 
   COMMIT;
-END$$
+
+  -- 4) Al final devolvemos el idcliente que ahora es propietario activo
+  SELECT
+    p.idcliente AS idcliente_propietario_nuevo
+  FROM propietarios AS p
+  WHERE p.idvehiculo = p_idvehiculo
+    AND p.fechafinal IS NULL
+  LIMIT 1;
+END $$
+
 
 DROP PROCEDURE IF EXISTS spDeleteObservacion;
 DELIMITER $$
@@ -1295,5 +1294,80 @@ BEGIN
    WHERE idempresa    = _idempresa;
 END$$
 
+DROP PROCEDURE IF EXISTS spGetVehiculoConPropietario;
+DELIMITER $$
+CREATE PROCEDURE spGetVehiculoConPropietario(
+  IN _idvehiculo INT
+)
+BEGIN
+  SELECT
+    v.idvehiculo,
+    v.idmodelo,
+    m.idmarca,
+    m.idtipov,
+    v.idtcombustible,
 
+    -- los nombres legibles
+    tv.tipov                       AS tipo_vehiculo,
+    ma.nombre                      AS marca,
+    m.modelo                       AS modelo,
+    tc.tcombustible                AS combustible,
+
+    -- el resto de campos
+    v.placa,
+    v.color,
+    v.anio,
+    v.numserie,
+    v.vin,
+    v.numchasis,
+
+    p.idcliente                    AS idcliente_propietario,
+    CASE
+      WHEN c.idpersona IS NOT NULL
+        THEN CONCAT(pe.apellidos, ' ', pe.nombres)
+      ELSE em.nomcomercial
+    END                             AS propietario
+
+  FROM vehiculos AS v
+    JOIN modelos AS m      ON v.idmodelo       = m.idmodelo
+    JOIN tipovehiculos AS tv ON m.idtipov      = tv.idtipov
+    JOIN marcas AS ma      ON m.idmarca        = ma.idmarca
+    JOIN tipocombustibles AS tc ON v.idtcombustible = tc.idtcombustible
+
+    LEFT JOIN propietarios AS p
+      ON v.idvehiculo     = p.idvehiculo
+     AND p.fechafinal IS NULL
+    LEFT JOIN clientes AS c
+      ON p.idcliente      = c.idcliente
+    LEFT JOIN personas AS pe
+      ON c.idpersona      = pe.idpersona
+    LEFT JOIN empresas AS em
+      ON c.idempresa      = em.idempresa
+
+  WHERE v.idvehiculo = _idvehiculo
+  LIMIT 1;
+END $$
+DELIMITER ;
+
+-- CALL spGetVehiculoConPropietario(5);
+
+DROP PROCEDURE IF EXISTS spRegisterMarcaVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spRegisterMarcaVehiculo(
+IN _nombre VARCHAR(50)
+)
+BEGIN
+INSERT INTO marcas (nombre,tipo) VALUES (_nombre,'vehiculo');
+END $$
+
+DROP PROCEDURE IF EXISTS spRegisterModelo;
+DELIMITER $$
+CREATE PROCEDURE spRegisterModelo(
+IN _idtipov INT,
+IN _idmarca INT,
+IN _modelo VARCHAR(100)
+)
+BEGIN
+INSERT INTO modelos (idtipov,idmarca,modelo) VALUES (_idtipov,_idmarca,_modelo);
+END $$
 

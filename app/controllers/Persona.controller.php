@@ -36,6 +36,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                     "apellidos"         => Helper::limpiarCadena($_POST["apellidos"]),
                     "tipodoc"           => Helper::limpiarCadena($_POST["tipodoc"]),
                     "numdoc"            => Helper::limpiarCadena($_POST["numdoc"]),
+                    "numruc"            => Helper::limpiarCadena($_POST["numruc"]),
                     "direccion"         => Helper::limpiarCadena($_POST["direccion"]),
                     "correo"            => Helper::limpiarCadena($_POST["correo"]),
                     "telprincipal"      => Helper::limpiarCadena($_POST["telprincipal"]),

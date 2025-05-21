@@ -335,12 +335,11 @@ require_once "../../partials/_footer.php";
 
 
 <script>
-
   function cleanField(v) {
-  return (v == null || v === '' || v === 'null')
-    ? 'No proporcionado'
-    : v;
-}
+    return (v == null || v === '' || v === 'null') ?
+      'No proporcionado' :
+      v;
+  }
   // Función para inicializar el DataTable para clientes Persona
   function cargarTablaPersona() { // Inicio de cargarTablaPersona()
     // Si ya está inicializado, se destruye la instancia anterior
@@ -375,7 +374,7 @@ require_once "../../partials/_footer.php";
         },
         {
           data: "telprincipal",
-           render: data => cleanField(data)
+          render: data => cleanField(data)
         },
         {
           data: null,
@@ -425,13 +424,14 @@ require_once "../../partials/_footer.php";
   function noProporcionado(valor) {
     return (!valor || String(valor).toLowerCase() === "null") ? "No proporcionado" : valor;
   }
-    function cleanField(value) {
-  // si viene null, undefined, cadena 'null' o cadena vacía
-  if (value == null || value === 'null' || value === '') {
-    return 'No proporcionado';
+
+  function cleanField(value) {
+    // si viene null, undefined, cadena 'null' o cadena vacía
+    if (value == null || value === 'null' || value === '') {
+      return 'No proporcionado';
+    }
+    return value;
   }
-  return value;
-}
 
   function verDetallePersona(numruc, direccion, correo, telalternativo, modificado) {
     document.querySelector("#RUCPersonaInput").value = cleanField(numruc);
@@ -548,8 +548,12 @@ require_once "../../partials/_footer.php";
   } // Cierra verDetalle()
 </script>
 
-<script src="<?= SERVERURL ?>views/page/clientes/js/asignar-vehiculo.js"></script>
+<!--script src="<?= SERVERURL ?>views/page/clientes/js/asignar-vehiculo.js"></!--script-->
 
+<script
+  src="<?= rtrim(SERVERURL, '/') ?>/views/page/clientes/js/asignar-vehiculo.js?v=<?= time() ?>"
+  defer
+></script>
 </body>
 
 </html>

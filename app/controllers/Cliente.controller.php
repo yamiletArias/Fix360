@@ -1,103 +1,128 @@
 <?php
+// Cliente.controller.php
 
-if (isset($_SERVER['REQUEST_METHOD'])) {
-    header('Content-type: application/json; charset=utf-8');
+header('Content-Type: application/json; charset=utf-8');
+
+require_once "../models/Conexion.php";
 require_once "../models/Persona.php";
 require_once "../models/Empresa.php";
-    require_once "../models/Cliente.php";
-    require_once "../helpers/helper.php";
-    $cliente = new Cliente();
-    $persona = new Persona();
-$empresa = new Empresa();
+require_once "../models/Cliente.php";
+require_once "../helpers/helper.php";
 
-    if (isset($_SERVER['REQUEST_METHOD'])) {  // Inicio de control de método
-        switch ($_SERVER['REQUEST_METHOD']) {
-          case "GET":
+$pdo = Conexion::getConexion();
+$personaModel = new Persona();
+$empresaModel = new Empresa();
+$clienteModel = new Cliente();
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 1) Detalle único (editar)
     if (isset($_GET['task']) && $_GET['task'] === 'getById') {
-      $tipo = $_GET['tipo'] ?? '';
-      if ($tipo === 'persona') {
-        $id = intval($_GET['idpersona'] ?? 0);
-        echo $id > 0
-          ? json_encode($cliente->getPersonaById($id))
-          : json_encode(['status' => false, 'message' => 'ID persona inválido']);
-      }
-      elseif ($tipo === 'empresa') {
-        $id = intval($_GET['idempresa'] ?? 0);
-        echo $id > 0
-          ? json_encode($cliente->getEmpresaById($id))
-          : json_encode(['status' => false, 'message' => 'ID empresa inválido']);
-      }
-      else {
-        echo json_encode(['status' => false, 'message' => 'Tipo no válido']);
-      }
-      break;
+        $tipo = $_GET['tipo'] ?? '';
+        if ($tipo === 'persona') {
+            $id = intval($_GET['idpersona'] ?? 0);
+            echo $id > 0
+                ? json_encode($clienteModel->getPersonaById($id))
+                : json_encode(['status' => false, 'message' => 'ID persona inválido']);
+        } elseif ($tipo === 'empresa') {
+            $id = intval($_GET['idempresa'] ?? 0);
+            echo $id > 0
+                ? json_encode($clienteModel->getEmpresaById($id))
+                : json_encode(['status' => false, 'message' => 'ID empresa inválido']);
+        } else {
+            echo json_encode(['status' => false, 'message' => 'Tipo no válido']);
+        }
+        exit;
     }
 
     // 2) Listado para DataTables
     if (isset($_GET['tipo']) && $_GET['tipo'] === 'persona') {
-      echo json_encode($cliente->getAllClientesPersona());
-      break;
+        echo json_encode($clienteModel->getAllClientesPersona());
+        exit;
     }
     if (isset($_GET['tipo']) && $_GET['tipo'] === 'empresa') {
-      echo json_encode($cliente->getAllClientesEmpresa());
-      break;
+        echo json_encode($clienteModel->getAllClientesEmpresa());
+        exit;
     }
 
     // 3) En caso se quiera un solo endpoint getAll
     if (isset($_GET['task']) && $_GET['task'] === 'getAll') {
-      // podrías fusionar ambos arrays si lo necesitas
-      echo json_encode([
-        'personas' => $cliente->getAllClientesPersona(),
-        'empresas' => $cliente->getAllClientesEmpresa(),
-      ]);
-      break;
+        echo json_encode([
+            'personas' => $clienteModel->getAllClientesPersona(),
+            'empresas' => $clienteModel->getAllClientesEmpresa(),
+        ]);
+        exit;
     }
 
-    // Default
+    // 4) Obtener nombre del propietario (persona o empresa) directamente vía SP
+    if (isset($_GET['task']) && $_GET['task'] === 'getClienteById' && isset($_GET['idcliente'])) {
+        $idcliente = intval($_GET['idcliente']);
+        if ($idcliente <= 0) {
+            echo json_encode(['status' => false, 'message' => 'ID cliente inválido']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("CALL spGetClienteById(:icliente)");
+        $stmt->execute([':icliente' => $idcliente]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row || !isset($row['propietario'])) {
+            echo json_encode(['status' => false, 'message' => 'Cliente no encontrado']);
+            exit;
+        }
+
+        echo json_encode([
+            'status'      => true,
+            'propietario' => $row['propietario']
+        ]);
+        exit;
+    }
+
+    // Default GET
     echo json_encode(['status' => false, 'message' => 'Parámetros GET inválidos']);
-    break;
-            break;
+    exit;
+}
 
-        case 'POST':
-            $input = file_get_contents('php://input');
-            $dataJSON = json_decode($input, true);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = file_get_contents('php://input');
+    $dataJSON = json_decode($input, true);
 
-            $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? "");
+    $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? '');
 
-            if ($tipo === "persona") {
-                // Registro de cliente como persona
-                $registro = [
-                    "nombres"           => Helper::limpiarCadena($dataJSON['nombres'] ?? ""),
-                    "apellidos"         => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
-                    "tipodoc"           => Helper::limpiarCadena($dataJSON['tipodoc'] ?? ""),
-                    "numdoc"            => Helper::limpiarCadena($dataJSON['numdoc'] ?? ""),
-                    "numruc"            => Helper::limpiarCadena($dataJSON['numruc'] ?? ""),
-                    "direccion"         => Helper::limpiarCadena($dataJSON['direccion'] ?? ""),
-                    "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
-                    "telprincipal"      => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
-                    "telalternativo"    => Helper::limpiarCadena($dataJSON['telalternativo'] ?? ""),
-                    "idcontactabilidad" => $dataJSON["idcontactabilidad"]
-                ];
-                $n = $cliente->registerClientePersona($registro);
-            } elseif ($tipo === "empresa") {
-                // Registro de cliente como empresa
-                $registro = [
-                    "ruc"               => Helper::limpiarCadena($dataJSON['ruc'] ?? ""),
-                    "nomcomercial"      => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
-                    "razonsocial"       => Helper::limpiarCadena($dataJSON['razonsocial'] ?? ""),
-                    "telefono"          => Helper::limpiarCadena($dataJSON['telefono'] ?? ""),
-                    "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
-                    "idcontactabilidad" => $dataJSON["idcontactabilidad"]
-                ];
-                $n = $cliente->registerClienteEmpresa($registro);
-            } else {
-                echo json_encode(["status" => false, "message" => "Tipo de cliente no válido"]);
-                exit;
-            }
-
-            echo json_encode(["rows" => $n]);
-            break;
-    }
+    if ($tipo === "persona") {
+        // Registro de cliente como persona
+        $registro = [
+            "nombres"           => Helper::limpiarCadena($dataJSON['nombres'] ?? ""),
+            "apellidos"         => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
+            "tipodoc"           => Helper::limpiarCadena($dataJSON['tipodoc'] ?? ""),
+            "numdoc"            => Helper::limpiarCadena($dataJSON['numdoc'] ?? ""),
+            "numruc"            => Helper::limpiarCadena($dataJSON['numruc'] ?? ""),
+            "direccion"         => Helper::limpiarCadena($dataJSON['direccion'] ?? ""),
+            "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
+            "telprincipal"      => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
+            "telalternativo"    => Helper::limpiarCadena($dataJSON['telalternativo'] ?? ""),
+            "idcontactabilidad" => intval($dataJSON["idcontactabilidad"] ?? 0)
+        ];
+        $n = $clienteModel->registerClientePersona($registro);
+        echo json_encode(["rows" => $n]);
+        exit;
+    } elseif ($tipo === "empresa") {
+        // Registro de cliente como empresa
+        $registro = [
+            "ruc"               => Helper::limpiarCadena($dataJSON['ruc'] ?? ""),
+            "nomcomercial"      => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
+            "razonsocial"       => Helper::limpiarCadena($dataJSON['razonsocial'] ?? ""),
+            "telefono"          => Helper::limpiarCadena($dataJSON['telefono'] ?? ""),
+            "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
+            "idcontactabilidad" => intval($dataJSON["idcontactabilidad"] ?? 0)
+        ];
+        $n = $clienteModel->registerClienteEmpresa($registro);
+        echo json_encode(["rows" => $n]);
+        exit;
+    } else {
+        echo json_encode(["status" => false, "message" => "Tipo de cliente no válido"]);
+        exit;
     }
 }
+
+echo json_encode(['status' => false, 'message' => 'Método no permitido']);
+exit;

@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Registro de vehiculos";
+const NAMEVIEW = "Vehiculo | Registro";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -9,98 +9,111 @@ require_once "../../partials/header.php";
 <!---hasta aqui sera el header-->
 <div class="container-main">
   <form action="" id="FormVehiculo">
-    <div class="card border" style="margin-top:50px;">
-      <div class="card-body">
-        <div class="row">
+          <div class="card border">
+            <div class="card-body">
+              <div class="row">
 
-          <div class="col-md-4 mb-3">
-            <div class="form-floating">
-              <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
-                <option value="">Seleccione una opcion</option>
-              </select>
-              <label for="tipov">Tipo de vehiculo:</label>
-            </div>
-          </div>
+                <div class="col-md-4 ">
+                  <div class="form-floating input-group mb-3">
+                    <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
+                      <option value="">Seleccione una opcion</option>
 
-          <div class="col-md-4 ">
-            <div class="form-floating">
-              <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
-                <option value="">Seleccione una opcion</option>
+                    </select>
+                    <label for="marcav"><strong> Marca del vehiculo:</strong></label>
+                  </div>
+                </div>
 
-              </select>
-              <label for="marcav">Marca del vehiculo:</label>
-            </div>
-          </div>
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="tipov" name="tipov" style="color: black;" required>
+                      <option value="">Seleccione una opcion</option>
+                    </select>
+                    <label for="tipov"><strong>Tipo de vehiculo:</strong></label>
+                  </div>
+                </div>
 
-          <div class="col-md-4">
-            <div class="form-floating">
-              <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
-                <option value="">Seleccione una opcion</option>
-              </select>
-              <label for="modelo">Modelo del vehiculo:</label>
-            </div>
-          </div>
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
+                      <option value="">Seleccione una opcion</option>
+                    </select>
+                    <label for="modelo"><strong> Modelo del vehiculo:</strong></label>
+                  </div>
+                </div>
 
-          <div class="col-md-4">
-            <div class="form-floating">
-              <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" required
-                maxlength="6" />
-              <label for="fplaca">Placa</label>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-floating">
-              <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" maxlength="4"
-                required />
-              <label for="fanio">Año</label>
-            </div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <div class="form-floating">
-              <input type="text" class="form-control input" id="fnumserie" placeholder="numerodeserie" />
-              <label for="fnumserie">N° de serie</label>
-            </div>
-          </div>
+                <div class="col-md-2 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6"
+                      required maxlength="6" />
+                    <label for="fplaca"><strong>Placa</strong></label>
+                  </div>
+                </div>
 
-          <div class="col-md-4 mb-3">
-            <div class="form-floating">
-              <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" />
-              <label for="fcolor">Color</label>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-floating">
-              <select class="form-select" id="ftcombustible" style="color: black;">
-              </select>
-              <label for="ftcombustible">Tipo de combustible:</label>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-floating input-group mb-3">
-              <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario" />
-              <label for="floatingInput">Propietario</label>
+                <div class="col-md-2 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4"
+                      maxlength="4" required />
+                    <label for="fanio"><strong> Año</strong></label>
+                  </div>
+                </div>
 
-              <input type="hidden" id="hiddenIdCliente" />
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17" placeholder="numerodeserie" />
+                    <label for="fnumserie">N° de serie</label>
+                  </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" minlength="3" maxlength="20" />
+                    <label for="fcolor"><strong>Color</strong></label>
+                  </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                  <div class="form-floating">
+                    <select class="form-select" id="ftcombustible" style="color: black;">
+                    </select>
+                    <label for="ftcombustible"><strong> Tipo de combustible:</strong></label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="vin" placeholder="vin" minlength="17" maxlength="17" />
+                    <label for="vin">VIN</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" minlength="17" maxlength="17" />
+                    <label for="numchasis">N° Chasis</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4 form-floating  input-group mb-3">
+              <input type="text" disabled class="form-control input" id="propietario"
+                placeholder="Propietario" />
+              <label for="propietario">Propietario</label>
+              <!-- En tu formulario principal -->
+              <input type="hidden" id="hiddenIdPropietario" name="idpropietario">
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
                 data-bs-target="#miModal">
                 ...
               </button>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="card-footer">
-        <div class="text-end">
-          <button class="btn btn-secondary" onclick="window.location.href='listar-vehiculos.php'">
-            Cancelar
-          </button>
-          <button type="submit" class="btn btn-success" id="btnRegistrarVehiculo">
-            Aceptar
-          </button>
-        </div>
+              </div>
+            </div>
+            <div class="card-footer text-end">
+              <a href="../vehiculos/listar-vehiculos.php" class="btn btn-secondary text-end">Cerrar</a>
+              <button type="button" class="btn btn-success text-end" id="btnRegistrarVehiculo">Guardar</button>
+            </div>
+          </div>
+        </form>
       </div>
-  </form>
 </div>
 </div>
 </div>

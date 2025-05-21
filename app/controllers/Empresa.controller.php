@@ -32,8 +32,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                     "nomcomercial" => Helper::limpiarCadena($_POST["nomcomercial"]),
                     "razonsocial" => Helper::limpiarCadena($_POST["razonsocial"]),
                     "telefono" => Helper::limpiarCadena($_POST["telefono"]),
-                    "correo" => Helper::limpiarCadena($_POST["correo"]),
-                    "ruc" => Helper::limpiarCadena($_POST["ruc"])
+                    "correo" => Helper::limpiarCadena($_POST["correo"])
                 ]);
                 echo json_encode($result);
                 break;

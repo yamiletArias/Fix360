@@ -34,6 +34,7 @@ class Persona extends Conexion {
         $params["apellidos"],
         $params["tipodoc"],
         $params["numdoc"],
+        $params["numruc"],
         $params["direccion"],
         $params["correo"],
         $params["telprincipal"],

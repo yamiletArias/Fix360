@@ -41,7 +41,7 @@ if (isset($_GET['idpersona'])) {
         <div class="row g-3">
           <div class="col-md-2">
             <div class="form-floating">
-              <select id="tipodoc" name="tipodoc" class="form-select" required>
+              <select id="tipodoc" name="tipodoc" class="form-select input" style="color: black;" required>
                 <option value="DNI">DNI</option>
                 <option value="Pasaporte">Pasaporte</option>
                 <option value="cde">Carnet de extranjería</option>
@@ -51,55 +51,55 @@ if (isset($_GET['idpersona'])) {
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input id="numdoc" name="numdoc" type="text" class="form-control" placeholder="N° documento" minlength="8" maxlength="20" required>
+              <input id="numdoc" name="numdoc" type="text" class="form-control input" placeholder="N° documento" minlength="8" maxlength="20" required>
               <label for="numdoc">N° Documento</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input id="apellidos" name="apellidos" type="text" class="form-control" placeholder="Apellidos" minlength="2" maxlength="100" required>
+              <input id="apellidos" name="apellidos" type="text" class="form-control input" placeholder="Apellidos" minlength="2" maxlength="100" required>
               <label for="apellidos">Apellidos</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input id="nombres" name="nombres" type="text" class="form-control" placeholder="Nombres" minlength="2" maxlength="100" required>
+              <input id="nombres" name="nombres" type="text" class="form-control input" placeholder="Nombres" minlength="2" maxlength="100" required>
               <label for="nombres">Nombres</label>
             </div>
           </div>
           <div class="col-md-8">
             <div class="form-floating">
-              <input id="direccion" name="direccion" type="text" class="form-control" placeholder="Dirección" minlength="5" maxlength="100">
+              <input id="direccion" name="direccion" type="text" class="form-control input" placeholder="Dirección" minlength="5" maxlength="100">
               <label for="direccion">Dirección</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input id="telprincipal" name="telprincipal" type="text" class="form-control" placeholder="Tel. principal" minlength="9" maxlength="9">
+              <input id="telprincipal" name="telprincipal" type="text" class="form-control input" placeholder="Tel. principal" minlength="9" maxlength="9">
               <label for="telprincipal">Tel. principal</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input id="telalternativo" name="telalternativo" type="text" class="form-control" placeholder="Tel. alternativo" minlength="9" maxlength="9">
+              <input id="telalternativo" name="telalternativo" type="text" class="form-control input" placeholder="Tel. alternativo" minlength="9" maxlength="9">
               <label for="telalternativo">Tel. alternativo</label>
             </div>
           </div>
           <div class="col-md-8">
             <div class="form-floating">
-              <input id="correo" name="correo" type="email" class="form-control" placeholder="Correo" minlength="10" maxlength="100">
+              <input id="correo" name="correo" type="email" class="form-control input" placeholder="Correo" minlength="10" maxlength="100">
               <label for="correo">Correo</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input id="numruc" name="numruc" type="text" class="form-control" placeholder="N° RUC" minlength="11" maxlength="11">
+              <input id="numruc" name="numruc" type="text" class="form-control input" placeholder="N° RUC" minlength="11" maxlength="11">
               <label for="numruc">N° RUC</label>
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <select id="cpersona" name="cpersona" class="form-select" required>
+              <select id="cpersona" name="cpersona" class="form-select input" required>
                 <option value="">-- Contactabilidad --</option>
               </select>
               <label for="cpersona">Contactabilidad</label>
@@ -113,37 +113,37 @@ if (isset($_GET['idpersona'])) {
         <div class="row g-3">
           <div class="col-md-4">
             <div class="form-floating">
-              <input id="ruc" name="ruc" type="text" class="form-control" placeholder="RUC" minlength="11" maxlength="11" required>
+              <input id="ruc" name="ruc" type="text" class="form-control input" placeholder="RUC" minlength="11" maxlength="11" required>
               <label for="ruc">RUC</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input id="nomcomercial" name="nomcomercial" type="text" class="form-control" placeholder="Nombre Comercial" minlength="5" maxlength="100" required>
+              <input id="nomcomercial" name="nomcomercial" type="text" class="form-control input" placeholder="Nombre Comercial" minlength="5" maxlength="100" required>
               <label for="nomcomercial">Nombre Comercial</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input id="razonsocial" name="razonsocial" type="text" class="form-control" placeholder="Razón Social" minlength="5" maxlength="100" required>
+              <input id="razonsocial" name="razonsocial" type="text" class="form-control input" placeholder="Razón Social" minlength="5" maxlength="100" required>
               <label for="razonsocial">Razón Social</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input id="telempresa" name="telempresa" type="text" class="form-control" placeholder="Teléfono" minlength="9" maxlength="9">
+              <input id="telempresa" name="telempresa" type="text" class="form-control input" placeholder="Teléfono" minlength="9" maxlength="9">
               <label for="telempresa">Teléfono</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input id="correoemp" name="correoemp" type="email" class="form-control" placeholder="Correo" minlength="10" maxlength="100">
+              <input id="correoemp" name="correoemp" type="email" class="form-control input" placeholder="Correo" minlength="10" maxlength="100">
               <label for="correoemp">Correo</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <select id="cempresa" name="cempresa" class="form-select" required>
+              <select id="cempresa" name="cempresa" class="form-select input" required>
                 <option value="">-- Contactabilidad --</option>
               </select>
               <label for="cempresa">Contactabilidad</label>
@@ -263,22 +263,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 6) Envío de actualización
   btnRegistrar.addEventListener("click", async (e) => {
-    e.preventDefault();
-    const form = formPersona.style.display === 'block' ? formPersona : formEmpresa;
-    if (!validarFormulario(form)) return;
+  e.preventDefault();
+  const form = formPersona.style.display === 'block' ? formPersona : formEmpresa;
+  if (!validarFormulario(form)) return;
 
-    const fd = new FormData(form);
-    fd.append('operation', 'update');
-    if (TIPODECLIENTE === 'persona') fd.append('idpersona', form.dataset.idpersona);
-    else                               fd.append('idempresa',  form.dataset.idempresa);
+  const fd = new FormData(form);
 
-    const resp = await fetch(`${SERVERURL}app/controllers/Cliente.controller.php`, {
-      method: 'POST', body: fd
-    }).then(r => r.json());
+  // *** IMPORTANTE: *** agregar el campo “tipo” para que el controller lo reciba:
+  fd.append('tipo', TIPODECLIENTE);
+  fd.append('operation', 'update');
 
-    showToast(resp.message, resp.status ? 'SUCCESS' : 'ERROR', 1500);
-    if (resp.status) setTimeout(() => window.location.href = 'listar-cliente.php', 1000);
-  });
+  if (TIPODECLIENTE === 'persona') 
+       fd.append('idpersona', form.dataset.idpersona);
+  else fd.append('idempresa', form.dataset.idempresa);
+
+  const resp = await fetch(`${SERVERURL}app/controllers/Cliente.controller.php`, {
+    method: 'POST',
+    body: fd
+  }).then(r => r.json());
+
+  showToast(resp.message, resp.status ? 'SUCCESS' : 'ERROR', 1500);
+  if (resp.status) {
+    setTimeout(() => window.location.href = 'listar-cliente.php', 1000);
+  }
+});
+
 
 });
 
