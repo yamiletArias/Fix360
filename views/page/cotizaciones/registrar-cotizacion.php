@@ -610,18 +610,20 @@ require_once "../../partials/_footer.php";
             return estado;
         }
 
-        //boton Guardar
+        // — Botón Guardar Cotización —
         btnFinalizarCotizacion.addEventListener("click", function (e) {
             e.preventDefault();
+
+            // Deshabilitamos el botón y cambiamos texto de inmediato
             btnFinalizarCotizacion.disabled = true;
             btnFinalizarCotizacion.textContent = "Guardando...";
 
-            // Validaciones
+            // Validaciones básicas
             if (!hiddenIdCliente.value) {
-            alert("Por favor, selecciona un cliente.");
-            btnFinalizarCotizacion.disabled = false;
-            btnFinalizarCotizacion.textContent = "Guardar";
-            return;
+                alert("Por favor, selecciona un cliente.");
+                btnFinalizarCotizacion.disabled = false;
+                btnFinalizarCotizacion.textContent = "Guardar";
+                return;
             }
             if (detalleCotizacion.length === 0) {
                 alert("Por favor, agrega al menos un producto.");
@@ -630,56 +632,80 @@ require_once "../../partials/_footer.php";
                 return;
             }
 
-            // Armar objeto de datos a enviar
-            const data = {
-                fechahora: fechaInput.value.trim(),
-                vigenciadias: diasVigencia,
-                moneda: monedaSelect.value,
-                idcliente: hiddenIdCliente.value,
-                productos: detalleCotizacion
-            };
-
-            // Envío de datos al servidor
-            fetch("http://localhost/Fix360/app/controllers/Cotizacion.controller.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-                .then(response => response.text())
-                .then(text => {
-                    // Procesamiento de la respuesta
-                    console.log("Respuesta del servidor:", text);
-                    try {
-                        const json = JSON.parse(text);
-                        if (json && json.status === "success") {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '¡Cotizacion registrada con éxito!',
-                                showConfirmButton: false,
-                                timer: 1800
-                            }).then(() => {
-                                window.location.href = 'listar-cotizacion.php';
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error al registrar la Cotizacion',
-                                text: 'Inténtalo nuevamente.',
-                            });
-                        }
-                    } catch (e) {
-                        console.error("No se pudo parsear JSON:", e);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Respuesta inesperada',
-                            text: 'El servidor no devolvió una respuesta válida.',
-                        });
-                    }
-                })
-                .finally(() => {
+            // Diálogo de confirmación
+            Swal.fire({
+                title: '¿Deseas guardar la cotización?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33'
+            }).then(result => {
+                if (!result.isConfirmed) {
+                    // Si canceló, restauramos el estado del botón
                     btnFinalizarCotizacion.disabled = false;
                     btnFinalizarCotizacion.textContent = "Guardar";
-                });
+                    return;
+                }
+
+                // Preparamos el objeto a enviar
+                const data = {
+                    fechahora: fechaInput.value.trim(),
+                    vigenciadias: diasVigencia,
+                    moneda: monedaSelect.value,
+                    idcliente: hiddenIdCliente.value,
+                    productos: detalleCotizacion
+                };
+
+                // Envío al servidor
+                fetch("http://localhost/Fix360/app/controllers/Cotizacion.controller.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.text())
+                    .then(text => {
+                        console.log("Respuesta del servidor:", text);
+                        try {
+                            const json = JSON.parse(text);
+                            if (json && json.status === "success") {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '¡Cotización registrada con éxito!',
+                                    showConfirmButton: false,
+                                    timer: 1800
+                                }).then(() => {
+                                    window.location.href = 'listar-cotizacion.php';
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error al registrar la cotización',
+                                    text: 'Inténtalo nuevamente.',
+                                });
+                            }
+                        } catch (e) {
+                            console.error("No se pudo parsear JSON:", e);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Respuesta inesperada',
+                                text: 'El servidor no devolvió una respuesta válida.',
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Fallo de conexión',
+                            text: 'No se pudo contactar al servidor.',
+                        });
+                    })
+                    .finally(() => {
+                        btnFinalizarCotizacion.disabled = false;
+                        btnFinalizarCotizacion.textContent = "Guardar";
+                    });
+            });
         });
 
     });
