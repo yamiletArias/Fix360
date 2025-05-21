@@ -43,12 +43,16 @@ require_once "../../partials/header.php";
         <!-- Sección Cliente, Fecha y Moneda -->
         <div class="row g-2 mt-3">
           <div class="col-md-5">
-            <div class="form-floating">
+            <div class="form-floating input-group mb-3">
               <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
                 <option selected>Selecciona proveedor</option>
                 <!-- Se llenará dinámicamente vía AJAX -->
               </select>
               <label for="proveedor"><strong>Proveedor</strong></label>
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                data-bs-target="#modalNuevoProveedor">
+                <i class="fas fa-plus-square"></i>
+              </button>
             </div>
           </div>
           <div class="col-md-4">
@@ -156,34 +160,24 @@ require_once "../../partials/header.php";
         <tbody>
           <tr>
             <td colspan="4" class="text-end">NETO</td>
-            <td>
-              <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
-            </td>
+            <td><input type="text" class="form-control input form-control-sm text-end" id="neto" readonly></td>
           </tr>
           <tr>
             <td colspan="4" class="text-end">DSCT</td>
-            <td>
-              <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+            <td><input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
             </td>
           </tr>
           <tr>
             <td colspan="4" class="text-end">IGV</td>
-            <td>
-              <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
-            </td>
+            <td><input type="text" class="form-control input form-control-sm text-end" id="igv" readonly></td>
           </tr>
           <tr>
             <td colspan="4" class="text-end">Importe</td>
-            <td>
-              <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
-            </td>
+            <td><input type="text" class="form-control input form-control-sm text-end" id="total" readonly></td>
           </tr>
         </tbody>
       </table>
       <div class="mt-4">
-        <!-- <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
-            Aceptar
-          </a> -->
         <button id="btnFinalizarCompra" type="button" class="btn btn-success text-end">Aceptar</button>
         <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
           Cancelar
@@ -191,7 +185,6 @@ require_once "../../partials/header.php";
       </div>
     </div>
   </div>
-
 </div>
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
@@ -302,6 +295,63 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+<!-- Modal de registrar nueva empresa / proveedor (estilo igual al primer modal) -->
+<div class="modal fade" id="modalNuevoProveedor" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md" style="margin-top: 60px;">
+    <div class="modal-content" style="background-color: #fff; color: #000;">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar Nueva Empresa / Proveedor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formProveedor">
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" id="ruc" name="ruc" class="form-control" placeholder="RUC" minlength="11"
+                  maxlength="11" required style="background-color: white; color: black;" />
+                <label for="ruc"><strong>RUC</strong></label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" id="nomcomercial" name="nomcomercial" class="form-control"
+                  placeholder="Nombre Comercial" minlength="5" maxlength="100" required
+                  style="background-color: white; color: black;" />
+                <label for="nomcomercial"><strong>Nombre Comercial</strong></label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" id="razonsocial" name="razonsocial" class="form-control" placeholder="Razón Social"
+                  minlength="5" maxlength="100" required style="background-color: white; color: black;" />
+                <label for="razonsocial"><strong>Razón Social</strong></label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="text" id="telempresa" name="telempresa" class="form-control" placeholder="Teléfono"
+                  minlength="9" maxlength="9" style="background-color: white; color: black;" />
+                <label for="telempresa"><strong>Teléfono</strong></label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="email" id="correoemp" name="correoemp" class="form-control" placeholder="Correo"
+                  minlength="10" maxlength="100" style="background-color: white; color: black;" />
+                <label for="correoemp"><strong>Correo</strong></label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="formProveedor" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 </div>
 <?php
@@ -310,12 +360,70 @@ require_once "../../partials/_footer.php";
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+<script src="<?= SERVERURL ?>views/page/clientes/js/registrar-cliente.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById('modalNuevoProveedor');
+    const formProv = document.getElementById('formProveedor');
+    const selectProv = document.getElementById('proveedor');
+
+    modal.addEventListener('hidden.bs.modal', () => {
+      formProv.reset();
+    });
+
+    formProv.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new URLSearchParams(new FormData(formProv));
+      formData.append('operation', 'registerEmpresa');
+
+      try {
+        const resp = await fetch('<?= SERVERURL ?>app/controllers/Proveedor.controller.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString()
+        });
+
+        // 1) Lée la respuesta como texto para no “vaciar” el stream
+        const text = await resp.text();
+        console.log("📥 Raw response:", text);
+
+        let result;
+        try {
+          result = JSON.parse(text);
+          console.log("✅ Parsed JSON:", result);
+        } catch (err) {
+          console.error("❌ No pudo parsear JSON:", err);
+          showToast("Respuesta del servidor no es JSON válido", "ERROR", 2000);
+          return;
+        }
+
+        // 2) Ahora haces la lógica normal
+        if (result.status) {
+          const newOption = document.createElement('option');
+          newOption.value = result.idempresa;
+          newOption.textContent = result.nomcomercial;
+          selectProv.appendChild(newOption);
+          selectProv.value = result.idempresa;
+          bootstrap.Modal.getInstance(modal).hide();
+          showToast(result.message, 'SUCCESS', 1500);
+        } else {
+          // Muestra el mensaje tal cual venga
+          showToast(result.message, 'ERROR', 2000);
+        }
+
+      } catch (err) {
+        console.error("❗ Error de red o JS:", err);
+        showToast('Error de red. Intenta de nuevo.', 'ERROR', 1500);
+      }
+    });
+  });
+</script>
 <script>
   // 1) Declárala UNA sola vez, arriba de todo:
   let selectedProduct = {};
   const detalleCompra = [];
 </script>
-
 <script>
   document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
     e.preventDefault();
@@ -389,7 +497,6 @@ require_once "../../partials/_footer.php";
       });
   });
 </script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const marcaSelect = document.getElementById("marca");

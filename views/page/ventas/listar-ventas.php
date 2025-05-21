@@ -408,23 +408,23 @@ require_once "../../partials/_footer.php";
                     render: function (data, type, row) {
                         return `
                             <button class="btn btn-info btn-sm btn-ver-justificacion"
-                                    data-id="${row.id}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalVerJustificacion">
+                                data-id="${row.id}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalVerJustificacion">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                             <button class="btn btn-warning btn-sm btn-amortizar"
-                                    data-id="${row.id}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalAmortizar">
+                                data-id="${row.id}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAmortizar">
                                 <i class="fa-solid fa-dollar-sign"></i>
                             </button>
                             <button class="btn btn-primary btn-sm"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#miModal"
-                                                onclick="verDetalleVenta('${row.id}')">
-                                                <i class="fa-solid fa-circle-info"></i>
-                                            </button>`;
+                                data-bs-toggle="modal" 
+                                data-bs-target="#miModal"
+                                onclick="verDetalleVenta('${row.id}')">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </button>`;
                     }
                 }
             ],
@@ -446,22 +446,27 @@ require_once "../../partials/_footer.php";
         const pagado = row.estado_pago === 'pagado';
         const btnAmort = pagado
             ? `<button class="btn btn-success btn-sm" disabled><i class="fa-solid fa-check"></i></button>`
-            : `<button class="btn btn-warning btn-sm btn-amortizar"
+            : `<button title="Amortizacion" class="btn btn-warning btn-sm btn-amortizar"
          data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#modalAmortizar">
          <i class="fa-solid fa-dollar-sign"></i>
        </button>`;
 
         return `
-        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
         <i class="fa-solid fa-trash"></i>
         </button>
         ${btnAmort}
-        <button class="btn btn-primary btn-sm btn-detalle"
+        <button title="Detalle de la venta" class="btn btn-primary btn-sm btn-detalle"
                 data-action="detalle"
                 data-id="${row.id}"
                 data-bs-toggle="modal"
                 data-bs-target="#miModal">
-        <i class="fa-solid fa-circle-info"></i>
+            <i class="fa-solid fa-circle-info"></i>
+        </button>
+        <button title="Pdf" class="btn btn-outline-dark btn-sm btn-descargar-pdf"
+            data-id="${row.id}"
+            onclick="descargarPDF('${row.id}')">
+            <i class="fa-solid fa-file-pdf"></i>
         </button>`;
     }
     document.addEventListener("DOMContentLoaded", () => {

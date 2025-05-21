@@ -43,12 +43,15 @@ require_once "../../partials/header.php";
         <!-- Sección Cliente, Fecha y Moneda -->
         <div class="row g-2 mt-3">
           <div class="col-md-5">
-            <div class="form-floating">
+            <div class="form-floating input-group mb-3">
               <select class="form-select" id="proveedor" name="proveedor" style="color: black;" required>
                 <option selected>Selecciona proveedor</option>
                 <!-- Se llenará dinámicamente vía AJAX -->
               </select>
               <label for="proveedor"><strong>Proveedor</strong></label>
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+                <i class="fas fa-plus-square"></i>
+              </button>
             </div>
           </div>
           <div class="col-md-4">
@@ -181,9 +184,6 @@ require_once "../../partials/header.php";
         </tbody>
       </table>
       <div class="mt-4">
-        <!-- <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
-            Aceptar
-          </a> -->
         <button id="btnFinalizarCompra" type="button" class="btn btn-success text-end">Aceptar</button>
         <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
           Cancelar
@@ -191,11 +191,10 @@ require_once "../../partials/header.php";
       </div>
     </div>
   </div>
-
 </div>
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-md" style="margin-top: 60px;">
+  <div class="modal-dialog modal-md" style="margin-top: 20px;">
     <div class="modal-content" style="background-color: #fff; color: #000;">
       <div class="modal-header">
         <h5 class="modal-title">Registrar producto</h5>
@@ -302,6 +301,71 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+<!-- Modal de registrar nueva empresa / proveedor (estilo igual al primer modal) -->
+<div class="modal fade" id="modalNuevoProveedor" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md" style="margin-top: 60px;">
+    <div class="modal-content" style="background-color: #fff; color: #000;">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar Nueva Empresa / Proveedor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formEmpresa">
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" id="ruc" name="ruc" class="form-control" placeholder="RUC" minlength="11" maxlength="11" required
+                  style="background-color: white; color: black;" />
+                <label for="ruc"><strong>RUC</strong></label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" id="nomcomercial" name="nomcomercial" class="form-control" placeholder="Nombre Comercial" minlength="5" maxlength="100" required
+                  style="background-color: white; color: black;" />
+                <label for="nomcomercial"><strong>Nombre Comercial</strong></label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <input type="text" id="razonsocial" name="razonsocial" class="form-control" placeholder="Razón Social" minlength="5" maxlength="100" required
+                  style="background-color: white; color: black;" />
+                <label for="razonsocial"><strong>Razón Social</strong></label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="text" id="telempresa" name="telempresa" class="form-control" placeholder="Teléfono" minlength="9" maxlength="9"
+                  style="background-color: white; color: black;" />
+                <label for="telempresa"><strong>Teléfono</strong></label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating">
+                <input type="email" id="correoemp" name="correoemp" class="form-control" placeholder="Correo" minlength="10" maxlength="100"
+                  style="background-color: white; color: black;" />
+                <label for="correoemp"><strong>Correo</strong></label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-floating">
+                <select class="form-select" id="cempresa" name="cempresa" style="background-color: white; color: black;" required>
+                  <option value="">Seleccione una opción</option>
+                  <!-- Opciones dinámicas aquí -->
+                </select>
+                <label for="cempresa"><strong>Contactabilidad:</strong></label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="formEmpresa" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 </div>
 <?php
@@ -310,12 +374,16 @@ require_once "../../partials/_footer.php";
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+<script src="<?= SERVERURL?>views/page/clientes/js/registrar-cliente.js"></script>
 <script>
+  const modal = document.getElementById('modalNuevoProveedor');
+  modal.addEventListener('hidden.bs.modal', () => {
+    document.getElementById('formEmpresa').reset();
+  });
   // 1) Declárala UNA sola vez, arriba de todo:
   let selectedProduct = {};
   const detalleCompra = [];
 </script>
-
 <script>
   document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
     e.preventDefault();
@@ -389,7 +457,6 @@ require_once "../../partials/_footer.php";
       });
   });
 </script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const marcaSelect = document.getElementById("marca");
@@ -906,5 +973,4 @@ require_once "../../partials/_footer.php";
   });
 </script>
 </body>
-
 </html>
