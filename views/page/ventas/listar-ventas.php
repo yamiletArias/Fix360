@@ -204,6 +204,9 @@ require_once "../../partials/_footer.php";
         $("label[for='propietario']").text('');
         $("#miModal tbody").empty();
 
+          const $servBody = $("#tabla-detalle-servicios-modal tbody").empty();
+        const $servContainer = $("#serviciosContainer");
+
         fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=propietario&idventa=${idventa}`)
             .then(r => r.json())
             .then(jsonVenta => {
@@ -663,22 +666,24 @@ require_once "../../partials/_footer.php";
 
                         </tbody>
                     </table>
-                    <hr>
-                    <h6>Servicios asociados</h6>
-                    <table class="table table-striped table-bordered" id="tabla-detalle-servicios-modal">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Tipo Servicio</th>
-                                <th>Servicio</th>
-                                <th>Mecánico</th>
-                                <th>Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Aquí se llenarán con JS -->
-                        </tbody>
-                    </table>
+<div id="serviciosContainer" class="d-none">
+  <hr>
+  <h6>Servicios asociados</h6>
+  <table class="table table-striped table-bordered" id="tabla-detalle-servicios-modal">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Tipo Servicio</th>
+        <th>Servicio</th>
+        <th>Mecánico</th>
+        <th>Precio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Aquí se llenarán con JS -->
+    </tbody>
+  </table>
+</div>
                 </div>
             </div>
             <div class="modal-footer">
