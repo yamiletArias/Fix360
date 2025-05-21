@@ -1,67 +1,34 @@
 (function () {
-  // Espera a que el DOM esté listo
-  document.addEventListener("DOMContentLoaded", function () {
-    // Elementos del formulario y modales (igual que el original)
+  document.addEventListener("DOMContentLoaded", () => {
+    // ——— 1) Referencias a los selects del modal padre ———
+    const fplaca = document.getElementById("fplaca");
+    const fanio = document.getElementById("fanio");
+    const fnumserie = document.getElementById("fnumserie");
+    const fcolor = document.getElementById("fcolor");
+    const vin = document.getElementById("vin");
+    const numchasis = document.getElementById("numchasis");
     const tipovSelect = document.getElementById("tipov");
     const marcavSelect = document.getElementById("marcav");
     const modeloSelect = document.getElementById("modelo");
     const tcombustibleSelect = document.getElementById("ftcombustible");
     const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-    const formVehiculo = document.getElementById("FormVehiculo");
     const btnRegistrar = document.getElementById("btnRegistrarVehiculo");
-    const modalAsignar = document.getElementById("ModalAsignarVehiculo");
-    const modalVehiculos = document.getElementById("ModalVehiculos"); // Se necesita para el nuevo listener
+    const modalAsignarEl = document.getElementById("ModalAsignarVehiculo");
+    const modalVehiculosEl = document.getElementById("ModalVehiculos");
 
-    // Si faltan elementos clave, salimos (igual que el original)
-    if (!modalAsignar || !modalVehiculos) {
-      console.error("Error: No se encontraron los elementos de los modales requeridos.");
+    // Validar que existan
+    if (!tipovSelect || !marcavSelect || !modeloSelect) {
+      console.error("Faltan selects de marca/tipo/modelo en el DOM");
       return;
     }
 
-    // Carga inicial de selects (tipos, combustible, marcas) - SIN CAMBIOS
-    fetch("http://localhost/fix360/app/controllers/Tipov.controller.php?task=getAllTipoVehiculo")
-      .then(res => res.json())
-      .then(data => {
-        tipovSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
-        data.forEach(item => {
-          const opt = document.createElement("option");
-          opt.value = item.idtipov;
-          opt.textContent = item.tipov;
-          tipovSelect.appendChild(opt);
-        });
-      });
-
-    fetch("http://localhost/fix360/app/controllers/Tcombustible.controller.php?task=getAllTcombustible")
-      .then(res => res.json())
-      .then(data => {
-        tcombustibleSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
-        data.forEach(item => {
-          const opt = document.createElement("option");
-          opt.value = item.idtcombustible;
-          opt.textContent = item.tcombustible;
-          tcombustibleSelect.appendChild(opt);
-        });
-      });
-
-    fetch("http://localhost/fix360/app/controllers/Marca.controller.php?task=getAllMarcaVehiculo")
-      .then(res => res.json())
-      .then(data => {
-        marcavSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
-        data.forEach(item => {
-          const opt = document.createElement("option");
-          opt.value = item.idmarca;
-          opt.textContent = item.nombre;
-          marcavSelect.appendChild(opt);
-        });
-      });
-
-    // Carga de modelos al cambiar tipo o marca - SIN CAMBIOS
+    // ——— 2) Función para cargar modelos según tipo+marca ———
     function cargarModelos() {
       modeloSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
       if (!tipovSelect.value || !marcavSelect.value) return;
-      fetch(
-        `http://localhost/fix360/app/controllers/Modelo.controller.php?idtipov=${encodeURIComponent(tipovSelect.value)}&idmarca=${encodeURIComponent(marcavSelect.value)}`
-      )
+      fetch(`http://localhost/fix360/app/controllers/Modelo.controller.php?` +
+        `idtipov=${encodeURIComponent(tipovSelect.value)}` +
+        `&idmarca=${encodeURIComponent(marcavSelect.value)}`)
         .then(res => res.json())
         .then(data => {
           data.forEach(item => {
@@ -70,129 +37,245 @@
             opt.textContent = item.modelo;
             modeloSelect.appendChild(opt);
           });
-        });
+        })
+        .catch(err => console.error("Error al cargar modelos:", err));
     }
+
+    // ——— 3) Carga inicial de opciones ———
+    fetch("http://localhost/fix360/app/controllers/Tipov.controller.php?task=getAllTipoVehiculo")
+      .then(r => r.json())
+      .then(data => {
+        tipovSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
+        data.forEach(i => {
+          const o = new Option(i.tipov, i.idtipov);
+          tipovSelect.append(o);
+        });
+      });
+
+    fetch("http://localhost/fix360/app/controllers/Tcombustible.controller.php?task=getAllTcombustible")
+      .then(r => r.json())
+      .then(data => {
+        tcombustibleSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
+        data.forEach(i => {
+          const o = new Option(i.tcombustible, i.idtcombustible);
+          tcombustibleSelect.append(o);
+        });
+      });
+
+    fetch("http://localhost/fix360/app/controllers/Marca.controller.php?task=getAllMarcaVehiculo")
+      .then(r => r.json())
+      .then(data => {
+        marcavSelect.innerHTML = `<option value="">Seleccione una opción</option>`;
+        data.forEach(i => {
+          const o = new Option(i.nombre, i.idmarca);
+          marcavSelect.append(o);
+        });
+      });
+
+    // Al cambiar tipo o marca, recargar modelos:
     tipovSelect.addEventListener("change", cargarModelos);
     marcavSelect.addEventListener("change", cargarModelos);
 
-    // Asignar datos al modal de asignar vehículo - SIN CAMBIOS
-    modalAsignar.addEventListener("show.bs.modal", function (evt) {
-      const button = evt.relatedTarget;
-      hiddenIdCliente.value = button.getAttribute("data-idcliente") || "";
-      document.getElementById("floatingInput").value = button.getAttribute("data-nombrecliente") || "";
+    // ——— 4) Listener para abrir el modal de asignar ———
+    const bsModalAsignar = new bootstrap.Modal(modalAsignarEl);
+    modalAsignarEl.addEventListener("show.bs.modal", evt => {
+      const btn = evt.relatedTarget;
+      hiddenIdCliente.value = btn.dataset.idcliente || "";
+      document.getElementById("floatingInput").value = btn.dataset.nombrecliente || "";
     });
 
-    // --- Listener ÚNICO y MEJORADO para mostrar vehículos ---
-    // REEMPLAZA el bloque $("#ModalVehiculos").off().on(...) del código original.
-    modalVehiculos.addEventListener("show.bs.modal", function (evt) {
-      console.log("[DEBUG] Evento show.bs.modal para ModalVehiculos disparado."); // Log
+    // ——— 5) Modales secundarios ———
+    const btnNuevaMarca = document.getElementById("btnNuevaMarca");
+    const btnNuevoModelo = document.getElementById("btnNuevoModelo");
+    const formRegistrarMarca = document.getElementById("formRegistrarMarca");
+    const formRegistrarModelo = document.getElementById("formRegistrarModelo");
+    const inputMarcaNueva = document.getElementById("inputMarcaNueva");
+    const inputModeloNueva = document.getElementById("inputModeloNuevo");
+    const selTipoModelo = document.getElementById("inputTipoModelo");
+    const selMarcaModelo = document.getElementById("inputMarcaModelo");
 
-      const button = evt.relatedTarget; // El botón que disparó el modal
-      if (!button) {
-        console.error("Error: No se pudo determinar el botón que abrió el modal de vehículos.");
-        const tbody = modalVehiculos.querySelector("#tabla-vehiculos tbody");
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: No se pudo identificar el cliente.</td></tr>';
-        return;
-      }
+    const btnNuevoTcombustible = document.getElementById("btnNuevoTcombustible");
+    const formRegistrarTcombustible = document.getElementById("formRegistrarTcombustible");
+    const inputTcombustibleNuevo = document.getElementById("inputTcombustibleNuevo");
+    const ftcombustibleSelect = document.getElementById("ftcombustible");
+    const bsModalTcombustible = new bootstrap.Modal(document.getElementById("ModalRegistrarTcombustible"));
+    const bsModalMarca = new bootstrap.Modal(document.getElementById("ModalRegistrarMarca"));
+    const bsModalModelo = new bootstrap.Modal(document.getElementById("ModalRegistrarModelo"));
 
-      const id = button.getAttribute("data-idcliente");
-      const nombre = button.getAttribute("data-nombrecliente");
+    btnNuevoTcombustible.addEventListener("click", () => {
+      inputTcombustibleNuevo.value = "";
+      bsModalTcombustible.show();
+    });
 
-      const nombreClienteSpan = document.getElementById("nombreCliente");
-      if (nombreClienteSpan) {
-        nombreClienteSpan.textContent = nombre || 'Cliente Desconocido';
-      } else {
-        console.error("Error: Elemento con ID 'nombreCliente' no encontrado.");
-      }
-
-      if (id) {
-        console.log(`[DEBUG] Llamando a cargarTablaVehiculos con idcliente: ${id}`); // Log
-        cargarTablaVehiculos(id); // Llama a la función para cargar los datos
-      } else {
-        console.error("Error: El botón no tiene el atributo data-idcliente.");
-        const tbody = modalVehiculos.querySelector("#tabla-vehiculos tbody");
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: Falta el ID del cliente.</td></tr>';
+    // 5.1 Abrir modal de nueva marca
+    btnNuevaMarca.addEventListener("click", () => {
+      inputMarcaNueva.value = "";
+      bsModalMarca.show();
+    });
+    formRegistrarMarca.addEventListener("submit", async e => {
+      e.preventDefault();
+      const nombre = inputMarcaNueva.value.trim();
+      if (!nombre) return;
+      try {
+        const res = await fetch("http://localhost/fix360/app/controllers/Marca.controller.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task: "registerMarcaVehiculo", nombre })
+        });
+        const j = await res.json();
+        if (j.success) {
+          const o = new Option(nombre, j.idmarca);
+          marcavSelect.append(o);
+          marcavSelect.value = j.idmarca;
+          cargarModelos();
+          bsModalMarca.hide();
+        } else {
+          alert("Error al crear marca");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error de red");
       }
     });
 
-    // --- Función MEJORADA para poblar la tabla de vehículos ---
-    // REEMPLAZA la función cargarTablaVehiculos original.
+    // Cuando se abra el modal de Marca, enfoca el campo de texto
+document.getElementById("ModalRegistrarMarca")
+  .addEventListener("shown.bs.modal", () => {
+    document.getElementById("inputMarcaNueva").focus();
+  });
+
+// Cuando se abra el modal de Modelo, enfoca el campo de modelo
+document.getElementById("ModalRegistrarModelo")
+  .addEventListener("shown.bs.modal", () => {
+    document.getElementById("inputModeloNuevo").focus();
+  });
+
+// Cuando se abra el modal de Tipo de Combustible, enfoca ese input
+document.getElementById("ModalRegistrarTcombustible")
+  .addEventListener("shown.bs.modal", () => {
+    document.getElementById("inputTcombustibleNuevo").focus();
+  });
+
+    
+
+    // 5.2 Abrir modal de nuevo modelo
+    btnNuevoModelo.addEventListener("click", () => {
+      // Precargar y deshabilitar selects en el modal de modelo
+      selTipoModelo.innerHTML = `<option>${tipovSelect.selectedOptions[0]?.text || ""}</option>`;
+      selMarcaModelo.innerHTML = `<option>${marcavSelect.selectedOptions[0]?.text || ""}</option>`;
+      selTipoModelo.disabled = true;
+      selMarcaModelo.disabled = true;
+      inputModeloNueva.value = "";
+      bsModalModelo.show();
+    });
+
+    formRegistrarTcombustible.addEventListener("submit", async e => {
+  e.preventDefault();
+  const texto = inputTcombustibleNuevo.value.trim();
+  if (!texto) return;
+
+  try {
+    const res = await fetch("http://localhost/fix360/app/controllers/Tcombustible.controller.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tcombustible: texto })
+    });
+    const j = await res.json();
+    if (j.success) {
+      // Añade la nueva opción al select
+      const opt = new Option(texto, j.idtcombustible);
+      ftcombustibleSelect.append(opt);
+      ftcombustibleSelect.value = j.idtcombustible;
+      bsModalTcombustible.hide();
+    } else {
+      alert("No se pudo crear el tipo de combustible");
+    }
+  } catch (err) {
+    console.error("Error al crear combustible:", err);
+    alert("Error de red");
+  }
+});
+    formRegistrarModelo.addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const modelo = inputModeloNueva.value.trim();
+      const idtipov = tipovSelect.value;
+      const idmarca = marcavSelect.value;
+      if (!modelo) return;
+      try {
+        const res = await fetch("http://localhost/fix360/app/controllers/Modelo.controller.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idtipov, idmarca, modelo })
+        });
+        const j = await res.json();
+        if (j.success) {
+          const o = new Option(modelo, j.idmodelo);
+          modeloSelect.append(o);
+          modeloSelect.value = j.idmodelo;
+          bsModalModelo.hide();
+        } else {
+          alert("Error al crear modelo");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error de red al crear modelo");
+      }
+    });
+
+    // ——— 6) Listener para mostrar vehiculos ———
+    const bsModalVehiculos = new bootstrap.Modal(modalVehiculosEl);
+    modalVehiculosEl.addEventListener("show.bs.modal", evt => {
+      const btn = evt.relatedTarget;
+      const id = btn.dataset.idcliente;
+      const nom = btn.dataset.nombrecliente;
+      document.getElementById("nombreCliente").textContent = nom;
+      cargarTablaVehiculos(id);
+    });
     function cargarTablaVehiculos(idcliente) {
-      console.log(`[DEBUG] Dentro de cargarTablaVehiculos, iniciando fetch para id: ${idcliente}`); // Log
-      const tbody = document.querySelector("#tabla-vehiculos tbody");
-      if (!tbody) {
-        console.error("Error: Elemento tbody de #tabla-vehiculos no encontrado.");
-        return;
-      }
-
-      // Mostrar estado de carga
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando vehículos...</td></tr>'; // Puedes añadir un icono si quieres
-
-      fetch(
-        `http://localhost/fix360/app/controllers/Vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(idcliente)}`
-      )
-        .then(res => {
-          if (!res.ok) {
-            // Si la respuesta no es exitosa (ej. 404, 500), lanza un error
-            throw new Error(`Error HTTP ${res.status} - ${res.statusText}`);
-          }
-          // Verificar si el Content-Type es JSON antes de intentar parsear
-          const contentType = res.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            throw new Error(`Respuesta inesperada del servidor: Se esperaba JSON pero se recibió ${contentType}`);
-          }
-          return res.json(); // Intenta parsear la respuesta como JSON
-        })
+      const tbody = modalVehiculosEl.querySelector("tbody");
+      tbody.innerHTML = `<tr><td colspan="6">Cargando...</td></tr>`;
+      fetch(`http://localhost/fix360/app/controllers/Vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${idcliente}`)
+        .then(r => r.json())
         .then(data => {
-          tbody.innerHTML = ""; // Limpiar la tabla (quita el mensaje de carga)
-
-          if (data && Array.isArray(data) && data.length > 0) {
-            data.forEach((item, i) => {
+          tbody.innerHTML = "";
+          if (Array.isArray(data) && data.length) {
+            data.forEach((it, i) => {
               const tr = document.createElement("tr");
-              // Usar 'N/A' o similar si un campo viene vacío o null
-              tr.innerHTML = `
-              <td>${i + 1}</td>
-              <td>${item.tipov || 'N/A'}</td>
-              <td>${item.nombre || 'N/A'}</td>
-              <td>${item.modelo || 'N/A'}</td>
-              <td>${item.placa || 'N/A'}</td>
-              <td>${item.color || 'N/A'}</td>
-            `;
-              tbody.appendChild(tr);
+              tr.innerHTML = `<td>${i + 1}</td>
+                              <td>${it.tipov || "N/A"}</td>
+                              <td>${it.nombre || "N/A"}</td>
+                              <td>${it.modelo || "N/A"}</td>
+                              <td>${it.placa || "N/A"}</td>
+                              <td>${it.color || "N/A"}</td>`;
+              tbody.append(tr);
             });
-          } else if (data && !Array.isArray(data)) {
-            // Si la respuesta es JSON pero no un array (podría ser un objeto de error del backend)
-            console.warn("Se recibió una respuesta JSON pero no era un array:", data);
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Respuesta inesperada del servidor.</td></tr>';
-          }
-          else {
-            // Si no hay datos o la respuesta no es un array válido
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron vehículos asignados a este cliente.</td></tr>';
+          } else {
+            tbody.innerHTML = `<tr><td colspan="6">No hay vehículos.</td></tr>`;
           }
         })
-        .catch(error => {
-          // Captura errores de red o errores lanzados en .then()
-          console.error("Error al cargar los vehículos:", error);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar los vehículos: ${error.message}.</td></tr>`;
+        .catch(e => {
+          console.error(e);
+          tbody.innerHTML = `<tr><td colspan="6" class="text-danger">Error al cargar.</td></tr>`;
         });
     }
 
     // Envío del formulario al hacer click en "Guardar" - SIN CAMBIOS
-btnRegistrar.addEventListener("click", async e => {
+    btnRegistrar.addEventListener("click", async e => {
       e.preventDefault();
       if (!confirm("¿Estás seguro de que quieres asignar este vehículo?")) return;
 
       const payload = {
-        task:           "registerVehiculo",
-        idmodelo:       modeloSelect.value,
+        task: "registerVehiculo",
+        idmodelo: modeloSelect.value,
         idtcombustible: tcombustibleSelect.value,
-        placa:          fplaca.value.trim().toUpperCase(),
-        anio:           fanio.value.trim(),
-        numserie:       fnumserie.value.trim(),
-        color:          fcolor.value.trim(),
-        vin:            vin.value.trim(),
-        numchasis:      numchasis.value.trim(),
-        idcliente:      hiddenIdCliente.value
+        placa: fplaca.value.trim().toUpperCase(),
+        anio: fanio.value.trim(),
+        numserie: fnumserie.value.trim(),
+        color: fcolor.value.trim(),
+        vin: vin.value.trim(),
+        numchasis: numchasis.value.trim(),
+        idcliente: hiddenIdCliente.value
       };
       console.log("🛰 Enviando payload:", payload);
 
@@ -200,9 +283,9 @@ btnRegistrar.addEventListener("click", async e => {
         const res = await fetch(
           "http://localhost/fix360/app/controllers/Vehiculo.controller.php",
           {
-            method:  "POST",
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify(payload)
+            body: JSON.stringify(payload)
           }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
@@ -211,7 +294,7 @@ btnRegistrar.addEventListener("click", async e => {
 
         if (resp.rows > 0) {
           // cerrar modal
-          const btnCerrar = modalAsignar.querySelector('button[data-bs-dismiss="modal"]');
+          const btnCerrar = modalAsignarEl.querySelector('button[data-bs-dismiss="modal"]');
           if (btnCerrar) btnCerrar.click();
           alert("Vehículo asignado exitosamente.");
         } else {
@@ -225,3 +308,4 @@ btnRegistrar.addEventListener("click", async e => {
 
   });  // cierra DOMContentLoaded
 })();  // cierra IIFE
+

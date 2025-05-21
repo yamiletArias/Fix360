@@ -573,3 +573,4 @@ END$$
 DELIMITER ;
 
 -- select * from ordenservicios;
+-- select * from tipocombustibles

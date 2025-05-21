@@ -51,5 +51,20 @@ class Marca extends Conexion {
     return $result;
 
   }
-
+  
+  public function registerMarcaVehiculo($params = []):int {
+    $numRows = 0;
+    try {
+      $sql = "CALL spRegisterMarcaVehiculo(?)";
+        $cmd = $this->pdo->prepare($sql);
+        $cmd->execute([
+          $params['nombre']
+        ]);
+        $row = $cmd->fetch(PDO::FETCH_ASSOC);
+        return isset($row['idmarca']) ? (int)$row['idmarca'] : 0;
+    } catch (PDOException $e) {
+        error_log("Error DB: " . $e->getMessage());
+        return 0;
+    }
+}
 }

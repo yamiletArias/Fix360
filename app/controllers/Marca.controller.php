@@ -17,7 +17,16 @@ if (isset($_SERVER['REQUEST_METHOD'])){
             break;
         
         case 'POST':
-            
-            break;
+    // recibes un JSON { "nombre": "Fiat" }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!empty($data['nombre'])) {
+        $newId = $marca->registerMarcaVehiculo($data);
+        echo json_encode(['success' => $newId > 0, 'idmarca' => $newId]);
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Falta nombre']);
+    }
+    break;
+
     }
 }

@@ -28,5 +28,27 @@ class Modelo extends Conexion {
     return $result;
   }
 
+  public function registerModelo(array $params): int {
+    try {
+        // Llamamos al SP que devuelve SELECT LAST_INSERT_ID()
+        $sql = "CALL spRegisterModelo(?, ?, ?)";
+        $cmd = $this->conexion->prepare($sql);
+        $cmd->execute([
+            $params['idtipov'],
+            $params['idmarca'],
+            $params['modelo']     // el nombre del modelo, no 'idvehiculo'
+        ]);
+        // Leemos la fila con ['idmodelo']
+        $row = $cmd->fetch(PDO::FETCH_ASSOC);
+        return isset($row['idmodelo'])
+             ? (int)$row['idmodelo']
+             : 0;
+    } catch (\PDOException $e) {
+        error_log("Error DB en registerModelo: " . $e->getMessage());
+        return 0;
+    }
+}
+
+
   
 }

@@ -185,13 +185,16 @@ require_once "../../partials/header.php";
             <div class="card-body">
               <div class="row">
 
-                <div class="col-md-4 ">
-                  <div class="form-floating">
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating input-group">
                     <select class="form-select input" id="marcav" name="marcav" style="color: black;" required>
                       <option value="">Seleccione una opcion</option>
 
                     </select>
                     <label for="marcav"><strong> Marca del vehiculo:</strong></label>
+                    <button class="btn btn-sm btn-success" id="btnNuevaMarca" type="button">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>
                   </div>
                 </div>
 
@@ -205,11 +208,14 @@ require_once "../../partials/header.php";
                 </div>
 
                 <div class="col-md-4 mb-3">
-                  <div class="form-floating">
+                  <div class="form-floating input-group">
                     <select class="form-select" id="modelo" name="modelo" style="color: black;" required>
                       <option value="">Seleccione una opcion</option>
                     </select>
                     <label for="modelo"><strong> Modelo del vehiculo:</strong></label>
+                    <button class="btn btn-sm btn-success" id="btnNuevoModelo" type="button">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>
                   </div>
                 </div>
 
@@ -244,9 +250,12 @@ require_once "../../partials/header.php";
                 </div>
 
                 <div class="col-md-2 mb-3">
-                  <div class="form-floating">
+                  <div class="form-floating input-group">
                     <select class="form-select" id="ftcombustible" style="color: black;">
                     </select>
+                    <button class="btn btn-sm btn-success" id="btnNuevoTcombustible" type="button">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>
                     <label for="ftcombustible"><strong> Tipo de combustible:</strong></label>
                   </div>
                 </div>
@@ -282,8 +291,8 @@ require_once "../../partials/header.php";
 
       <!-- Pie del Modal -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" id="btnRegistrarVehiculo">Guardar</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btnRegistrarVehiculo">Guardar</button>
       </div>
 
     </div>
@@ -320,6 +329,92 @@ require_once "../../partials/header.php";
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para registrar nueva Marca de Vehículo -->
+<div class="modal fade" id="ModalRegistrarMarca" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formRegistrarMarca">
+        <div class="modal-header">
+          <h5 class="modal-title">Nueva Marca de Vehículo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-floating mb-3">
+            <input type="text" id="inputMarcaNueva" class="form-control input" placeholder="marca" style="background-color: white;" required>
+            <label for="inputMarcaNueva" class="form-label input"><strong>Marca</strong></label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-primary">Guardar </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para registrar nuevo tipo de combustible -->
+<div class="modal fade" id="ModalRegistrarTcombustible" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formRegistrarTcombustible">
+        <div class="modal-header">
+          <h5 class="modal-title">Nuevo Tipo de Combustible</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-floating mb-3">
+            <input type="text"
+                   id="inputTcombustibleNuevo"
+                   class="form-control input"
+                   placeholder="tipo de combustible"
+                   style="background-color: white;"
+                   required>
+            <label for="inputTcombustibleNuevo">Tipo de combustible</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal para registrar nuevo Modelo de Vehículo -->
+<div class="modal fade" id="ModalRegistrarModelo" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formRegistrarModelo">
+        <div class="modal-header">
+          <h5 class="modal-title">Nuevo Modelo de Vehículo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-floating mb-3">
+            <select id="inputTipoModelo" class="form-select input" aria-placeholder="ss" style="color:black;" disabled></select>
+            <label class="form-label">Tipo de Vehículo:</label>
+          </div>
+          <div class="form-floating mb-3">
+            <select id="inputMarcaModelo" class="form-select input" style="color:black;" disabled></select>
+            <label class="form-label">Marca de Vehículo:</label>
+          </div>
+          <div class="form-floating mb-3">
+            <input type="text" id="inputModeloNuevo" class="form-control input" placeholder="modelo" style="background-color: white;color:black;" required>
+            <label for="inputModeloNuevo" class="form-label">Nombre del Modelo</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -550,10 +645,7 @@ require_once "../../partials/_footer.php";
 
 <!--script src="<?= SERVERURL ?>views/page/clientes/js/asignar-vehiculo.js"></!--script-->
 
-<script
-  src="<?= rtrim(SERVERURL, '/') ?>/views/page/clientes/js/asignar-vehiculo.js?v=<?= time() ?>"
-  defer
-></script>
+<script src="<?= rtrim(SERVERURL, '/') ?>/views/page/clientes/js/asignar-vehiculo.js?v=<?= time() ?>" defer></script>
 </body>
 
 </html>

@@ -23,4 +23,21 @@ class Tcombustible extends Conexion {
 
         return $result;
     }
+
+    public function registerTcombustible($params = []):int {
+        $numRows = 0;
+        try {
+            $sql = "CALL spRegisterTcombustible(?)";
+             $cmd = $this->conexion->prepare($sql);
+             $cmd->execute([
+                $params['tcombustible']
+             ]);
+             $row = $cmd->fetch(PDO::FETCH_ASSOC);
+             return isset($row['idtcombustible']) ? (int)$row['idtcombustible'] : 0;
+        } catch (PDOException $e) {
+        error_log("Error DB: " . $e->getMessage());
+        return 0;
+    }
+
+    }
 }

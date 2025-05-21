@@ -93,17 +93,20 @@ require_once "../../partials/header.php";
                   </div>
                 </div>
 
-                <div class="col-md-4 form-floating  input-group mb-3">
-              <input type="text" disabled class="form-control input" id="propietario"
-                placeholder="Propietario" />
-              <label for="propietario">Propietario</label>
-              <!-- En tu formulario principal -->
-              <input type="hidden" id="hiddenIdPropietario" name="idpropietario">
-              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
-                data-bs-target="#miModal">
-                ...
-              </button>
-            </div>
+                <div class="col-md-4 mb-3">
+                  <div class="form-floating input-group">
+
+                    <input type="text" disabled class="form-control input" id="propietario"
+                    placeholder="Propietario" />
+                    <label for="propietario">Propietario</label>
+                    <!-- En tu formulario principal -->
+                    <input type="hidden" id="hiddenIdPropietario" name="idpropietario">
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#miModal">
+                    ...
+                  </button>
+                </div>
+              </div>
 
               </div>
             </div>

@@ -86,37 +86,51 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
             // --- Bloque de inserción (add) ---
             $registro = [
-                "idsubcategoria" => intval($_POST["subcategoria"] ?? 0),
-                "idmarca"        => intval($_POST["idmarca"]      ?? 0),
-                "descripcion"    => Helper::limpiarCadena($_POST["descripcion"] ?? ''),
-                "precio"         => floatval($_POST["precio"]     ?? 0),
-                "presentacion"   => Helper::limpiarCadena($_POST["presentacion"] ?? ''),
-                "undmedida"      => Helper::limpiarCadena($_POST["undmedida"]    ?? ''),
-                "cantidad"       => floatval($_POST["cantidad"]   ?? 0),
-                "img"            => "",
-                "stockInicial"   => intval($_POST["stockInicial"] ?? 0),
-                "stockmin"       => intval($_POST["stockmin"]     ?? 0),
-                "stockmax"       => intval($_POST["stockmax"]     ?? 0),
-            ];
-            if ($registro['stockmin'] < 0 || $registro['stockmax'] < $registro['stockmin']) {
-                echo json_encode(['error' => 'El stock mínimo debe ser ≥ 0 y el máximo ≥ mínimo']);
-                exit;
-            }
+    "idsubcategoria" => intval($_POST["subcategoria"] ?? 0),
+    "idmarca"        => intval($_POST["idmarca"]      ?? 0),
+    "descripcion"    => Helper::limpiarCadena($_POST["descripcion"] ?? ''),
+    "precio"         => floatval($_POST["precio"]     ?? 0),
+    "presentacion"   => Helper::limpiarCadena($_POST["presentacion"] ?? ''),
+    "undmedida"      => Helper::limpiarCadena($_POST["undmedida"]    ?? ''),
+    "cantidad"       => floatval($_POST["cantidad"]   ?? 0),
+    "img"            => "",     // aquí pondremos la ruta si se sube
+    "stockInicial"   => intval($_POST["stockInicial"] ?? 0),
+    "stockmin"       => intval($_POST["stockmin"]     ?? 0),
+    "stockmax"       => intval($_POST["stockmax"]     ?? 0),
+];
 
-            // (Aquí iría la misma lógica de mover el archivo $_FILES['img'], si se envía)
-            // ...
+// validaciones...
+if ($registro['stockmin'] < 0 || $registro['stockmax'] < $registro['stockmin']) {
+    echo json_encode(['error' => 'El stock mínimo debe ser ≥ 0 y el máximo ≥ mínimo']);
+    exit;
+}
 
-            $newId = $producto->add($registro);
-            if ($newId > 0) {
-                echo json_encode([
-                    "success"    => "Producto registrado",
-                    "rows"       => 1,
-                    "idproducto" => $newId
-                ]);
-            } else {
-                echo json_encode(["error" => "No se pudo registrar el producto"]);
-            }
-            break;
+// *** Aquí agregamos el manejo de la imagen ***
+if (!empty($_FILES['img']['name']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
+    $ext = pathinfo($_FILES['img']['name'], PATHINFO_EXTENSION);
+    $nuevoNombre = 'prod_' . time() . '.' . $ext;
+    $destino = __DIR__ . '/../../images/' . $nuevoNombre;
+    if (move_uploaded_file($_FILES['img']['tmp_name'], $destino)) {
+        $registro['img'] = 'images/' . $nuevoNombre;
+    } else {
+        echo json_encode(['status'=>'error','message'=>'No se pudo subir la imagen']);
+        exit;
+    }
+}
+
+// Insertar en BD
+$newId = $producto->add($registro);
+if ($newId > 0) {
+  echo json_encode([
+    "success"    => "Producto registrado",
+    "rows"       => 1,
+    "idproducto" => $newId
+  ]);
+} else {
+  echo json_encode(["error" => "No se pudo registrar el producto"]);
+}
+exit;
+
 
         default:
             http_response_code(405);
