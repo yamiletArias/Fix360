@@ -6,16 +6,15 @@ require_once "../../partials/header.php";
 ?>
 <div class="container-main mt-5">
   <div class="card border">
-    <!-- <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div></div>
+      <!-- Botón a la derecha -->
       <div>
-        <h3 class="mb-0">Complete los datos</h3>
-      </div>
-      <div>
-        <a href="listar-compras.php" class="btn btn-success">
+        <a href="listar-compras.php" class="btn btn-sm btn-success">
           Mostrar Lista
         </a>
       </div>
-    </div> -->
+    </div>
     <div class="card-body">
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
@@ -196,7 +195,7 @@ require_once "../../partials/header.php";
 </div>
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-md" style="margin-top: 60px;">
+  <div class="modal-dialog modal-md" style="margin-top: 20px;">
     <div class="modal-content" style="background-color: #fff; color: #000;">
       <div class="modal-header">
         <h5 class="modal-title">Registrar producto</h5>
@@ -355,10 +354,12 @@ require_once "../../partials/_footer.php";
           document.getElementById("preciocompra").value = selectedProduct.precio;
 
           // 1) captura la cantidad ingresada en el modal:
-          const modalCantidad = document.getElementById("cantidad").value;
+          const modalCantidad = document.getElementById("stockInicial").value;
 
           // 2) asígnala al campo stock del formulario principal:
           document.getElementById("stock").value = modalCantidad;
+
+          selectedProduct.stock = parseInt(modalCantidad, 10);
 
           // Cerrar el modal correctamente.
           const modalEl = document.getElementById('miModal');
@@ -438,7 +439,6 @@ require_once "../../partials/_footer.php";
     categoriaSelect.addEventListener("change", cargarSubcategorias);
   });
 </script>
-
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
@@ -507,9 +507,9 @@ require_once "../../partials/_footer.php";
       }
       return duplicado;
     }
-
     // Manejador del botón "Agregar" para añadir producto al detalle de compra
     agregarProductoBtn.addEventListener("click", function () {
+      const idp = selectedProduct.idproducto;
       const nomProducto = inputProductElement.value.trim();
       const precioProducto = parseFloat(inputPrecio.value);
       const cantidadProducto = parseFloat(inputCantidad.value);
@@ -525,12 +525,21 @@ require_once "../../partials/_footer.php";
       // 2) Descuento ≤ precio unitario
       if (descuentoProducto > precioProducto) {
         alert("El descuento unitario no puede ser mayor que el precio unitario.");
-        return resetCamposProducto();
+        document.getElementById("descuento").value = "";
+        return;
       }
       // 3) No duplicar
       if (estaDuplicado(selectedProduct.idproducto)) {
         alert("Este producto ya ha sido agregado.");
         return resetCamposProducto();
+      }
+      const stockDisponible = selectedProduct.stock || 0;
+      if (cantidadProducto > stockDisponible) {
+        alert(
+          `No puedes pedir ${cantidadProducto} unidades; solo hay ${stockDisponible} en stock.`
+        );
+        inputCantidad.value = stockDisponible || 1;
+        return;
       }
 
       // 4) Cálculo de importe unitario descontado y total
@@ -549,7 +558,9 @@ require_once "../../partials/_footer.php";
             <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
             <input type="number"
                   class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                  value="${cantidadProducto}" min="1">
+                  value="${cantidadProducto}"
+                  min="1"
+                  max="${stockDisponible}">
             <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
           </div>
         </td>
@@ -720,8 +731,10 @@ require_once "../../partials/_footer.php";
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
-                precio: producto.precio
+                precio: producto.precio,
+                stock: producto.stock
               };
+              inputStock.value = selectedProduct.stock;
               cerrarListas();
             });
             itemsDiv.appendChild(optionDiv);

@@ -14,7 +14,18 @@ class Venta extends Conexion
     {
         return $this->pdo;
     }
-
+    public function getPropietarioById(int $idventa): ?array
+    {
+        try {
+            $sql = "SELECT propietario FROM vs_ventas WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$idventa]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (PDOException $e) {
+            throw new Exception("Error al obtener propietario: " . $e->getMessage());
+        }
+    }
 
     public function getAll(): array
     {
@@ -328,7 +339,6 @@ class Venta extends Conexion
             throw $e;
         }
     }
-
 
 }
 ?>

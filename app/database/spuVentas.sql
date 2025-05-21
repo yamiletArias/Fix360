@@ -56,7 +56,7 @@ BEGIN
     SET v_idorden = LAST_INSERT_ID();
   END IF;
 
-  -- 2) Inserta venta (sin idpropietario)
+  -- 2) Inserta venta
   INSERT INTO ventas (
     idcliente,
     idpropietario,

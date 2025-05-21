@@ -154,7 +154,7 @@ require_once "../../partials/_footer.php";
                         <i class="fa-solid fa-circle-info"></i>
                     </button>
                     <button class="btn btn-success btn-sm"
-                            onclick="window.location='../ventas/registrar-ventas.php?id=${row.id}'">
+                            onclick="window.location='../ventas/registrar-ventas-orden.php?id=${row.id}'">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     </button>`
                 }
@@ -168,7 +168,6 @@ require_once "../../partials/_footer.php";
             }
         });
     }
-
     document.addEventListener('DOMContentLoaded', () => {
         // inicializa hoy
         const hoy = new Date().toISOString().slice(0, 10);

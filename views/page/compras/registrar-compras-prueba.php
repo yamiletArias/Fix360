@@ -4,19 +4,17 @@ require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
-
 <div class="container-main mt-5">
   <div class="card border">
-    <!-- <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div></div>
+      <!-- Botón a la derecha -->
       <div>
-        <h3 class="mb-0">Complete los datos</h3>
-      </div>
-      <div>
-        <a href="listar-compras.php" class="btn btn-success">
+        <a href="listar-compras.php" class="btn btn-sm btn-success">
           Mostrar Lista
         </a>
       </div>
-    </div> -->
+    </div>
     <div class="card-body">
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
@@ -122,74 +120,78 @@ require_once "../../partials/header.php";
 
   <!-- seccion de detalles de la compra -->
 
-  <div class="container-main-2 mt-4">
-    <div class="card border">
-      <div class="card-body p-3">
-        <table class="table table-striped table-sm mb-0" id="tabla-detalle-compra">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>Precio</th>
-              <th>Cantidad</th>
-              <th>Dsct</th>
-              <th>Importe</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- se agregan los detalles del producto -->
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer text-end">
-        <table class="tabla table-sm">
-          <colgroup>
-            <col style="width: 10%;">
-            <col style="width: 60%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 10%;">
-            <col style="width: 5%;">
-          </colgroup>
-          <tbody>
-            <tr>
-              <td colspan="4" class="text-end">NETO</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">DSCT</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">IGV</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="4" class="text-end">Importe</td>
-              <td>
-                <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="mt-4">
-          <a href="" type="button" class="btn input btn-success" id="btnFinalizarCompra">
-            Guardar
-          </a>
-          <a href="" type="reset" class="btn input btn-secondary" id="btnCancelarCompra">
-            Cancelar
-          </a>
-        </div>
+  <div class="card mt-2 border">
+    <!-- <div class="card border"> -->
+    <div class="card-body">
+      <table class="table table-striped table-sm" id="tabla-detalle-compra">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Dsct</th>
+            <th>Importe</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se agregarán los detalles de los productos -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card mt-2 border">
+    <div class="card-footer text-end">
+      <table class="tabla table-sm">
+        <colgroup>
+          <col style="width: 10%;">
+          <col style="width: 60%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 10%;">
+          <col style="width: 5%;">
+        </colgroup>
+        <tbody>
+          <tr>
+            <td colspan="4" class="text-end">NETO</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="neto" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">DSCT</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="totalDescuento" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">IGV</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="igv" readonly>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-end">Importe</td>
+            <td>
+              <input type="text" class="form-control input form-control-sm text-end" id="total" readonly>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-4">
+        <!-- <a href="" type="button" class="btn input btn-success" id="btnFinalizarVenta">
+            Aceptar
+          </a> -->
+        <button id="btnFinalizarCompra" type="button" class="btn btn-success text-end">Aceptar</button>
+        <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
+          Cancelar
+        </a>
       </div>
     </div>
   </div>
+
 </div>
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
@@ -257,11 +259,32 @@ require_once "../../partials/header.php";
                 <label for="undmedida">Und. Medida:</label>
               </div>
             </div>
-            <div class="col-12">
+            <div class="col-6">
               <div class="form-floating">
                 <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
                   style="background-color: white; color: black;" />
                 <label for="precio">Precio:</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating ">
+                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial"
+                  placeholder="stockInicial" min="0" />
+                <label for="stockInicial">Stock Actual</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating ">
+                <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin"
+                  placeholder="stockmin" min="0" />
+                <label for="stockmin">Stock min.</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-floating ">
+                <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax"
+                  placeholder="stockmax" min="0" />
+                <label for="stockmax">Stock max.</label>
               </div>
             </div>
             <div class="col-12">
@@ -279,13 +302,14 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
-
 </div>
 </div>
-</body>
-
-</html>
-
+<?php
+require_once "../../partials/_footer.php";
+?>
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+<!-- js de carga moneda -->
+<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script>
   // 1) Declárala UNA sola vez, arriba de todo:
   let selectedProduct = {};
@@ -330,10 +354,12 @@ require_once "../../partials/header.php";
           document.getElementById("preciocompra").value = selectedProduct.precio;
 
           // 1) captura la cantidad ingresada en el modal:
-          const modalCantidad = document.getElementById("cantidad").value;
+          const modalCantidad = document.getElementById("stockInicial").value;
 
           // 2) asígnala al campo stock del formulario principal:
           document.getElementById("stock").value = modalCantidad;
+
+          selectedProduct.stock = parseInt(modalCantidad, 10);
 
           // Cerrar el modal correctamente.
           const modalEl = document.getElementById('miModal');
@@ -413,9 +439,7 @@ require_once "../../partials/header.php";
     categoriaSelect.addEventListener("change", cargarSubcategorias);
   });
 </script>
-
 <script>
-
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     const proveedorSelect = document.getElementById('proveedor');
@@ -428,7 +452,6 @@ require_once "../../partials/header.php";
     const agregarProductoBtn = document.querySelector("#agregarProducto");
     const tabla = document.querySelector("#tabla-detalle-compra tbody");
     const btnFinalizarCompra = document.getElementById('btnFinalizarCompra');
-
     // Nuevos elementos de input para los detalles del producto
     const inputStock = document.getElementById("stock");
     const inputPrecio = document.getElementById("preciocompra");
@@ -446,32 +469,32 @@ require_once "../../partials/header.php";
       el.min = fmt(twoAgo);
       el.max = fmt(today);
     }
-
     initDateField('fechaIngreso');
     const fechaInput = document.getElementById("fechaIngreso");
-
+    // --- Funciones auxiliares ---
     function calcularTotales() {
       let totalImporte = 0;
       let totalDescuento = 0;
-
-      document.querySelectorAll("#tabla-detalle-compra tbody tr").forEach(fila => {
-        const cantidad = parseFloat(fila.children[3].textContent) || 0;
-        const descUnit = parseFloat(fila.children[4].textContent) || 0;
-        const subtotal = parseFloat(fila.children[5].textContent) || 0;
-
-        totalImporte += subtotal;
-        totalDescuento += descUnit * cantidad;  // descuento_unitario × cantidad
+      tabla.querySelectorAll("tr").forEach(fila => {
+        // 1) cantidad desde el input de la celda
+        const cantidadLinea = parseFloat(fila.querySelector('.cantidad-input').value) || 0;
+        // 2) precio y descuento unitario de las celdas
+        const precioUnitario = parseFloat(fila.children[2].textContent) || 0;
+        const descUnitario = parseFloat(fila.children[4].textContent) || 0;
+        // 3) neto y acumulados
+        const importeLinea = (precioUnitario - descUnitario) * cantidadLinea;
+        totalImporte += importeLinea;
+        totalDescuento += descUnitario * cantidadLinea;
       });
-
+      // 4) IGV 18% y neto
       const igv = totalImporte - (totalImporte / 1.18);
       const neto = totalImporte / 1.18;
-
-      document.getElementById("total").value = totalImporte.toFixed(2);
+      // 5) resultado a inputs
+      document.getElementById("neto").value = neto.toFixed(2);
       document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
       document.getElementById("igv").value = igv.toFixed(2);
-      document.getElementById("neto").value = neto.toFixed(2);
+      document.getElementById("total").value = totalImporte.toFixed(2);
     }
-
     // Función para evitar duplicados en productos
     function estaDuplicado(idproducto = 0) {
       let duplicado = false;
@@ -484,129 +507,134 @@ require_once "../../partials/header.php";
       }
       return duplicado;
     }
-
     // Manejador del botón "Agregar" para añadir producto al detalle de compra
-    agregarProductoBtn.addEventListener("click", () => {
-  const idp = selectedProduct.idproducto;
-  const nomProducto = inputProductElement.value.trim();
-  const precioProducto = parseFloat(inputPrecio.value);
-  const cantidadProducto = parseFloat(inputCantidad.value);
-  
-  // Si no hay descuento, poner 0
-  if (inputDescuento.value.trim() === "") inputDescuento.value = "0";
-  const descuentoProducto = parseFloat(inputDescuento.value);
+    agregarProductoBtn.addEventListener("click", function () {
+      const idp = selectedProduct.idproducto;
+      const nomProducto = inputProductElement.value.trim();
+      const precioProducto = parseFloat(inputPrecio.value);
+      const cantidadProducto = parseFloat(inputCantidad.value);
+      if (inputDescuento.value.trim() === "") {
+        inputDescuento.value = "0";
+      }
+      const descuentoProducto = parseFloat(inputDescuento.value) || 0;
 
-  // Validaciones básicas
-  if (!idp || nomProducto !== selectedProduct.subcategoria_producto) {
-    alert("Ese producto no existe. Elige uno de la lista.");
-    return resetCamposProducto();
-  }
-  if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
-    alert("Por favor, complete todos los campos correctamente.");
-    return resetCamposProducto();
-  }
+      // 1) Campos completos
+      if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
+        return alert("Por favor, complete todos los campos correctamente.");
+      }
+      // 2) Descuento ≤ precio unitario
+      if (descuentoProducto > precioProducto) {
+        alert("El descuento unitario no puede ser mayor que el precio unitario.");
+        document.getElementById("descuento").value = "";
+        return;
+      }
+      // 3) No duplicar
+      if (estaDuplicado(selectedProduct.idproducto)) {
+        alert("Este producto ya ha sido agregado.");
+        return resetCamposProducto();
+      }
+      const stockDisponible = selectedProduct.stock || 0;
+      if (cantidadProducto > stockDisponible) {
+        alert(
+          `No puedes pedir ${cantidadProducto} unidades; solo hay ${stockDisponible} en stock.`
+        );
+        inputCantidad.value = stockDisponible || 1;
+        return;
+      }
 
-  const stockDisponible = selectedProduct.stock || 0;
-  if (cantidadProducto > stockDisponible) {
-    alert(`No puedes pedir ${cantidadProducto} unidades; solo hay ${stockDisponible} en stock.`);
-    return resetCamposProducto();
-  }
+      // 4) Cálculo de importe unitario descontado y total
+      const netoUnit = precioProducto - descuentoProducto;
+      const importeTotal = netoUnit * cantidadProducto;
 
-  if (descuentoProducto > precioProducto) {
-    alert("El descuento unitario no puede ser mayor que el precio unitario.");
-    return resetCamposProducto();
-  }
+      // 5) Crear fila mostrando descuento unitario
+      const nuevaFila = document.createElement("tr");
+      nuevaFila.dataset.idproducto = selectedProduct.idproducto;
+      nuevaFila.innerHTML = `
+        <td>${tabla.rows.length + 1}</td>
+        <td>${nomProducto}</td>
+        <td>${precioProducto.toFixed(2)}</td>
+        <td>
+          <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+            <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
+            <input type="number"
+                  class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                  value="${cantidadProducto}"
+                  min="1"
+                  max="${stockDisponible}">
+            <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+          </div>
+        </td>
+        <td>${descuentoProducto.toFixed(2)}</td>
+        <td class="importe-cell">${importeTotal.toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+      `;
 
-  if (estaDuplicado(idp)) {
-    alert("Este producto ya ha sido agregado.");
-    return resetCamposProducto();
-  }
+      // Agregar comportamientos a la fila
+      const decBtn = nuevaFila.querySelector(".btn-decrement");
+      const incBtn = nuevaFila.querySelector(".btn-increment");
+      const qtyInput = nuevaFila.querySelector(".cantidad-input");
+      const importeCell = nuevaFila.querySelector(".importe-cell");
 
-  // Cálculos
-  const netoUnit = precioProducto - descuentoProducto;
-  const importeTotal = netoUnit * cantidadProducto;
+      function actualizarLinea() {
+        let qty = parseInt(qtyInput.value, 10) || 1;
+        if (qty < 1) qty = 1;
+        qtyInput.value = qty;
 
-  // Construir fila
-  const fila = document.createElement("tr");
-  fila.dataset.idproducto = idp;
-  fila.innerHTML = `
-    <td>${tabla.rows.length + 1}</td>
-    <td>${nomProducto}</td>
-    <td>${precioProducto.toFixed(2)}</td>
-    <td>
-      <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
-        <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
-        <input type="number"
-               class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-               value="${cantidadProducto}" min="1" max="${stockDisponible}">
-        <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
-      </div>
-    </td>
-    <td>${descuentoProducto.toFixed(2)}</td>
-    <td class="importe-cell">${importeTotal.toFixed(2)}</td>
-    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
-  `;
+        const nuevoImporte = netoUnit * qty;
+        importeCell.textContent = nuevoImporte.toFixed(2);
 
-  // Función para actualizar línea
-  const decBtn = fila.querySelector(".btn-decrement");
-  const incBtn = fila.querySelector(".btn-increment");
-  const qtyInput = fila.querySelector(".cantidad-input");
-  const importeCell = fila.querySelector(".importe-cell");
+        // Actualiza array detalleCompra
+        const idx = detalleCompra.findIndex(d => d.idproducto === selectedProduct.idproducto);
+        if (idx >= 0) {
+          detalleCompra[idx].cantidad = qty;
+          detalleCompra[idx].importe = nuevoImporte.toFixed(2);
+        }
 
-  function actualizarLinea() {
-    let qty = parseInt(qtyInput.value, 10) || 1;
-    qty = Math.max(1, Math.min(qty, stockDisponible));
-    qtyInput.value = qty;
+        actualizarNumeros();
+        calcularTotales();
+      }
 
-    const nuevoImporte = (precioProducto - descuentoProducto) * qty;
-    importeCell.textContent = nuevoImporte.toFixed(2);
+      decBtn.addEventListener("click", () => { qtyInput.stepDown(); actualizarLinea(); });
+      incBtn.addEventListener("click", () => { qtyInput.stepUp(); actualizarLinea(); });
+      qtyInput.addEventListener("input", actualizarLinea);
 
-    // Actualizar array de detalleCompra
-    const idx = detalleCompra.findIndex(d => d.idproducto === idp);
-    if (idx >= 0) {
-      detalleCompra[idx].cantidad = qty;
-      detalleCompra[idx].importe = nuevoImporte.toFixed(2);
-    }
+      // Eliminar fila
+      nuevaFila.querySelector(".btn-quitar").addEventListener("click", function () {
+        nuevaFila.remove();
+        const idx = detalleCompra.findIndex(d => d.idproducto === selectedProduct.idproducto);
+        if (idx >= 0) detalleCompra.splice(idx, 1);
+        actualizarNumeros();
+        calcularTotales();
+      });
 
-    actualizarNumeros();
-    calcularTotales();
-  }
+      // Insertar en DOM y array
+      tabla.appendChild(nuevaFila);
+      detalleCompra.push({
+        idproducto: selectedProduct.idproducto,
+        producto: nomProducto,
+        precio: precioProducto,
+        cantidad: cantidadProducto,
+        descuento: descuentoProducto,
+        importe: importeTotal.toFixed(2)
+      });
 
-  // Eventos cantidad
-  decBtn.addEventListener("click", () => { qtyInput.stepDown(); actualizarLinea(); });
-  incBtn.addEventListener("click", () => { qtyInput.stepUp(); actualizarLinea(); });
-  qtyInput.addEventListener("input", actualizarLinea);
-
-  // Evento quitar
-  fila.querySelector(".btn-quitar").addEventListener("click", () => {
-    fila.remove();
-    const idx = detalleCompra.findIndex(d => d.idproducto === idp);
-    if (idx >= 0) detalleCompra.splice(idx, 1);
-    actualizarNumeros();
-    calcularTotales();
-  });
-
-  // Agregar al DOM y al array
-  tabla.appendChild(fila);
-  detalleCompra.push({
-    idproducto: idp,
-    producto: nomProducto,
-    precio: precioProducto,
-    cantidad: cantidadProducto,
-    descuento: descuentoProducto,
-    importe: importeTotal.toFixed(2)
-  });
-
-  resetCamposProducto();
-  actualizarNumeros();
-  calcularTotales();
-});
+      resetCamposProducto();
+      actualizarNumeros();
+      calcularTotales();
+    });
 
     function resetCamposProducto() {
-      // Reset campos
       inputProductElement.value = "";
-      inputPrecio.value = "";
       inputStock.value = "";
+      inputPrecio.value = "";
+      inputCantidad.value = 1;
+      inputDescuento.value = 0;
+    }
+
+    function resetCamposProducto() {
+      inputProductElement.value = "";
+      inputStock.value = "";
+      inputPrecio.value = "";
       inputCantidad.value = 1;
       inputDescuento.value = 0;
     }
@@ -703,8 +731,10 @@ require_once "../../partials/header.php";
               selectedProduct = {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
-                precio: producto.precio
+                precio: producto.precio,
+                stock: producto.stock
               };
+              inputStock.value = selectedProduct.stock;
               cerrarListas();
             });
             itemsDiv.appendChild(optionDiv);
@@ -809,16 +839,13 @@ require_once "../../partials/header.php";
         inputDescuento.focus();
       }
     });
-
     inputDescuento.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
         // Opcional: puedes mover el foco al botón de agregar o ejecutar su acción directamente
-        agregarProductoBtn.focus();
-        // agregarProductoBtn.click();  // Si prefieres ejecutar la acción
+        agregarProductoBtn.focus(); // agregarProductoBtn.click();  // Si prefieres ejecutar la acción
       }
     });
-
     // Evento del botón "Guardar" para enviar la compra
     btnFinalizarCompra.addEventListener('click', function (e) {
       e.preventDefault();
@@ -827,12 +854,10 @@ require_once "../../partials/header.php";
         showToast('Por favor selecciona un proveedor', 'ERROR', 2000);
         return;
       }
-
       if (detalleCompra.length === 0) {
         showToast('Agrega al menos un producto', 'WARNING', 2000);
         return;
       }
-
       Swal.fire({
         title: '¿Deseas guardar la compra?',
         icon: 'question',
@@ -880,13 +905,6 @@ require_once "../../partials/header.php";
     });
   });
 </script>
+</body>
 
-<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
-
-<!-- js de carga moneda -->
-
-<script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-
-<?php
-require_once "../../partials/_footer.php";
-?>
+</html>

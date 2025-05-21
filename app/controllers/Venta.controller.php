@@ -107,12 +107,28 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 ]);
                 exit;
             }
+            if (
+                isset($_GET['action'], $_GET['idventa']) &&
+                $_GET['action'] === 'propietario'
+            ) {
+                $idventa = (int) $_GET['idventa'];
+                try {
+                    $row = $venta->getPropietarioById($idventa);
+                    if ($row) {
+                        echo json_encode(['status' => 'success', 'data' => ['propietario' => $row['propietario']]]);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'Venta no encontrada']);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+                exit;
+            }
 
             // 6) Listar todas las ventas si no se especifica nada
             echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);
             exit;
 
-        // …
         case 'POST':
             // …
             $data = json_decode(file_get_contents('php://input'), true);
@@ -159,7 +175,6 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 ]);
             }
             exit;
-
 
     }
 }

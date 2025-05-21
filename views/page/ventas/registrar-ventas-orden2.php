@@ -7,10 +7,7 @@ require_once "../../partials/header.php";
 <div class="container-main mt-5">
     <div class="card border">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <!-- Título a la izquierda -->
-            <div>
-                <h3 class="mb-0">Complete los datos</h3>
-            </div>
+            <div></div>
             <!-- Botón a la derecha -->
             <div>
                 <a href="listar-ventas.php" class="btn btn-sm btn-success">
@@ -466,6 +463,7 @@ require_once "../../partials/_footer.php";
     });
 </script>
 </body>
+
 </html>
 <!-- real -->
 <!-- <script>
@@ -997,7 +995,6 @@ require_once "../../partials/_footer.php";
         });
     });
 </script> -->
-
 <!-- <script>
   document.addEventListener('DOMContentLoaded', () => {
     // — variables del modal de Propietario —

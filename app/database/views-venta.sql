@@ -2,16 +2,6 @@
 -- ************************* VISTA DE AMORTIZACION *************************
 
 -- 1) VISTA PARA VER EL TOTAL DE LAS VENTAS (ID)
-
-/*DROP VIEW IF EXISTS vista_total_por_venta;
-CREATE VIEW vista_total_por_venta AS
-SELECT
-  dv.idventa,
-  -- Suma para cada línea: (precio unitario - descuento unitario) × cantidad
-  ROUND(SUM((dv.precioventa - dv.descuento) * dv.cantidad), 2) AS total
-FROM detalleventa AS dv
-GROUP BY dv.idventa;*/
-
 DROP VIEW IF EXISTS vista_total_por_venta;
 CREATE VIEW vista_total_por_venta AS
 SELECT
@@ -103,11 +93,17 @@ LEFT JOIN formapagos AS f ON a.idformapago = f.idformapago;
 DROP VIEW IF EXISTS vs_ventas;
 CREATE VIEW vs_ventas AS
 SELECT
-  v.idventa   AS id,
+  v.idventa AS id,
+  -- Nombre del cliente de la venta
   CASE
     WHEN c.idempresa IS NOT NULL THEN e.nomcomercial
     WHEN c.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
   END AS cliente,
+  -- Nombre del propietario relacionado al cliente y vehículo de la venta
+  CASE
+    WHEN pc.idempresa IS NOT NULL THEN ep.nomcomercial
+    WHEN pc.idpersona IS NOT NULL THEN CONCAT(pp.nombres, ' ', pp.apellidos)
+  END AS propietario,
   v.tipocom,
   v.numcom,
   vt.total_pendiente,
@@ -116,43 +112,18 @@ SELECT
     ELSE 'pendiente'
   END AS estado_pago
 FROM ventas v
-INNER JOIN clientes c      ON v.idcliente = c.idcliente
-LEFT  JOIN empresas e      ON c.idempresa  = e.idempresa
-LEFT  JOIN personas p      ON c.idpersona  = p.idpersona
-JOIN  vista_saldos_por_venta vt ON v.idventa   = vt.idventa
+  -- Cliente de la venta
+  INNER JOIN clientes c       ON v.idcliente = c.idcliente
+  LEFT JOIN empresas e        ON c.idempresa = e.idempresa
+  LEFT JOIN personas p        ON c.idpersona = p.idpersona
+  -- Vista de saldos
+  JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
+  -- Propietario (relacionado al idpropietario en ventas)
+  LEFT JOIN propietarios prop     ON v.idpropietario = prop.idpropietario
+  LEFT JOIN clientes pc           ON prop.idcliente = pc.idcliente
+  LEFT JOIN empresas ep           ON pc.idempresa = ep.idempresa
+  LEFT JOIN personas pp           ON pc.idpersona = pp.idpersona
 WHERE v.estado = TRUE;
-
-/*
--- 2) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA IDVENTA 
-DROP VIEW IF EXISTS vista_detalle_venta;
-CREATE VIEW vista_detalle_venta AS
-SELECT 
-  v.idventa,
-  v.fechahora,
-  COALESCE(CONCAT(p.apellidos, ' ', p.nombres), e.nomcomercial) AS cliente,
-  v.kilometraje,
-  -- Vehículo completo
-  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
-  -- Producto
-  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
-  dv.cantidad,
-  dv.precioventa AS precio,
-  dv.descuento,
-  -- Total a pagar por línea: (precio - descuento) * cantidad
-  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto
-FROM ventas v
-JOIN clientes c        ON v.idcliente      = c.idcliente
-LEFT JOIN personas p   ON c.idpersona      = p.idpersona
-LEFT JOIN empresas e   ON c.idempresa      = e.idempresa
-LEFT JOIN vehiculos vh ON v.idvehiculo     = vh.idvehiculo
-LEFT JOIN modelos m    ON vh.idmodelo      = m.idmodelo
-LEFT JOIN tipovehiculos tv ON m.idtipov    = tv.idtipov
-LEFT JOIN marcas ma    ON m.idmarca        = ma.idmarca
-JOIN detalleventa dv   ON v.idventa        = dv.idventa
-JOIN productos pr      ON dv.idproducto    = pr.idproducto
-JOIN subcategorias s   ON pr.idsubcategoria = s.idsubcategoria
-WHERE v.estado = TRUE;
-*/
 
 -- VISTA DE VENTAS CON ORDEN DE SERVICIO
 DROP VIEW IF EXISTS vista_detalle_venta;
@@ -264,6 +235,7 @@ CREATE VIEW vista_detalle_cotizacion AS
 SELECT 
   c.idcotizacion,
   c.idcliente,                                -- <---- lo agregamos
+  dc.idproducto,
   COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
   CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
   dc.precio,
@@ -277,42 +249,6 @@ FROM cotizaciones c
   JOIN productos pr ON dc.idproducto = pr.idproducto
   INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria
 WHERE c.estado = TRUE;
-/* 
--- sin cantidad
-DROP VIEW IF EXISTS vista_detalle_cotizacion;
-CREATE VIEW vista_detalle_cotizacion AS
-SELECT 
-  c.idcotizacion,
-  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
-  dc.precio,
-  dc.descuento
-FROM cotizaciones c
-JOIN clientes cli ON c.idcliente = cli.idcliente
-LEFT JOIN personas p ON cli.idpersona = p.idpersona
-LEFT JOIN empresas e ON cli.idempresa = e.idempresa
-JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
-JOIN productos pr ON dc.idproducto = pr.idproducto
-INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
-*/
-/*
--- real
-DROP VIEW IF EXISTS vista_detalle_cotizacion;
-CREATE VIEW vista_detalle_cotizacion AS
-SELECT 
-  c.idcotizacion,
-  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
-  dc.precio,
-  dc.cantidad,        -- ← lo agregamos
-  dc.descuento
-FROM cotizaciones c
-JOIN clientes cli ON c.idcliente = cli.idcliente
-LEFT JOIN personas p ON cli.idpersona = p.idpersona
-LEFT JOIN empresas e ON cli.idempresa = e.idempresa
-JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
-JOIN productos pr ON dc.idproducto = pr.idproducto
-INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;*/
 
 -- ************************* VISTA PARA LOS ESTADO FALSE *************************
 
@@ -583,6 +519,110 @@ FROM (
 ORDER BY f.fecha;
 
 
+-- VISTA PRINCIPAL DE AMORTIZACIONE:
+
+/*DROP VIEW IF EXISTS vista_total_por_venta;
+CREATE VIEW vista_total_por_venta AS
+SELECT
+  dv.idventa,
+  -- Suma para cada línea: (precio unitario - descuento unitario) × cantidad
+  ROUND(SUM((dv.precioventa - dv.descuento) * dv.cantidad), 2) AS total
+FROM detalleventa AS dv
+GROUP BY dv.idventa;*/
+
+-- VISTA PRINCIPALES DE COTIZACIONES
+/* 
+-- sin cantidad
+DROP VIEW IF EXISTS vista_detalle_cotizacion;
+CREATE VIEW vista_detalle_cotizacion AS
+SELECT 
+  c.idcotizacion,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.precio,
+  dc.descuento
+FROM cotizaciones c
+JOIN clientes cli ON c.idcliente = cli.idcliente
+LEFT JOIN personas p ON cli.idpersona = p.idpersona
+LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+JOIN productos pr ON dc.idproducto = pr.idproducto
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;
+*/
+/*
+-- real
+DROP VIEW IF EXISTS vista_detalle_cotizacion;
+CREATE VIEW vista_detalle_cotizacion AS
+SELECT 
+  c.idcotizacion,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion) AS producto,
+  dc.precio,
+  dc.cantidad,        -- ← lo agregamos
+  dc.descuento
+FROM cotizaciones c
+JOIN clientes cli ON c.idcliente = cli.idcliente
+LEFT JOIN personas p ON cli.idpersona = p.idpersona
+LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+JOIN productos pr ON dc.idproducto = pr.idproducto
+INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria;*/
+
+-- VISTAS PRINCIPALES DE VENTA
+/*
+DROP VIEW IF EXISTS vs_ventas;
+CREATE VIEW vs_ventas AS
+SELECT
+  v.idventa   AS id,
+  CASE
+    WHEN c.idempresa IS NOT NULL THEN e.nomcomercial
+    WHEN c.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+  END AS cliente,
+  v.tipocom,
+  v.numcom,
+  vt.total_pendiente,
+  CASE
+    WHEN vt.total_pendiente = 0 THEN 'pagado'
+    ELSE 'pendiente'
+  END AS estado_pago
+FROM ventas v
+INNER JOIN clientes c      ON v.idcliente = c.idcliente
+LEFT  JOIN empresas e      ON c.idempresa  = e.idempresa
+LEFT  JOIN personas p      ON c.idpersona  = p.idpersona
+JOIN  vista_saldos_por_venta vt ON v.idventa   = vt.idventa
+WHERE v.estado = TRUE;
+*/
+/*
+-- 2) VISTA PARA EL DETALLE DE VENTA PARA EL MODAL DE CADA IDVENTA 
+DROP VIEW IF EXISTS vista_detalle_venta;
+CREATE VIEW vista_detalle_venta AS
+SELECT 
+  v.idventa,
+  v.fechahora,
+  COALESCE(CONCAT(p.apellidos, ' ', p.nombres), e.nomcomercial) AS cliente,
+  v.kilometraje,
+  -- Vehículo completo
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+  -- Producto
+  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa AS precio,
+  dv.descuento,
+  -- Total a pagar por línea: (precio - descuento) * cantidad
+  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto
+FROM ventas v
+JOIN clientes c        ON v.idcliente      = c.idcliente
+LEFT JOIN personas p   ON c.idpersona      = p.idpersona
+LEFT JOIN empresas e   ON c.idempresa      = e.idempresa
+LEFT JOIN vehiculos vh ON v.idvehiculo     = vh.idvehiculo
+LEFT JOIN modelos m    ON vh.idmodelo      = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov    = tv.idtipov
+LEFT JOIN marcas ma    ON m.idmarca        = ma.idmarca
+JOIN detalleventa dv   ON v.idventa        = dv.idventa
+JOIN productos pr      ON dv.idproducto    = pr.idproducto
+JOIN subcategorias s   ON pr.idsubcategoria = s.idsubcategoria
+WHERE v.estado = TRUE;
+*/
 -- PRUEBA DE EGRESOS
 /*
 DROP VIEW IF EXISTS vista_egresos_por_fecha_y_concepto;

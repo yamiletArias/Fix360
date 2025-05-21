@@ -82,30 +82,30 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 <script>
-  // ——— Toggle Activos / Eliminados ———
-  let mostrandoComprasEliminadas = false;
-  const btnVerEliminados = document.getElementById("btnVerEliminados");
-  const contActivos      = document.getElementById("tableDia");
-  const contEliminados   = document.getElementById("tableEliminados");
+    // ——— Toggle Activos / Eliminados ———
+    let mostrandoComprasEliminadas = false;
+    const btnVerEliminados = document.getElementById("btnVerEliminados");
+    const contActivos = document.getElementById("tableDia");
+    const contEliminados = document.getElementById("tableEliminados");
 
-  btnVerEliminados.addEventListener("click", () => {
-    if (!mostrandoComprasEliminadas) {
-      // Mostrar eliminadas
-      contActivos.style.display    = "none";
-      contEliminados.style.display = "block";
-      cargarComprasEliminadas();
-      btnVerEliminados.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
-      btnVerEliminados.title     = "Volver a compras activas";
-    } else {
-      // Volver a activas
-      contEliminados.style.display = "none";
-      contActivos.style.display    = "block";
-      // No recargamos: la tabla activa ya está cargada
-      btnVerEliminados.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
-      btnVerEliminados.title     = "Ver eliminados";
-    }
-    mostrandoComprasEliminadas = !mostrandoComprasEliminadas;
-  });
+    btnVerEliminados.addEventListener("click", () => {
+        if (!mostrandoComprasEliminadas) {
+            // Mostrar eliminadas
+            contActivos.style.display = "none";
+            contEliminados.style.display = "block";
+            cargarComprasEliminadas();
+            btnVerEliminados.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
+            btnVerEliminados.title = "Volver a compras activas";
+        } else {
+            // Volver a activas
+            contEliminados.style.display = "none";
+            contActivos.style.display = "block";
+            // No recargamos: la tabla activa ya está cargada
+            btnVerEliminados.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
+            btnVerEliminados.title = "Ver eliminados";
+        }
+        mostrandoComprasEliminadas = !mostrandoComprasEliminadas;
+    });
 </script>
 <script>
     $(document).on('click', '.btn-amortizar', async function () {
@@ -551,7 +551,7 @@ require_once "../../partials/_footer.php";
 
 <!-- Modal de Detalle de Compras -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 800px;">
+    <div class="modal-dialog" style="max-width: 950px;" style="margin-top: 20px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Compra</h5>

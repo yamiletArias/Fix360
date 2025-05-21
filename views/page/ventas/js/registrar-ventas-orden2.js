@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Variables y elementos
   /* const inputCliente = document.getElementById("cliente"); */
+  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+  const inputProp = document.getElementById("propietario");
   const inputProductElement = document.getElementById("producto");
   const inputStock = document.getElementById("stock");
   const inputPrecio = document.getElementById("precio");
@@ -21,21 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const selectServicio = document.getElementById("servicio");
   const selectMecanico = document.getElementById("mecanico");
   const inputPrecioServicio = document.getElementById("precioServicio");
-  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-  /* const inputPrecioServicio = document.getElementById("precioServicio"); */
-  function initDateField(id) {
-    const el = document.getElementById(id);
-    if (!el) return; // si no existe, no hace nada
-    const today = new Date();
-    const twoAgo = new Date();
-    twoAgo.setDate(today.getDate() - 2);
-    const fmt = (d) => d.toISOString().split("T")[0];
-    el.value = fmt(today);
-    el.min = fmt(twoAgo);
-    el.max = fmt(today);
-  }
-
-  initDateField("fechaIngreso");
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
 
@@ -60,8 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
       (sum, s) => sum + s.precio,
       0
     );
-    totalImporte += totalServicios;
-    // (en los servicios no hay descuento aparte, así que no tocamos totalDescuento)
+    totalImporte += totalServicios; // (en los servicios no hay descuento aparte, así que no tocamos totalDescuento)
 
     // 3) IGV (18%) y neto
     const igv = totalImporte - totalImporte / 1.18;
@@ -81,6 +67,80 @@ document.addEventListener("DOMContentLoaded", function () {
   function estaDuplicado(idproducto = 0) {
     return detalleVenta.some((d) => d.idproducto == idproducto);
   }
+
+  //cotizacion
+  const API_BASE = window.FIX360_BASE_URL + 'app/controllers/';
+  const params = new URLSearchParams(window.location.search);
+  const cotId = params.get('id');
+  if (cotId) {
+    // — 1) CARGAR CABECERA —
+    fetch(`${API_BASE}cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
+      .then(r => r.json())
+      .then(data => {
+        // 1) Cliente (para vehículos)
+        hiddenIdCliente.value = data.idcliente;
+        // 2) Propietario (para FK)
+        hiddenIdPropietario.value = data.idcliente;
+        // 3) Nombre del propietario en el input
+        inputProp.value = data.cliente;
+        // 4) Disparamos carga de vehículos sobre hiddenIdCliente
+        hiddenIdCliente.dispatchEvent(new Event('change'));
+      })
+      .catch(console.error);
+
+    // — 2) CARGAR DETALLE DE PRODUCTOS —
+    fetch(`${API_BASE}Detcotizacion.controller.php?idcotizacion=${cotId}`)
+      .then(r => r.json())
+      .then(items => {
+        items.forEach(item => {
+          const precio = parseFloat(item.precio);
+          const cantidad = parseFloat(item.cantidad);
+          const descuento = parseFloat(item.descuento);
+          const importe = (precio - descuento) * cantidad;
+
+          // CREAR FILA EN LA TABLA igual que si hubieras pulsado “Agregar”
+          const tr = document.createElement('tr');
+          tr.dataset.idproducto = item.idproducto;
+          tr.innerHTML = `
+            <td>0</td>
+            <td>${item.producto}</td>
+            <td>${precio.toFixed(2)}</td>
+            <td>
+              <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
+                <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
+                <input type="number"
+                      class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                      value="${cantidad}"
+                      min="1"
+                      max="${item.stock}">
+                <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+              </div>
+            </td>
+            <td>${descuento.toFixed(2)}</td>
+            <td class="importe-cell">${importe.toFixed(2)}</td>
+            <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>`;
+
+          // Adjunta aquí tus listeners de incrementar, decrementar y quitar,
+          // idénticos a los de tu handler de “Agregar Producto”
+
+          tabla.appendChild(tr);
+          detalleVenta.push({
+            idproducto: item.idproducto,
+            producto: item.producto,
+            precio,
+            cantidad,
+            descuento,
+            importe: importe.toFixed(2)
+          });
+        });
+
+        // Finalmente, renumera y recalcula totales:
+        actualizarNumeros();
+        calcularTotales();
+      })
+      .catch(console.error);
+  }
+
   btnAgregarServicio.addEventListener("click", () => {
     // 1) Lee y valida cada cosa por separado
     const idserv = parseInt(selectServicio.value, 10);
@@ -505,7 +565,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // 1) Construyo el objeto de datos
       const data = {
         tipocom: document.querySelector('input[name="tipo"]:checked').value,
-        fechahora: fechaInput.value.trim(), // ya no usas fechaVenta
+        fechahora: fechaInput.value.trim(),
         fechaingreso: null,
         numserie: numSerieInput.value.trim(),
         numcom: numComInput.value.trim(),
@@ -542,8 +602,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (json.status === "success") {
             showToast(
               "Guardado con éxito. Venta #" +
-                json.idventa +
-                (json.idorden ? ", Orden #" + json.idorden : ""),
+              json.idventa +
+              (json.idorden ? ", Orden #" + json.idorden : ""),
               "SUCCESS",
               1500
             );
@@ -567,3 +627,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+/* document.addEventListener('DOMContentLoaded', () => {
+  const cotId = new URLSearchParams(window.location.search).get('id');
+  if (!cotId) return;
+
+  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+  const inputProp       = document.getElementById("propietario");
+  if (!hiddenIdCli || !inputProp) return;
+
+  fetch(`<?= SERVERURL ?>app/controllers/cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
+    .then(res => res.json())
+    .then(data => {
+      hiddenIdCliente.value = data.idcliente;
+      inputProp.value = data.cliente;
+      hiddenIdCliente.dispatchEvent(new Event('change'));
+    })
+    .catch(console.error);
+}); */

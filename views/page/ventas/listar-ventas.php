@@ -10,7 +10,6 @@ require_once "../../partials/header.php";
         /* Cambia solo el color de la letra */
     }
 </style>
-
 <div class="container-main mt-5">
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
@@ -31,7 +30,7 @@ require_once "../../partials/header.php";
                     <div class="input-group">
                         <input type="date" class="form-control input" aria-label="Fecha"
                             aria-describedby="button-addon2" id="Fecha">
-                        <a href="registrar-ventas.php" class="btn btn-success text-center" type="button"
+                        <a href="registrar-ventas-orden.php" class="btn btn-success text-center" type="button"
                             id="button-addon2">Registrar</a>
                     </div>
                 </div>
@@ -202,7 +201,20 @@ require_once "../../partials/_footer.php";
         $("#miModal").modal("show");
         // limpia cualquier contenido previo
         $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
+        $("label[for='propietario']").text('');
         $("#miModal tbody").empty();
+
+        fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=propietario&idventa=${idventa}`)
+            .then(r => r.json())
+            .then(jsonVenta => {
+                if (jsonVenta.status === 'success') {
+                    $("label[for='propietario']").text(jsonVenta.data.propietario || 'Sin propietario');
+                }
+            })
+            .catch(err => {
+                console.error("Error al cargar propietario:", err);
+                $("label[for='propietario']").text('Error al cargar');
+            });
 
         $.ajax({
             url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
@@ -243,14 +255,14 @@ require_once "../../partials/_footer.php";
                         } else {
                             json.forEach((item, i) => {
                                 $servTableBody.append(`
-            <tr>
-              <td>${i + 1}</td>
-              <td>${item.tiposervicio}</td>
-              <td>${item.nombreservicio}</td>
-              <td>${item.mecanico}</td>
-              <td>${parseFloat(item.precio_servicio).toFixed(2)}</td>
-            </tr>
-          `);
+                                <tr>
+                                <td>${i + 1}</td>
+                                <td>${item.tiposervicio}</td>
+                                <td>${item.nombreservicio}</td>
+                                <td>${item.mecanico}</td>
+                                <td>${parseFloat(item.precio_servicio).toFixed(2)}</td>
+                                </tr>
+                            `);
                             });
                         }
                     })
@@ -586,13 +598,14 @@ require_once "../../partials/_footer.php";
 
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 950px;">
+    <div class="modal-dialog" style="max-width: 950px;" style="margin-top: 20px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Venta</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <p><strong>Propietario:</strong> <label for="propietario"></label></p>
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <div class="form-floating">
