@@ -25,30 +25,39 @@ require_once "../../partials/header.php";
       <div class="row">
         <!-- Marca -->
         <div class="col-md-4 mb-3">
-          <div class="form-floating">
+          <div class="form-floating input-group">
             <select class="form-select" id="marca" name="idmarca" style="color: black;" required>
               <option>Seleccione una opcion</option>
             </select>
             <label for="marca">Marca:</label>
+            <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal" data-bs-target="#modalMarca">
+  <i class="fa-solid fa-plus"></i>
+</button>
           </div>
         </div>
 
         <div class="col-md-4 mb-3">
-          <div class="form-floating">
+          <div class="form-floating input-group">
             <select class="form-select" id="categoria" name="categoria" style="color: black;" required>
               <option>Seleccione una opcion</option>
             </select>
             <label for="categoria">Categoria:</label>
+            <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal" data-bs-target="#modalCategoria">
+  <i class="fa-solid fa-plus"></i>
+</button>
           </div>
         </div>
 
         <!-- Subcategoria -->
         <div class="col-md-4">
-          <div class="form-floating">
+          <div class="form-floating input-group">
             <select class="form-select" name="subcategoria" id="subcategoria" style="color: black;" required>
               <option value="">Selecciona una opcion</option>
             </select>
             <label for="subcategoria">Subcategoría:</label>
+            <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal" data-bs-target="#modalSubcategoria">
+  <i class="fa-solid fa-plus"></i>
+</button>
           </div>
         </div>
 
@@ -124,7 +133,7 @@ require_once "../../partials/header.php";
         Cancelar
       </button>
       <button type="submit" class="btn btn-success" id="btnRegistrarProducto">
-        Aceptar
+        Guardar
       </button>
     </div>
   </div>
@@ -134,6 +143,64 @@ require_once "../../partials/header.php";
 </div>
 </div>
 </div>
+
+<!-- Modal para agregar Marca -->
+<div class="modal fade" id="modalMarca" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAddMarca" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Marca</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="inputMarca" class="form-label">Nombre</label>
+        <input type="text" id="inputMarca" class="form-control" required>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para agregar Categoria -->
+<div class="modal fade" id="modalCategoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAddCategoria" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Categoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="inputCategoria" class="form-label">Nombre</label>
+        <input type="text" id="inputCategoria" class="form-control" required>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para agregar Subcategoría -->
+<div class="modal fade" id="modalSubcategoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAddSubcategoria" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Subcategoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="inputSubcategoria" class="form-label">Nombre</label>
+        <input type="text" id="inputSubcategoria" class="form-control" required>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
 <?php
 
@@ -230,6 +297,89 @@ document.getElementById("btnRegistrarProducto").addEventListener("click", functi
     categoriaSelect.addEventListener("change", cargarSubcategorias);
   });
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const marcaSelect      = document.getElementById("marca");
+    const categoriaSelect  = document.getElementById("categoria");
+    const subcategoriaSelect = document.getElementById("subcategoria");
+
+    // 2.1: Alta Marca
+    document.getElementById("formAddMarca").addEventListener("submit", async e => {
+      e.preventDefault();
+      const nombre = document.getElementById("inputMarca").value.trim();
+      if (!nombre) return;
+
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/marca.controller.php?task=registerMarcaProducto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        // 1) Añadir opción y seleccionarla
+        const opt = new Option(nombre, data.idmarca, true, true);
+        marcaSelect.add(opt);
+        // 2) Cerrar modal
+        bootstrap.Modal.getInstance(document.getElementById("modalMarca")).hide();
+        showToast("Marca registrada.", "SUCCESS", 1500);
+        document.getElementById("inputMarca").value = "";
+      } else {
+        showToast("Error al registrar marca.", "ERROR", 1500);
+      }
+    });
+
+    // 2.2: Alta Categoría
+    document.getElementById("formAddCategoria").addEventListener("submit", async e => {
+      e.preventDefault();
+      const categoria = document.getElementById("inputCategoria").value.trim();
+      if (!categoria) return;
+
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/categoria.controller.php?task=add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoria })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        const opt = new Option(categoria, data.idcategoria, true, true);
+        categoriaSelect.add(opt);
+        bootstrap.Modal.getInstance(document.getElementById("modalCategoria")).hide();
+        showToast("Categoría registrada.", "SUCCESS", 1500);
+        document.getElementById("inputCategoria").value = "";
+        // Refrescar subcategorías limpias
+        subcategoriaSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
+      } else {
+        showToast("Error al registrar categoría.", "ERROR", 1500);
+      }
+    });
+
+    // 2.3: Alta Subcategoría
+    document.getElementById("formAddSubcategoria").addEventListener("submit", async e => {
+      e.preventDefault();
+      const subcat = document.getElementById("inputSubcategoria").value.trim();
+      const idcat  = categoriaSelect.value;
+      if (!subcat || !idcat) return showToast("Selecciona categoría primero.", "WARNING", 1500);
+
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/subcategoria.controller.php?task=add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idcategoria: idcat, subcategoria: subcat })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        const opt = new Option(subcat, data.idsubcategoria, true, true);
+        subcategoriaSelect.add(opt);
+        bootstrap.Modal.getInstance(document.getElementById("modalSubcategoria")).hide();
+        showToast("Subcategoría registrada.", "SUCCESS", 1500);
+        document.getElementById("inputSubcategoria").value = "";
+      } else {
+        showToast("Error al registrar subcategoría.", "ERROR", 1500);
+      }
+    });
+  });
+</script>
+
 
 </body>
 

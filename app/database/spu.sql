@@ -1341,3 +1341,35 @@ INSERT INTO modelos (idtipov,idmarca,modelo) VALUES (_idtipov,_idmarca,_modelo);
 SELECT LAST_INSERT_ID() AS idmodelo;
 END $$
 
+DROP PROCEDURE IF EXISTS spRegisterMarcaProducto;
+DELIMITER $$
+CREATE PROCEDURE spRegisterMarcaProducto(
+IN _nombre VARCHAR(50)
+)
+BEGIN
+INSERT INTO marcas (nombre, tipo) VALUES (_nombre, 'producto');
+SELECT LAST_INSERT_ID() AS idmarca;
+END $$
+
+DROP PROCEDURE IF EXISTS spRegisterCategoria;
+DELIMITER $$
+CREATE PROCEDURE spRegisterCategoria(
+IN _categoria VARCHAR(50)
+)
+BEGIN 
+INSERT INTO categorias (categoria) VALUES (_categoria);
+SELECT LAST_INSERT_ID() AS idcategoria;
+END $$
+
+DROP PROCEDURE IF EXISTS spRegisterSubcategoria;
+DELIMITER $$
+CREATE PROCEDURE spRegisterSubcategoria(
+IN _idcategoria INT,
+IN _subcategoria VARCHAR(50)
+)
+BEGIN 
+INSERT INTO subcategorias (idcategoria, subcategoria) VALUES (_idcategoria, _subcategoria);
+SELECT LAST_INSERT_ID() AS idsubcategoria;
+END $$
+
+

@@ -5,7 +5,7 @@ USE dbfix360;
 DELIMITER $$
 -- call fetchKilometraje(1)
 -- select * from kardex;
--- select * from movimientos;
+-- select * from movimientos ;
 -- Stored procedure to generate test kardex and movimientos for all products
 CREATE PROCEDURE test_movimientos()
 BEGIN
@@ -43,7 +43,7 @@ BEGIN
   END LOOP;
   CLOSE curs;
 END$$
-
+-- select * from produc
 DELIMITER ;
 -- select * from movimientos
 -- Call the procedure and then drop it
@@ -571,6 +571,69 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS spRegisterColaboradorCompleto;
+DELIMITER $$
+CREATE PROCEDURE spRegisterColaboradorCompleto(
+  -- Datos de la persona
+  IN  p_nombres        VARCHAR(50),
+  IN  p_apellidos      VARCHAR(50),
+  IN  p_tipodoc        VARCHAR(30),
+  IN  p_numdoc         CHAR(20),
+  IN  p_numruc         CHAR(11),
+  IN  p_direccion      VARCHAR(70),
+  IN  p_correo         VARCHAR(100),
+  IN  p_telprincipal   VARCHAR(20),
+  IN  p_telalternativo VARCHAR(20),
+
+  -- Datos del contrato
+  IN  p_idrol          INT,
+  IN  p_fechainicio    DATE,
+  IN  p_fechafin       DATE,       -- puede ser NULL
+
+  -- Credenciales del colaborador
+  IN  p_namuser        VARCHAR(50),
+  IN  p_passuser       VARCHAR(255)
+)
+BEGIN
+  DECLARE v_idpersona   INT;
+  DECLARE v_idcontrato  INT;
+  DECLARE v_hashed      VARCHAR(64);
+  DECLARE v_idcolaborador INT;
+
+  -- 1) insertar persona
+  INSERT INTO personas
+    (nombres, apellidos, tipodoc, numdoc,
+     numruc, direccion, correo,
+     telprincipal, telalternativo)
+  VALUES
+    (p_nombres, p_apellidos, p_tipodoc, p_numdoc,
+     NULLIF(p_numruc,''), NULLIF(p_direccion,''), NULLIF(p_correo,''),
+     p_telprincipal, NULLIF(p_telalternativo,''));
+  SET v_idpersona = LAST_INSERT_ID();
+
+  -- 2) insertar contrato
+  INSERT INTO contratos
+    (idrol, idpersona, fechainicio, fechafin)
+  VALUES
+    (p_idrol, v_idpersona, p_fechainicio, p_fechafin);
+  SET v_idcontrato = LAST_INSERT_ID();
+
+  -- 3) crear colaborador
+  SET v_hashed = SHA2(p_passuser,256);
+  INSERT INTO colaboradores
+    (idcontrato, namuser, passuser, estado)
+  VALUES
+    (v_idcontrato, p_namuser, v_hashed, TRUE);
+  SET v_idcolaborador = LAST_INSERT_ID();
+
+  -- 4) devolver el id del colaborador
+  SELECT v_idcolaborador AS idcolaborador;
+END $$
+DELIMITER ;
+
 
 -- select * from ordenservicios;
 -- select * from tipocombustibles

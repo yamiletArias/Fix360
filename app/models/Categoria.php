@@ -2,11 +2,13 @@
 
 require_once "../models/Conexion.php";
 
-class Categoria extends Conexion {
+class Categoria extends Conexion
+{
 
     protected $pdo;
 
-    public function __CONSTRUCT() {
+    public function __CONSTRUCT()
+    {
         $this->pdo = parent::getConexion();
     }
 
@@ -14,7 +16,8 @@ class Categoria extends Conexion {
      * Retorna todas las categorías registradas.
      * @return array Lista de categorías.
      */
-    public function getAll() {
+    public function getAll()
+    {
         try {
             $query = "CALL spGetAllCategoria()";
             $cmd = $this->pdo->prepare($query);
@@ -30,18 +33,20 @@ class Categoria extends Conexion {
      * @param array $params Contiene el nombre de la categoría.
      * @return array Resultado del proceso.
      */
-    public function add($params = []) {
-        $resultado = ["status" => false, "message" => ""];
+    public function add($params = []): int
+    {
+        $numRows = 0;
         try {
             $query = "CALL spRegisterCategoria(?)";
             $cmd = $this->pdo->prepare($query);
-            $cmd->execute([$params["categoria"]]);
-            $resultado["status"] = true;
-            $resultado["message"] = "Categoría registrada correctamente.";
-        } catch (Exception $e) {
-            $resultado["message"] = $e->getMessage();
-        } finally {
-            return $resultado;
+            $cmd->execute([
+                $params["categoria"]
+            ]);
+            $row = $cmd->fetch(PDO::FETCH_ASSOC);
+            return isset($row['idcategoria']) ? (int)$row['idcategoria'] : 0;
+        } catch (PDOException $e) {
+            error_log("Error DB: " . $e->getMessage());
+            return $numRows;
         }
     }
 
@@ -50,7 +55,8 @@ class Categoria extends Conexion {
      * @param int $idcategoria Identificador de la categoría.
      * @return array Información de la categoría.
      */
-    public function find($idcategoria) {
+    public function find($idcategoria)
+    {
         try {
             $query = "CALL spGetCategoriaById(?)";
             $cmd = $this->pdo->prepare($query);
@@ -66,7 +72,8 @@ class Categoria extends Conexion {
      * @param array $params Contiene el ID y el nuevo nombre de la categoría.
      * @return array Resultado del proceso.
      */
-    public function update($params = []) {
+    public function update($params = [])
+    {
         $resultado = ["status" => false, "message" => ""];
         try {
             $query = "CALL spUpdateCategoria(?, ?)";
@@ -86,7 +93,8 @@ class Categoria extends Conexion {
      * @param int $idcategoria Identificador de la categoría.
      * @return array Resultado del proceso.
      */
-    public function delete($idcategoria) {
+    public function delete($idcategoria)
+    {
         $resultado = ["status" => false, "message" => ""];
         try {
             $query = "CALL spDeleteCategoria(?)";

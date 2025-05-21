@@ -16,17 +16,38 @@ if (isset($_SERVER['REQUEST_METHOD'])){
             }
             break;
         
-        case 'POST':
-    // recibes un JSON { "nombre": "Fiat" }
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (!empty($data['nombre'])) {
-        $newId = $marca->registerMarcaVehiculo($data);
-        echo json_encode(['success' => $newId > 0, 'idmarca' => $newId]);
-    } else {
-        http_response_code(400);
-        echo json_encode(['error' => 'Falta nombre']);
-    }
-    break;
+         case 'POST':
+            // Leemos JSON del body
+            $data = json_decode(file_get_contents('php://input'), true);
 
+            // Registro de marca de vehículo
+            if (isset($_GET['task']) && $_GET['task'] === 'registerMarcaVehiculo') {
+                if (!empty($data['nombre'])) {
+                    $newId = $marca->registerMarcaVehiculo($data);
+                    echo json_encode(['success' => $newId > 0, 'idmarca' => $newId]);
+                } else {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Falta el nombre']);
+                }
+                break;
+            }
+
+            // Registro de marca de producto
+            if (isset($_GET['task']) && $_GET['task'] === 'registerMarcaProducto') {
+         
+                if (!empty($data['nombre'])) {
+                    $newId = $marca->registerMarcaProducto($data);
+                    echo json_encode(['success' => $newId > 0, 'idmarca' => $newId]);
+                } else {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Falta nombre']);
+                }
+                break;
+            }
+
+            // Si no da con ninguna
+            http_response_code(400);
+            echo json_encode(['error' => 'Tarea inválida']);
+            break;
     }
 }

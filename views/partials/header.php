@@ -22,6 +22,20 @@ require_once dirname(__DIR__, 2) . '/app/models/Colaborador.php';
 $colModel = new Colaborador();
 $usuario  = $colModel->getById($idadmin);
 
+// 1. Ajustamos la zona horaria
+date_default_timezone_set('America/Lima');
+// 2. Sacamos la hora actual
+$hora = (int) date('H');
+// 3. Definimos el saludo según la hora
+if ($hora >= 5 && $hora < 12) {
+    $saludo = "Buenos días";
+} elseif ($hora >= 12 && $hora < 18) {
+    $saludo = "Buenas tardes";
+} else {
+    $saludo = "Buenas noches";
+}
+
+
 // ... luego requieres tus modelos helpers, etc.
 require_once dirname(__DIR__, 2) . '/app/models/Agenda.php';
 require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';

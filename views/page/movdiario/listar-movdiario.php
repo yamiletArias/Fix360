@@ -8,6 +8,8 @@ require_once "../../partials/header.php";
 
 ?>
       <div class="container-main">
+
+    <h2>  <?= "{$saludo}, " . htmlspecialchars($usuario['nombreCompleto']); ?></h2> 
         <div>
           <h2><strong>Ventas del dia:</strong></h2>
           <div class="table-container">

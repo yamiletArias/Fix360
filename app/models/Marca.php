@@ -6,7 +6,8 @@ require_once "../models/Conexion.php";
  * Clase MarcasModel
  * Maneja las operaciones CRUD de la tabla 'marcas'
  */
-class Marca extends Conexion {
+class Marca extends Conexion
+{
 
   protected $pdo;
 
@@ -14,7 +15,8 @@ class Marca extends Conexion {
    * Constructor
    * Obtiene la conexión a la base de datos.
    */
-  public function __CONSTRUCT() {
+  public function __CONSTRUCT()
+  {
     $this->pdo = Conexion::getConexion();
   }
 
@@ -22,7 +24,8 @@ class Marca extends Conexion {
    * Obtener todas las marcas
    * @return array Lista de marcas que solo son de vehiculos
    */
-  public function getAllMarcaVehiculo():array {
+  public function getAllMarcaVehiculo(): array
+  {
     $result = [];
     try {
       $query = "CALL spGetAllMarcaVehiculo()";
@@ -36,35 +39,51 @@ class Marca extends Conexion {
     return $result;
   }
 
-  public function getAllMarcaProducto():array {
+  public function getAllMarcaProducto(): array
+  {
     $result = [];
     try {
       $query = "CALL spGetAllMarcaProducto()";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute();
       $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
-
     } catch (Exception $e) {
       die($e->getMessage());
     }
 
     return $result;
-
   }
-  
-  public function registerMarcaVehiculo($params = []):int {
+
+  public function registerMarcaVehiculo($params = []): int
+  {
     $numRows = 0;
     try {
       $sql = "CALL spRegisterMarcaVehiculo(?)";
-        $cmd = $this->pdo->prepare($sql);
-        $cmd->execute([
-          $params['nombre']
-        ]);
-        $row = $cmd->fetch(PDO::FETCH_ASSOC);
-        return isset($row['idmarca']) ? (int)$row['idmarca'] : 0;
+      $cmd = $this->pdo->prepare($sql);
+      $cmd->execute([
+        $params['nombre']
+      ]);
+      $row = $cmd->fetch(PDO::FETCH_ASSOC);
+      return isset($row['idmarca']) ? (int)$row['idmarca'] : 0;
     } catch (PDOException $e) {
-        error_log("Error DB: " . $e->getMessage());
-        return 0;
+      error_log("Error DB: " . $e->getMessage());
+      return $numRows;
     }
-}
+  }
+
+  public function registerMarcaProducto($params =[]): int{
+    $numRows = 0;
+    try {
+      $sql = "CALL spRegisterMarcaProducto(?)";
+      $cmd = $this->pdo->prepare($sql);
+      $cmd->execute([
+        $params['nombre']
+      ]);
+      $row = $cmd->fetch(PDO::FETCH_ASSOC);
+      return isset($row['idmarca']) ? (int)$row['idmarca'] : 0;
+    } catch (PDOException $e) {
+      error_log("Error DB: " . $e->getMessage());
+      return $numRows;
+    }
+  }
 }
