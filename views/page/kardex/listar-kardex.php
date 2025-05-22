@@ -249,6 +249,9 @@ require_once "../../partials/header.php";
             title: 'Cantidad'
           },
           {
+title: 'Precio Unitario'
+          },
+          {
             title: 'Saldo'
           }
         ],
@@ -283,6 +286,7 @@ require_once "../../partials/header.php";
             <td>${m.flujo}</td>
             <td>${m.tipo_movimiento}</td>
             <td>${m.cantidad}</td>
+            <td>${m.preciounit}</td>
             <td>${m.saldo_restante}</td>
           </tr>
         `);

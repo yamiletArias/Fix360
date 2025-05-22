@@ -266,7 +266,27 @@ INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, numruc, direccion, co
 ('Jorge', 'Lopez', 'DNI', '71239845', NULL, NULL, NULL, NULL, NULL),
 ('Carmen', 'Rojas', 'DNI', '75488933', '20765432109', 'Calle 13 #56', 'carmen.rojas@mail.com', '998877665', '988776655'),
 ('Luis', 'Huamán', 'DNI', '70123456', NULL, 'Av. Grau 999', NULL, '934567890', NULL),
-('Elena', 'Salas', 'Pasaporte', 'PA7654321', '20876543210', NULL, NULL, NULL, NULL);
+('Elena', 'Salas', 'Pasaporte', 'PA7654321', '20876543210', NULL, NULL, NULL, NULL),
+('Diego', 'Mendoza', 'DNI', '74859632', '20111222334', 'Av. La Marina 555', 'diego.mendoza@mail.com', '912345600', NULL),
+('Valeria', 'Zapata', 'DNI', '82345678', NULL, 'Jr. Amazonas 101', NULL, '987654321', '911223344'),
+('Alonso', 'Reyes', 'Carnet Extranjería', 'CE112233', NULL, NULL, 'alonso.reyes@mail.com', '922334455', NULL),
+('Paola', 'Salazar', 'DNI', '75890123', '20567890123', 'Calle Real 987', NULL, NULL, NULL),
+('Martín', 'Ramos', 'DNI', '70321458', NULL, NULL, 'martin.ramos@mail.com', '933445566', '944556677'),
+('Tatiana', 'Chávez', 'Pasaporte', 'PA3344556', NULL, NULL, NULL, '900112233', NULL),
+('Eduardo', 'Cáceres', 'DNI', '78214596', '20432187654', 'Av. Javier Prado 1001', 'eduardo.caceres@mail.com', '911122233', '933344455'),
+('Renata', 'Morales', 'DNI', '79564832', NULL, NULL, NULL, '955776688', NULL),
+('Fernando', 'Cruz', 'DNI', '74125896', NULL, 'Jr. Arequipa 800', 'fernando.cruz@mail.com', NULL, '911998877'),
+('Isabel', 'Flores', 'Pasaporte', 'PA9988776', '20334455667', 'Calle Primavera 202', NULL, '922112233', '933221144'),
+('Bruno', 'García', 'Carnet Extranjería', 'CE445566', NULL, NULL, 'bruno.garcia@mail.com', '966778899', NULL),
+('Marina', 'Delgado', 'DNI', '73219876', '20221133445', NULL, NULL, NULL, '955667788'),
+('Santiago', 'Ortega', 'DNI', '75984321', NULL, 'Av. Túpac Amaru 456', NULL, '987777666', NULL),
+('Diana', 'Campos', 'DNI', '79456123', NULL, 'Jr. Bolognesi 321', 'diana.campos@mail.com', '933556677', '922334466'),
+('Héctor', 'Valverde', 'DNI', '78945612', '20998877665', NULL, NULL, NULL, NULL),
+('Laura', 'Ibáñez', 'Pasaporte', 'PA5544332', NULL, NULL, 'laura.ibanez@mail.com', '900334455', NULL),
+('Esteban', 'Mejía', 'DNI', '75893214', '20556677889', 'Av. Brasil 1200', NULL, '911223344', '911223355'),
+('Natalia', 'Aguilar', 'DNI', '74829135', NULL, NULL, NULL, '988776655', '977665544'),
+('Rafael', 'Vera', 'Carnet Extranjería', 'CE778899', NULL, 'Calle Central 505', 'rafael.vera@mail.com', '911998877', NULL),
+('Camila', 'Silva', 'DNI', '74561239', '20112233445', NULL, NULL, NULL, NULL);
 
 INSERT INTO empresas (nomcomercial,razonsocial,telefono,correo,ruc) VALUES
 ('Tech SAC','SAC','945612387','tech@gmail,com','20154632145'),
@@ -277,11 +297,11 @@ INSERT INTO empresas (nomcomercial,razonsocial,telefono,correo,ruc) VALUES
 ('Exit IRL','IRL','998765420','exit@no.com','20333333331');
 
 INSERT INTO clientes (idpersona,idcontactabilidad) VALUES
-(1,1),
-(2,2),
-(3,3),
-(4,4),
-(5,1);
+(6,1),
+(7,2),
+(8,3),
+(9,4),
+(10,1);
 
 INSERT INTO clientes (idempresa,idcontactabilidad) VALUES
 (1,1),
@@ -289,7 +309,8 @@ INSERT INTO clientes (idempresa,idcontactabilidad) VALUES
 (3,3),
 (4,4),
 (5,1);
-
+-- select * from personas;
+-- select * from clientes;
 INSERT INTO propietarios (idcliente, idvehiculo)
 VALUES
 (1,1),
@@ -358,9 +379,9 @@ INSERT INTO categorias (categoria)
  
  -- Insertar contratos con rol de mecánico (idrol = 2, por ejemplo)
  INSERT INTO Contratos ( idpersona, idrol, fechainicio, fechafin) VALUES
- (1, 1, '2023-01-01', NULL),
- (2, 1, '2023-06-15', NULL),
- (3, 1, '2024-02-01', NULL);
+ (15, 1, '2023-01-01', NULL),
+ (16, 1, '2023-06-15', NULL),
+ (14, 1, '2024-02-01', NULL);
  
  -- select * from personas;
  -- select * from contratos;
