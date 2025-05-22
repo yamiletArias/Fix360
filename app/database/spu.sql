@@ -404,7 +404,7 @@ INSERT INTO tipocombustibles (tcombustible) VALUES(_tcombustible);
 END $$
 
 -- Restaurar delimitador por defecto
-CALL spGetClienteById(12);
+-- CALL spGetClienteById(12);
 DROP PROCEDURE IF EXISTS spGetClienteById;
 DELIMITER $$
 CREATE PROCEDURE spGetClienteById(
