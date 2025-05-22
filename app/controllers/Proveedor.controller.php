@@ -35,13 +35,18 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
                 // 2) Registrar proveedor con ese idempresa
                 $idempresa = $resultEmpresa["idempresa"];
-                $result = $proveedor->add($idempresa);
+                $resultProv = $proveedor->add($idempresa);
 
                 // 3) Añadir datos para el frontend
                 $result["idempresa"] = $idempresa;
                 $result["nomcomercial"] = $empresaData["nomcomercial"];
 
-                echo json_encode($result);
+                echo json_encode([
+                    "status"      => $resultProv["status"],
+                    "message"     => $resultProv["message"],
+                    "idproveedor" => $resultProv["idproveedor"],
+                    "nomcomercial"=> $empresaData["nomcomercial"]
+                    ]);
                 break;
             /* case "register":
                 $result = $proveedor->add(

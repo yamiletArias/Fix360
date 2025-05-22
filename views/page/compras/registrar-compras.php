@@ -391,9 +391,9 @@ require_once "../../partials/_footer.php";
         let result;
         try {
           result = JSON.parse(text);
-          console.log("✅ Parsed JSON:", result);
+          /* console.log("✅ Parsed JSON:", result); */
         } catch (err) {
-          console.error("❌ No pudo parsear JSON:", err);
+          /* console.error("❌ No pudo parsear JSON:", err); */
           showToast("Respuesta del servidor no es JSON válido", "ERROR", 2000);
           return;
         }
@@ -401,10 +401,11 @@ require_once "../../partials/_footer.php";
         // 2) Ahora haces la lógica normal
         if (result.status) {
           const newOption = document.createElement('option');
-          newOption.value = result.idempresa;
+          newOption.value = result.idproveedor;
           newOption.textContent = result.nomcomercial;
+          newOption.selected = true;
           selectProv.appendChild(newOption);
-          selectProv.value = result.idempresa;
+          selectProv.value = result.idproveedor;
           bootstrap.Modal.getInstance(modal).hide();
           showToast(result.message, 'SUCCESS', 1500);
         } else {
@@ -564,7 +565,14 @@ require_once "../../partials/_footer.php";
     const inputPrecio = document.getElementById("preciocompra");
     const inputCantidad = document.getElementById("cantidadcompra");
     const inputDescuento = document.getElementById("descuento");
-
+    inputPrecio.addEventListener("blur", () => {
+      const val = parseFloat(inputPrecio.value);
+      if (isNaN(val) || val <= 0) {
+        alert("Precio inválido.");
+        // Asegúrate de que selectedProduct.precio sea un número
+        inputPrecio.value = parseFloat(selectedProduct.precio).toFixed(2);
+      }
+    });
     function initDateField(id) {
       const el = document.getElementById(id);
       if (!el) return;               // si no existe, no hace nada
@@ -625,9 +633,18 @@ require_once "../../partials/_footer.php";
       }
       const descuentoProducto = parseFloat(inputDescuento.value) || 0;
 
+      //VALIDACIONES
       // 1) Campos completos
       if (!nomProducto || isNaN(precioProducto) || isNaN(cantidadProducto)) {
         return alert("Por favor, complete todos los campos correctamente.");
+      }
+      if (isNaN(precioProducto) || precioProducto <= 0) {
+        return alert("Ingresa un precio válido mayor que cero.");
+      }
+      if (cantidadProducto <= 0) {
+        alert("La cantidad debe ser mayor que cero.");
+        inputCantidad.value = 1;  // reset al mínimo
+        return;
       }
       // 2) Descuento ≤ precio unitario
       if (descuentoProducto > precioProducto) {
@@ -635,6 +652,17 @@ require_once "../../partials/_footer.php";
         document.getElementById("descuento").value = "";
         return;
       }
+      if (descuentoProducto < 0) {
+        alert("El descuento no puede ser negativo.");
+        inputDescuento.value = 0;
+        return;
+      }
+
+      /*       if (precioProducto <= 0) {
+              alert("El precio debe ser mayor que cero.");
+              inputPrecio.value = "";
+              return;
+            } */
       // 3) No duplicar
       if (estaDuplicado(selectedProduct.idproducto)) {
         alert("Este producto ya ha sido agregado.");
@@ -958,7 +986,7 @@ require_once "../../partials/_footer.php";
       e.preventDefault();
 
       if (!proveedorSelect.value || proveedorSelect.value === 'Selecciona proveedor') {
-        showToast('Por favor selecciona un proveedor', 'ERROR', 2000);
+        showToast('Debes seleccionar primero un proveedor.', 'WARNING', 2000);
         return;
       }
       if (detalleCompra.length === 0) {

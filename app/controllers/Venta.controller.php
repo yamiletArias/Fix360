@@ -13,6 +13,9 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     $m = new Cotizacion();
 
     switch ($_SERVER['REQUEST_METHOD']) {
+        case 'detalle_completo':
+            $venta->detalleCompleto();
+            break;
         case 'GET':
             $tipo = Helper::limpiarCadena($_GET['type'] ?? "");
 
@@ -130,7 +133,24 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             exit;
 
         case 'POST':
-            // …
+
+            // Anulación de venta (soft-delete) con justificación
+            if (isset($_POST['action'], $_POST['idventa']) && $_POST['action'] === 'eliminar') {
+                $id = intval($_POST['idventa']);
+                $justificacion = trim($_POST['justificacion'] ?? "");
+
+                error_log("Intentando anular Venta #$id. Justificación: $justificacion");
+
+                $ok = $venta->deleteVenta($id, $justificacion);
+                error_log("Resultado deleteVenta: " . ($ok ? 'OK' : 'FAIL'));
+
+                echo json_encode([
+                    'status' => $ok ? 'success' : 'error',
+                    'message' => $ok ? 'Venta anulada.' : 'No se pudo anular la Venta.'
+                ]);
+                exit;
+            }
+
             $data = json_decode(file_get_contents('php://input'), true);
 
             // Recojo todos los campos nuevos

@@ -14,6 +14,7 @@ require_once "../../partials/header.php";
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div class="btn-group" role="group" aria-label="Basic example">
+                <button type="button" data-modo="dia" class="btn btn-primary text-white">Día</button>
                 <button button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
                 <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
                 <!-- Nuevo botón para ver eliminados -->
@@ -206,11 +207,11 @@ require_once "../../partials/_footer.php";
         <i class="fa-solid fa-trash"></i>
       </button>
       ${btnAmort}
-      <button class="btn btn-primary btn-sm btn-detalle"
+      <button class="btn btn-info btn-sm btn-detalle"
               data-id="${row.id}"
               data-bs-toggle="modal"
               data-bs-target="#miModal">
-        <i class="fa-solid fa-circle-info"></i>
+        <i class='fa-solid fa-clipboard-list'></i>
       </button>`;
     }
 
@@ -270,7 +271,7 @@ require_once "../../partials/_footer.php";
                     data: null,
                     class: "text-center",
                     render: (d, t, row) => `
-                        <button class="btn btn-info btn-sm btn-ver-justificacion"
+                        <button class="btn btn-primary btn-sm btn-ver-justificacion"
                                 data-id="${row.id}"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalVerJustificacion">
@@ -282,11 +283,11 @@ require_once "../../partials/_footer.php";
                                 data-bs-target="#modalAmortizar">
                             <i class="fa-solid fa-dollar-sign"></i>
                         </button>
-                        <button class="btn btn-primary btn-sm btn-detalle-elim"
+                        <button class="btn btn-info btn-sm btn-detalle"
                                 data-id="${row.id}"
                                 data-bs-toggle="modal"
                                 data-bs-target="#miModal">
-                        <i class="fa-solid fa-circle-info"></i>
+                            <i class='fa-solid fa-clipboard-list'></i>
                         </button>`
                 }
             ],

@@ -445,12 +445,36 @@ require_once "../../partials/_footer.php";
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script>
-  document.getElementById('btnToggleService').addEventListener('click', function (e) {
-    e.preventDefault();
-    // Alterna la visibilidad de la sección de inputs
-    document.getElementById('serviceSection').classList.toggle('d-none');
+document.getElementById('btnToggleService').addEventListener('click', function (e) {
+  e.preventDefault();
+  // 1) Mostrar la sección de servicios
+  document.getElementById('serviceSection').classList.remove('d-none');
+  // 2) Deshabilitar el botón y cambiar su estilo a gris (btn-secondary)
+  this.disabled = true;
+  this.classList.remove('btn-success');
+  this.classList.add('btn-secondary');
+});
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function initDateField(id) {
+      const el = document.getElementById(id);
+      if (!el) return; // si no existe, no hace nada
+      const today = new Date();
+      const twoAgo = new Date();
+      twoAgo.setDate(today.getDate() - 2);
+      const fmt = (d) => d.toISOString().split("T")[0];
+      el.value = fmt(today);
+      el.min = fmt(twoAgo);
+      el.max = fmt(today);
+    }
+    initDateField("fechaIngreso");
+    const fechaInput = document.getElementById("fechaIngreso");
+    const monedaSelect = document.getElementById("moneda");
   });
 </script>
+</body>
+</html>
 <!-- <script>
   document.addEventListener('DOMContentLoaded', () => {
     // — variables del modal de Propietario —
@@ -552,24 +576,3 @@ require_once "../../partials/_footer.php";
     actualizarOpciones();
   });
 </script> -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    function initDateField(id) {
-      const el = document.getElementById(id);
-      if (!el) return; // si no existe, no hace nada
-      const today = new Date();
-      const twoAgo = new Date();
-      twoAgo.setDate(today.getDate() - 2);
-      const fmt = (d) => d.toISOString().split("T")[0];
-      el.value = fmt(today);
-      el.min = fmt(twoAgo);
-      el.max = fmt(today);
-    }
-    initDateField("fechaIngreso");
-    const fechaInput = document.getElementById("fechaIngreso");
-    const monedaSelect = document.getElementById("moneda");
-  });
-</script>
-</body>
-
-</html>

@@ -20,12 +20,12 @@ require_once "../../partials/header.php";
                 <i class="fa-solid fa-info-circle me-2"></i>Información general
             </div>
             <div>
-                <button class="btn btn-sm btn-outline-light me-2" onclick="changeDate(-1)">
+                <!-- <button class="btn btn-sm btn-outline-light me-2" onclick="changeDate(-1)">
                     <i class="fa-solid fa-chevron-left"></i> Día anterior
                 </button>
                 <button class="btn btn-sm btn-outline-light me-2" onclick="changeDate(1)">
                     Día siguiente <i class="fa-solid fa-chevron-right"></i>
-                </button>
+                </button> -->
                 <button class="btn btn-danger btn-sm" id="print-btn">
                     <i class="fa-solid fa-file-pdf"></i> PDF
                 </button>

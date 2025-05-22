@@ -69,14 +69,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   //cotizacion
-  const API_BASE = window.FIX360_BASE_URL + 'app/controllers/';
+  const API_BASE = window.FIX360_BASE_URL + "app/controllers/";
   const params = new URLSearchParams(window.location.search);
-  const cotId = params.get('id');
+  const cotId = params.get("id");
   if (cotId) {
     // — 1) CARGAR CABECERA —
-    fetch(`${API_BASE}cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
-      .then(r => r.json())
-      .then(data => {
+    fetch(
+      `${API_BASE}cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`
+    )
+      .then((r) => r.json())
+      .then((data) => {
         // 1) Cliente (para vehículos)
         hiddenIdCliente.value = data.idcliente;
         // 2) Propietario (para FK)
@@ -84,22 +86,22 @@ document.addEventListener("DOMContentLoaded", function () {
         // 3) Nombre del propietario en el input
         inputProp.value = data.cliente;
         // 4) Disparamos carga de vehículos sobre hiddenIdCliente
-        hiddenIdCliente.dispatchEvent(new Event('change'));
+        hiddenIdCliente.dispatchEvent(new Event("change"));
       })
       .catch(console.error);
 
     // — 2) CARGAR DETALLE DE PRODUCTOS —
     fetch(`${API_BASE}Detcotizacion.controller.php?idcotizacion=${cotId}`)
-      .then(r => r.json())
-      .then(items => {
-        items.forEach(item => {
+      .then((r) => r.json())
+      .then((items) => {
+        items.forEach((item) => {
           const precio = parseFloat(item.precio);
           const cantidad = parseFloat(item.cantidad);
           const descuento = parseFloat(item.descuento);
           const importe = (precio - descuento) * cantidad;
 
           // CREAR FILA EN LA TABLA igual que si hubieras pulsado “Agregar”
-          const tr = document.createElement('tr');
+          const tr = document.createElement("tr");
           tr.dataset.idproducto = item.idproducto;
           tr.innerHTML = `
             <td>0</td>
@@ -130,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
             precio,
             cantidad,
             descuento,
-            importe: importe.toFixed(2)
+            importe: importe.toFixed(2),
           });
         });
 
@@ -197,6 +199,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (inputDescuento.value.trim() === "") {
       inputDescuento.value = "0";
     }
+    inputPrecio.addEventListener("blur", () => {
+      const val = parseFloat(inputPrecio.value);
+      if (isNaN(val) || val <= 0) {
+        alert("Precio inválido.");
+        // Asegúrate de que selectedProduct.precio sea un número
+        inputPrecio.value = parseFloat(selectedProduct.precio).toFixed(2);
+      }
+    });
     const descuento = parseFloat(inputDescuento.value);
 
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
@@ -205,6 +215,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (!nombre || isNaN(precio) || isNaN(cantidad)) {
       return alert("Completa todos los campos correctamente.");
+    }
+    if (isNaN(precio) || precio <= 0) {
+      return alert("Ingresa un precio válido mayor que cero.");
+    }
+    if (cantidad <= 0) {
+      alert("La cantidad debe ser mayor que cero.");
+      inputCantidad.value = 1; // reset al mínimo
+      return;
     }
 
     const stockDisponible = selectedProduct.stock || 0;
@@ -221,6 +239,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (descuento > precio) {
       alert("El descuento unitario no puede ser mayor que el precio unitario.");
       document.getElementById("descuento").value = "";
+      return;
+    }
+    if (descuento < 0) {
+      alert("El descuento no puede ser negativo.");
+      inputDescuento.value = 0;
       return;
     }
 
@@ -602,8 +625,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (json.status === "success") {
             showToast(
               "Guardado con éxito. Venta #" +
-              json.idventa +
-              (json.idorden ? ", Orden #" + json.idorden : ""),
+                json.idventa +
+                (json.idorden ? ", Orden #" + json.idorden : ""),
               "SUCCESS",
               1500
             );

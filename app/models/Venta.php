@@ -14,18 +14,73 @@ class Venta extends Conexion
     {
         return $this->pdo;
     }
-    public function getPropietarioById(int $idventa): ?array
+
+    public function detalleCompleto()
     {
-        try {
-            $sql = "SELECT propietario FROM vs_ventas WHERE id = ?";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$idventa]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $row ?: null;
-        } catch (PDOException $e) {
-            throw new Exception("Error al obtener propietario: " . $e->getMessage());
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['idventa'])) {
+            $idventa = $_GET['idventa'];
+
+            try {
+                $conexion = new Conexion();
+                $pdo = $conexion->getConexion();
+
+                // Consultar la vista completa
+                $sql = "SELECT * FROM vista_detalle_venta_pdf WHERE idventa = :idventa ORDER BY idventa";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':idventa', $idventa, PDO::PARAM_INT);
+                $stmt->execute();
+                $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Retornar datos en formato JSON
+                header('Content-Type: application/json');
+                echo json_encode($resultado);
+
+            } catch (Exception $e) {
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Error al obtener datos: ' . $e->getMessage()]);
+            }
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Método no permitido o faltan parámetros']);
         }
     }
+
+    public function getPropietarioById(int $idventa): ?array
+    {
+        $sql = "
+      SELECT
+        COALESCE(
+          CASE
+            WHEN pc.idempresa IS NOT NULL THEN ep.nomcomercial
+            WHEN pc.idpersona IS NOT NULL THEN CONCAT(pp.nombres, ' ', pp.apellidos)
+          END,
+          'Sin propietario'
+        ) AS propietario
+      FROM ventas v
+      LEFT JOIN propietarios prop ON v.idpropietario = prop.idpropietario
+      LEFT JOIN clientes pc      ON prop.idcliente    = pc.idcliente
+      LEFT JOIN empresas ep      ON pc.idempresa      = ep.idempresa
+      LEFT JOIN personas pp      ON pc.idpersona      = pp.idpersona
+      WHERE v.idventa = :idventa
+      LIMIT 1
+    ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':idventa' => $idventa]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+    /*     public function getPropietarioById(int $idventa): ?array
+        {
+            try {
+                $sql = "SELECT propietario FROM vs_ventas WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$idventa]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                return $row ?: null;
+            } catch (PDOException $e) {
+                throw new Exception("Error al obtener propietario: " . $e->getMessage());
+            }
+        }
+     */
 
     public function getAll(): array
     {
@@ -339,6 +394,7 @@ class Venta extends Conexion
             throw $e;
         }
     }
+
 
 }
 ?>
