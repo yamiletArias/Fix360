@@ -322,6 +322,7 @@ BEGIN
   INNER JOIN empresas e ON p.idempresa = e.idempresa
   LEFT JOIN compras c ON c.idproveedor = p.idproveedor;
 END $$
+call spuGetProveedores();
 
 -- 7) PROCEDIMIENTO PARA REGISTRAR COMPRAS
 DROP PROCEDURE IF EXISTS spuRegisterCompra;
@@ -551,6 +552,83 @@ END$$
 DELIMITER ;
 
 -- 12) PRODEDIMIENTO PARA LA JUSTIFICACION DE LA VENTA ELIMINADA = VENTA ANULADA
+-- REAL
+DROP PROCEDURE IF EXISTS spuDeleteVenta;
+DELIMITER $$
+CREATE PROCEDURE spuDeleteVenta (
+  IN _idventa      INT,
+  IN _justificacion VARCHAR(255)
+)
+BEGIN
+  DECLARE _idproducto INT;
+  DECLARE _cantidad INT;
+  DECLARE _idkardex INT;
+  DECLARE _saldorestante INT;
+  DECLARE _done INT DEFAULT FALSE;
+  DECLARE v_fechahora DATETIME;
+  DECLARE cur CURSOR FOR 
+    SELECT dv.idproducto, dv.cantidad
+    FROM detalleventa dv
+    WHERE dv.idventa = _idventa;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET _done = TRUE;
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+
+  START TRANSACTION;
+    -- Capturamos la fecha/hora original de la venta
+    SELECT fechahora INTO v_fechahora
+    FROM ventas
+    WHERE idventa = _idventa;
+
+    -- 1. Marcar la venta como anulada
+    UPDATE ventas
+    SET estado = FALSE,
+        justificacion = _justificacion
+    WHERE idventa = _idventa;
+
+    -- 1.1. Marcar la(s) orden(es) de servicio como inactivas
+    UPDATE ordenservicios
+    SET estado = 'I'
+    WHERE idcliente = (SELECT idcliente FROM ventas WHERE idventa = _idventa)
+      AND DATE(fechaingreso) = DATE(v_fechahora);
+
+    -- 2. Procesar cada producto de la venta
+    OPEN cur;
+    read_loop: LOOP
+      FETCH cur INTO _idproducto, _cantidad;
+      IF _done THEN
+        LEAVE read_loop;
+      END IF;
+      -- 2.1 Obtener idkardex del producto
+      SELECT k.idkardex INTO _idkardex
+      FROM kardex k
+      WHERE k.idproducto = _idproducto
+      LIMIT 1;
+      -- 2.2 Calcular nuevo saldo restante (suma)
+      SELECT saldorestante INTO _saldorestante
+      FROM movimientos
+      WHERE idkardex = _idkardex
+      ORDER BY idmovimiento DESC
+      LIMIT 1;
+      SET _saldorestante = IFNULL(_saldorestante, 0) + _cantidad;
+      -- 2.3 Insertar movimiento de devolución
+      INSERT INTO movimientos (idkardex, idtipomov, fecha, cantidad, saldorestante)
+      VALUES (
+        _idkardex,
+        (SELECT idtipomov FROM tipomovimientos WHERE flujo = 'entrada' AND tipomov = 'devolucion' LIMIT 1),
+        CURDATE(),
+        _cantidad,
+        _saldorestante
+      );
+    END LOOP;
+    CLOSE cur;
+  COMMIT;
+END$$
+DELIMITER ;
+/*
 DROP PROCEDURE IF EXISTS spuDeleteVenta;
 DELIMITER $$
 CREATE PROCEDURE spuDeleteVenta (
@@ -636,7 +714,7 @@ BEGIN
 
   COMMIT;
 END$$
-DELIMITER ;
+DELIMITER ;*/
 
 -- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
@@ -754,6 +832,7 @@ END$$
 DELIMITER ;
 
 -- 15) PROCEDIMIENTO PARA BUSCAR CLIENTES
+/*
 DROP PROCEDURE IF EXISTS buscar_cliente;
 DELIMITER $$
 CREATE PROCEDURE buscar_cliente(IN termino_busqueda VARCHAR(255))
@@ -776,5 +855,5 @@ BEGIN
          AND P.nombres IS NOT NULL AND P.apellidos IS NOT NULL)
     LIMIT 10;
 END$$
-
+*/
 
