@@ -13,9 +13,9 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     $m = new Cotizacion();
 
     switch ($_SERVER['REQUEST_METHOD']) {
-        case 'detalle_completo':
-            $venta->detalleCompleto();
-            break;
+       /*  case 'detalle_completo':
+                $venta->detalleCompleto();
+                break; */
         case 'GET':
             $tipo = Helper::limpiarCadena($_GET['type'] ?? "");
 
@@ -127,6 +127,10 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 }
                 exit;
             }
+if (isset($_GET['action']) && $_GET['action'] === 'detalle_completo' && !empty($_GET['idventa'])) {
+            $venta->detalleCompleto();
+            exit;
+        }
 
             // 6) Listar todas las ventas si no se especifica nada
             echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);

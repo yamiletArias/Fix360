@@ -41,8 +41,8 @@ DROP VIEW IF EXISTS vista_detalle_venta_pdf;
 CREATE VIEW vista_detalle_venta_pdf AS
 SELECT
   v.idventa,
-  v.tipocom        AS tipo_comprobante,
-  CONCAT(v.numserie,'-',v.numcom) AS numero_comprobante,
+  v.tipocom,
+  v.numcom AS numcomp,
   -- propietario (igual que en vs_ventas)
   COALESCE(
     CASE WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
