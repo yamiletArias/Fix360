@@ -1,27 +1,34 @@
 <?php
 
-if (isset($_SERVER['REQUEST_METHOD'])){
-    header('Content-type: application/json; charset = utf-8');
+if (isset($_SERVER['REQUEST_METHOD'])) {
+    header('Content-type: application/json; charset=utf-8');
 
     require_once "../models/Marca.php";
     $marca = new Marca();
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-            if($_GET['task'] == 'getAllMarcaVehiculo'){
-            echo json_encode($marca->getAllMarcaVehiculo());
+            $task = $_GET['task'] ?? null;
+
+            if ($task === 'getAllMarcaVehiculo') {
+                echo json_encode($marca->getAllMarcaVehiculo());
+                break;
             }
-            if($_GET['task'] == 'getAllMarcaProducto'){
-            echo json_encode($marca->getAllMarcaProducto());
+
+            if ($task === 'getAllMarcaProducto') {
+                echo json_encode($marca->getAllMarcaProducto());
+                break;
             }
+
+            http_response_code(400);
+            echo json_encode(['error' => 'Tarea inválida']);
             break;
-        
-         case 'POST':
-            // Leemos JSON del body
+
+        case 'POST':
+            $task = $_GET['task'] ?? null;
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Registro de marca de vehículo
-            if (isset($_GET['task']) && $_GET['task'] === 'registerMarcaVehiculo') {
+            if ($task === 'registerMarcaVehiculo') {
                 if (!empty($data['nombre'])) {
                     $newId = $marca->registerMarcaVehiculo($data);
                     echo json_encode(['success' => $newId > 0, 'idmarca' => $newId]);
@@ -32,9 +39,7 @@ if (isset($_SERVER['REQUEST_METHOD'])){
                 break;
             }
 
-            // Registro de marca de producto
-            if (isset($_GET['task']) && $_GET['task'] === 'registerMarcaProducto') {
-         
+            if ($task === 'registerMarcaProducto') {
                 if (!empty($data['nombre'])) {
                     $newId = $marca->registerMarcaProducto($data);
                     echo json_encode(['success' => $newId > 0, 'idmarca' => $newId]);
@@ -45,7 +50,6 @@ if (isset($_SERVER['REQUEST_METHOD'])){
                 break;
             }
 
-            // Si no da con ninguna
             http_response_code(400);
             echo json_encode(['error' => 'Tarea inválida']);
             break;

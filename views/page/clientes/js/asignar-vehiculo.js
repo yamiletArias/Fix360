@@ -117,11 +117,11 @@
       const nombre = inputMarcaNueva.value.trim();
       if (!nombre) return;
       try {
-        const res = await fetch("http://localhost/fix360/app/controllers/Marca.controller.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ task: "registerMarcaVehiculo", nombre })
-        });
+        const res = await fetch("http://localhost/fix360/app/controllers/Marca.controller.php?task=registerMarcaVehiculo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre })
+      });
         const j = await res.json();
         if (j.success) {
           const o = new Option(nombre, j.idmarca);
