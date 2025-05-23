@@ -53,7 +53,7 @@ DROP PROCEDURE IF EXISTS test_movimientos;
 SELECT * FROM movimientos;
 
 
-
+/*
 CREATE OR REPLACE VIEW v_stock_actual AS
 SELECT
   k.idproducto,
@@ -72,7 +72,7 @@ FROM kardex AS k;
 -- SELECT * FROM v_stock_actual;
 
 
-
+*/
 DELIMITER $$
 -- select * from movimientos where idkardex = 52
 -- select * from kardex where idproducto = 52
@@ -341,7 +341,7 @@ END$$
 
 DELIMITER ;
 
-*/
+
 
 DROP PROCEDURE IF EXISTS spRegisterColaboradorCompleto;
 DELIMITER $$
@@ -403,6 +403,100 @@ BEGIN
 END $$
 DELIMITER ;
 
+*/
+-- CALL spGetHistorialVehiculo(1)
+DROP PROCEDURE IF EXISTS spGetHistorialVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spGetHistorialVehiculo (
+  IN _idvehiculo INT
+)
+BEGIN
+  SELECT 
+    -- Datos del vehículo
+    v.idvehiculo,
+    v.placa,
+    CONCAT(tv.tipov, ' ', ma.nombre, ' ', m.modelo) AS vehiculo,
+    -- Propietarios
+    p.fechainicio    AS fecha_evento,
+    p.fechafinal     AS fecha_fin_evento,
+    'Propietario'    AS tipo_evento,
+    COALESCE(pe.apellidos, em.nomcomercial) AS descripcion,
+    NULL             AS detalle_extra,
+    NULL             AS monto
+  FROM propietarios p
+    JOIN clientes cprop   ON p.idcliente   = cprop.idcliente
+    LEFT JOIN personas pe ON cprop.idpersona = pe.idpersona
+    LEFT JOIN empresas em ON cprop.idempresa = em.idempresa
+    JOIN vehiculos v       ON p.idvehiculo = v.idvehiculo
+    JOIN modelos m         ON v.idmodelo   = m.idmodelo
+    JOIN marcas ma         ON m.idmarca    = ma.idmarca
+    JOIN tipovehiculos tv  ON m.idtipov    = tv.idtipov
+  WHERE v.idvehiculo = _idvehiculo
+
+  UNION ALL
+
+  SELECT 
+    v.idvehiculo,
+    v.placa,
+    CONCAT(tv.tipov, ' ', ma.nombre, ' ', m.modelo),
+    o.fechaingreso      AS fecha_evento,
+    o.fechasalida       AS fecha_fin_evento,
+    'Orden de Servicio' AS tipo_evento,
+    o.observaciones     AS descripcion,
+    NULL                AS detalle_extra,
+    NULL                AS monto
+  FROM ordenservicios o
+    JOIN vehiculos v      ON o.idvehiculo = v.idvehiculo
+    JOIN modelos m        ON v.idmodelo   = m.idmodelo
+    JOIN marcas ma        ON m.idmarca    = ma.idmarca
+    JOIN tipovehiculos tv ON m.idtipov    = tv.idtipov
+  WHERE v.idvehiculo = _idvehiculo
+
+  UNION ALL
+
+  SELECT 
+    v.idvehiculo,
+    v.placa,
+    CONCAT(tv.tipov, ' ', ma.nombre, ' ', m.modelo),
+     ven.fechahora        AS fecha_evento,
+    NULL                AS fecha_fin_evento,
+    'Venta'             AS tipo_evento,
+    CONCAT(ven.tipocom,' ',ven.numserie,'-',ven.numcom) AS descripcion,
+    NULL                AS detalle_extra,
+    SUM(dv.cantidad * dv.precioventa * (1 - dv.descuento/100))
+                        AS monto
+  FROM ventas ven
+    JOIN detalleventa dv  ON ven.idventa = dv.idventa
+    JOIN vehiculos v      ON ven.idvehiculo = v.idvehiculo
+    JOIN modelos m        ON v.idmodelo     = m.idmodelo
+    JOIN marcas ma        ON m.idmarca      = ma.idmarca
+    JOIN tipovehiculos tv ON m.idtipov      = tv.idtipov
+  WHERE v.idvehiculo = _idvehiculo
+  GROUP BY ven.idventa
+
+  UNION ALL
+
+  SELECT 
+    v.idvehiculo,
+    v.placa,
+    CONCAT(tv.tipov, ' ', ma.nombre, ' ', m.modelo),
+    ag.fchproxvisita    AS fecha_evento,
+    NULL                AS fecha_fin_evento,
+    'Recordatorio'      AS tipo_evento,
+    ag.comentario       AS descripcion,
+    ag.estado           AS detalle_extra,
+    NULL                AS monto
+  FROM agendas ag
+    JOIN propietarios p  ON ag.idpropietario = p.idcliente
+    JOIN vehiculos v     ON p.idvehiculo     = v.idvehiculo
+    JOIN modelos m       ON v.idmodelo       = m.idmodelo
+    JOIN marcas ma       ON m.idmarca        = ma.idmarca
+    JOIN tipovehiculos tv ON m.idtipov       = tv.idtipov
+  WHERE v.idvehiculo = _idvehiculo
+
+  ORDER BY fecha_evento;
+END$$
+DELIMITER ;
 
 -- select * from ordenservicios;
 -- select * from tipocombustibles
