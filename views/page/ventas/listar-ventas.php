@@ -126,6 +126,16 @@ require_once "../../partials/_footer.php";
 </script>
 <!-- Vista en el modal de detalle de venta para visualizar informacion de esa venta -->
 <script>
+    function toggleNumTransAmort() {
+    // obtenemos el texto del option seleccionado
+    const texto = $('#am_formapago option:selected').text().trim().toLowerCase();
+    if (texto === 'efectivo') {
+      $('#div_num_transaccion').hide()
+        .find('input').val('');
+    } else {
+      $('#div_num_transaccion').show();
+    }
+  }
     $(document).on('click', '.btn-amortizar', async function () {
         const id = $(this).data('id');
         const monto = parseFloat($(this).data('total')) || 0;
@@ -170,6 +180,9 @@ require_once "../../partials/_footer.php";
             $sel.html('<option>Error</option>');
         } finally {
             $sel.prop('disabled', false);
+            toggleNumTransAmort();
+            $sel.off('change', toggleNumTransAmort)
+                .on('change', toggleNumTransAmort);
         }
 
         // carga amortizaciones previas...
@@ -294,6 +307,7 @@ require_once "../../partials/_footer.php";
                                     <thead><tr>
                                         <th>#</th>
                                         <th>Transacción</th>
+                                        <th>Nº Transacción</th>
                                         <th>Monto</th>
                                         <th>F. Pago</th>
                                         <th>Saldo</th>
@@ -308,6 +322,7 @@ require_once "../../partials/_footer.php";
                                 <tr>
                                     <td>${i + 1}</td>
                                     <td>${new Date(a.creado).toLocaleString()}</td>
+                                    <td>${a.numtransaccion}</td>
                                     <td>${parseFloat(a.amortizacion).toFixed(2)}</td>
                                     <td>${a.formapago}</td>
                                     <td>${parseFloat(a.saldo).toFixed(2)}</td>
@@ -563,8 +578,53 @@ require_once "../../partials/_footer.php";
             verDetalleVenta(idventa);
             $('#miModal').modal('show');
         });
+
     });
 </script>
+<!-- <script>
+    $(document).ready(function () {
+        // Primero, oculta el campo al cargar:
+        toggleNumTrans();
+
+        // Cuando cambie la forma de pago:
+        $('#am_formapago').on('change', toggleNumTrans);
+
+        function toggleNumTrans() {
+            // Obtén el texto o el valor del select
+            const valor = $('#am_formapago').find(':selected').text().trim().toLowerCase()
+                || $('#am_formapago').val();
+            const esEfectivo = valor === 'efectivo';
+            // La fila que contiene el label+input:
+            const $fila = $('#num_transaccion').closest('.mb-3');
+            if (esEfectivo) {
+                $fila.hide();
+                $('#num_transaccion').val(''); // limpia cualquier valor previo
+            } else {
+                $fila.show();
+            }
+        }
+
+        // Cuando el usuario guarde:
+        $('#btnGuardarAmortizacion').on('click', function () {
+            const data = {
+                monto: $('#am_monto').val(),
+                idformapago: $('#am_formapago').val(),
+                idventa: $('#am_idventa').val(),
+                numtransaccion: $('#num_transaccion').is(':visible')
+                    ? $('#num_transaccion').val()
+                    : ''
+            };
+            $.post('/controllers/Amortizacion.controller.php', data, function (resp) {
+                if (resp.status === 'success') {
+                    alert('Amortización registrada correctamente');
+                    location.reload();
+                } else {
+                    alert('Error: ' + resp.message);
+                }
+            }, 'json');
+        });
+    });
+</script> -->
 
 <!-- Modal Amortización -->
 <div class="modal fade" id="modalAmortizar" tabindex="-1">
@@ -585,6 +645,11 @@ require_once "../../partials/_footer.php";
                     <select id="am_formapago" class="form-select">
                         <!-- Aquí puedes cargar las formas de pago si tienes disponibles -->
                     </select>
+                </div>
+                <!-- Oculto por defecto -->
+                <div class="mb-3" id="div_num_transaccion" style="display: none;">
+                <label>Numero de Transacción</label>
+                <input type="text" id="num_transaccion" name="numtransaccion" class="form-control input">
                 </div>
             </div>
             <div class="modal-footer">

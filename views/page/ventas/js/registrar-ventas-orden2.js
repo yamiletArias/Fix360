@@ -26,6 +26,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
 
+/*   function setFechaDefault() {
+    const input = document.getElementById('fechaIngreso');
+    const now = new Date(); const pad = n => String(n).padStart(2,'0');
+    const yyyy = now.getFullYear(), MM = pad(now.getMonth()+1), dd = pad(now.getDate());
+    const hh = pad(now.getHours()), mm = pad(now.getMinutes());
+    input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+
+    const twoDaysAgo = new Date(now);
+    twoDaysAgo.setDate(now.getDate()-2);
+    input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth()+1)}-${pad(twoDaysAgo.getDate())}T00:00`;
+    input.max = `${yyyy}-${MM}-${dd}T23:59`;
+  }
+  setFechaDefault(); */
   // --- Funciones auxiliares ---
   function calcularTotales() {
     let totalImporte = 0;
@@ -121,10 +134,6 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${descuento.toFixed(2)}</td>
             <td class="importe-cell">${importe.toFixed(2)}</td>
             <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>`;
-
-          // Adjunta aquí tus listeners de incrementar, decrementar y quitar,
-          // idénticos a los de tu handler de “Agregar Producto”
-
           tabla.appendChild(tr);
           detalleVenta.push({
             idproducto: item.idproducto,

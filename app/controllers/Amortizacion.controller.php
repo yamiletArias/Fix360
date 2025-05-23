@@ -12,8 +12,13 @@ $am = new Amortizacion();
 try {
   // POST: creación de amortización para venta o compra
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $monto = isset($_POST['monto']) ? (float) $_POST['monto'] : 0;
-    $fp = isset($_POST['idformapago']) ? (int) $_POST['idformapago'] : 0;
+    $monto   = isset($_POST['monto']) ? (float) $_POST['monto'] : 0;
+    $fp      = isset($_POST['idformapago']) ? (int) $_POST['idformapago'] : 0;
+    $numTran = isset($_POST['numtransaccion']) && $_POST['numtransaccion'] !== ''
+              ? $_POST['numtransaccion']
+              : null;
+    /* $monto = isset($_POST['monto']) ? (float) $_POST['monto'] : 0;
+    $fp = isset($_POST['idformapago']) ? (int) $_POST['idformapago'] : 0; */
 
     if ($monto <= 0 || $fp <= 0) {
       throw new Exception('Parámetros inválidos', 400);
@@ -31,7 +36,7 @@ try {
     }
 
     // crear amortización según tipo
-    $nuevo = $am->create($tipo, $id, $fp, $monto);
+    $nuevo = $am->create($tipo, $id, $fp, $monto, $numTran);
 
     echo json_encode([
       'status' => 'success',
