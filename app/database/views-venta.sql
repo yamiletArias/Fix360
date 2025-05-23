@@ -88,7 +88,7 @@ LEFT JOIN colaboradores c        ON dos.idmecanico = c.idcolaborador
 WHERE v.estado = TRUE;
 
 -- ************************* VISTA DE AMORTIZACIÓN *************************
-
+SELECT * FROM amortizaciones;
 -- 1) VISTA PARA VER EL TOTAL DE LAS VENTAS (ID)
 DROP VIEW IF EXISTS vista_total_por_venta;
 CREATE VIEW vista_total_por_venta AS

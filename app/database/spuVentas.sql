@@ -253,6 +253,68 @@ BEGIN
   SET _saldoNuevo = calcularSaldoRestante(_idkardex, _cantidad);
   -- Insertar en movimientos
   INSERT INTO movimientos (
+    idkardex, 
+    idtipomov, 
+    fecha, 
+    cantidad,
+    preciounit,
+    saldorestante
+  )
+  VALUES (
+    _idkardex, 
+    _idtipomov, 
+    CURDATE(),
+    _cantidad,
+    _precioventa,
+    _saldoNuevo
+  );
+END$$
+DELIMITER ;
+
+/*
+DROP PROCEDURE IF EXISTS spuInsertDetalleVenta;
+DELIMITER $$
+CREATE PROCEDURE spuInsertDetalleVenta (
+  IN _idventa INT,
+  IN _idproducto INT,
+  IN _cantidad INT,
+  IN _numserie_detalle VARCHAR(50),
+  IN _precioventa DECIMAL(7,2),
+  IN _descuento DECIMAL(5,2)
+)
+BEGIN
+  DECLARE _idkardex INT;
+  DECLARE _idtipomov INT;
+  DECLARE _saldoNuevo INT;
+  -- Insertar en detalle de venta
+  INSERT INTO detalleventa (
+    idproducto, idventa, cantidad, numserie, precioventa, descuento
+  )
+  VALUES (
+    _idproducto,
+    _idventa,
+    _cantidad,
+    CASE 
+      WHEN _numserie_detalle IS NULL THEN JSON_ARRAY() 
+      ELSE JSON_ARRAY(_numserie_detalle) 
+    END,
+    _precioventa,
+    _descuento
+  );
+  -- Traer idkardex del producto
+  SELECT idkardex INTO _idkardex
+  FROM kardex
+  WHERE idproducto = _idproducto
+  LIMIT 1;
+  -- Obtener idtipomov para venta (flujo salida)
+  SELECT idtipomov INTO _idtipomov
+  FROM tipomovimientos
+  WHERE flujo = 'salida' AND tipomov = 'venta'
+  LIMIT 1;
+  -- Calcular nuevo saldo restante
+  SET _saldoNuevo = calcularSaldoRestante(_idkardex, _cantidad);
+  -- Insertar en movimientos
+  INSERT INTO movimientos (
     idkardex, idtipomov, fecha, cantidad, saldorestante
   )
   VALUES (
@@ -260,7 +322,7 @@ BEGIN
   );
 END$$
 DELIMITER ;
-
+*/
 -- 4) PROCEDIMINETO PARA OBTENER MONEDAS (soles & dolares)
 DROP PROCEDURE IF EXISTS spuGetMonedasVentas;
 DELIMITER $$
@@ -627,8 +689,7 @@ BEGIN
     CLOSE cur;
   COMMIT;
 END$$
-DELIMITER 
-
+DELIMITER ;
 /*
 DROP PROCEDURE IF EXISTS spuDeleteVenta;
 DELIMITER $$

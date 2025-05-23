@@ -15,7 +15,7 @@ class Amortizacion extends Conexion
      * Crea una amortización para venta o compra
      * @param string $tipo 'venta' o 'compra'
      */
-    public function create($tipo, $id, $idformapago, $monto)
+    public function create($tipo, $id, $idformapago, $monto, $numTrans = null)
     {
         // obtener info previa
         $info = $this->obtenerInfo($tipo, $id);
@@ -30,12 +30,15 @@ class Amortizacion extends Conexion
         $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
 
         // generar numTrans
-        $numTrans = uniqid();
+        if (!$numTrans) {
+            $numTrans = uniqid();
+        }
+        /* $numTrans = uniqid(); */
 
         // insertar amortización
         $sql = "INSERT INTO amortizaciones
-          (idventa, idcompra, idformapago, amortizacion, saldo, estado, numtransaccion)
-          VALUES (?, ?, ?, ?, ?, ?, ?)";
+        (idventa, idcompra, idformapago, amortizacion, saldo, estado, numtransaccion)
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
         if ($tipo === 'venta') {
             $params = [$id, null, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans];
         } else {
@@ -79,7 +82,7 @@ class Amortizacion extends Conexion
     /**
      * Lista amortizaciones según tipo y id
      */
-    public function listBy($tipo, $id) 
+    public function listBy($tipo, $id)
     {
         if ($tipo === 'venta') {
             $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idventa = ? ORDER BY idamortizacion";

@@ -90,7 +90,7 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
+              <input type="datetime-local" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
               <label for="fechaIngreso">Fecha de venta:</label>
             </div>
           </div>
@@ -226,7 +226,7 @@ require_once "../../partials/header.php";
       </table>
     </div>
   </div>
-  <div id="serviceListCard" class="card mt-2 border">
+  <div id="serviceListCard" class="card mt-2 border d-none">
     <div class="card-body">
       <table class="table table-striped table-sm" id="tabla-detalle-servicios">
         <thead>
@@ -445,15 +445,16 @@ require_once "../../partials/_footer.php";
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script>
-document.getElementById('btnToggleService').addEventListener('click', function (e) {
-  e.preventDefault();
-  // 1) Mostrar la sección de servicios
-  document.getElementById('serviceSection').classList.remove('d-none');
-  // 2) Deshabilitar el botón y cambiar su estilo a gris (btn-secondary)
-  this.disabled = true;
-  this.classList.remove('btn-success');
-  this.classList.add('btn-secondary');
-});
+  document.getElementById('btnToggleService').addEventListener('click', function (e) {
+    e.preventDefault();
+    // 1) Mostrar la sección de servicios
+    document.getElementById('serviceSection').classList.remove('d-none');
+    document.getElementById('serviceListCard').classList.remove('d-none')
+    // 2) Deshabilitar el botón y cambiar su estilo a gris (btn-secondary)
+    this.disabled = true;
+    this.classList.remove('btn-success');
+    this.classList.add('btn-secondary');
+  });
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -472,6 +473,33 @@ document.getElementById('btnToggleService').addEventListener('click', function (
     const fechaInput = document.getElementById("fechaIngreso");
     const monedaSelect = document.getElementById("moneda");
   });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    setFechaDefault();
+  });
+
+  function setFechaDefault() {
+    const input = document.getElementById('fechaIngreso');
+    if (!input) {
+      console.warn('No encontré #fechaIngreso');
+      return;
+    }
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const yyyy = now.getFullYear(),
+      MM = pad(now.getMonth() + 1),
+      dd = pad(now.getDate()),
+      hh = pad(now.getHours()),
+      mm = pad(now.getMinutes());
+
+    input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+    // opcional: rango
+    const twoDaysAgo = new Date(now);
+    twoDaysAgo.setDate(now.getDate() - 2);
+    input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth() + 1)}-${pad(twoDaysAgo.getDate())}T00:00`;
+    input.max = `${yyyy}-${MM}-${dd}T23:59`;
+  }
 </script>
 </body>
 </html>
