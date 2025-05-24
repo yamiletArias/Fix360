@@ -127,15 +127,14 @@ require_once "../../partials/_footer.php";
 <!-- Vista en el modal de detalle de venta para visualizar informacion de esa venta -->
 <script>
     function toggleNumTransAmort() {
-    // obtenemos el texto del option seleccionado
-    const texto = $('#am_formapago option:selected').text().trim().toLowerCase();
-    if (texto === 'efectivo') {
-      $('#div_num_transaccion').hide()
-        .find('input').val('');
-    } else {
-      $('#div_num_transaccion').show();
+        const texto = $('#am_formapago option:selected').text().trim().toLowerCase();
+        if (texto === 'efectivo') {
+            $('#div_num_transaccion').hide()
+                .find('input').val('');
+        } else {
+            $('#div_num_transaccion').show();
+        }
     }
-  }
     $(document).on('click', '.btn-amortizar', async function () {
         const id = $(this).data('id');
         const monto = parseFloat($(this).data('total')) || 0;
@@ -557,13 +556,23 @@ require_once "../../partials/_footer.php";
             const monto = parseFloat($('#am_monto').val());
             const formapago = +$('#am_formapago').val();
             if (!monto || monto <= 0) return alert('Monto inválido');
+
             const form = new FormData();
             form.append('idventa', idventa);
             form.append('monto', monto);
             form.append('idformapago', formapago);
+
+            // *** Aquí: solo si el input está visible y tiene valor ***
+            const $numField = $('#num_transaccion');
+            if ($numField.is(':visible') && $numField.val().trim() !== '') {
+                form.append('numtransaccion', $numField.val().trim());
+            }
+
             const res = await fetch("<?= SERVERURL ?>app/controllers/Amortizacion.controller.php", {
-                method: 'POST', body: form
+                method: 'POST',
+                body: form
             }).then(r => r.json());
+
             if (res.status === 'success') {
                 showToast(res.message, 'SUCCESS', 1500);
                 $('#modalAmortizar').modal('hide');
@@ -581,50 +590,6 @@ require_once "../../partials/_footer.php";
 
     });
 </script>
-<!-- <script>
-    $(document).ready(function () {
-        // Primero, oculta el campo al cargar:
-        toggleNumTrans();
-
-        // Cuando cambie la forma de pago:
-        $('#am_formapago').on('change', toggleNumTrans);
-
-        function toggleNumTrans() {
-            // Obtén el texto o el valor del select
-            const valor = $('#am_formapago').find(':selected').text().trim().toLowerCase()
-                || $('#am_formapago').val();
-            const esEfectivo = valor === 'efectivo';
-            // La fila que contiene el label+input:
-            const $fila = $('#num_transaccion').closest('.mb-3');
-            if (esEfectivo) {
-                $fila.hide();
-                $('#num_transaccion').val(''); // limpia cualquier valor previo
-            } else {
-                $fila.show();
-            }
-        }
-
-        // Cuando el usuario guarde:
-        $('#btnGuardarAmortizacion').on('click', function () {
-            const data = {
-                monto: $('#am_monto').val(),
-                idformapago: $('#am_formapago').val(),
-                idventa: $('#am_idventa').val(),
-                numtransaccion: $('#num_transaccion').is(':visible')
-                    ? $('#num_transaccion').val()
-                    : ''
-            };
-            $.post('/controllers/Amortizacion.controller.php', data, function (resp) {
-                if (resp.status === 'success') {
-                    alert('Amortización registrada correctamente');
-                    location.reload();
-                } else {
-                    alert('Error: ' + resp.message);
-                }
-            }, 'json');
-        });
-    });
-</script> -->
 
 <!-- Modal Amortización -->
 <div class="modal fade" id="modalAmortizar" tabindex="-1">
@@ -648,8 +613,8 @@ require_once "../../partials/_footer.php";
                 </div>
                 <!-- Oculto por defecto -->
                 <div class="mb-3" id="div_num_transaccion" style="display: none;">
-                <label>Numero de Transacción</label>
-                <input type="text" id="num_transaccion" name="numtransaccion" class="form-control input">
+                    <label>Numero de Transacción</label>
+                    <input type="text" id="num_transaccion" name="numtransaccion" class="form-control input">
                 </div>
             </div>
             <div class="modal-footer">
@@ -792,6 +757,51 @@ require_once "../../partials/_footer.php";
 </body>
 
 </html>
+
+<!-- <script>
+    $(document).ready(function () {
+        // Primero, oculta el campo al cargar:
+        toggleNumTrans();
+
+        // Cuando cambie la forma de pago:
+        $('#am_formapago').on('change', toggleNumTrans);
+
+        function toggleNumTrans() {
+            // Obtén el texto o el valor del select
+            const valor = $('#am_formapago').find(':selected').text().trim().toLowerCase()
+                || $('#am_formapago').val();
+            const esEfectivo = valor === 'efectivo';
+            // La fila que contiene el label+input:
+            const $fila = $('#num_transaccion').closest('.mb-3');
+            if (esEfectivo) {
+                $fila.hide();
+                $('#num_transaccion').val(''); // limpia cualquier valor previo
+            } else {
+                $fila.show();
+            }
+        }
+
+        // Cuando el usuario guarde:
+        $('#btnGuardarAmortizacion').on('click', function () {
+            const data = {
+                monto: $('#am_monto').val(),
+                idformapago: $('#am_formapago').val(),
+                idventa: $('#am_idventa').val(),
+                numtransaccion: $('#num_transaccion').is(':visible')
+                    ? $('#num_transaccion').val()
+                    : ''
+            };
+            $.post('/controllers/Amortizacion.controller.php', data, function (resp) {
+                if (resp.status === 'success') {
+                    alert('Amortización registrada correctamente');
+                    location.reload();
+                } else {
+                    alert('Error: ' + resp.message);
+                }
+            }, 'json');
+        });
+    });
+</script> -->
 <!-- Logica para ver los registro eliminados -->
 <!-- <script>
     document.addEventListener("DOMContentLoaded", function () {

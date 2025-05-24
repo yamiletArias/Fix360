@@ -1,3 +1,4 @@
+<!-- VISTA REAL -->
 <?php
 const NAMEVIEW = "Ventas | Registro";
 require_once "../../../app/helpers/helper.php";
@@ -70,7 +71,7 @@ require_once "../../partials/header.php";
           <div class="col-md-4 ">
             <div class="form-floating">
               <input type="text" class="form-control input" id="observaciones" placeholder="observaciones"
-                maxlength="255">
+                maxlength="255" disabled>
               <label for="observaciones">Observaciones</label>
             </div>
           </div>
@@ -106,11 +107,11 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <div class="form-check mt-3 ps-4">
-                <input class="form-check-input" type="checkbox" id="ingresogrua" name="ingresogrua">
-                <label class="form-check-label" for="ingresogrua">
-                  Ingreso grúa
-                </label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="ingresogrua"
+                  style="margin-left:10px; transform: scale(1.4);" disabled>
+                <label class="input form-check-label" for="ingresogrua"
+                  style="transform: scale(1.2);margin-left:80px">Ingresó por grúa</label>
               </div>
             </div>
           </div>
@@ -445,6 +446,8 @@ require_once "../../partials/_footer.php";
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script>
+  const obsField = document.getElementById("observaciones");
+  const gruField = document.getElementById("ingresogrua");
   document.getElementById('btnToggleService').addEventListener('click', function (e) {
     e.preventDefault();
     // 1) Mostrar la sección de servicios
@@ -454,6 +457,9 @@ require_once "../../partials/_footer.php";
     this.disabled = true;
     this.classList.remove('btn-success');
     this.classList.add('btn-secondary');
+
+    obsField.disabled = false;
+    gruField.disabled = false;
   });
 </script>
 <script>
@@ -502,6 +508,7 @@ require_once "../../partials/_footer.php";
   }
 </script>
 </body>
+
 </html>
 <!-- <script>
   document.addEventListener('DOMContentLoaded', () => {

@@ -1,5 +1,5 @@
 -- ************************* VISTA DE DETALLE DE VENTA *************************
-
+SELECT * FROM amortizaciones;
 -- VISTA DE VENTAS CON ORDEN DE SERVICIO
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS

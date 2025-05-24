@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Variables y elementos
-  /* const inputCliente = document.getElementById("cliente"); */
   const hiddenIdCliente = document.getElementById("hiddenIdCliente");
   const inputProp = document.getElementById("propietario");
   const inputProductElement = document.getElementById("producto");
@@ -26,19 +25,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
 
-/*   function setFechaDefault() {
-    const input = document.getElementById('fechaIngreso');
-    const now = new Date(); const pad = n => String(n).padStart(2,'0');
-    const yyyy = now.getFullYear(), MM = pad(now.getMonth()+1), dd = pad(now.getDate());
-    const hh = pad(now.getHours()), mm = pad(now.getMinutes());
-    input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-
-    const twoDaysAgo = new Date(now);
-    twoDaysAgo.setDate(now.getDate()-2);
-    input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth()+1)}-${pad(twoDaysAgo.getDate())}T00:00`;
-    input.max = `${yyyy}-${MM}-${dd}T23:59`;
-  }
-  setFechaDefault(); */
+  /*   function setFechaDefault() {
+      const input = document.getElementById('fechaIngreso');
+      const now = new Date(); const pad = n => String(n).padStart(2,'0');
+      const yyyy = now.getFullYear(), MM = pad(now.getMonth()+1), dd = pad(now.getDate());
+      const hh = pad(now.getHours()), mm = pad(now.getMinutes());
+      input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+  
+      const twoDaysAgo = new Date(now);
+      twoDaysAgo.setDate(now.getDate()-2);
+      input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth()+1)}-${pad(twoDaysAgo.getDate())}T00:00`;
+      input.max = `${yyyy}-${MM}-${dd}T23:59`;
+    }
+    setFechaDefault(); */
   // --- Funciones auxiliares ---
   function calcularTotales() {
     let totalImporte = 0;
@@ -634,8 +633,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (json.status === "success") {
             showToast(
               "Guardado con éxito. Venta #" +
-                json.idventa +
-                (json.idorden ? ", Orden #" + json.idorden : ""),
+              json.idventa +
+              (json.idorden ? ", Orden #" + json.idorden : ""),
               "SUCCESS",
               1500
             );

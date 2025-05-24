@@ -17,100 +17,100 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idempresa;
 END$$
 
-DELIMITER ;	
+	DELIMITER ;	
 
--- registro de venta con orden
-DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
-DELIMITER $$
+	-- registro de venta con orden
+	DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
+	DELIMITER $$
 
-CREATE PROCEDURE spRegisterVentaConOrden (
-  IN _conOrden      BOOLEAN,
-  IN _idadmin       INT,
-  IN _idpropietario INT,
-  IN _idcliente     INT,
-  IN _idvehiculo    INT,
-  IN _kilometraje   DECIMAL(10,2),
-  IN _observaciones VARCHAR(255),
-  IN _ingresogrua   BOOLEAN,
-  IN _fechaingreso  DATETIME,
-  IN _tipocom       ENUM('boleta','factura'),
-  IN _fechahora     DATETIME,
-  IN _numserie      VARCHAR(10),
-  IN _numcom        VARCHAR(10),
-  IN _moneda        VARCHAR(20),
-  IN _idcolaborador INT
-)
-BEGIN
-  DECLARE v_idorden INT DEFAULT NULL;
-  DECLARE v_idventa INT DEFAULT 0;
-  DECLARE v_fechaing DATETIME;
+	CREATE PROCEDURE spRegisterVentaConOrden (
+	  IN _conOrden      BOOLEAN,
+	  IN _idadmin       INT,
+	  IN _idpropietario INT,
+	  IN _idcliente     INT,
+	  IN _idvehiculo    INT,
+	  IN _kilometraje   DECIMAL(10,2),
+	  IN _observaciones VARCHAR(255),
+	  IN _ingresogrua   BOOLEAN,
+	  IN _fechaingreso  DATETIME,
+	  IN _tipocom       ENUM('boleta','factura'),
+	  IN _fechahora     DATETIME,
+	  IN _numserie      VARCHAR(10),
+	  IN _numcom        VARCHAR(10),
+	  IN _moneda        VARCHAR(20),
+	  IN _idcolaborador INT
+	)
+	BEGIN
+	  DECLARE v_idorden INT DEFAULT NULL;
+	  DECLARE v_idventa INT DEFAULT 0;
+	  DECLARE v_fechaing DATETIME;
 
-  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
+	  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
 
-  -- 1) Inserta orden de servicio si corresponde
-  IF _conOrden THEN
-    INSERT INTO ordenservicios (
-      idadmin,
-      idpropietario,
-      idcliente,
-      idvehiculo,
-      kilometraje,
-      observaciones,
-      ingresogrua,
-      fechaingreso,
-      fechasalida,
-      estado
-    ) VALUES (
-      _idadmin,
-      _idpropietario,
-      _idcliente,
-      _idvehiculo,
-      _kilometraje,
-      _observaciones,
-      _ingresogrua,
-      v_fechaing,
-      NULL,
-      'A'
-    );
-    SET v_idorden = LAST_INSERT_ID();
-  END IF;
+	  -- 1) Inserta orden de servicio si corresponde
+	  IF _conOrden THEN
+		INSERT INTO ordenservicios (
+		  idadmin,
+		  idpropietario,
+		  idcliente,
+		  idvehiculo,
+		  kilometraje,
+		  observaciones,
+		  ingresogrua,
+		  fechaingreso,
+		  fechasalida,
+		  estado
+		) VALUES (
+		  _idadmin,
+		  _idpropietario,
+		  _idcliente,
+		  _idvehiculo,
+		  _kilometraje,
+		  _observaciones,
+		  _ingresogrua,
+		  v_fechaing,
+		  NULL,
+		  'A'
+		);
+		SET v_idorden = LAST_INSERT_ID();
+	  END IF;
 
-  -- 2) Inserta venta
-  INSERT INTO ventas (
-    idcliente,
-    idpropietario,
-    idcolaborador,
-    idvehiculo,
-    tipocom,
-    fechahora,
-    numserie,
-    numcom,
-    moneda,
-    kilometraje,
-    justificacion,
-    estado
-  ) VALUES (
-    _idcliente,
-    _idpropietario,
-    _idcolaborador,
-    NULLIF(_idvehiculo,0),
-    _tipocom,
-    _fechahora,
-    _numserie,
-    _numcom,
-    _moneda,
-    NULLIF(_kilometraje,0),
-    NULL,
-    TRUE
-  );
-  SET v_idventa = LAST_INSERT_ID();
+	  -- 2) Inserta venta
+	  INSERT INTO ventas (
+		idcliente,
+		idpropietario,
+		idcolaborador,
+		idvehiculo,
+		tipocom,
+		fechahora,
+		numserie,
+		numcom,
+		moneda,
+		kilometraje,
+		justificacion,
+		estado
+	  ) VALUES (
+		_idcliente,
+		_idpropietario,
+		_idcolaborador,
+		NULLIF(_idvehiculo,0),
+		_tipocom,
+		_fechahora,
+		_numserie,
+		_numcom,
+		_moneda,
+		NULLIF(_kilometraje,0),
+		NULL,
+		TRUE
+	  );
+	  SET v_idventa = LAST_INSERT_ID();
 
-  -- 3) Devuelve IDs
-  SELECT v_idventa AS idventa,
-         v_idorden AS idorden;
-END$$
+	  -- 3) Devuelve IDs
+	  SELECT v_idventa AS idventa,
+			 v_idorden AS idorden;
+	END$$
 
-DELIMITER ;
+	DELIMITER ;
 /*
 SELECT
   v.idventa,
@@ -213,22 +213,27 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS spuInsertDetalleVenta;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleVenta (
-  IN _idventa INT,
-  IN _idproducto INT,
-  IN _cantidad INT,
-  IN _numserie_detalle VARCHAR(50),
-  IN _precioventa DECIMAL(7,2),
-  IN _descuento DECIMAL(5,2)
+  IN _idventa            INT,
+  IN _idproducto         INT,
+  IN _cantidad           INT,
+  IN _numserie_detalle   VARCHAR(50),
+  IN _precioventa        DECIMAL(7,2),
+  IN _descuento          DECIMAL(5,2)
 )
 BEGIN
-  DECLARE _idkardex INT;
-  DECLARE _idtipomov INT;
+  DECLARE _idkardex   INT;
+  DECLARE _idtipomov  INT;
   DECLARE _saldoNuevo INT;
-  -- Insertar en detalle de venta
+
+  -- 1) Inserto en detalleventa
   INSERT INTO detalleventa (
-    idproducto, idventa, cantidad, numserie, precioventa, descuento
-  )
-  VALUES (
+    idproducto,
+    idventa,
+    cantidad,
+    numserie,
+    precioventa,
+    descuento
+  ) VALUES (
     _idproducto,
     _idventa,
     _cantidad,
@@ -239,30 +244,41 @@ BEGIN
     _precioventa,
     _descuento
   );
-  -- Traer idkardex del producto
-  SELECT idkardex INTO _idkardex
+
+  -- 2) ACTUALIZO precio en productos al valor de venta
+  UPDATE productos
+     SET precio = _precioventa
+   WHERE idproducto = _idproducto;
+
+  -- 3) Obtengo idkardex del producto
+  SELECT idkardex
+    INTO _idkardex
   FROM kardex
   WHERE idproducto = _idproducto
   LIMIT 1;
-  -- Obtener idtipomov para venta (flujo salida)
-  SELECT idtipomov INTO _idtipomov
+
+  -- 4) Obtengo idtipomov para salida por venta
+  SELECT idtipomov
+    INTO _idtipomov
   FROM tipomovimientos
-  WHERE flujo = 'salida' AND tipomov = 'venta'
+  WHERE flujo = 'salida'
+    AND tipomov = 'venta'
   LIMIT 1;
-  -- Calcular nuevo saldo restante
+
+  -- 5) Calculo nuevo saldo restante
   SET _saldoNuevo = calcularSaldoRestante(_idkardex, _cantidad);
-  -- Insertar en movimientos
+
+  -- 6) Registro el movimiento de salida
   INSERT INTO movimientos (
-    idkardex, 
-    idtipomov, 
-    fecha, 
+    idkardex,
+    idtipomov,
+    fecha,
     cantidad,
     preciounit,
     saldorestante
-  )
-  VALUES (
-    _idkardex, 
-    _idtipomov, 
+  ) VALUES (
+    _idkardex,
+    _idtipomov,
     CURDATE(),
     _cantidad,
     _precioventa,
@@ -424,6 +440,80 @@ END $$
 DROP PROCEDURE IF EXISTS spuInsertDetalleCompra;
 DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCompra (
+  IN _idcompra     INT,
+  IN _idproducto   INT,
+  IN _cantidad     INT,
+  IN _preciocompra DECIMAL(7,2),
+  IN _descuento    DECIMAL(5,2)
+)
+BEGIN
+  DECLARE _idkardex      INT;
+  DECLARE _saldorestante INT;
+
+  -- 1) Inserto detalle de compra
+  INSERT INTO detallecompra (
+    idproducto,
+    idcompra,
+    cantidad,
+    preciocompra,
+    descuento
+  ) VALUES (
+    _idproducto,
+    _idcompra,
+    _cantidad,
+    _preciocompra,
+    _descuento
+  );
+
+  -- 2) Actualizo precio en productos
+  UPDATE productos
+     SET precio = _preciocompra
+   WHERE idproducto = _idproducto;
+
+  -- 3) Obtengo idkardex del producto
+  SELECT idkardex
+    INTO _idkardex
+  FROM kardex
+  WHERE idproducto = _idproducto
+  LIMIT 1;
+
+  -- 4) Calculo saldo actual (último movimiento o stock inicial)
+  SELECT saldorestante
+    INTO _saldorestante
+  FROM movimientos
+  WHERE idkardex = _idkardex
+  ORDER BY idmovimiento DESC
+  LIMIT 1;
+  SET _saldorestante = IFNULL(_saldorestante, 0) + _cantidad;
+
+  -- 5) Inserto en movimientos, incluyendo preciounit
+  INSERT INTO movimientos (
+    idkardex,
+    idtipomov,
+    fecha,
+    cantidad,
+    preciounit,
+    saldorestante
+  )
+  VALUES (
+    _idkardex,
+    (SELECT idtipomov 
+       FROM tipomovimientos 
+      WHERE flujo = 'entrada' 
+        AND tipomov = 'compra'
+      LIMIT 1),
+    CURDATE(),
+    _cantidad,
+    _preciocompra,
+    _saldorestante
+  );
+
+END$$
+DELIMITER ;
+/*
+DROP PROCEDURE IF EXISTS spuInsertDetalleCompra;
+DELIMITER $$
+CREATE PROCEDURE spuInsertDetalleCompra (
   IN _idcompra INT,
   IN _idproducto INT,
   IN _cantidad INT,
@@ -482,7 +572,7 @@ BEGIN
   );
 
 END$$
-DELIMITER ;
+DELIMITER ;*/
 
 -- 9) PROCEDIMIENTO PARA REGISTRAR COTIZACION
 DROP PROCEDURE IF EXISTS spuRegisterCotizaciones;

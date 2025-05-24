@@ -889,23 +889,24 @@ require_once "../../partials/_footer.php";
   });
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const cotId = new URLSearchParams(window.location.search).get('id');
-  if (!cotId) return;
+  document.addEventListener('DOMContentLoaded', () => {
+    const cotId = new URLSearchParams(window.location.search).get('id');
+    if (!cotId) return;
 
-  const hiddenIdCli = document.getElementById('hiddenIdCliente');
-  const inputProp   = document.getElementById('propietario');
-  if (!hiddenIdCli || !inputProp) return;
+    const hiddenIdCli = document.getElementById('hiddenIdCliente');
+    const inputProp = document.getElementById('propietario');
+    if (!hiddenIdCli || !inputProp) return;
 
-  fetch(`<?= SERVERURL ?>app/controllers/cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
-  .then(res => res.json())
-  .then(data => {
-    hiddenIdCliente.value = data.idcliente;
-    inputProp.value   = data.cliente;
-    hiddenIdCliente.dispatchEvent(new Event('change'));
-  })
-  .catch(console.error);
-});
+    fetch(`<?= SERVERURL ?>app/controllers/cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
+      .then(res => res.json())
+      .then(data => {
+        hiddenIdCliente.value = data.idcliente;
+        inputProp.value = data.cliente;
+        hiddenIdCliente.dispatchEvent(new Event('change'));
+      })
+      .catch(console.error);
+  });
 </script>
 </body>
+
 </html>

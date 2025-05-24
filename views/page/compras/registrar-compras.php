@@ -55,11 +55,18 @@ require_once "../../partials/header.php";
               </button>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="form-floating">
+          <div class="col-md-4 d-flex">
+            <!-- Input con flex-grow para que sea más largo -->
+            <div class="form-floating flex-grow-1 ">
               <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
               <label for="fechaIngreso">Fecha de Compra:</label>
             </div>
+
+            <!-- Botón más delgado y estilizado -->
+            <button type="button" id="btnPermitirFechaPasada" class="btn btn-outline-secondary px-2"
+              style="height: 58px; width: 42px;" title="Permitir fechas pasadas">
+              <i class="fa-solid fa-unlock"></i>
+            </button>
           </div>
           <div class="col-md-3">
             <div class="form-floating">
@@ -366,28 +373,22 @@ require_once "../../partials/_footer.php";
     const modal = document.getElementById('modalNuevoProveedor');
     const formProv = document.getElementById('formProveedor');
     const selectProv = document.getElementById('proveedor');
-
     modal.addEventListener('hidden.bs.modal', () => {
       formProv.reset();
     });
-
     formProv.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const formData = new URLSearchParams(new FormData(formProv));
       formData.append('operation', 'registerEmpresa');
-
       try {
         const resp = await fetch('<?= SERVERURL ?>app/controllers/Proveedor.controller.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: formData.toString()
         });
-
         // 1) Lée la respuesta como texto para no “vaciar” el stream
         const text = await resp.text();
         console.log("📥 Raw response:", text);
-
         let result;
         try {
           result = JSON.parse(text);
@@ -397,7 +398,6 @@ require_once "../../partials/_footer.php";
           showToast("Respuesta del servidor no es JSON válido", "ERROR", 2000);
           return;
         }
-
         // 2) Ahora haces la lógica normal
         if (result.status) {
           const newOption = document.createElement('option');
@@ -412,7 +412,6 @@ require_once "../../partials/_footer.php";
           // Muestra el mensaje tal cual venga
           showToast(result.message, 'ERROR', 2000);
         }
-
       } catch (err) {
         console.error("❗ Error de red o JS:", err);
         showToast('Error de red. Intenta de nuevo.', 'ERROR', 1500);
@@ -424,11 +423,25 @@ require_once "../../partials/_footer.php";
   // 1) Declárala UNA sola vez, arriba de todo:
   let selectedProduct = {};
   const detalleCompra = [];
+  let originalPrecio = 0;
+</script>
+<script>
+  const inputFecha = document.getElementById("fechaIngreso");
+  const btnPermitir = document.getElementById("btnPermitirFechaPasada");
+
+  const hoy = new Date().toISOString().split("T")[0];
+  inputFecha.min = hoy;
+
+  btnPermitir.addEventListener("click", () => {
+    inputFecha.removeAttribute("min");
+    btnPermitir.disabled = true;
+    btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
+    btnPermitir.title = "Fechas pasadas habilitadas";
+  });
 </script>
 <script>
   document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
     e.preventDefault();
-
     const form = document.getElementById("form-nuevo-producto");
     const formData = new FormData(form);
 
@@ -458,18 +471,13 @@ require_once "../../partials/_footer.php";
           selectedProduct.idproducto = resp.idproducto;
           selectedProduct.subcategoria_producto = `${subcategoriaText} ${descripcion}`;
           selectedProduct.precio = document.getElementById("precio").value;
-
           // nueva línea para jalarlo al formulario de compra:
           document.getElementById("preciocompra").value = selectedProduct.precio;
-
           // 1) captura la cantidad ingresada en el modal:
           const modalCantidad = document.getElementById("stockInicial").value;
-
           // 2) asígnala al campo stock del formulario principal:
           document.getElementById("stock").value = modalCantidad;
-
           selectedProduct.stock = parseInt(modalCantidad, 10);
-
           // Cerrar el modal correctamente.
           const modalEl = document.getElementById('miModal');
           let modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -567,10 +575,20 @@ require_once "../../partials/_footer.php";
     const inputDescuento = document.getElementById("descuento");
     inputPrecio.addEventListener("blur", () => {
       const val = parseFloat(inputPrecio.value);
+      const precioOriginal = parseFloat(selectedProduct.precio);
+
       if (isNaN(val) || val <= 0) {
         alert("Precio inválido.");
-        // Asegúrate de que selectedProduct.precio sea un número
-        inputPrecio.value = parseFloat(selectedProduct.precio).toFixed(2);
+        inputPrecio.value = precioOriginal.toFixed(2);
+        return;
+      }
+
+      // Validar si el nuevo precio es menor al original
+      if (val < precioOriginal) {
+        const confirmar = confirm(`Has ingresado un precio menor al original (${precioOriginal.toFixed(2)}). ¿Deseas continuar?`);
+        if (!confirmar) {
+          inputPrecio.value = precioOriginal.toFixed(2);
+        }
       }
     });
     function initDateField(id) {
@@ -658,11 +676,6 @@ require_once "../../partials/_footer.php";
         return;
       }
 
-      /*       if (precioProducto <= 0) {
-              alert("El precio debe ser mayor que cero.");
-              inputPrecio.value = "";
-              return;
-            } */
       // 3) No duplicar
       if (estaDuplicado(selectedProduct.idproducto)) {
         alert("Este producto ya ha sido agregado.");
@@ -869,6 +882,7 @@ require_once "../../partials/_footer.php";
                 precio: producto.precio,
                 stock: producto.stock
               };
+              originalPrecio = selectedProduct.precio;
               inputStock.value = selectedProduct.stock;
               cerrarListas();
             });
