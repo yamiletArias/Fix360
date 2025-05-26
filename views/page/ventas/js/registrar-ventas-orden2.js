@@ -45,27 +45,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 1) Productos
     tabla.querySelectorAll("tr").forEach((fila) => {
-      const cantidad =
-        parseFloat(fila.querySelector(".cantidad-input").value) || 0;
-      const precio = parseFloat(fila.children[2].textContent) || 0;
-      const descuento = parseFloat(fila.children[4].textContent) || 0;
+      // Lee precio desde input
+      const precioInput = fila.querySelector(".precio-input");
+      const precio = precioInput
+        ? parseFloat(precioInput.value) || 0
+        : 0;
+
+      // Lee cantidad desde input
+      const cantidad = parseFloat(
+        fila.querySelector(".cantidad-input").value
+      ) || 0;
+
+      // Lee descuento desde input
+      const descuentoInput = fila.querySelector(".descuento-input");
+      const descuento = descuentoInput
+        ? parseFloat(descuentoInput.value) || 0
+        : 0;
+
       const importeLinea = (precio - descuento) * cantidad;
       totalImporte += importeLinea;
       totalDescuento += descuento * cantidad;
     });
 
-    // 2) Servicios
-    const totalServicios = detalleServicios.reduce(
-      (sum, s) => sum + s.precio,
-      0
-    );
-    totalImporte += totalServicios; // (en los servicios no hay descuento aparte, así que no tocamos totalDescuento)
+    // 2) Servicios (igual que antes)
+    const totalServicios = detalleServicios.reduce((sum, s) => sum + s.precio, 0);
+    totalImporte += totalServicios;
 
-    // 3) IGV (18%) y neto
+    // 3) IGV y neto
     const igv = totalImporte - totalImporte / 1.18;
     const neto = totalImporte / 1.18;
 
-    // 4) Pinto en el footer
+    // 4) Mostrar en el formulario
     document.getElementById("neto").value = neto.toFixed(2);
     document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
     document.getElementById("igv").value = igv.toFixed(2);
@@ -204,17 +214,23 @@ document.addEventListener("DOMContentLoaded", function () {
     /* const nombre = inputProductElement.value; */
     const precio = parseFloat(inputPrecio.value);
     const cantidad = parseFloat(inputCantidad.value);
+    if (isNaN(cantidad) || cantidad < 1) {
+      alert("La cantidad debe ser un número mayor o igual a 1.");
+      inputCantidad.value = 1;
+      inputCantidad.focus();
+      return;
+    }
     if (inputDescuento.value.trim() === "") {
       inputDescuento.value = "0";
     }
-    inputPrecio.addEventListener("blur", () => {
+    /* inputPrecio.addEventListener("blur", () => {
       const val = parseFloat(inputPrecio.value);
       if (isNaN(val) || val <= 0) {
         alert("Precio inválido.");
         // Asegúrate de que selectedProduct.precio sea un número
         inputPrecio.value = parseFloat(selectedProduct.precio).toFixed(2);
       }
-    });
+    }); */
     const descuento = parseFloat(inputDescuento.value);
 
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
@@ -224,8 +240,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!nombre || isNaN(precio) || isNaN(cantidad)) {
       return alert("Completa todos los campos correctamente.");
     }
-    if (isNaN(precio) || precio <= 0) {
-      return alert("Ingresa un precio válido mayor que cero.");
+    if (isNaN(precio) || precio < 1) {
+      alert("El precio debe ser un número mayor o igual a 1.");
+      inputPrecio.value = selectedProduct.precio.toFixed(2);
+      inputPrecio.focus();
+      return;
     }
     if (cantidad <= 0) {
       alert("La cantidad debe ser mayor que cero.");
@@ -270,19 +289,34 @@ document.addEventListener("DOMContentLoaded", function () {
     fila.innerHTML = `
         <td>${tabla.rows.length + 1}</td>
         <td>${nombre}</td>
-        <td>${precio.toFixed(2)}</td>
-        <td>
-          <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
-            <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
-            <input type="number"
-                  class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                  value="${cantidad}"
-                  min="1"
-                  max="${stockDisponible}">
-            <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
-          </div>
-        </td>
-        <td>${descuento.toFixed(2)}</td>
+  <td>
+    <input type="number"
+          class="form-control form-control-sm precio-input"
+          value="${parseInt(precio)}"
+          min="1"
+          step="1"
+          style="width:5rem;">
+  </td>
+  <td>
+    <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+      <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
+        <input type="number"
+          class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+          value="${parseInt(cantidad)}"
+          min="1"
+          step="1"
+          max="${stockDisponible}">
+      <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
+    </div>
+  </td>
+  <td>
+    <input type="number"
+          class="form-control form-control-sm descuento-input"
+          value="${parseInt(descuento)}"
+          min="0"
+          step="1"
+          style="width:5rem;">
+    </td>
         <td class="importe-cell">${importe.toFixed(2)}</td>
 
         <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
@@ -301,35 +335,55 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     tabla.appendChild(fila);
+    tabla.addEventListener("input", (e) => {
+      // Precio y cantidad deben mostrarse como enteros
+      if (e.target.classList.contains("precio-input") ||
+        e.target.classList.contains("cantidad-input")) {
+        let valor = parseInt(e.target.value) || 0;
+        e.target.value = valor;
+      }
+    });
 
     const decBtn = fila.querySelector(".btn-decrement");
     const incBtn = fila.querySelector(".btn-increment");
+    const priceInput = fila.querySelector(".precio-input");
     const qtyInput = fila.querySelector(".cantidad-input");
     const importeCell = fila.querySelector(".importe-cell");
+    const descInput = fila.querySelector(".descuento-input");
+    const discountInput = fila.querySelector(".descuento-input");
 
     function actualizarLinea() {
-      let qty = parseInt(qtyInput.value, 10) || 1;
-      //  capea entre 1 y stockDisponible
+      let qty = parseFloat(qtyInput.value) || 1;
       if (qty < 1) qty = 1;
       if (qty > stockDisponible) qty = stockDisponible;
-      qtyInput.value = qty;
+      qtyInput.value = qty.toFixed(2);
 
-      // recalcula importe neto para esta línea
-      const netoUnit = precio - descuento;
+      let precioNuevo = parseFloat(priceInput.value) || 0;
+      if (precioNuevo < 0.01) precioNuevo = 0.01;
+      priceInput.value = precioNuevo.toFixed(2);
+
+      let descuentoNuevo = parseFloat(discountInput.value) || 0;
+      if (descuentoNuevo < 0) descuentoNuevo = 0;
+      if (descuentoNuevo > precioNuevo) descuentoNuevo = precioNuevo;
+      discountInput.value = descuentoNuevo.toFixed(2);
+
+      const netoUnit = precioNuevo - descuentoNuevo;
       const nuevoImporte = netoUnit * qty;
       importeCell.textContent = nuevoImporte.toFixed(2);
 
-      // actualiza el array detalleVenta
-      const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
+      const idx = detalleVenta.findIndex(d => d.idproducto === idp);
       if (idx >= 0) {
         detalleVenta[idx].cantidad = qty;
+        detalleVenta[idx].precio = precioNuevo;
+        detalleVenta[idx].descuento = descuentoNuevo;
         detalleVenta[idx].importe = nuevoImporte.toFixed(2);
       }
-
-      // renumera y recalcula totales generales
       calcularTotales();
     }
-
+    priceInput.addEventListener("input", actualizarLinea);
+    qtyInput.addEventListener("input", actualizarLinea);
+    discountInput.addEventListener("input", actualizarLinea);
+    descInput.addEventListener("input", actualizarLinea);
     // incr/decr
     decBtn.addEventListener("click", () => {
       qtyInput.stepDown();
@@ -384,23 +438,23 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Función de debounce para evitar demasiadas llamadas en tiempo real
- /**
- * Crea una versión “debounced” de `func`. Además expone un método `cancel()` para anular el timer pendiente.
- */
-function debounce(func, delay) {
-  let timeoutId;
-  function wrapped(...args) {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      func.apply(this, args);
-    }, delay);
+  /**
+  * Crea una versión “debounced” de `func`. Además expone un método `cancel()` para anular el timer pendiente.
+  */
+  function debounce(func, delay) {
+    let timeoutId;
+    function wrapped(...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    }
+    // Exponemos un método “cancel” para limpiar cualquier timer activo
+    wrapped.cancel = function () {
+      clearTimeout(timeoutId);
+    };
+    return wrapped;
   }
-  // Exponemos un método “cancel” para limpiar cualquier timer activo
-  wrapped.cancel = function () {
-    clearTimeout(timeoutId);
-  };
-  return wrapped;
-}
 
 
   // Función de navegación con el teclado para autocompletar
@@ -440,94 +494,111 @@ function debounce(func, delay) {
     }
   }
 
-/**
- * Busca productos y, si encuentra al menos uno, agrega automáticamente el primero a la tabla.
- * Si el término contiene letras o espacios, muestra un dropdown para búsqueda manual.
- *
- * @param {HTMLInputElement} input  El <input> donde se escribe el término de búsqueda.
- */
-function mostrarOpcionesProducto(input) {
-  cerrarListas();
-  const termino = input.value.trim();
-  if (!termino) return;
+  /**
+   * Busca productos y, si encuentra al menos uno, agrega automáticamente el primero a la tabla.
+   * Si el término contiene letras o espacios, muestra un dropdown para búsqueda manual.
+   *
+   * @param {HTMLInputElement} input  El <input> donde se escribe el término de búsqueda.
+   */
+  function mostrarOpcionesProducto(input) {
+    cerrarListas();
+    const termino = input.value.trim();
+    if (!termino) return;
 
-  // Detectar si es “solo dígitos” (scanner) o no:
-  const esSoloDigitos = /^\d+$/.test(termino);
+    // Detectar si es “solo dígitos” (scanner) o no:
+    const esSoloDigitos = /^\d+$/.test(termino);
 
-  fetch(
-    `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(termino)}&type=producto`
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      if (!Array.isArray(data) || data.length === 0) {
-        showToast("No se encontraron productos.", "WARNING", 1500);
-        return;
-      }
+    fetch(
+      `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(termino)}&type=producto`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (!Array.isArray(data) || data.length === 0) {
+          showToast("No se encontraron productos.", "WARNING", 1500);
+          return;
+        }
 
-      if (esSoloDigitos) {
-        // ===== Caso ESCÁNER (código de barras) =====
-        const producto = data[0];
-        inputProductElement.value = producto.subcategoria_producto;
-        inputPrecio.value = parseFloat(producto.precio).toFixed(2);
-        inputStock.value = producto.stock;
-        inputCantidad.value = 1;
-        inputDescuento.value = 0;
+        if (esSoloDigitos) {
+          // ===== Caso ESCÁNER (código de barras) =====
+          const producto = data[0];
+          inputProductElement.value = producto.subcategoria_producto;
+          inputPrecio.value = parseFloat(producto.precio).toFixed(2);
+          inputStock.value = producto.stock;
+          inputCantidad.value = 1;
+          inputDescuento.value = 0;
 
-        selectedProduct = {
-          idproducto: producto.idproducto,
-          subcategoria_producto: producto.subcategoria_producto,
-          precio: parseFloat(producto.precio),
-          stock: producto.stock,
-        };
+          selectedProduct = {
+            idproducto: producto.idproducto,
+            subcategoria_producto: producto.subcategoria_producto,
+            precio: parseFloat(producto.precio),
+            stock: producto.stock,
+          };
 
-        cerrarListas();
-        agregarProductoBtn.click();
+          cerrarListas();
+          agregarProductoBtn.click();
 
-        // Devolver foco y limpiar para siguiente escaneo
-        inputProductElement.value = "";
-        inputProductElement.focus();
-      } else {
-        // ===== Caso MANUAL (texto con letras o espacios) =====
-        const itemsDiv = document.createElement("div");
-        itemsDiv.setAttribute("id", "autocomplete-list-producto");
-        itemsDiv.setAttribute("class", "autocomplete-items");
-        input.parentNode.appendChild(itemsDiv);
+          // Devolver foco y limpiar para siguiente escaneo
+          inputProductElement.value = "";
+          inputProductElement.focus();
+        } else {
+          // ===== Caso MANUAL (texto con letras o espacios) =====
+          const itemsDiv = document.createElement("div");
+          itemsDiv.setAttribute("id", "autocomplete-list-producto");
+          itemsDiv.setAttribute("class", "autocomplete-items");
+          input.parentNode.appendChild(itemsDiv);
 
-        data.forEach(function (producto) {
-          const optionDiv = document.createElement("div");
-          optionDiv.textContent = producto.subcategoria_producto;
-          optionDiv.addEventListener("click", function () {
-            inputProductElement.value = producto.subcategoria_producto;
-            inputPrecio.value = parseFloat(producto.precio).toFixed(2);
-            inputStock.value = producto.stock;
-            inputCantidad.value = 1;
-            inputDescuento.value = 0;
+          data.forEach(function (producto) {
+            const optionDiv = document.createElement("div");
+            optionDiv.textContent = producto.subcategoria_producto;
+            optionDiv.addEventListener("click", function () {
+              inputProductElement.value = producto.subcategoria_producto;
+              inputPrecio.value = parseFloat(producto.precio).toFixed(2);
+              inputStock.value = producto.stock;
+              inputCantidad.value = 1;
+              inputDescuento.value = 0;
 
-            selectedProduct = {
-              idproducto: producto.idproducto,
-              subcategoria_producto: producto.subcategoria_producto,
-              precio: parseFloat(producto.precio),
-              stock: producto.stock,
-            };
+              selectedProduct = {
+                idproducto: producto.idproducto,
+                subcategoria_producto: producto.subcategoria_producto,
+                precio: parseFloat(producto.precio),
+                stock: producto.stock,
+              };
+              originalPrecio = selectedProduct.precio;
+              const inputPrecioVenta = document.getElementById("precio");
+              inputPrecioVenta.addEventListener("blur", () => {
+                const nuevo = parseFloat(inputPrecioVenta.value);
+                if (selectedProduct.idproducto && (!nuevo || nuevo < 1)) {
+                  alert("El precio debe ser mayor o igual a 1.");
+                  inputPrecioVenta.value = originalPrecio.toFixed(2);
+                  inputPrecioVenta.focus();
+                  return;
+                }
+                if (nuevo < originalPrecio) {
+                  const ok = window.confirm(
+                    `Has ingresado un precio menor al original (${originalPrecio.toFixed(2)}). ¿Deseas continuar?`
+                  );
+                  if (!ok) {
+                    inputPrecioVenta.value = originalPrecio.toFixed(2);
+                    document.getElementById("cantidad").focus();
+                  }
+                }
+              });
 
-            cerrarListas();
-            // (Aquí podrías hacer inputCantidad.focus(), si quieres)
+              cerrarListas();
+              // (Aquí podrías hacer inputCantidad.focus(), si quieres)
+            });
+            itemsDiv.appendChild(optionDiv);
           });
-          itemsDiv.appendChild(optionDiv);
-        });
 
-        // Habilitar navegación por teclado en la lista de sugerencias
-        agregaNavegacion(input, itemsDiv);
-      }
-    })
-    .catch((err) => {
-      console.error("Error al obtener los productos:", err);
-      showToast("Error al buscar productos.", "ERROR", 1500);
-    });
-}
-
-
-
+          // Habilitar navegación por teclado en la lista de sugerencias
+          agregaNavegacion(input, itemsDiv);
+        }
+      })
+      .catch((err) => {
+        console.error("Error al obtener los productos:", err);
+        showToast("Error al buscar productos.", "ERROR", 1500);
+      });
+  }
 
   // Función para cerrar las listas de autocompletado
   function cerrarListas(elemento) {
@@ -540,64 +611,64 @@ function mostrarOpcionesProducto(input) {
   }
 
   // Listeners para el autocompletado de productos usando debounce
-// Creamos una versión debounced de mostrarOpcionesProducto:
-const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+  // Creamos una versión debounced de mostrarOpcionesProducto:
+  const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
 
-// Cuando el usuario escribe (o hace clic), disparamos el autocompletado “normal” con debounce
-// 1) Listener de ‘input’: sólo para búsquedas manuales con debounce:
-inputProductElement.addEventListener("input", function () {
-  const termino = this.value.trim();
-  const esSoloDigitos = /^\d+$/.test(termino);
+  // Cuando el usuario escribe (o hace clic), disparamos el autocompletado “normal” con debounce
+  // 1) Listener de ‘input’: sólo para búsquedas manuales con debounce:
+  inputProductElement.addEventListener("input", function () {
+    const termino = this.value.trim();
+    const esSoloDigitos = /^\d+$/.test(termino);
 
-  if (!esSoloDigitos) {
-    // Mientras escribes a mano (letras/espacios) usamos el debounce
-    debouncedMostrarOpcionesProducto(this);
-  }
-  // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
-});
+    if (!esSoloDigitos) {
+      // Mientras escribes a mano (letras/espacios) usamos el debounce
+      debouncedMostrarOpcionesProducto(this);
+    }
+    // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
+  });
 
-// 2) Listener de ‘keyup’: sólo para scanner (ENTER):
-inputProductElement.addEventListener("keyup", function(e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    // 1) limpias la lista y cancelas el debounce
-    cerrarListas();
-    debouncedMostrarOpcionesProducto.cancel();
+  // 2) Listener de ‘keyup’: sólo para scanner (ENTER):
+  inputProductElement.addEventListener("keyup", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // 1) limpias la lista y cancelas el debounce
+      cerrarListas();
+      debouncedMostrarOpcionesProducto.cancel();
 
-    const codigo = this.value.trim();
-    if (!codigo) return;
+      const codigo = this.value.trim();
+      if (!codigo) return;
 
-    // 2) aquí solo lógica de scanner
-    fetch(`${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(codigo)}&type=producto`)
-      .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length) {
-          const producto = data[0];
-          // rellenas los campos
-          inputProductElement.value = producto.subcategoria_producto;
-          inputPrecio.value         = parseFloat(producto.precio).toFixed(2);
-          inputStock.value          = producto.stock;
-          inputCantidad.value       = 1;
-          inputDescuento.value      = 0;
-          selectedProduct = {
-            idproducto: producto.idproducto,
-            subcategoria_producto: producto.subcategoria_producto,
-            precio: parseFloat(producto.precio),
-            stock: producto.stock
-          };
-          // y disparas tu “agregar”
-          agregarProductoBtn.click();
-        } else {
-          showToast("No se encontraron productos.", "WARNING", 1500);
-        }
-      })
-      .finally(() => {
-        // borra y fócate **después** de agregar
-        this.value = "";
-        this.focus();
-      });
-  }
-});
+      // 2) aquí solo lógica de scanner
+      fetch(`${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(codigo)}&type=producto`)
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length) {
+            const producto = data[0];
+            // rellenas los campos
+            inputProductElement.value = producto.subcategoria_producto;
+            inputPrecio.value = parseFloat(producto.precio).toFixed(2);
+            inputStock.value = producto.stock;
+            inputCantidad.value = 1;
+            inputDescuento.value = 0;
+            selectedProduct = {
+              idproducto: producto.idproducto,
+              subcategoria_producto: producto.subcategoria_producto,
+              precio: parseFloat(producto.precio),
+              stock: producto.stock
+            };
+            // y disparas tu “agregar”
+            agregarProductoBtn.click();
+          } else {
+            showToast("No se encontraron productos.", "WARNING", 1500);
+          }
+        })
+        .finally(() => {
+          // borra y fócate **después** de agregar
+          this.value = "";
+          this.focus();
+        });
+    }
+  });
 
 
   // --- Generación de Serie y Comprobante ---
@@ -736,6 +807,32 @@ inputProductElement.addEventListener("keyup", function(e) {
           btnFinalizarVenta.textContent = "Guardar";
         });
     });
+  });
+});
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("btn-increment")) {
+    const input = e.target.parentElement.querySelector(".cantidad-input");
+    input.value = parseInt(input.value || "0") + 1;
+    input.dispatchEvent(new Event("input"));
+  }
+
+  if (e.target.classList.contains("btn-decrement")) {
+    const input = e.target.parentElement.querySelector(".cantidad-input");
+    const newVal = parseInt(input.value || "1") - 1;
+    input.value = newVal > 0 ? newVal : 1;
+    input.dispatchEvent(new Event("input"));
+  }
+  const inputFecha = document.getElementById("fechaIngreso");
+  const btnPermitir = document.getElementById("btnPermitirFechaPasada");
+
+  const hoy = new Date().toISOString().split("T")[0];
+  inputFecha.min = hoy;
+
+  btnPermitir.addEventListener("click", () => {
+    inputFecha.removeAttribute("min");
+    btnPermitir.disabled = true;
+    btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
+    btnPermitir.title = "Fechas pasadas habilitadas";
   });
 });
 /* document.addEventListener('DOMContentLoaded', () => {
