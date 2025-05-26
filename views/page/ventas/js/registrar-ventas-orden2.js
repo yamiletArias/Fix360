@@ -211,14 +211,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (inputDescuento.value.trim() === "") {
       inputDescuento.value = "0";
     }
-    inputPrecio.addEventListener("blur", () => {
+    /* inputPrecio.addEventListener("blur", () => {
       const val = parseFloat(inputPrecio.value);
       if (isNaN(val) || val <= 0) {
         alert("Precio inválido.");
         // Asegúrate de que selectedProduct.precio sea un número
         inputPrecio.value = parseFloat(selectedProduct.precio).toFixed(2);
       }
-    });
+    }); */
     const descuento = parseFloat(inputDescuento.value);
 
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
