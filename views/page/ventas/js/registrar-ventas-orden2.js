@@ -337,8 +337,8 @@ document.addEventListener("DOMContentLoaded", function () {
     tabla.appendChild(fila);
     tabla.addEventListener("input", (e) => {
       // Precio y cantidad deben mostrarse como enteros
-      if (e.target.classList.contains("precio-input") || 
-          e.target.classList.contains("cantidad-input")) {
+      if (e.target.classList.contains("precio-input") ||
+        e.target.classList.contains("cantidad-input")) {
         let valor = parseInt(e.target.value) || 0;
         e.target.value = valor;
       }
@@ -822,6 +822,18 @@ document.addEventListener("click", function (e) {
     input.value = newVal > 0 ? newVal : 1;
     input.dispatchEvent(new Event("input"));
   }
+  const inputFecha = document.getElementById("fechaIngreso");
+  const btnPermitir = document.getElementById("btnPermitirFechaPasada");
+
+  const hoy = new Date().toISOString().split("T")[0];
+  inputFecha.min = hoy;
+
+  btnPermitir.addEventListener("click", () => {
+    inputFecha.removeAttribute("min");
+    btnPermitir.disabled = true;
+    btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
+    btnPermitir.title = "Fechas pasadas habilitadas";
+  });
 });
 /* document.addEventListener('DOMContentLoaded', () => {
   const cotId = new URLSearchParams(window.location.search).get('id');

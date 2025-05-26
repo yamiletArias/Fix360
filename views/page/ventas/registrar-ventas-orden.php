@@ -83,17 +83,22 @@ require_once "../../partials/header.php";
               <label for="vehiculo"><strong>Eliga un vehículo</strong></label>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <div class="form-floating">
               <input type="number" step="0.1" class="form-control input" id="kilometraje" placeholder="201">
               <label for="kilometraje"><strong>Kilometraje</strong></label>
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="form-floating">
+          <div class="col-md-3 d-flex">
+            <div class="form-floating flex-grow-1">
               <input type="datetime-local" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
               <label for="fechaIngreso">Fecha de venta:</label>
             </div>
+            <!-- Botón más delgado y estilizado -->
+            <button type="button" id="btnPermitirFechaPasada" class="btn btn-outline-secondary px-2"
+              style="height: 58px; width: 40px;" title="Permitir fechas pasadas">
+              <i class="fa-solid fa-unlock"></i>
+            </button>
           </div>
           <div class="col-md-2">
             <div class="form-floating">
@@ -508,6 +513,7 @@ require_once "../../partials/_footer.php";
   }
 </script>
 </body>
+
 </html>
 <!-- <script>
   document.addEventListener('DOMContentLoaded', () => {
