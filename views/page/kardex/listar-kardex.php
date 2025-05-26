@@ -22,7 +22,7 @@ require_once "../../partials/header.php";
   <div class="row align-items-center">
     <div class="col-md-4 mb-3">
       <div class="form-floating">
-        <input type="text" id="producto" class="form-control input" placeholder="busca producto..." autocomplete="off">
+        <input type="text" id="producto" class="form-control input" placeholder="busca producto..." autocomplete="off" autofocus>
         <div id="autocomplete-producto" class="autocomplete-items"></div>
         <label for="producto">Producto</label>
       </div>
@@ -129,6 +129,26 @@ require_once "../../partials/header.php";
       return;
     }
 
+    async function mostrarOpcionesProducto(input) {
+      listaAuto.innerHTML = '';
+      const termino = input.value.trim();
+      if (!termino) return;
+
+      const data = await fetchProductos(termino);
+      if (!data.length) {
+        listaAuto.innerHTML = '<div>No se encontraron productos</div>';
+        return;
+      }
+      data.forEach(prod => {
+        const div = document.createElement('div');
+        div.textContent = prod.subcategoria_producto;
+        div.tabIndex = 0;
+        div.addEventListener('click', () => selectProd(prod));
+        listaAuto.appendChild(div);
+      });
+    }
+
+
     const showAuto = debounce(async () => {
       const q = inpProducto.value.trim();
       const data = await fetchProductos(q);
@@ -146,8 +166,46 @@ require_once "../../partials/header.php";
       });
     }, 300);
 
-    inpProducto.addEventListener('input', showAuto);
-    inpProducto.addEventListener('focus', showAuto);
+    // 1) Sólo para búsqueda manual con debounce (letras o espacios)
+    inpProducto.addEventListener('input', function() {
+      const q = this.value.trim();
+      const esSoloDigitos = /^\d+$/.test(q);
+      if (!esSoloDigitos) {
+        showAuto();
+      }
+      // si es sólo dígitos, esperamos al ENTER del scanner
+    });
+
+    // 2) Para el lector de código de barras (ENTER)
+    // 2) Para el lector de código de barras (ENTER):
+    inpProducto.addEventListener('keyup', function(e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      const codigo = this.value.trim();
+      if (!codigo) return;
+
+      // Cancelamos cualquier dropdown pendiente
+      listaAuto.innerHTML = '';
+
+      // Hacemos fetch inmediato con el código escaneado
+      fetchProductos(codigo).then(data => {
+        if (Array.isArray(data) && data.length) {
+          // Selecciona el producto
+          selectProd(data[0]);
+
+          // En lugar de borrar el valor,
+          // dejamos el nombre y seleccionamos todo el texto:
+          inpProducto.select();
+        } else {
+          mostrarMensajeTabla('No se encontraron productos para ese código');
+          // si quisieras borrar en este caso:
+          // this.value = '';
+        }
+      });
+    });
+
+
     document.addEventListener('click', e => {
       if (!listaAuto.contains(e.target) && e.target !== inpProducto) {
         listaAuto.innerHTML = '';
@@ -249,7 +307,7 @@ require_once "../../partials/header.php";
             title: 'Cantidad'
           },
           {
-title: 'Precio Unitario'
+            title: 'Precio Unitario'
           },
           {
             title: 'Saldo'

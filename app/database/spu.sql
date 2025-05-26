@@ -1201,6 +1201,7 @@ CREATE PROCEDURE spRegisterEgreso(
   IN _idformapago    INT,
   IN _concepto       VARCHAR(100),
   IN _monto          DECIMAL(10,2),
+  IN _fecharegistro DATETIME,
   IN _numcomprobante VARCHAR(20)
 )
 BEGIN
@@ -1210,6 +1211,7 @@ BEGIN
     idformapago,
     concepto,
     monto,
+    fecharegistro,
     numcomprobante
   ) VALUES (
     _idadmin,
@@ -1217,6 +1219,7 @@ BEGIN
     _idformapago,
     _concepto,
     _monto,
+    _fecharegistro,
     NULLIF(_numcomprobante, '')
   );
   SELECT LAST_INSERT_ID() AS idegreso;
@@ -1237,12 +1240,14 @@ BEGIN
 END$$
 
 -- select * from egresos
-
+-- select * from kardex;
+-- select * from productos where codigobarra = 'S8M0PH038476JTY'
+-- select * from productos where idproducto = 10
 -- CALL spGetUltimoKilometraje(8);
 -- select * from ordenservicios;
-
+-- select * from movimientos where idkardex = 1;
+CALL spListMovimientosPorProductoPorPeriodo(45, 'mes', '2025-05-10');
 DROP PROCEDURE IF EXISTS spListMovimientosPorProductoPorPeriodo;
--- delimiter $$
 DELIMITER $$
 CREATE PROCEDURE spListMovimientosPorProductoPorPeriodo(
     IN in_idproducto INT,
@@ -1250,39 +1255,43 @@ CREATE PROCEDURE spListMovimientosPorProductoPorPeriodo(
     IN in_fecha      DATE
 )
 BEGIN
-    DECLARE v_inicio DATE;
-    DECLARE v_fin    DATE;
+    DECLARE v_inicio   DATETIME;
+    DECLARE v_fin      DATETIME;
+    DECLARE v_msg      VARCHAR(100);
 
-    -- Determina el rango según el modo
-    IF in_modo = 'dia' THEN
-        SET v_inicio = in_fecha;
-        SET v_fin    = in_fecha;
-    ELSEIF in_modo = 'semana' THEN
-        SET v_inicio = DATE_SUB(in_fecha, INTERVAL WEEKDAY(in_fecha) DAY);
-        SET v_fin    = DATE_ADD(v_inicio, INTERVAL 6 DAY);
-    ELSEIF in_modo = 'mes' THEN
-        SET v_inicio = DATE_SUB(in_fecha, INTERVAL DAY(in_fecha)-1 DAY);
-        SET v_fin    = LAST_DAY(in_fecha);
-    ELSE
-        SET v_inicio = in_fecha;
-        SET v_fin    = in_fecha;
-    END IF;
+    CASE
+      WHEN in_modo = 'dia' THEN
+        SET v_inicio = CAST(in_fecha AS DATETIME);
+        SET v_fin    = DATE_ADD(v_inicio, INTERVAL 1 DAY);
 
-    -- Selección de movimientos
+      WHEN in_modo = 'semana' THEN
+        SET v_inicio = DATE_SUB(CAST(in_fecha AS DATETIME), INTERVAL WEEKDAY(in_fecha) DAY);
+        SET v_fin    = DATE_ADD(v_inicio, INTERVAL 7 DAY);
+
+      WHEN in_modo = 'mes' THEN
+        SET v_inicio = CAST(DATE_FORMAT(in_fecha, '%Y-%m-01') AS DATETIME);
+        SET v_fin    = DATE_ADD(v_inicio, INTERVAL 1 MONTH);
+
+      ELSE
+        SET v_msg = CONCAT('Modo inválido: ', in_modo);
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = v_msg;
+    END CASE;
+
+    -- <-- aqui ya no hay debug, solo devuelves la tabla
     SELECT
-        m.fecha,
-        tm.flujo,
-        tm.tipomov       AS tipo_movimiento,
-        m.cantidad,
-        m.saldorestante  AS saldo_restante,
-        mpreciounit
+      m.fecha,
+      tm.flujo,
+      tm.tipomov       AS tipo_movimiento,
+      m.cantidad,
+      m.saldorestante  AS saldo_restante,
+      m.preciounit
     FROM movimientos AS m
-    INNER JOIN kardex           AS k  ON k.idkardex = m.idkardex
-    INNER JOIN tipomovimientos  AS tm ON tm.idtipomov  = m.idtipomov
+    JOIN kardex          AS k  ON k.idkardex = m.idkardex
+    JOIN tipomovimientos AS tm ON tm.idtipomov = m.idtipomov
     WHERE k.idproducto = in_idproducto
-      AND m.fecha BETWEEN v_inicio AND v_fin
-    ORDER BY m.fecha
-    ;
+      AND m.fecha      >= v_inicio
+      AND m.fecha      <  v_fin
+    ORDER BY m.fecha;
 END $$
 
 -- 1) Actualizar Persona

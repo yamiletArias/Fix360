@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'idformapago'    => intval($data['idformapago'] ?? 0),
         'concepto'       => Helper::limpiarCadena($data['concepto'] ?? ''),
         'monto'          => floatval($data['monto'] ?? 0),
+        'fecharegistro' => Helper::limpiarCadena($data['fecharegistro'] ?? ''),
         'numcomprobante' => Helper::limpiarCadena($data['numcomprobante'] ?? '')
     ];
 

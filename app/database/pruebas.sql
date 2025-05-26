@@ -498,5 +498,354 @@ BEGIN
 END$$
 DELIMITER ;
 
+
+
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE seed_movimientos(
+  IN minMov INT,
+  IN maxMov INT,
+  IN fechaInicio DATE,
+  IN fechaFin   DATE
+)
+BEGIN
+  DECLARE done         INT DEFAULT FALSE;
+  DECLARE p_idproducto INT;
+  DECLARE p_idkardex    INT;
+  DECLARE nMov          INT;
+  DECLARE i             INT;
+  DECLARE rndTipo       INT;
+  DECLARE rndCant       INT;
+  DECLARE rndPU         DECIMAL(10,2);
+  DECLARE rndFecha      DATE;
+  DECLARE saldo         INT;
+
+  DECLARE curProds CURSOR FOR
+    SELECT idproducto FROM productos;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+  OPEN curProds;
+  prod_loop: LOOP
+    FETCH curProds INTO p_idproducto;
+    IF done THEN LEAVE prod_loop; END IF;
+
+    -- Obtenemos el registro de kardex
+    SELECT idkardex
+      INTO p_idkardex
+      FROM kardex
+     WHERE idproducto = p_idproducto
+     LIMIT 1;
+
+    SET saldo = 0;
+    SET nMov = FLOOR(RAND() * (maxMov - minMov + 1)) + minMov;
+    SET i = 0;
+
+    mov_loop: WHILE i < nMov DO
+      -- 1) Fecha aleatoria
+      SET rndFecha = DATE_ADD(
+        fechaInicio,
+        INTERVAL FLOOR(RAND() * DATEDIFF(fechaFin, fechaInicio) + 1) DAY
+      );
+      -- 2) Tipo aleatorio
+      SET rndTipo = IF(RAND() < 0.5, 1, 2);
+      -- Si es una salida pero saldo es 0, la convertimos en entrada
+      IF rndTipo = 2 AND saldo = 0 THEN
+        SET rndTipo = 1;
+      END IF;
+      -- 3) Cantidad aleatoria
+      SET rndCant = FLOOR(RAND() * 50) + 1;
+      -- 4) Precio unitario
+      SET rndPU = ROUND(RAND() * 99 + 1, 2);
+
+      -- Ajuste: si salida y rndCant > saldo, recortamos a saldo
+      IF rndTipo = 2 AND rndCant > saldo THEN
+        SET rndCant = saldo;
+      END IF;
+
+      -- Recalculamos saldo
+      IF rndTipo = 1 THEN
+        SET saldo = saldo + rndCant;
+      ELSE
+        SET saldo = saldo - rndCant;
+      END IF;
+
+      -- Insertamos movimiento
+      INSERT INTO movimientos
+        (idkardex, idtipomov, fecha, cantidad, preciounit, saldorestante)
+      VALUES
+        (p_idkardex, rndTipo, rndFecha, rndCant, rndPU, saldo);
+
+      SET i = i + 1;
+    END WHILE mov_loop;
+
+  END LOOP prod_loop;
+
+  CLOSE curProds;
+
+  SELECT CONCAT('Seed completado para ', COUNT(*), ' productos') AS resultado
+    FROM productos;
+END$$
+
+DELIMITER ;
+
+
+-- Restauramos el delimitador
+DELIMITER ;
+CALL seed_movimientos(5, 20, '2024-01-01', CURDATE());
+-- select * from movimientos where idkardex = 1;
+-- select * from productos where idproducto = 57
+-- select * from kardex where idkardex = 67;
 -- select * from ordenservicios;
 -- select * from tipocombustibles
+-- select * from productos where codigobarra = 'S8M0PH038476JTY'
+
+-- SP 1: Datos generales del vehículo
+DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spGetDatosGeneralesVehiculo(
+    IN _idvehiculo INT
+)
+BEGIN
+    SELECT
+      v.idvehiculo,
+      v.placa,
+      v.anio,
+      v.color,
+      v.numserie,
+      v.vin,
+      tv.tipov AS tipo_vehiculo,
+      tc.tcombustible,
+      m.nombre AS marca,
+      mo.modelo,
+      c.idcliente AS id_propietario,
+      -- Propietario actual (persona o empresa)
+      CASE
+        WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+        ELSE e.nomcomercial
+      END AS propietario,
+      COALESCE(p.numdoc, e.ruc) AS documento_propietario,
+      pr.fechainicio AS propiedad_desde,
+      pr.fechafinal  AS propiedad_hasta
+    FROM vehiculos v
+    JOIN modelos mo       ON mo.idmodelo = v.idmodelo
+    JOIN marcas m         ON mo.idmarca   = m.idmarca
+    JOIN tipovehiculos tv ON tv.idtipov   = mo.idtipov
+    JOIN tipocombustibles tc ON tc.idtcombustible = v.idtcombustible
+    LEFT JOIN propietarios pr ON pr.idvehiculo = v.idvehiculo
+                               AND (pr.fechafinal IS NULL OR pr.fechafinal >= CURRENT_DATE)
+    LEFT JOIN clientes c      ON c.idcliente = pr.idcliente
+    LEFT JOIN personas p      ON p.idpersona = c.idpersona
+    LEFT JOIN empresas e      ON e.idempresa = c.idempresa
+    WHERE v.idvehiculo = _idvehiculo;
+END $$
+DELIMITER ;
+-- call spListOrdenesPorVehiculo(1)
+-- SP 2: Listado de órdenes de servicio por vehículo
+DROP PROCEDURE IF EXISTS spListOrdenesPorVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spListOrdenesPorVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      o.idorden,
+      o.fechaingreso,
+      o.fechasalida,
+      o.kilometraje,
+      o.ingresogrua,
+      o.estado,
+      o.observaciones,
+      col.namuser AS tecnico,
+      -- total de mano de obra y repuestos (se asume cantidad = 1 por registro)
+      SUM(CASE WHEN srv.servicio LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_mano_obra,
+      SUM(CASE WHEN srv.servicio NOT LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_repuestos
+    FROM ordenservicios o
+    JOIN detalleordenservicios dos ON dos.idorden = o.idorden
+    JOIN servicios srv             ON srv.idservicio = dos.idservicio
+    JOIN colaboradores col         ON col.idcolaborador = dos.idmecanico
+    WHERE o.idvehiculo = in_idvehiculo
+    GROUP BY
+      o.idorden, o.fechaingreso, o.fechasalida,
+      o.kilometraje, o.ingresogrua, o.estado,
+      o.observaciones, col.namuser;
+END $$
+-- call spListVentasPorVehiculo(2)
+-- SP 3: Listado de ventas por vehículo
+DROP PROCEDURE IF EXISTS spListVentasPorVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spListVentasPorVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      v.idventa,
+      v.fechahora,
+      v.tipocom,
+      CONCAT(v.numserie, '-', v.numcom) AS comprobante,
+      v.moneda,
+      v.kilometraje,
+      col.namuser AS vendedor,
+      SUM(dv.precioventa * dv.cantidad * (1 - dv.descuento/100)) AS total_neto,
+      COUNT(DISTINCT dv.idproducto) AS items_vendidos
+    FROM ventas v
+    JOIN detalleventa dv ON dv.idventa = v.idventa
+    JOIN colaboradores col ON col.idcolaborador = v.idcolaborador
+    WHERE v.idvehiculo = in_idvehiculo
+    GROUP BY
+      v.idventa, v.fechahora, v.tipocom,
+      v.numserie, v.numcom, v.moneda,
+      v.kilometraje, col.namuser;
+END $$
+DELIMITER ;
+-- call spGetDatosGeneralesVehiculo(1)
+-- SP 1: Datos generales del vehículo
+DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spGetDatosGeneralesVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      v.idvehiculo,
+      v.placa,
+      v.anio,
+      v.color,
+      v.numserie,
+      v.vin,
+      tv.tipov AS tipo_vehiculo,
+      tc.tcombustible,
+      m.nombre AS marca,
+      mo.modelo,
+      c.idcliente AS id_propietario,
+      -- Propietario actual (persona o empresa)
+      CASE
+        WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+        ELSE e.nomcomercial
+      END AS propietario,
+      COALESCE(p.numdoc, e.ruc) AS documento_propietario,
+      pr.fechainicio AS propiedad_desde,
+      pr.fechafinal  AS propiedad_hasta
+    FROM vehiculos v
+    JOIN modelos mo       ON mo.idmodelo = v.idmodelo
+    JOIN marcas m         ON mo.idmarca   = m.idmarca
+    JOIN tipovehiculos tv ON tv.idtipov   = mo.idtipov
+    JOIN tipocombustibles tc ON tc.idtcombustible = v.idtcombustible
+    LEFT JOIN propietarios pr ON pr.idvehiculo = v.idvehiculo
+                               AND (pr.fechafinal IS NULL OR pr.fechafinal >= CURRENT_DATE)
+    LEFT JOIN clientes c      ON c.idcliente = pr.idcliente
+    LEFT JOIN personas p      ON p.idpersona = c.idpersona
+    LEFT JOIN empresas e      ON e.idempresa = c.idempresa;
+END $$
+DELIMITER ;
+
+-- SP 2: Listado de órdenes de servicio por vehículo
+DROP PROCEDURE IF EXISTS spListOrdenesPorVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spListOrdenesPorVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      o.idorden,
+      o.fechaingreso,
+      o.fechasalida,
+      o.kilometraje,
+      o.ingresogrua,
+      o.estado,
+      o.observaciones,
+      col.namuser AS tecnico,
+      -- total de mano de obra y repuestos (se asume cantidad = 1 por registro)
+      SUM(CASE WHEN srv.servicio LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_mano_obra,
+      SUM(CASE WHEN srv.servicio NOT LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_repuestos
+    FROM ordenservicios o
+    JOIN detalleordenservicios dos ON dos.idorden = o.idorden
+    JOIN servicios srv             ON srv.idservicio = dos.idservicio
+    JOIN colaboradores col         ON col.idcolaborador = dos.idmecanico
+    WHERE o.idvehiculo = in_idvehiculo
+    GROUP BY
+      o.idorden, o.fechaingreso, o.fechasalida,
+      o.kilometraje, o.ingresogrua, o.estado,
+      o.observaciones, col.namuser;
+END $$
+DELIMITER ;
+-- call spListVentasPorVehiculo(5)
+-- call spListVentasPorVehiculo(1)
+-- SP 3: Listado de ventas por vehículo
+-- call spListVentasPorVehiculo(1)
+DROP PROCEDURE IF EXISTS spListVentasPorVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spListVentasPorVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      v.idventa,
+      v.fechahora,
+      v.tipocom,
+      CONCAT(v.numserie, '-', v.numcom) AS comprobante,
+      v.moneda,
+      v.kilometraje,
+      col.namuser AS vendedor,
+      -- Nombre del propietario (persona o empresa)
+      CASE
+        WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+        ELSE e.nomcomercial
+      END AS propietario,
+      SUM(dv.precioventa * dv.cantidad * (1 - dv.descuento/100)) AS total_neto,
+      COUNT(DISTINCT dv.idproducto) AS items_vendidos
+    FROM ventas v
+    JOIN detalleventa dv     ON dv.idventa = v.idventa
+    JOIN colaboradores col   ON col.idcolaborador = v.idcolaborador
+    JOIN clientes c          ON c.idcliente = v.idpropietario
+    LEFT JOIN personas p     ON p.idpersona = c.idpersona
+    LEFT JOIN empresas e     ON e.idempresa = c.idempresa
+    WHERE v.idvehiculo = in_idvehiculo
+    GROUP BY
+      v.idventa, v.fechahora, v.tipocom,
+      v.numserie, v.numcom, v.moneda,
+      v.kilometraje, col.namuser,
+      propietario;
+END $$
+
+-- *** Datos de prueba para vehículo ID = 1 ***
+-- 5 órdenes de servicio con su detalle
+INSERT INTO ordenservicios (idadmin, idpropietario, idcliente, idvehiculo, kilometraje, ingresogrua, fechaingreso, fechasalida, estado, observaciones)
+VALUES
+  (1, 1, 1, 1, 15000.00, FALSE, '2025-05-05 08:30:00', '2025-05-05 12:00:00', 'A', 'Cambio de aceite y filtro'),
+  (2, 1, 1, 1, 15250.50, FALSE, '2025-05-10 09:15:00', '2025-05-10 11:45:00', 'A', 'Inspección general'),
+  (3, 1, 1, 1, 15500.75, TRUE,  '2025-05-15 14:00:00', '2025-05-15 17:30:00', 'A', 'Revisión de frenos y rótulas'),
+  (2, 1, 1, 1, 15720.00, FALSE, '2025-05-20 10:00:00', '2025-05-20 13:15:00', 'A', 'Alineación y balanceo'),
+  (1, 1, 1, 1, 16000.20, FALSE, '2025-05-25 08:45:00', '2025-05-25 12:30:00', 'A', 'Cambio de bujías');
+
+-- Obtener los últimos 5 IDs de ordenservicios para detalle
+SET @o1 = (SELECT MAX(idorden) - 4 FROM ordenservicios);
+
+INSERT INTO detalleordenservicios (idorden, idmecanico, idservicio, precio, estado)
+VALUES
+  (@o1,       1, (SELECT idservicio FROM servicios WHERE servicio = 'Cambio de aceite de motor' LIMIT 1), 48.50, 'A'),
+  (@o1,       1, (SELECT idservicio FROM servicios WHERE servicio = 'Cambio de filtro de aceite' LIMIT 1),    13.90, 'A'),
+  (@o1+1,     2, (SELECT idservicio FROM servicios WHERE servicio = 'Inspección general del vehículo' LIMIT 1),  20.00, 'A'),
+  (@o1+2,     3, (SELECT idservicio FROM servicios WHERE servicio = 'Revisión de rótulas y terminales' LIMIT 1), 35.00, 'A'),
+  (@o1+2,     3, (SELECT idservicio FROM servicios WHERE servicio = 'Cambio de amortiguadores' LIMIT 1),         80.00, 'A'),
+  (@o1+3,     2, (SELECT idservicio FROM servicios WHERE servicio = 'Alineación y balanceo' LIMIT 1),        60.00, 'A'),
+  (@o1+4,     1, (SELECT idservicio FROM servicios WHERE servicio = 'Cambio de bujías' LIMIT 1),             19.90, 'A');
+
+-- 5 ventas con su detalle
+INSERT INTO ventas (idpropietario, idcliente, idcolaborador, idvehiculo, tipocom, numserie, numcom, moneda, kilometraje, estado)
+VALUES
+  (1, 1, 1, 1, 'boleta', 'B001', '0001', 'PEN', 16010.00, TRUE),
+  (1, 1, 2, 1, 'factura', 'F001', '1001', 'PEN', 16200.35, TRUE),
+  (1, 1, 3, 1, 'boleta', 'B002', '0002', 'PEN', 16500.00, TRUE),
+  (1, 1, 2, 1, 'boleta', 'B003', '0003', 'PEN', 16750.10, TRUE),
+  (1, 1, 1, 1, 'factura', 'F002', '1002', 'PEN', 17000.50, TRUE);
+
+-- Obtener los últimos 5 IDs de ventas para detalle
+SET @v1 = (SELECT MAX(idventa) - 4 FROM ventas);
+
+INSERT INTO detalleventa (idventa, idproducto, cantidad, numserie, precioventa, descuento)
+VALUES
+  (@v1,   1, 2, JSON_ARRAY('','',''), 48.50, 0),
+  (@v1+1, 2, 1, JSON_ARRAY(''),        55.00, 5),
+  (@v1+2, 3, 4, JSON_ARRAY('','','',''), 42.90, 10),
+  (@v1+3, 4, 1, JSON_ARRAY(''),        79.90, 0),
+  (@v1+4, 5, 2, JSON_ARRAY('',''),     35.00, 0);

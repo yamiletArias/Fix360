@@ -61,13 +61,14 @@ class Egreso extends Conexion
             $pdo = $this->pdo;
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare("CALL spRegisterEgreso(?,?,?,?,?,?)");
+            $stmt = $pdo->prepare("CALL spRegisterEgreso(?,?,?,?,?,?,?)");
             $stmt->execute([
                 $params['idadmin'],
                 $params['idcolaborador'],
                 $params['idformapago'],     // forma de pago
                 $params['concepto'],        // descripción breve
                 $params['monto'],           // monto > 0
+                $params['fecharegistro'],           // monto > 0
                 $params['numcomprobante'] ?? '',
             ]);
 
