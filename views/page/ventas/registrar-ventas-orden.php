@@ -153,7 +153,7 @@ require_once "../../partials/header.php";
               <div class="form-floating">
                 <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT"
                   required />
-                <label for="descuento">DSCT</label>
+                <label for="descuento">DSCT UNT</label>
               </div>
               <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
             </div>

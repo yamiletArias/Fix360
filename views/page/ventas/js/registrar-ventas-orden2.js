@@ -45,23 +45,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 1) Productos
     tabla.querySelectorAll("tr").forEach((fila) => {
-      // precio: si hay un input, léelo, si no, usa el textContent
+      // Lee precio desde input
       const precioInput = fila.querySelector(".precio-input");
       const precio = precioInput
         ? parseFloat(precioInput.value) || 0
-        : parseFloat(fila.children[2].textContent) || 0;
+        : 0;
 
-      const cantidad = parseFloat(fila.querySelector(".cantidad-input").value) || 0;
+      // Lee cantidad desde input
+      const cantidad = parseFloat(
+        fila.querySelector(".cantidad-input").value
+      ) || 0;
 
-      // descuento está en la celda <td> (sin input)
-      const descuento = parseFloat(fila.children[4].textContent) || 0;
+      // Lee descuento desde input
+      const descuentoInput = fila.querySelector(".descuento-input");
+      const descuento = descuentoInput
+        ? parseFloat(descuentoInput.value) || 0
+        : 0;
 
       const importeLinea = (precio - descuento) * cantidad;
       totalImporte += importeLinea;
       totalDescuento += descuento * cantidad;
     });
 
-    // 2) Servicios (igual que antes)...
+    // 2) Servicios (igual que antes)
     const totalServicios = detalleServicios.reduce((sum, s) => sum + s.precio, 0);
     totalImporte += totalServicios;
 
@@ -69,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const igv = totalImporte - totalImporte / 1.18;
     const neto = totalImporte / 1.18;
 
-    // 4) Pinto en footer
+    // 4) Mostrar en el formulario
     document.getElementById("neto").value = neto.toFixed(2);
     document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
     document.getElementById("igv").value = igv.toFixed(2);
@@ -208,6 +214,12 @@ document.addEventListener("DOMContentLoaded", function () {
     /* const nombre = inputProductElement.value; */
     const precio = parseFloat(inputPrecio.value);
     const cantidad = parseFloat(inputCantidad.value);
+    if (isNaN(cantidad) || cantidad < 1) {
+      alert("La cantidad debe ser un número mayor o igual a 1.");
+      inputCantidad.value = 1;
+      inputCantidad.focus();
+      return;
+    }
     if (inputDescuento.value.trim() === "") {
       inputDescuento.value = "0";
     }
@@ -228,8 +240,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!nombre || isNaN(precio) || isNaN(cantidad)) {
       return alert("Completa todos los campos correctamente.");
     }
-    if (isNaN(precio) || precio <= 0) {
-      return alert("Ingresa un precio válido mayor que cero.");
+    if (isNaN(precio) || precio < 1) {
+      alert("El precio debe ser un número mayor o igual a 1.");
+      inputPrecio.value = selectedProduct.precio.toFixed(2);
+      inputPrecio.focus();
+      return;
     }
     if (cantidad <= 0) {
       alert("La cantidad debe ser mayor que cero.");
@@ -274,26 +289,34 @@ document.addEventListener("DOMContentLoaded", function () {
     fila.innerHTML = `
         <td>${tabla.rows.length + 1}</td>
         <td>${nombre}</td>
-        <td>
-          <input type="number"
-                class="form-control form-control-sm precio-input"
-                value="${precio.toFixed(2)}"
-                min="0.01"
-                step="0.01"
-                style="width:5rem;">
-        </td>
-        <td>
-          <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
-            <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
-            <input type="number"
-                  class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                  value="${cantidad}"
-                  min="1"
-                  max="${stockDisponible}">
-            <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
-          </div>
-        </td>
-        <td>${descuento.toFixed(2)}</td>
+  <td>
+    <input type="number"
+          class="form-control form-control-sm precio-input"
+          value="${parseInt(precio)}"
+          min="1"
+          step="1"
+          style="width:5rem;">
+  </td>
+  <td>
+    <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+      <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
+        <input type="number"
+          class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+          value="${parseInt(cantidad)}"
+          min="1"
+          step="1"
+          max="${stockDisponible}">
+      <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
+    </div>
+  </td>
+  <td>
+    <input type="number"
+          class="form-control form-control-sm descuento-input"
+          value="${parseInt(descuento)}"
+          min="0"
+          step="1"
+          style="width:5rem;">
+    </td>
         <td class="importe-cell">${importe.toFixed(2)}</td>
 
         <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
@@ -312,42 +335,55 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     tabla.appendChild(fila);
+    tabla.addEventListener("input", (e) => {
+      // Precio y cantidad deben mostrarse como enteros
+      if (e.target.classList.contains("precio-input") || 
+          e.target.classList.contains("cantidad-input")) {
+        let valor = parseInt(e.target.value) || 0;
+        e.target.value = valor;
+      }
+    });
 
     const decBtn = fila.querySelector(".btn-decrement");
     const incBtn = fila.querySelector(".btn-increment");
     const priceInput = fila.querySelector(".precio-input");
     const qtyInput = fila.querySelector(".cantidad-input");
     const importeCell = fila.querySelector(".importe-cell");
+    const descInput = fila.querySelector(".descuento-input");
+    const discountInput = fila.querySelector(".descuento-input");
 
     function actualizarLinea() {
-      // 1) Leer valores actuales
-      const precioNuevo = parseFloat(priceInput.value) || 0;
-      let qty = parseInt(qtyInput.value, 10) || 1;
-      // Cotejar rangos si usas stockDisponible...
+      let qty = parseFloat(qtyInput.value) || 1;
       if (qty < 1) qty = 1;
       if (qty > stockDisponible) qty = stockDisponible;
-      qtyInput.value = qty;
+      qtyInput.value = qty.toFixed(2);
 
-      // 2) Recalcular importe neto unitario y total de línea
-      const descuentoUnit = descuento;  // ya viene de tu scope  
-      const netoUnit = precioNuevo - descuentoUnit;
+      let precioNuevo = parseFloat(priceInput.value) || 0;
+      if (precioNuevo < 0.01) precioNuevo = 0.01;
+      priceInput.value = precioNuevo.toFixed(2);
+
+      let descuentoNuevo = parseFloat(discountInput.value) || 0;
+      if (descuentoNuevo < 0) descuentoNuevo = 0;
+      if (descuentoNuevo > precioNuevo) descuentoNuevo = precioNuevo;
+      discountInput.value = descuentoNuevo.toFixed(2);
+
+      const netoUnit = precioNuevo - descuentoNuevo;
       const nuevoImporte = netoUnit * qty;
       importeCell.textContent = nuevoImporte.toFixed(2);
 
-      // 3) Actualizar el objeto en detalleVenta
       const idx = detalleVenta.findIndex(d => d.idproducto === idp);
       if (idx >= 0) {
-        detalleVenta[idx].precio = precioNuevo;
         detalleVenta[idx].cantidad = qty;
+        detalleVenta[idx].precio = precioNuevo;
+        detalleVenta[idx].descuento = descuentoNuevo;
         detalleVenta[idx].importe = nuevoImporte.toFixed(2);
       }
-
-      // 4) Recalcular totales generales
       calcularTotales();
     }
     priceInput.addEventListener("input", actualizarLinea);
     qtyInput.addEventListener("input", actualizarLinea);
-
+    discountInput.addEventListener("input", actualizarLinea);
+    descInput.addEventListener("input", actualizarLinea);
     // incr/decr
     decBtn.addEventListener("click", () => {
       qtyInput.stepDown();
@@ -531,14 +567,18 @@ document.addEventListener("DOMContentLoaded", function () {
               const inputPrecioVenta = document.getElementById("precio");
               inputPrecioVenta.addEventListener("blur", () => {
                 const nuevo = parseFloat(inputPrecioVenta.value);
-                if (selectedProduct.idproducto && !isNaN(nuevo) && nuevo < originalPrecio) {
+                if (selectedProduct.idproducto && (!nuevo || nuevo < 1)) {
+                  alert("El precio debe ser mayor o igual a 1.");
+                  inputPrecioVenta.value = originalPrecio.toFixed(2);
+                  inputPrecioVenta.focus();
+                  return;
+                }
+                if (nuevo < originalPrecio) {
                   const ok = window.confirm(
                     `Has ingresado un precio menor al original (${originalPrecio.toFixed(2)}). ¿Deseas continuar?`
                   );
                   if (!ok) {
-                    // Restaurar el precio original
                     inputPrecioVenta.value = originalPrecio.toFixed(2);
-                    // Opcional: devolver foco al campo de cantidad
                     document.getElementById("cantidad").focus();
                   }
                 }
@@ -559,9 +599,6 @@ document.addEventListener("DOMContentLoaded", function () {
         showToast("Error al buscar productos.", "ERROR", 1500);
       });
   }
-
-
-
 
   // Función para cerrar las listas de autocompletado
   function cerrarListas(elemento) {
@@ -771,6 +808,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+});
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("btn-increment")) {
+    const input = e.target.parentElement.querySelector(".cantidad-input");
+    input.value = parseInt(input.value || "0") + 1;
+    input.dispatchEvent(new Event("input"));
+  }
+
+  if (e.target.classList.contains("btn-decrement")) {
+    const input = e.target.parentElement.querySelector(".cantidad-input");
+    const newVal = parseInt(input.value || "1") - 1;
+    input.value = newVal > 0 ? newVal : 1;
+    input.dispatchEvent(new Event("input"));
+  }
 });
 /* document.addEventListener('DOMContentLoaded', () => {
   const cotId = new URLSearchParams(window.location.search).get('id');
