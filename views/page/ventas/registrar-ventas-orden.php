@@ -508,7 +508,6 @@ require_once "../../partials/_footer.php";
   }
 </script>
 </body>
-
 </html>
 <!-- <script>
   document.addEventListener('DOMContentLoaded', () => {
