@@ -384,13 +384,24 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Función de debounce para evitar demasiadas llamadas en tiempo real
-  function debounce(func, delay) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), delay);
-    };
+ /**
+ * Crea una versión “debounced” de `func`. Además expone un método `cancel()` para anular el timer pendiente.
+ */
+function debounce(func, delay) {
+  let timeoutId;
+  function wrapped(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
   }
+  // Exponemos un método “cancel” para limpiar cualquier timer activo
+  wrapped.cancel = function () {
+    clearTimeout(timeoutId);
+  };
+  return wrapped;
+}
+
 
   // Función de navegación con el teclado para autocompletar
   function agregaNavegacion(input, itemsDiv) {
@@ -429,68 +440,94 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Función para mostrar opciones de productos (autocompletado)
-  function mostrarOpcionesProducto(input) {
-    cerrarListas();
-    if (!input.value) return;
-    const searchTerm = input.value;
-    fetch(
-      `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${searchTerm}&type=producto`
-    )
-      .then((response) => response.json())
-      .then((data) => {
+/**
+ * Busca productos y, si encuentra al menos uno, agrega automáticamente el primero a la tabla.
+ * Si el término contiene letras o espacios, muestra un dropdown para búsqueda manual.
+ *
+ * @param {HTMLInputElement} input  El <input> donde se escribe el término de búsqueda.
+ */
+function mostrarOpcionesProducto(input) {
+  cerrarListas();
+  const termino = input.value.trim();
+  if (!termino) return;
+
+  // Detectar si es “solo dígitos” (scanner) o no:
+  const esSoloDigitos = /^\d+$/.test(termino);
+
+  fetch(
+    `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(termino)}&type=producto`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      if (!Array.isArray(data) || data.length === 0) {
+        showToast("No se encontraron productos.", "WARNING", 1500);
+        return;
+      }
+
+      if (esSoloDigitos) {
+        // ===== Caso ESCÁNER (código de barras) =====
+        const producto = data[0];
+        inputProductElement.value = producto.subcategoria_producto;
+        inputPrecio.value = parseFloat(producto.precio).toFixed(2);
+        inputStock.value = producto.stock;
+        inputCantidad.value = 1;
+        inputDescuento.value = 0;
+
+        selectedProduct = {
+          idproducto: producto.idproducto,
+          subcategoria_producto: producto.subcategoria_producto,
+          precio: parseFloat(producto.precio),
+          stock: producto.stock,
+        };
+
+        cerrarListas();
+        agregarProductoBtn.click();
+
+        // Devolver foco y limpiar para siguiente escaneo
+        inputProductElement.value = "";
+        inputProductElement.focus();
+      } else {
+        // ===== Caso MANUAL (texto con letras o espacios) =====
         const itemsDiv = document.createElement("div");
         itemsDiv.setAttribute("id", "autocomplete-list-producto");
         itemsDiv.setAttribute("class", "autocomplete-items");
         input.parentNode.appendChild(itemsDiv);
-        if (data.length === 0) {
-          const noResultsDiv = document.createElement("div");
-          noResultsDiv.textContent = "No se encontraron productos";
-          itemsDiv.appendChild(noResultsDiv);
-          return;
-        }
+
         data.forEach(function (producto) {
           const optionDiv = document.createElement("div");
           optionDiv.textContent = producto.subcategoria_producto;
           optionDiv.addEventListener("click", function () {
-            input.value = producto.subcategoria_producto;
-            inputPrecio.value = producto.precio;
+            inputProductElement.value = producto.subcategoria_producto;
+            inputPrecio.value = parseFloat(producto.precio).toFixed(2);
             inputStock.value = producto.stock;
             inputCantidad.value = 1;
             inputDescuento.value = 0;
 
-            inputDescuento.addEventListener("focus", function () {
-              if (inputDescuento.value === "0") {
-                inputDescuento.value = "";
-              }
-            });
-
-            inputDescuento.addEventListener("keydown", function (e) {
-              if (
-                inputDescuento.value === "0" &&
-                e.key >= "0" &&
-                e.key <= "9"
-              ) {
-                inputDescuento.value = "";
-              }
-            });
-
             selectedProduct = {
               idproducto: producto.idproducto,
               subcategoria_producto: producto.subcategoria_producto,
-              precio: producto.precio,
+              precio: parseFloat(producto.precio),
               stock: producto.stock,
             };
-            inputStock.value = selectedProduct.stock;
+
             cerrarListas();
+            // (Aquí podrías hacer inputCantidad.focus(), si quieres)
           });
           itemsDiv.appendChild(optionDiv);
         });
-        // Habilitar navegación por teclado en la lista de productos
+
+        // Habilitar navegación por teclado en la lista de sugerencias
         agregaNavegacion(input, itemsDiv);
-      })
-      .catch((err) => console.error("Error al obtener los productos: ", err));
-  }
+      }
+    })
+    .catch((err) => {
+      console.error("Error al obtener los productos:", err);
+      showToast("Error al buscar productos.", "ERROR", 1500);
+    });
+}
+
+
+
 
   // Función para cerrar las listas de autocompletado
   function cerrarListas(elemento) {
@@ -503,19 +540,65 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Listeners para el autocompletado de productos usando debounce
-  const debouncedMostrarOpcionesProducto = debounce(
-    mostrarOpcionesProducto,
-    500
-  );
-  inputProductElement.addEventListener("input", function () {
+// Creamos una versión debounced de mostrarOpcionesProducto:
+const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+
+// Cuando el usuario escribe (o hace clic), disparamos el autocompletado “normal” con debounce
+// 1) Listener de ‘input’: sólo para búsquedas manuales con debounce:
+inputProductElement.addEventListener("input", function () {
+  const termino = this.value.trim();
+  const esSoloDigitos = /^\d+$/.test(termino);
+
+  if (!esSoloDigitos) {
+    // Mientras escribes a mano (letras/espacios) usamos el debounce
     debouncedMostrarOpcionesProducto(this);
-  });
-  inputProductElement.addEventListener("click", function () {
-    debouncedMostrarOpcionesProducto(this);
-  });
-  document.addEventListener("click", function (e) {
-    cerrarListas(e.target);
-  });
+  }
+  // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
+});
+
+// 2) Listener de ‘keyup’: sólo para scanner (ENTER):
+inputProductElement.addEventListener("keyup", function(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    // 1) limpias la lista y cancelas el debounce
+    cerrarListas();
+    debouncedMostrarOpcionesProducto.cancel();
+
+    const codigo = this.value.trim();
+    if (!codigo) return;
+
+    // 2) aquí solo lógica de scanner
+    fetch(`${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(codigo)}&type=producto`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length) {
+          const producto = data[0];
+          // rellenas los campos
+          inputProductElement.value = producto.subcategoria_producto;
+          inputPrecio.value         = parseFloat(producto.precio).toFixed(2);
+          inputStock.value          = producto.stock;
+          inputCantidad.value       = 1;
+          inputDescuento.value      = 0;
+          selectedProduct = {
+            idproducto: producto.idproducto,
+            subcategoria_producto: producto.subcategoria_producto,
+            precio: parseFloat(producto.precio),
+            stock: producto.stock
+          };
+          // y disparas tu “agregar”
+          agregarProductoBtn.click();
+        } else {
+          showToast("No se encontraron productos.", "WARNING", 1500);
+        }
+      })
+      .finally(() => {
+        // borra y fócate **después** de agregar
+        this.value = "";
+        this.focus();
+      });
+  }
+});
+
 
   // --- Generación de Serie y Comprobante ---
   function generateNumber(type) {
@@ -539,12 +622,9 @@ document.addEventListener("DOMContentLoaded", function () {
   tipoInputs.forEach((i) => i.addEventListener("change", inicializarCampos));
   inicializarCampos();
   // --- Navegación con Enter entre campos de producto ---
-  inputProductElement.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      inputPrecio.focus();
-    }
-  });
+
+
+
   inputPrecio.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();

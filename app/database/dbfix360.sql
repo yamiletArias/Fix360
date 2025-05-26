@@ -407,13 +407,15 @@ presentacion	VARCHAR(40)		NOT NULL,
 undmedida		VARCHAR(40)    NOT NULL,
 cantidad 		DECIMAL(10,2) 	NOT NULL,
 img            VARCHAR(255)   NULL,
+codigobarra 	VARCHAR(255)   NULL,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
 CONSTRAINT fk_idmarca FOREIGN KEY (idmarca) REFERENCES marcas (idmarca),
 CONSTRAINT fk_subcategoria FOREIGN KEY (idsubcategoria) REFERENCES subcategorias (idsubcategoria),
 CONSTRAINT chk_precio CHECK (precio >= 0),
 CONSTRAINT chk_cantidad CHECK (cantidad >= 0),
-CONSTRAINT uq_descripcion UNIQUE (descripcion, idsubcategoria)
+CONSTRAINT uq_descripcion UNIQUE (descripcion, idsubcategoria),
+CONSTRAINT uq_codigobarra UNIQUE (codigobarra)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS paquetes;
@@ -452,7 +454,7 @@ idkardex 		INT 				NOT NULL,
 idtipomov 		INT 				NOT NULL,
 fecha 			DATE 				DEFAULT CURRENT_TIMESTAMP,
 cantidad 		INT 				NOT NULL,
-preciounit 		decimal(10,2) 		not null,
+preciounit 		DECIMAL(10,2) 		NOT NULL,
 saldorestante  INT 				NOT NULL,
 creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

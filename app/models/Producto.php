@@ -51,7 +51,7 @@ class Producto extends Conexion
         $idProducto = 0;
         try {
             // Nótese que ya pasamos 10 IN y luego usamos @idproducto como OUT
-            $sql = "CALL spRegisterProducto(?,?,?,?,?,?,?,?,?,?,?,@idproducto)";
+            $sql = "CALL spRegisterProducto(?,?,?,?,?,?,?,?,?,?,?,?,@idproducto)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 $params["idsubcategoria"],
@@ -62,6 +62,7 @@ class Producto extends Conexion
                 $params["undmedida"],
                 $params["cantidad"],
                 $params["img"],
+                $params["codigobarra"],
                 $params["stockInicial"],
                 $params["stockmin"],   // nuevo
                 $params["stockmax"]    // nuevo
@@ -96,7 +97,7 @@ class Producto extends Conexion
     public function update(array $params): bool
     {
         try {
-            $sql = "CALL spUpdateProducto(?,?,?,?,?,?,?)";
+            $sql = "CALL spUpdateProducto(?,?,?,?,?,?,?,?)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 $params['idproducto'],
@@ -104,6 +105,7 @@ class Producto extends Conexion
                 $params['cantidad'],
                 $params['precio'],
                 $params['img']        ?? '',
+                $params["codigobarra"],
                 $params['stockmin'],
                 $params['stockmax']   // si quieres permitir NULL, pásalo directamente
             ]);

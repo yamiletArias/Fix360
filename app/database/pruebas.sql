@@ -1,7 +1,7 @@
 -- Test movements SQL for dbfix360
 USE dbfix360;
 
-
+-- select * from productos;
 DELIMITER $$
 -- call fetchKilometraje(1)
 -- select * from kardex;

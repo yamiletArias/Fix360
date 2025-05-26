@@ -123,7 +123,7 @@ require_once "../../partials/header.php";
               <div class="form-floating">
                 <!-- Campo de búsqueda de Producto -->
                 <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
-                  placeholder="Buscar Producto" required>
+                  placeholder="Buscar Producto" autofocus required>
                 <label for="producto"><strong>Buscar Producto:</strong></label>
               </div>
             </div>

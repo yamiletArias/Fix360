@@ -382,6 +382,7 @@ BEGIN
   JOIN kardex k       ON P.idproducto     = k.idproducto
   WHERE S.subcategoria LIKE CONCAT('%', termino_busqueda, '%')
      OR P.descripcion   LIKE CONCAT('%', termino_busqueda, '%')
+     OR P.codigobarra LIKE CONCAT('%', termino_busqueda, '%')
   LIMIT 10;
 END $$
 DELIMITER ;
