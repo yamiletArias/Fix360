@@ -398,7 +398,7 @@ $hoy_count = count($hoy);
           </li>
           <li class="nav-item">
             <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
-              <span class="menu-title">Ordenes de Servicio</span>
+              <span class="menu-title">Órdenes de Servicio</span>
               <i class="fa-solid fa-car-tunnel menu-icon"></i>
             </a>
           </li>

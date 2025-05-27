@@ -162,8 +162,7 @@ class Vehiculo extends Conexion
      * @param array $params
      * @return array  Arreglo asociativo con ['idcliente_propietario_nuevo' => valor]
      */
-    public function updateVehiculoConHistorico(array $params): array
-    {
+    public function updateVehiculoConHistorico(array $params): array {
         $cmd = null;
         try {
             $sql = "CALL spUpdateVehiculoConHistorico( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
@@ -190,4 +189,27 @@ class Vehiculo extends Conexion
             }
         }
     }
+
+    /**
+     * Obtiene datos generales del vehículo y propietario actual
+     * invocando al stored procedure spGetDatosGeneralesVehiculo.
+     *
+     * @param int $idvehiculo
+     * @return array|null
+     */
+    public function getDatosGeneralesVehiculo(int $idvehiculo): ?array
+    {
+        try {
+            $sql = "CALL spGetDatosGeneralesVehiculo(?)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$idvehiculo]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $row ?: null;
+        } catch (PDOException $e) {
+            throw new Exception("Error al obtener datos generales: " . $e->getMessage());
+        }
+    }
+
+
 }

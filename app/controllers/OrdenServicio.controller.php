@@ -93,6 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+
+
     // 2) Listado de órdenes por periodo y estado
     $modo   = $_GET['modo']   ?? 'dia';
     $fecha  = $_GET['fecha']  ?? date('Y-m-d');

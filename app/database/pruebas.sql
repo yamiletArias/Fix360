@@ -598,8 +598,9 @@ CALL seed_movimientos(5, 20, '2024-01-01', CURDATE());
 -- select * from ordenservicios;
 -- select * from tipocombustibles
 -- select * from productos where codigobarra = 'S8M0PH038476JTY'
-
+-- select * from egresos
 -- SP 1: Datos generales del vehículo
+-- call spGetDatosGeneralesVehiculo(1)
 DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo;
 DELIMITER $$
 CREATE PROCEDURE spGetDatosGeneralesVehiculo(
