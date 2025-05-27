@@ -6,8 +6,7 @@ require_once "../../partials/header.php";
 ?>
 <style>
     #am_formapago {
-        color: black;
-        /* Cambia solo el color de la letra */
+        color: black; /* Cambia solo el color de la letra */
     }
 </style>
 <div class="container-main mt-5">
@@ -518,13 +517,6 @@ require_once "../../partials/_footer.php";
             cargarTablaVentas(currentModo, fechaInput.value);
         });
 
-        // Botón Ver Eliminados
-        /* document.getElementById("btnVerEliminados").addEventListener("click", function () {
-            document.getElementById("tableDia").style.display = "none";
-            document.getElementById("tableEliminados").style.display = "block";
-            cargarVentasEliminadas();
-        }); */
-
         // eliminación con justificación
         $(document).on('click', '.btn-eliminar', function () {
             const idv = $(this).data('id');
@@ -755,120 +747,4 @@ require_once "../../partials/_footer.php";
     </div>
 </div>
 </body>
-
 </html>
-
-<!-- <script>
-    $(document).ready(function () {
-        // Primero, oculta el campo al cargar:
-        toggleNumTrans();
-
-        // Cuando cambie la forma de pago:
-        $('#am_formapago').on('change', toggleNumTrans);
-
-        function toggleNumTrans() {
-            // Obtén el texto o el valor del select
-            const valor = $('#am_formapago').find(':selected').text().trim().toLowerCase()
-                || $('#am_formapago').val();
-            const esEfectivo = valor === 'efectivo';
-            // La fila que contiene el label+input:
-            const $fila = $('#num_transaccion').closest('.mb-3');
-            if (esEfectivo) {
-                $fila.hide();
-                $('#num_transaccion').val(''); // limpia cualquier valor previo
-            } else {
-                $fila.show();
-            }
-        }
-
-        // Cuando el usuario guarde:
-        $('#btnGuardarAmortizacion').on('click', function () {
-            const data = {
-                monto: $('#am_monto').val(),
-                idformapago: $('#am_formapago').val(),
-                idventa: $('#am_idventa').val(),
-                numtransaccion: $('#num_transaccion').is(':visible')
-                    ? $('#num_transaccion').val()
-                    : ''
-            };
-            $.post('/controllers/Amortizacion.controller.php', data, function (resp) {
-                if (resp.status === 'success') {
-                    alert('Amortización registrada correctamente');
-                    location.reload();
-                } else {
-                    alert('Error: ' + resp.message);
-                }
-            }, 'json');
-        });
-    });
-</script> -->
-<!-- Logica para ver los registro eliminados -->
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        cargarTablaVentas();
-
-        document.getElementById("btnVerEliminados").addEventListener("click", function () {
-            const tableDia = document.getElementById("tableDia");
-            const tableEliminados = document.getElementById("tableEliminados");
-
-            tableDia.style.display = "none";
-            tableEliminados.style.display = "block";
-
-            if ($.fn.DataTable.isDataTable("#tablaventaseliminadas")) {
-                $("#tablaventaseliminadas").DataTable().destroy();
-            }
-
-            $("#tablaventaseliminadas").DataTable({
-                ajax: {
-                    url: "<?= SERVERURL ?>app/controllers/Venta.controller.php?action=ventas_eliminadas",
-                    dataSrc: function (json) {
-                        return json.status === 'success' ? json.data : [];
-                    }
-                },
-                columns: [
-                    {
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    { data: "cliente", class: "text-start", defaultContent: "No disponible" },
-                    { data: "tipocom", class: "text-center", defaultContent: "No disponible" },
-                    { data: "numcom", class: "text-center", defaultContent: "No disponible" },
-                    {
-                        data: null,
-                        class: "text-center",
-                        render: function (data, type, row) {
-                            return `
-                            <button class="btn btn-info btn-sm btn-ver-justificacion" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#modalVerJustificacion"
-                                data-id="${row.id}">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button class="btn btn-warning btn-sm btn-amortizar" 
-                                data-id="${row.id}">
-                                <i class="fa-solid fa-dollar-sign"></i>
-                            </button>
-                            <button class="btn btn-primary btn-sm"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#miModal"
-                                onclick="verDetalleVenta('${row.id}')">
-                                <i class="fa-solid fa-circle-info"></i>
-                            </button>`;
-                        }
-                    }
-                ],
-                language: {
-                    lengthMenu: "Mostrar _MENU_ registros por página",
-                    zeroRecords: "No se encontraron resultados",
-                    info: "Mostrando página _PAGE_ de _PAGES_",
-                    infoEmpty: "No hay registros disponibles",
-                    infoFiltered: "(filtrado de _MAX_ registros totales)",
-                    search: "Buscar:",
-                    loadingRecords: "Cargando...",
-                    processing: "Procesando...",
-                    emptyTable: "No hay datos disponibles en la tabla"
-                }
-            });
-        });
-    });
-</script> -->

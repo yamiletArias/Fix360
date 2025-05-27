@@ -388,13 +388,11 @@ require_once "../../partials/_footer.php";
         });
         // 1) Lée la respuesta como texto para no “vaciar” el stream
         const text = await resp.text();
-        console.log("📥 Raw response:", text);
+        /* console.log("Raw response:", text); */
         let result;
         try {
           result = JSON.parse(text);
-          /* console.log("✅ Parsed JSON:", result); */
         } catch (err) {
-          /* console.error("❌ No pudo parsear JSON:", err); */
           showToast("Respuesta del servidor no es JSON válido", "ERROR", 2000);
           return;
         }

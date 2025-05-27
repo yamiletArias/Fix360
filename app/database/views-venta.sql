@@ -270,7 +270,29 @@ LEFT JOIN personas p ON cli.idpersona = p.idpersona
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 WHERE c.estado = TRUE;
 
--- DETALLE DE COTIZACION PARA EL MODAL POR CADA IDCOTIZACION
+-- DETALLE DE COTIZACION PARA EL MODAL POR CADA IDCOTIZACIONDROP VIEW IF EXISTS vista_detalle_cotizacion;
+DROP VIEW IF EXISTS vista_detalle_cotizacion;
+CREATE VIEW vista_detalle_cotizacion AS
+SELECT 
+  c.idcotizacion,
+  c.idcliente,
+  COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
+  CONCAT(S.subcategoria, ' ', pr.descripcion)           AS producto,
+  dc.precio,
+  dc.cantidad,
+  dc.descuento,
+  ROUND(dc.precio * dc.cantidad * (1 - dc.descuento/100), 2) AS total_producto,
+  c.fechahora         AS fechahora,
+  c.vigenciadias      AS vigenciadias
+FROM cotizaciones c
+JOIN clientes cli    ON c.idcliente   = cli.idcliente
+LEFT JOIN personas p ON cli.idpersona  = p.idpersona
+LEFT JOIN empresas e ON cli.idempresa  = e.idempresa
+JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
+JOIN productos pr        ON dc.idproducto   = pr.idproducto
+JOIN subcategorias S     ON pr.idsubcategoria = S.idsubcategoria
+WHERE c.estado = TRUE;
+/*
 DROP VIEW IF EXISTS vista_detalle_cotizacion;
 CREATE VIEW vista_detalle_cotizacion AS
 SELECT 
@@ -290,7 +312,7 @@ JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr ON dc.idproducto = pr.idproducto
 INNER JOIN subcategorias S ON pr.idsubcategoria = S.idsubcategoria
 WHERE c.estado = TRUE;
-
+*/
 -- ************************* VISTAS ELIMINADAS *************************
 
 -- VISTA DE VENTAS ELIMINADAS
@@ -429,7 +451,7 @@ SELECT
     WHEN cli.idempresa IS NOT NULL THEN e.nomcomercial
     WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
   END AS cliente,
-  dc.precio,
+  SUM(dc.precio) AS total,
   c.vigenciadias AS vigencia,
   c.fechahora
 FROM cotizaciones c
@@ -444,10 +466,15 @@ DROP VIEW IF EXISTS vista_detalle_cotizacion_eliminada;
 CREATE VIEW vista_detalle_cotizacion_eliminada AS
 SELECT 
   c.idcotizacion,
+  c.idcliente,
   COALESCE(CONCAT(p.nombres, ' ', p.apellidos), e.nomcomercial) AS cliente,
-  CONCAT(s.subcategoria, ' ', pr.descripcion) AS producto,
+  CONCAT(S.subcategoria, ' ', pr.descripcion)           AS producto,
   dc.precio,
-  dc.descuento
+  dc.cantidad,
+  dc.descuento,
+  ROUND(dc.precio * dc.cantidad * (1 - dc.descuento/100), 2) AS total_producto,
+  c.fechahora         AS fechahora,
+  c.vigenciadias      AS vigenciadias
 FROM cotizaciones c
 JOIN clientes cli ON c.idcliente = cli.idcliente
 LEFT JOIN personas p ON cli.idpersona = p.idpersona

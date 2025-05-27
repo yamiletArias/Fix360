@@ -4,7 +4,12 @@ require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
-
+<style>
+    #am_formapago {
+        color: black;
+        /* Cambia solo el color de la letra */
+    }
+</style>
 <div class="container-main mt-5">
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
@@ -37,10 +42,10 @@ require_once "../../partials/header.php";
             <table class="table table-striped display" id="tablacotizacion">
                 <thead>
                     <tr>
-                        <th class="text-center">#</th>
+                        <th>#</th>
                         <th>Cliente</th>
-                        <th>Precio</th>
-                        <th>D. vigencia</th>
+                        <th class="text-center">Precio</th>
+                        <th class="text-center">D. Vigencia</th>
                         <th class="text-center">Opciones</th>
                     </tr>
                 </thead>
@@ -50,236 +55,170 @@ require_once "../../partials/header.php";
             </table>
         </div>
     </div>
-</div>
-</div>
 
-<!-- Modal de Detalle de Cotizacion -->
-<div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 800px;"> <!-- Cambié el tamaño aquí -->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detalle de la Venta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Cliente:</strong> <label for="cliente"></label></p>
-                <!-- <div class="form-group" style="margin: 10px">
-                  <div class="form-floating input-group">
-                    <input type="text" disabled class="form-control input" id="modeloInput" />
-                    <label for="modeloInput">Cliente</label>
-                  </div>
-                </div> -->
-                <div class="table-container">
-                    <table class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Productos</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                                <th>Descuento</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
+    <!-- Agregar aquí la tabla para las cotizaciones eliminadas, inicialmente oculta -->
+    <div id="tableEliminados" class="col-12" style="display: none;">
+        <table class="table table-striped display" id="tablacotizacioneseliminadas">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th class="text-center">Precio</th>
+                    <th class="text-center">D. Vigencia</th>
+                    <th class="text-center">Opciones</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                <!-- Aquí se agregan los datos dinámicos de eliminados -->
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="modalJustificacion" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>¿Por qué deseas eliminar esta Cotizacion? (Escribe una justificación)</p>
-                <textarea id="justificacion" class="form-control" rows="4"
-                    placeholder="Escribe tu justificación aquí..."></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnEliminarCotizacion" class="btn btn-danger">Eliminar Cotizacion</button>
-            </div>
-        </div>
-    </div>
 </div>
-
+</div>
+<!--FIN COTIZACIONES-->
 <?php
 require_once "../../partials/_footer.php";
 ?>
+
+<!-- Logica para obtener la justificacion en el modal -->
 <script>
-    let tablaCot;
-    const API = "<?= SERVERURL ?>app/controllers/Cotizacion.controller.php";
-    const fechaInput = document.getElementById('Fecha');
-    const botones = document.querySelectorAll('.btn-group button');
+    let mostrandoEliminados = false;
+    const btnVerEliminados = document.getElementById("btnVerEliminados");
+    const contActivos = document.getElementById("tableDia");
+    const contEliminados = document.getElementById("tableEliminados");
 
-    function marcarActivo(b) {
-        botones.forEach(x => x.classList.toggle('active', x === b));
-    }
-
-    function cargarTablaCotizacion(modo, fecha) {
-        if (tablaCot) {
-            tablaCot.destroy();
-            $('#tablacotizacion tbody').empty();
+    btnVerEliminados.addEventListener("click", function () {
+        if (!mostrandoEliminados) {
+            contActivos.style.display = "none";
+            contEliminados.style.display = "block";
+            cargarCotizacionesEliminadas();
+            this.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
+            this.title = "Volver a cotizaciones activas";
+        } else {
+            contEliminados.style.display = "none";
+            contActivos.style.display = "block";
+            this.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
+            this.title = "Ver eliminados";
         }
-        tablaCot = $('#tablacotizacion').DataTable({
-            ajax: {
-                url: API,
-                data: { modo, fecha },
-                dataSrc: 'data'
-            },
-            columns: [
-                { data: null, render: (d, t, r, m) => m.row + 1, class: 'text-center' },
-                { data: 'cliente', class: 'text-start' },
-                { data: 'total', class: 'text-end' },
-                { data: 'vigencia', class: 'text-center' },
-                { // acciones…
-                    data: null, class: 'text-center',
-                    render: (row) => `
-                    <button title="Eliminar" class="btn btn-danger btn-sm btnEliminar" data-id="${row.id}">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <button class="btn btn-info btn-sm"
-                            onclick="verDetalleCotizacion(${row.id},'${row.cliente}')">
-                        <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                    <button class="btn btn-success btn-sm"
-                            onclick="window.location='../ventas/registrar-ventas-orden.php?id=${row.id}'">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                    </button>`
-                }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_ por página",
-                zeroRecords: "Sin resultados",
-                info: "Página _PAGE_ de _PAGES_",
-                search: "Buscar:",
-                emptyTable: "No hay datos"
-            }
-        });
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        // inicializa hoy
-        const hoy = new Date().toISOString().slice(0, 10);
-        fechaInput.value = hoy;
-
-        // evento botones
-        botones.forEach(btn => {
-            btn.addEventListener('click', () => {
-                marcarActivo(btn);
-                cargarTablaCotizacion(btn.dataset.modo, fechaInput.value);
-            });
-        });
-
-        // cambiamos fecha → modo día
-        fechaInput.addEventListener('change', () => {
-            const diaBtn = document.querySelector('button[data-modo="dia"]');
-            marcarActivo(diaBtn);
-            cargarTablaCotizacion('dia', fechaInput.value);
-        });
-
-        // carga inicial
-        marcarActivo(document.querySelector('button[data-modo="dia"]'));
-        cargarTablaCotizacion('dia', hoy);
-
-        document.getElementById('btnEliminarCotizacion').addEventListener('click', function () {
-            const justificacion = document.getElementById('justificacion').value.trim();
-
-            if (!justificacion) {
-                alert('Debes escribir una justificación para eliminar.');
-                return;
-            }
-
-            $.ajax({
-                url: API,
-                method: 'POST',
-                data: {
-                    accion: 'eliminar',
-                    idcotizacion: idCotizacionEliminar,
-                    justificacion
-                },
-                success: function (response) {
-                    $('#modalJustificacion').modal('hide');
-                    tablaCot.ajax.reload(null, false); // recargar sin reiniciar paginación
-                },
-                error: function () {
-                    alert('Error al eliminar la cotización.');
-                }
-            });
-        });
-    });
-    let idCotizacionEliminar = null;
-
-    $(document).on('click', '.btnEliminar', function () {
-        idCotizacionEliminar = $(this).data('id');
-        $('#justificacion').val('');
-        $('#modalJustificacion').modal('show');
+        mostrandoEliminados = !mostrandoEliminados;
     });
 </script>
 <script>
-    function verDetalleCotizacion(idcotizacion, cliente) {
-        $("#miModal").modal("show");
-        $("#miModal label[for='cliente']").text(cliente);
+    $(document).on('click', '.btn-ver-justificacion', async function () {
+        const id = $(this).data('id');
+        console.log('voy a pedir justificación para id=', id);
+        $('#contenidoJustificacion').text('Cargando…');
+        try {
+            const res = await fetch(`<?= SERVERURL ?>app/controllers/Cotizacion.controller.php?action=justificacion&idcotizacion=${id}`);
+            const json = await res.json();
+            if (json.status === 'success') {
+                $('#contenidoJustificacion').text(json.justificacion);
+            } else {
+                $('#contenidoJustificacion').text('No hay justificación');
+            }
+        } catch (e) {
+            $('#contenidoJustificacion').text('Error al cargar justificación');
+        }
+        $('#modalVerJustificacion').modal('show');
+    });
+</script>
 
+<!-- Vista en el modal de detalle de cotizacion para visualizar informacion de esa cotizacion -->
+<script>
+    function verDetalleCotizacion(idcotizacion) {
+        // 1) Limpia modal
+        $("#miModal tbody").empty();
+        $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion").val('');
+        $("label[for='cliente']").text('');
+
+        // 2) Abre el modal
+        $("#miModal").modal("show");
+
+        // 3) Carga datos de cabecera
+        fetch(`<?= SERVERURL ?>app/controllers/Cotizacion.controller.php?action=detalle&idcotizacion=${idcotizacion}`)
+            .then(res => res.json())
+            .then(json => {
+                console.log("Detalle cabecera:", json);
+                if (json.status === 'success') {
+                    // Ponemos cliente en el input#modeloInput
+                    $("#modeloInput").val(json.data.cliente || 'Sin cliente');
+                    // Fecha & Hora
+                    $("#fechaHora").val(json.data.fechahora || '');
+                    // Días de Vigencia
+                    $("#vigencia").val(json.data.vigenciadias || '');
+                    // Estado
+                    $("#estadoCotizacion").val(json.data.estado || '');
+                } else {
+                    // Si algo falla
+                    $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion")
+                        .val('—');
+                }
+            })
+            .catch(err => {
+                console.error("Error al cargar cabecera de cotización:", err);
+                $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion")
+                    .val('Error');
+            });
+
+        // 4) Carga productos (detalle)
         $.ajax({
             url: "<?= SERVERURL ?>app/controllers/Detcotizacion.controller.php",
             method: "GET",
-            data: { idcotizacion: idcotizacion },
+            data: { idcotizacion },
             dataType: "json",
-            success: function (response) {
-                /* console.log(response); */
-
-                const tbody = $("#miModal tbody");
-                tbody.empty();
-
-                if (response.length > 0) {
-                    response.forEach((item, index) => {
-                        const fila = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${item.producto}</td>
-                            <td>${item.cantidad}</td>
-                            <td>${item.precio}</td>
-                            <td>${item.descuento}%</td>
-                        </tr>
-                    `;
-                        tbody.append(fila);
-                    });
-                } else {
-                    tbody.append(`<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`);
+            success(response) {
+                if (!response.length) {
+                    return $("#miModal tbody").append(
+                        `<tr><td colspan="6" class="text-center">No hay detalles disponibles</td></tr>`
+                    );
                 }
+                // Cada fila de producto
+                response.forEach((item, i) => {
+                    $("#miModal tbody").append(`
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${item.producto}</td>
+                        <td class="text-center">${item.cantidad}</td>
+                        <td class="text-end">$${parseFloat(item.precio).toFixed(2)}</td>
+                        <td class="text-center">${item.descuento}%</td>
+                        <td class="text-end">$${parseFloat(item.total_producto).toFixed(2)}</td>
+                    </tr>
+                    `);
+                });
             },
-            error: function () {
-                alert("Ocurrió un error al cargar el detalle.");
+            error() {
+                alert("Ocurrió un error al cargar el detalle de productos.");
             }
         });
     }
 </script>
-</body>
+<script>
+    let tablaCotizaciones;
+    const API = "<?= SERVERURL ?>app/controllers/Cotizacion.controller.php";
+    const fechaInput = document.getElementById('Fecha');
+    const btnDia = document.querySelector('button[data-modo="dia"]');
+    const btnSemana = document.querySelector('button[data-modo="semana"]');
+    const btnMes = document.querySelector('button[data-modo="mes"]');
+    const filtros = [btnDia, btnSemana, btnMes];
 
-</html>
+    function marcarActivo(btn) {
+        filtros.forEach(b => b.classList.toggle('active', b === btn));
+    }
 
-<!-- <script>
-    function cargarTablaCotizacion() {
-        if ($.fn.DataTable.isDataTable("#tablacotizacion")) {
-            $("#tablacotizacion").DataTable().destroy();
-        } // Cierra if
+    function cargarTablaCotizaciones(modo, fecha) {
+        if (tablaCotizaciones) {
+            tablaCotizaciones.destroy();
+            $("#tablacotizacion tbody").empty();
+        }
 
-        $("#tablacotizacion").DataTable({ // Inicio de configuración DataTable para vehículos
+        tablaCotizaciones = $("#tablacotizacion").DataTable({
             ajax: {
                 url: "<?= SERVERURL ?>app/controllers/Cotizacion.controller.php",
-                dataSrc: ""
-            }, // Cierra ajax
+                data: { modo, fecha },
+                dataSrc: "data"
+            },
             columns: [
                 { // Columna 1: Número de fila
                     data: null,
@@ -290,50 +229,300 @@ require_once "../../partials/_footer.php";
                     defaultContent: "No disponible",
                     class: 'text-start'
                 }, // Cierra columna 2
-                { // Columna 3: tipo de comprobante
-                    data: "precio",
-                    defaultContent: "No disponible",
+                { // Columna 3: precio total
+                    data: "total",
+                    defaultContent: "0.00",
+                    class: 'text-center',
+                    render: (data) => `$${parseFloat(data).toFixed(2)}`
                 }, // Cierra columna 3
-                { // Columna 4: numero de comprobante
+                { // Columna 4: dias de vigencia
                     data: "vigencia",
                     defaultContent: "No disponible",
-
-                }, // Cierra columna 6
-                { // Columna 7: Opciones (botones: editar, ver detalle, y otro para ver más)
+                    class: 'text-center'
+                }, // Cierra columna 4
+                {
                     data: null,
-                    render: function (data, type, row) { // Inicio de render de opciones
-                        return `
-                        <button title="Eliminar" class="btn btn-danger btn-sm" id="btnEliminar" data-id="data-123">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                        <button title="Detalle" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#miModal"
-                        onclick="verDetalleCotizacion('${row.idcotizacion}', '${row.cliente}')">
-                            <i class="fa-solid fa-circle-info"></i>
-                        </button>
-                        <button title="Registrara una venta" class="btn btn-success btn-sm"
-                                onclick="window.location.href='../ventas/registrar-ventas.php?id=${row.idcotizacion}'">
-                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                        </button>
-                        `;
-                    } // Cierra render de opciones
-                } // Cierra columna 7
+                    class: "text-center",
+                    render: renderOpciones
+                }
             ], // Cierra columns
-            language: { // Inicio de configuración de idioma
-                "lengthMenu": "Mostrar _MENU_ registros por página",
-                "zeroRecords": "No se encontraron resultados",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay registros disponibles",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "search": "Buscar:",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "emptyTable": "No hay datos disponibles en la tabla"
-            } // Cierra language
+            language: {
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron resultados",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                search: "Buscar:",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                emptyTable: "No hay datos disponibles en la tabla"
+            }
         }); // Cierra DataTable inicialización
-    } // Cierra cargarTablaVehiculos()
+    } // Cierra cargarTablaCotizaciones()
 
-    document.addEventListener("DOMContentLoaded", function () {
-        cargarTablaCotizacion();
+    // Carga la tabla de registros eliminados
+    function cargarCotizacionesEliminadas() {
+        if ($.fn.DataTable.isDataTable("#tablacotizacioneseliminadas")) {
+            $("#tablacotizacioneseliminadas").DataTable().destroy();
+            $("#tablacotizacioneseliminadas tbody").empty();
+        }
+        $("#tablacotizacioneseliminadas").DataTable({
+            ajax: {
+                url: API + "?action=cotizaciones_eliminadas",
+                dataSrc(json) {
+                    console.log("cotizaciones_eliminadas response:", json);
+                    return json.status === 'success' ? json.data : [];
+                }
+            },
+            columns: [
+                { data: null, render: (d, t, r, m) => m.row + 1 },
+                { data: "cliente", class: "text-start", defaultContent: "—" },
+                {
+                    data: "total",
+                    class: "text-center",
+                    defaultContent: "—",
+                    render: (data) => data ? `$${parseFloat(data).toFixed(2)}` : '—'
+                },
+                { data: "vigencia", class: "text-center", defaultContent: "—" },
+                {
+                    data: null,
+                    class: "text-center",
+                    render: function (data, type, row) {
+                        return `
+                            <button class="btn btn-primary btn-sm btn-ver-justificacion"
+                                data-id="${row.id}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalVerJustificacion">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button title="Detalle de la cotización" class="btn btn-info btn-sm btn-detalle"
+                                    data-action="detalle"
+                                    data-id="${row.id}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#miModal">
+                                <i class='fa-solid fa-clipboard-list'></i>
+                            </button>`;
+                    }
+                }
+            ],
+            language: {
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron resultados",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                search: "Buscar:",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                emptyTable: "No hay datos disponibles en la tabla"
+            }
+        });
+    }
+
+    function renderOpciones(data, type, row) {
+        const estado = row.estado;
+        const btnConvertir = estado === 'aprobada'
+            ? `<button title="Convertir a venta" class="btn btn-success btn-sm"
+                 onclick="window.location='../ventas/registrar-ventas-orden.php?id=${row.id}'">
+                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
+               </button>`
+            : `<button title="Convertir a venta" class="btn btn-success btn-sm" disabled>
+                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
+               </button>`;
+
+        return `
+        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+        <i class="fa-solid fa-trash"></i>
+        </button>
+        <button title="Detalle de la cotización" class="btn btn-info btn-sm btn-detalle"
+                data-action="detalle"
+                data-id="${row.id}"
+                data-bs-toggle="modal"
+                data-bs-target="#miModal">
+            <i class='fa-solid fa-clipboard-list'></i>
+        </button>
+        ${btnConvertir}
+        <button title="Pdf" class="btn btn-outline-dark btn-sm btn-descargar-pdf"
+                onclick="descargarPDF('${row.id}')">
+        <i class="fa-solid fa-file-pdf"></i>
+        </button>`;
+    }
+
+    function descargarPDF(idcotizacion) {
+        const url = `<?= SERVERURL ?>app/reports/reportecotizacion.php?idcotizacion=${encodeURIComponent(idcotizacion)}`;
+        window.open(url, '_blank');
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // inicializo fecha de hoy
+        const hoy = new Date().toISOString().slice(0, 10);
+        fechaInput.value = hoy;
+        let currentModo = 'dia';
+        marcarActivo(btnDia);
+        cargarTablaCotizaciones(currentModo, hoy);
+
+        // clicks en filtros
+        filtros.forEach(btn => {
+            btn.addEventListener("click", () => {
+                currentModo = btn.dataset.modo;
+                marcarActivo(btn);
+                cargarTablaCotizaciones(currentModo, fechaInput.value);
+            });
+        });
+
+        // cambio de fecha → día
+        fechaInput.addEventListener("change", () => {
+            currentModo = 'dia';
+            marcarActivo(btnDia);
+            cargarTablaCotizaciones(currentModo, fechaInput.value);
+        });
+
+        // eliminación con justificación
+        $(document).on('click', '.btn-eliminar', function () {
+            const idv = $(this).data('id');
+            $('#justificacion').val('');
+            $('#btnEliminarCotizacion').data('id', idv);
+            $('#modalJustificacion').modal('show');
+        });
+
+        // confirmar eliminación
+        $(document).on('click', '#btnEliminarCotizacion', async function () {
+            const just = $('#justificacion').val().trim();
+            const idv = $(this).data('id');
+            if (!just) {
+                return alert('Escribe la justificación.');
+            }
+            // Reemplaza ask() por confirm()
+            if (!confirm('¿Estás seguro de que quieres eliminar esta cotización?')) {
+                return;
+            }
+            $.post(API,
+                { action: 'eliminar', idcotizacion: idv, justificacion: just },
+                res => {
+                    if (res.status === 'success') {
+                        showToast('Cotización eliminada', 'SUCCESS', 1500);
+                        $('#modalJustificacion').modal('hide');
+                        cargarTablaCotizaciones(currentModo, fechaInput.value);
+                    } else {
+                        showToast(res.message || 'Error', 'ERROR', 1500);
+                    }
+                },
+                'json'
+            );
+        });
+
+        $(document).on('click', '.btn-detalle', function () {
+            const idcotizacion = $(this).data('id');
+            verDetalleCotizacion(idcotizacion);
+            $('#miModal').modal('show');
+        });
     });
-</script> -->
+</script>
+
+<div class="modal fade" id="modalVerJustificacion" tabindex="-1" aria-labelledby="modalJustificacionLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalJustificacionLabel">Justificación de la eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="contenidoJustificacion">
+                <!-- Aquí se insertará dinámicamente la justificación -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalle de Cotización -->
+<div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 950px;" style="margin-top: 20px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle de la Cotización</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="modeloInput"
+                                placeholder="Cliente">
+                            <label for="modeloInput">Cliente: </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="fechaHora"
+                                placeholder="Fecha & Hora">
+                            <label for="fechaHora">Fecha & Hora: </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="vigencia" placeholder="Vigencia">
+                            <label for="vigencia">Días de Vigencia: </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" disabled class="form-control input" id="estadoCotizacion"
+                                placeholder="Estado">
+                            <label for="estadoCotizacion">Estado: </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Productos</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Descuento</th>
+                                <th>T. producto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>S
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="modalJustificacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Por qué deseas eliminar esta Cotización? (Escribe una justificación)</p>
+                <textarea id="justificacion" class="form-control" rows="4"
+                    placeholder="Escribe tu justificación aquí..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEliminarCotizacion" class="btn btn-danger btn-sm">Eliminar
+                    Cotización</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

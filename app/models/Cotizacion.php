@@ -12,29 +12,25 @@ class Cotizacion extends Conexion
   }
 
   //LLEVAR DATOS
-  public function getCabeceraById(int $id): array
+  public function getCabeceraById(int $id)
   {
     $sql = "
-        SELECT 
-            c.idcotizacion,
-            c.idcliente,
-            -- si tiene persona, concatena apellidos+nombres, si no toma nomcomercial de empresa
-            COALESCE(
-              CONCAT(p.nombres, ' ', p.apellidos), 
-              e.nomcomercial
-            ) AS cliente,
-            c.moneda,
-            DATE_FORMAT(c.fechahora, '%Y-%m-%d %H:%i:%s') AS fechahora
-        FROM cotizaciones c
-        LEFT JOIN clientes cli ON cli.idcliente = c.idcliente
-        LEFT JOIN personas p  ON cli.idpersona = p.idpersona
-        LEFT JOIN empresas e  ON cli.idempresa = e.idempresa
-        WHERE c.idcotizacion = ?
-        LIMIT 1
+      SELECT 
+        c.idcotizacion,
+        COALESCE(CONCAT(p.nombres,' ',p.apellidos), e.nomcomercial) AS cliente,
+        c.fechahora,
+        c.vigenciadias,
+        c.estado
+      FROM cotizaciones c
+      JOIN clientes cli ON c.idcliente = cli.idcliente
+      LEFT JOIN personas p ON cli.idpersona = p.idpersona
+      LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+      WHERE c.idcotizacion = ?
+      LIMIT 1
     ";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute([$id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
   /**
@@ -74,19 +70,17 @@ class Cotizacion extends Conexion
   }
 
   // Anular cotización (soft delete)
-  public function deleteCotizacion(int $idcotizacion, string $justificacion = null): bool
+  public function deleteCotizacion(int $idcotizacion, string $justificacion): bool
   {
     try {
       $sql = "CALL spuDeleteCotizacion(:idcotizacion, :justificacion)";
       $stmt = $this->pdo->prepare($sql);
-      $res = $stmt->execute([
+      return $stmt->execute([
         ':idcotizacion' => $idcotizacion,
         ':justificacion' => $justificacion
       ]);
-      error_log("Procedimiento spuDeleteCotizacion ejecutado para cotización #{$idcotizacion}.");
-      return $res;
     } catch (PDOException $e) {
-      error_log("Error al ejecutar spuDeleteCotizacion para cotización #{$idcotizacion}: " . $e->getMessage());
+      error_log("Error al anular cotización #{$idcotizacion}: " . $e->getMessage());
       return false;
     }
   }
@@ -96,16 +90,19 @@ class Cotizacion extends Conexion
   {
     try {
       $sql = "SELECT 
-          idcotizacion AS id, 
+          idcotizacion, 
           cliente, 
-          precio, 
-          vigencia 
-      FROM vs_cotizaciones_eliminadas";
+          total,
+          vigencia
+        FROM vs_cotizaciones_eliminadas";
+
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute();
       return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-      throw new Exception("Error al obtener las cotizaciones eliminadas: " . $e->getMessage());
+      // En caso de error, devolvemos array vacío o lanzamos excepción controlada
+      error_log("Error al obtener cotizaciones eliminadas: " . $e->getMessage());
+      return [];
     }
   }
 

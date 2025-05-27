@@ -78,6 +78,31 @@ switch ($_SERVER['REQUEST_METHOD']) {
       exit;
     }
 
+    if (
+  isset($_GET['action'], $_GET['idcotizacion'])
+  && $_GET['action'] === 'detalle'
+) {
+  $id = (int) $_GET['idcotizacion'];
+  $fila = $cotizacion->getCabeceraById($id);
+  if ($fila) {
+    echo json_encode([
+      'status' => 'success',
+      'data'   => [
+        'cliente'      => $fila['cliente'] ?? null,
+        'fechahora'    => $fila['fechahora'] ?? null,
+        'vigenciadias' => $fila['vigenciadias'] ?? null,
+        'estado'       => $fila['estado'] ?? null
+      ]
+    ]);
+  } else {
+    echo json_encode([
+      'status'  => 'error',
+      'message' => 'No existe cotización'
+    ]);
+  }
+  exit;
+}
+
     // 6) Fallback: todas las cotizaciones activas
     echo json_encode(['status' => 'success', 'data' => $cotizacion->getAll()]);
     exit;
@@ -87,16 +112,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
     // Anulación de venta (soft-delete) con justificación
     if (isset($_POST['action'], $_POST['idcotizacion']) && $_POST['action'] === 'eliminar') {
       $id = intval($_POST['idcotizacion']);
-      $justificacion = trim($_POST['justificacion'] ?? "");
-
-      error_log("Intentando anular compra #$id. Justificación: $justificacion");
-
-      $ok = $venta->deleteVenta($id, $justificacion);
-      error_log("Resultado deleteVenta: " . ($ok ? 'OK' : 'FAIL'));
-
+      $justificacion = trim($_POST['justificacion'] ?? '');
+      // ¡Ojo! Aquí debes usar tu método deleteCotizacion, no deleteVenta
+      $ok = $cotizacion->deleteCotizacion($id, $justificacion);
       echo json_encode([
         'status' => $ok ? 'success' : 'error',
-        'message' => $ok ? 'Compra anulada.' : 'No se pudo anular la compra.'
+        'message' => $ok ? 'Cotización anulada.' : 'No se pudo anular la cotización.'
       ]);
       exit;
     }
@@ -172,6 +193,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       echo json_encode(["status" => "error", "message" => "No se pudo registrar la venta."]);
     }
     break;
+    
 }
 
 
