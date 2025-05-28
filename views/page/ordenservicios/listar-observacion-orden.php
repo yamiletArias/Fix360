@@ -61,19 +61,22 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
             </div>
           </div>
           <!-- Checkbox estado -->
-          <div class="col-md-4 d-flex align-items-center">
-            <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="estado"
-                id="estado"
-                checked>
-              <label class="form-check-label ms-2" for="estado">
-                <strong>Estado</strong>
-              </label>
-            </div>
-          </div>
+<div class="col-md-4">
+  <div class="d-flex align-items-center">
+    <!-- Label primero -->
+    <label for="estado" class="mb-0" style="margin-right: 50px;margin-top:10px;"><strong>Estado:</strong></label>
+    <!-- Switch a la derecha -->
+    <div class="form-check form-switch ms-3 mb-0">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        name="estado"
+        id="estado"
+        checked>
+    </div>
+  </div>
+</div>
+
         </div>
       </div>
       <div class="card-footer text-end mb-4">
@@ -124,10 +127,12 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
           <label for="edit-foto" class="form-label">Foto (opcional)</label>
           <input type="file" class="form-control" name="foto" id="edit-foto" style="color:black;background-color:white;"  accept="image/jpeg,image/png">
         </div>
-        <div class="form-check form-switch">
-          <label class="form-check-label" for="edit-estado"><strong>Estado:</strong></label>
-          <input class="form-check-input" type="checkbox" id="edit-estado" name="estado">
-        </div>
+       <div class="d-flex align-items-center mb-3">
+  <label for="edit-estado" class="me-3 mb-0"><strong>Estado:</strong></label>
+  <div class="form-check form-switch m-0">
+    <input class="form-check-input" type="checkbox" id="edit-estado" style="margin-left: 10px;" name="estado">
+  </div>
+</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -187,9 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
               <img src="<?= SERVERURL ?>${o.foto}" class="card-img-top" style="height:150px; object-fit:cover;">
               <div class="card-footer d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
-                  <label class="me-2 mb-0"><strong>Estado</strong></label>
+                  <label class="me-2 mb-0"><strong>Estado:</strong></label>
                   <div class="form-check form-switch m-0">
-                    <input class="form-check-input" type="checkbox" ${o.estado ? 'checked' : ''} disabled>
+                    <input class="form-check-input" type="checkbox" ${o.estado ? 'checked' : ''} style="margin-left:10px;" disabled>
                   </div>
                 </div>
                 <div>

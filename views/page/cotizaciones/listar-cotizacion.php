@@ -346,7 +346,7 @@ require_once "../../partials/_footer.php";
         </button>
         <button class="btn btn-info btn-sm"
                 onclick="verDetalleCotizacion(${row.id}, '${row.cliente}')">
-            <i class="fa-solid fa-circle-info"></i>
+            <i class='fa-solid fa-clipboard-list'></i>
         </button>
         <button class="btn btn-success btn-sm"
                 onclick="window.location='../ventas/registrar-ventas-orden.php?id=${row.id}'">
@@ -507,7 +507,7 @@ require_once "../../partials/_footer.php";
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -527,8 +527,7 @@ require_once "../../partials/_footer.php";
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnEliminarCotizacion" class="btn btn-danger btn-sm">Eliminar
-                    Cotización</button>
+                <button type="button" id="btnEliminarCotizacion" class="btn btn-danger btn-sm">Eliminar</button>
             </div>
         </div>
     </div>
