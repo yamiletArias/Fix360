@@ -233,7 +233,7 @@ require_once "../../partials/_footer.php";
                     data: "total",
                     defaultContent: "0.00",
                     class: 'text-center',
-                    render: (data) => `$${parseFloat(data).toFixed(2)}`
+                    render: (data) => `$ ${parseFloat(data).toFixed(2)}`
                 }, // Cierra columna 3
                 { // Columna 4: dias de vigencia
                     data: "vigencia",
@@ -369,7 +369,7 @@ require_once "../../partials/_footer.php";
         });
 
         // eliminación con justificación
-        $(document).on('click', '.btn-eliminar', function () {
+        $(document).on('click', '.btnEliminar', function () {
             const idv = $(this).data('id');
             $('#justificacion').val('');
             $('#btnEliminarCotizacion').data('id', idv);
@@ -491,8 +491,7 @@ require_once "../../partials/_footer.php";
             </div>
         </div>
     </div>
-</div>S
-
+</div>
 <!-- Modal de Confirmación de Eliminación -->
 <div class="modal fade" id="modalJustificacion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">

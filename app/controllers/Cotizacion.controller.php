@@ -79,29 +79,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
 
     if (
-  isset($_GET['action'], $_GET['idcotizacion'])
-  && $_GET['action'] === 'detalle'
-) {
-  $id = (int) $_GET['idcotizacion'];
-  $fila = $cotizacion->getCabeceraById($id);
-  if ($fila) {
-    echo json_encode([
-      'status' => 'success',
-      'data'   => [
-        'cliente'      => $fila['cliente'] ?? null,
-        'fechahora'    => $fila['fechahora'] ?? null,
-        'vigenciadias' => $fila['vigenciadias'] ?? null,
-        'estado'       => $fila['estado'] ?? null
-      ]
-    ]);
-  } else {
-    echo json_encode([
-      'status'  => 'error',
-      'message' => 'No existe cotización'
-    ]);
-  }
-  exit;
-}
+      isset($_GET['action'], $_GET['idcotizacion'])
+      && $_GET['action'] === 'detalle'
+    ) {
+      $id = (int) $_GET['idcotizacion'];
+      $fila = $cotizacion->getCabeceraById($id);
+      if ($fila) {
+        echo json_encode([
+          'status' => 'success',
+          'data' => [
+            'cliente' => $fila['cliente'] ?? null,
+            'fechahora' => $fila['fechahora'] ?? null,
+            'vigenciadias' => $fila['vigenciadias'] ?? null,
+            'estado' => $fila['estado'] ?? null
+          ]
+        ]);
+      } else {
+        echo json_encode([
+          'status' => 'error',
+          'message' => 'No existe cotización'
+        ]);
+      }
+      exit;
+    }
 
     // 6) Fallback: todas las cotizaciones activas
     echo json_encode(['status' => 'success', 'data' => $cotizacion->getAll()]);
@@ -193,7 +193,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       echo json_encode(["status" => "error", "message" => "No se pudo registrar la venta."]);
     }
     break;
-    
+
 }
 
 

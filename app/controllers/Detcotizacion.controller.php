@@ -11,6 +11,13 @@ if (isset($_GET['idcotizacion'])) {
         );
         $stmt->execute([$idcotizacion]);
         $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($detalles)) {
+            $stmt = $db->prepare("SELECT * FROM vista_detalle_cotizacion_eliminada WHERE idcotizacion = ?");
+            $stmt->execute([$idcotizacion]);
+            $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
         echo json_encode($detalles);
     } catch (PDOException $e) {
         echo json_encode(['error' => $e->getMessage()]);
