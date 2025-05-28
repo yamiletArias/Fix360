@@ -111,7 +111,7 @@ require_once "../../partials/header.php";
               </div>
             </div>
             <div class="card-footer text-end">
-              <a href="../vehiculos/listar-vehiculos.php" class="btn btn-secondary text-end">Cerrar</a>
+              <a href="javascript:history.back()" class="btn btn-secondary text-end">Cerrar</a>
               <button type="button" class="btn btn-success text-end" id="btnRegistrarVehiculo">Guardar</button>
             </div>
           </div>

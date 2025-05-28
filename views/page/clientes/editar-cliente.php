@@ -154,7 +154,7 @@ if (isset($_GET['idpersona'])) {
     </div>
 
     <div class="card-footer text-end">
-      <button type="button" class="btn btn-secondary" onclick="window.location.href='listar-cliente.php'">Cancelar</button>
+      <a type="button" class="btn btn-secondary" href="javascript:history.back()">Cancelar</a>
       <button id="btnRegistrar" class="btn btn-success">Aceptar</button>
     </div>
   </div>

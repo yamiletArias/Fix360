@@ -154,7 +154,7 @@ require_once "../../partials/header.php";
       </form>
     </div>
     <div class="card-footer text-end">
-      <button type="button" class="btn btn-secondary" onclick="window.location.href='listar-cliente.php'" >Cancelar</button>
+      <a href="javascript:history.back()" type="button" class="btn btn-secondary" >Cancelar</a>
       <button type="submit" id="btnRegistrar" class="btn btn-success">Aceptar</button>
     </div>
   </div>

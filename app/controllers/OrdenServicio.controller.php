@@ -81,6 +81,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+    // Historial de órdenes por vehículo
+    if (isset($_GET['action']) && $_GET['action'] === 'historial' 
+        && isset($_GET['modo'], $_GET['fecha'], $_GET['estado'], $_GET['idvehiculo'])) 
+    {
+        $modo       = in_array($_GET['modo'], ['mes','semestral','anual'], true)
+                      ? $_GET['modo'] : 'mes';
+        $fecha      = $_GET['fecha'];
+        $estado     = in_array($_GET['estado'], ['A','D'], true)
+                      ? $_GET['estado'] : 'A';
+        $idvehiculo = intval($_GET['idvehiculo']);
+
+        $data = $ordenModel->listarHistorialPorVehiculo($modo, $fecha, $estado, $idvehiculo);
+        echo json_encode([
+            'status' => 'success',
+            'data'   => $data
+        ]);
+        exit;
+    }
+    
     // 1) Detalle para modal
     if (isset($_GET['action']) && $_GET['action'] === 'getDetalle') {
         $idorden = intval($_GET['idorden'] ?? 0);

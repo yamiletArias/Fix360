@@ -739,75 +739,112 @@ BEGIN
 END $$
 DELIMITER ;
 
--- SP 2: Listado de órdenes de servicio por vehículo
-DROP PROCEDURE IF EXISTS spListOrdenesPorVehiculo;
-DELIMITER $$
-CREATE PROCEDURE spListOrdenesPorVehiculo(
-    IN in_idvehiculo INT
-)
-BEGIN
-    SELECT
-      o.idorden,
-      o.fechaingreso,
-      o.fechasalida,
-      o.kilometraje,
-      o.ingresogrua,
-      o.estado,
-      o.observaciones,
-      col.namuser AS tecnico,
-      -- total de mano de obra y repuestos (se asume cantidad = 1 por registro)
-      SUM(CASE WHEN srv.servicio LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_mano_obra,
-      SUM(CASE WHEN srv.servicio NOT LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_repuestos
-    FROM ordenservicios o
-    JOIN detalleordenservicios dos ON dos.idorden = o.idorden
-    JOIN servicios srv             ON srv.idservicio = dos.idservicio
-    JOIN colaboradores col         ON col.idcolaborador = dos.idmecanico
-    WHERE o.idvehiculo = in_idvehiculo
-    GROUP BY
-      o.idorden, o.fechaingreso, o.fechasalida,
-      o.kilometraje, o.ingresogrua, o.estado,
-      o.observaciones, col.namuser;
-END $$
-DELIMITER ;
--- call spListVentasPorVehiculo(5)
--- call spListVentasPorVehiculo(1)
--- SP 3: Listado de ventas por vehículo
--- call spListVentasPorVehiculo(1)
-DROP PROCEDURE IF EXISTS spListVentasPorVehiculo;
-DELIMITER $$
-CREATE PROCEDURE spListVentasPorVehiculo(
-    IN in_idvehiculo INT
-)
-BEGIN
-    SELECT
-      v.idventa,
-      v.fechahora,
-      v.tipocom,
-      CONCAT(v.numserie, '-', v.numcom) AS comprobante,
-      v.moneda,
-      v.kilometraje,
-      col.namuser AS vendedor,
-      -- Nombre del propietario (persona o empresa)
-      CASE
-        WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
-        ELSE e.nomcomercial
-      END AS propietario,
-      SUM(dv.precioventa * dv.cantidad * (1 - dv.descuento/100)) AS total_neto,
-      COUNT(DISTINCT dv.idproducto) AS items_vendidos
-    FROM ventas v
-    JOIN detalleventa dv     ON dv.idventa = v.idventa
-    JOIN colaboradores col   ON col.idcolaborador = v.idcolaborador
-    JOIN clientes c          ON c.idcliente = v.idpropietario
-    LEFT JOIN personas p     ON p.idpersona = c.idpersona
-    LEFT JOIN empresas e     ON e.idempresa = c.idempresa
-    WHERE v.idvehiculo = in_idvehiculo
-    GROUP BY
-      v.idventa, v.fechahora, v.tipocom,
-      v.numserie, v.numcom, v.moneda,
-      v.kilometraje, col.namuser,
-      propietario;
-END $$
 
+-- call spHistorialOrdenesPorVehiculo('anual','2025-05-28','A',1)
+DROP PROCEDURE IF EXISTS spHistorialOrdenesPorVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spHistorialOrdenesPorVehiculo(
+  IN _modo        ENUM('mes','semestral','anual'),
+  IN _fecha       DATE,
+  IN _estado      CHAR(1),           -- 'A' activas, 'D' desactivadas
+  IN _idvehiculo  INT
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+
+  ELSEIF _modo = 'semestral' THEN
+    -- Últimos 6 meses desde la fecha
+    SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
+    SET end_date   = _fecha;
+
+  ELSEIF _modo = 'anual' THEN
+    -- Todo el año calendario de la fecha
+    SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
+    SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
+
+  END IF;
+
+  SELECT
+    o.idorden,
+    o.fechaingreso,
+    o.fechasalida,
+    v.placa,
+    CASE
+      WHEN cp.idpersona IS NOT NULL
+        THEN CONCAT(pp.nombres, ' ', pp.apellidos)
+      ELSE ce.nomcomercial
+    END AS propietario,
+    CASE
+      WHEN cc.idpersona IS NOT NULL
+        THEN CONCAT(pc.nombres, ' ', pc.apellidos)
+      ELSE cce.nomcomercial
+    END AS cliente
+  FROM ordenservicios o
+    JOIN vehiculos v      ON o.idvehiculo    = v.idvehiculo
+    JOIN clientes cp      ON o.idpropietario = cp.idcliente
+    LEFT JOIN personas pp ON cp.idpersona    = pp.idpersona
+    LEFT JOIN empresas ce ON cp.idempresa    = ce.idempresa
+    JOIN clientes cc      ON o.idcliente     = cc.idcliente
+    LEFT JOIN personas pc ON cc.idpersona    = pc.idpersona
+    LEFT JOIN empresas cce ON cc.idempresa   = cce.idempresa
+  WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
+    AND o.estado = _estado
+    AND o.idvehiculo = _idvehiculo
+  ORDER BY o.fechaingreso;
+END$$
+-- select * from ventas
+-- select * from vehiculos where idvehiculo = 1
+-- call spHistorialVentasPorVehiculo('anual','2025-05-28',1,'D')
+DROP PROCEDURE IF EXISTS spHistorialVentasPorVehiculo;
+DELIMITER $$
+CREATE PROCEDURE spHistorialVentasPorVehiculo(
+  IN _modo        ENUM('mes','semestral','anual'),
+  IN _fecha       DATE,
+  IN _idvehiculo  INT,
+  IN _estado      BOOLEAN              -- TRUE = activas, FALSE = eliminadas
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+
+  ELSEIF _modo = 'semestral' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
+    SET end_date   = _fecha;
+
+  ELSEIF _modo = 'anual' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
+    SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
+  END IF;
+
+  SELECT
+    v.idventa                     AS id,
+    COALESCE(CONCAT(pp.nombres,' ',pp.apellidos), pe.nomcomercial)
+                                  AS propietario,
+    CONCAT(v.numserie,'‑',v.numcom) AS comprobante,
+    v.kilometraje                 AS kilometraje,
+    v.tipocom                     AS tipo_comprobante,
+    vt.total_pendiente            AS total_pendiente,
+    CASE WHEN vt.total_pendiente=0 THEN 'pagado' ELSE 'pendiente' END AS estado_pago
+  FROM ventas v
+    JOIN propietarios prop        ON v.idpropietario = prop.idpropietario
+    JOIN clientes c               ON prop.idcliente = c.idcliente
+    LEFT JOIN personas pp         ON c.idpersona    = pp.idpersona
+    LEFT JOIN empresas pe         ON c.idempresa    = pe.idempresa
+    JOIN vista_saldos_por_venta vt ON v.idventa      = vt.idventa
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado = _estado
+    AND v.idvehiculo = _idvehiculo
+  ORDER BY v.fechahora;
+END$$
 -- *** Datos de prueba para vehículo ID = 1 ***
 -- 5 órdenes de servicio con su detalle
 INSERT INTO ordenservicios (idadmin, idpropietario, idcliente, idvehiculo, kilometraje, ingresogrua, fechaingreso, fechasalida, estado, observaciones)

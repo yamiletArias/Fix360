@@ -72,7 +72,6 @@ require_once "../../partials/header.php";
 </div>
 </div>
 
-
 <div class="modal fade" id="modalJustificacion" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form id="formJustificacion" class="modal-content">
@@ -178,11 +177,8 @@ require_once "../../partials/header.php";
   </div>
 </div>
 
-
 <?php
-
 require_once "../../partials/_footer.php";
-
 ?>
 
 <script>
@@ -190,154 +186,16 @@ require_once "../../partials/_footer.php";
     const fechaInput = document.getElementById('Fecha');
     const tablaBody = document.querySelector('#miTabla tbody');
     const btnsModo = document.querySelectorAll('button[data-modo]');
-    const btnVerEliminados = document.getElementById('btnVerEliminados');
+    const btnVerElim = document.getElementById('btnVerEliminados');
     const API = 'http://localhost/fix360/app/controllers/ordenservicio.controller.php';
 
-    // Estado y modo actuales
-    let currentModo = 'dia';
-    let currentEstado = 'A'; // 'A' activas, 'D' desactivadas
-
-    // ----- Función para pintar la tabla (igual a la tuya) -----
-    const fmt = iso => {
-      if (!iso) return '';
-      const d = new Date(iso);
-      const pad = v => String(v).padStart(2, '0');
-      return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ` +
-        `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    };
-    const isToday = iso => {
-      if (!iso) return false;
-      const d = new Date(iso);
-      const today = new Date();
-      return d.getDate() === today.getDate() &&
-        d.getMonth() === today.getMonth() &&
-        d.getFullYear() === today.getFullYear();
-    };
-    const pintar = data => {
-      if ($.fn.DataTable.isDataTable('#miTabla')) {
-        $('#miTabla').DataTable().destroy();
-      }
-      tablaBody.innerHTML = '';
-      data.forEach((o, i) => {
-        const btnDetalle = `<button class="btn btn-sm btn-info" title="Detalle de la orden" data-id="${o.idorden}" data-action="detalle"><i class="fa-solid fa-clipboard-list"></i></button>`;
-        const btnVer = `<a class="btn btn-sm btn-primary" href="listar-observacion-orden.php?idorden=${o.idorden}"><i class="fa-solid fa-eye"></i></a>`;
-        let btnEliminar = '',
-          btnSalida = '';
-        if (!o.fechasalida) {
-          btnSalida = `<button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida"><i class="fa-solid fa-calendar-days"></i></button>`;
-
-          if (isToday(o.fechaingreso)) {
-            btnEliminar = `<button class="btn btn-sm btn-danger" data-id="${o.idorden}" data-action="eliminar"><i class="fa-solid fa-trash"></i></button>`;
-          }
-        }
-        tablaBody.insertAdjacentHTML('beforeend', `
-        <tr>
-          <td class="text-center">${i + 1}</td>
-          <td>${o.propietario || ''}</td>
-          <td>${o.cliente || ''}</td>
-          <td>${fmt(o.fechaingreso)}</td>
-          <td>${o.fechasalida ? fmt(o.fechasalida) : '<span class="text-muted">Servicios en desarrollo</span>'}</td>
-          <td>${o.placa || ''}</td>
-          <td>
-            <div class="d-flex justify-content-center align-items-center gap-1">
-              ${btnEliminar}${btnDetalle}${btnVer}${btnSalida}
-            </div>
-          </td>
-        </tr>
-      `);
-      });
-      $('#miTabla').DataTable({
-        paging: true,
-        searching: true,
-        info: true,
-        columnDefs: [{
-          orderable: false,
-          targets: -1
-        }],
-        language: {
-          lengthMenu: "Mostrar _MENU_ por página",
-          zeroRecords: "No hay resultados",
-          info: "Mostrando página _PAGE_ de _PAGES_",
-          search: "Buscar:",
-          emptyTable: "No hay datos"
-        }
-      });
-    };
-    // -----------------------------------------------------------
-
-    // Botón toggle de estado: cambia icono y clase
-    const actualizarToggleEstado = () => {
-      if (currentEstado === 'A') {
-        btnVerEliminados.classList.replace('btn-warning', 'btn-secondary');
-        btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-        btnVerEliminados.title = 'Ver eliminados';
-      } else {
-        btnVerEliminados.classList.replace('btn-secondary', 'btn-warning');
-        btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye"></i>';
-        btnVerEliminados.title = 'Ver activos';
-      }
-    };
-
-    // Función para cargar datos, incluyendo estado
-    const cargar = async (modo, fecha) => {
-      console.log(`> cargando modo=${modo} fecha=${fecha} estado=${currentEstado}`);
-      try {
-        const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}&estado=${currentEstado}`);
-        const json = await res.json();
-        if (json.status === 'success') {
-          pintar(json.data);
-        } else {
-          console.error('Error listando:', json.message);
-        }
-      } catch (e) {
-        console.error('Fetch error:', e);
-      }
-    };
-
-    // Listener: toggle activas/desactivadas
-    btnVerEliminados.addEventListener('click', () => {
-      currentEstado = currentEstado === 'A' ? 'D' : 'A';
-      actualizarToggleEstado();
-      cargar(currentModo, fechaInput.value);
-    });
-
-    // Listener: filtros de modo (día/semana/mes)
-    btnsModo.forEach(btn => {
-      btn.addEventListener('click', () => {
-        currentModo = btn.dataset.modo;
-        btnsModo.forEach(b => b.classList.toggle('active', b === btn));
-        cargar(currentModo, fechaInput.value);
-      });
-    });
-
-    // Listener: cambio de fecha reinicia a 'dia'
-    fechaInput.addEventListener('change', () => {
-      currentModo = 'dia';
-      btnsModo.forEach(b => b.classList.remove('active'));
-      cargar(currentModo, fechaInput.value);
-    });
-
-    // Inicialización
-    fechaInput.value = new Date().toISOString().slice(0, 10);
-    actualizarToggleEstado();
-    cargar(currentModo, fechaInput.value);
-  });
-</script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const fechaInput = document.getElementById('Fecha');
-    const tablaBody = document.querySelector('#miTabla tbody');
-    const btnsModo = document.querySelectorAll('button[data-modo]');
-    const btnVerEliminados = document.getElementById('btnVerEliminados');
-    const API = 'http://localhost/fix360/app/controllers/ordenservicio.controller.php';
-
-    // Modales y campos
+    // --- Modal Justificación ---
     const modalJust = new bootstrap.Modal(document.getElementById('modalJustificacion'));
     const formJust = document.getElementById('formJustificacion');
     const jIdOrden = document.getElementById('jIdOrden');
     const jTexto = document.getElementById('jTexto');
 
+    // --- Modal Detalle de Orden ---
     const modalDet = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
     const dCliente = document.getElementById('dCliente');
     const dProp = document.getElementById('dPropietario');
@@ -351,41 +209,48 @@ require_once "../../partials/_footer.php";
     const dTotal = document.getElementById('dTotal');
 
     let currentModo = 'dia';
-    let currentEstado = 'A';
+    let currentEstado = 'A'; // 'A' activas, 'D' eliminadas
 
-    // Formateador de fecha
+    // --- Helpers ---
+    const pad = v => String(v).padStart(2, '0');
     const fmt = iso => {
       if (!iso) return '';
       const d = new Date(iso);
-      const pad = v => String(v).padStart(2, '0');
-      return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ` +
+        `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+    const isToday = iso => {
+      if (!iso) return false;
+      const d = new Date(iso),
+        t = new Date();
+      return d.getDate() === t.getDate() &&
+        d.getMonth() === t.getMonth() &&
+        d.getFullYear() === t.getFullYear();
     };
 
-    // Helper para saber si una ISO date es de hoy
-const isToday = iso => {
-  if (!iso) return false;
-  const d = new Date(iso);
-  const today = new Date();
-  return d.getDate()    === today.getDate() &&
-         d.getMonth()   === today.getMonth() &&
-         d.getFullYear() === today.getFullYear();
-};
-
-
-    // Pinta la tabla principal
+    // --- Pinta la tabla principal ---
     const pintar = data => {
       if ($.fn.DataTable.isDataTable('#miTabla')) {
         $('#miTabla').DataTable().destroy();
       }
       tablaBody.innerHTML = '';
       data.forEach((o, i) => {
-        const btnDetalle = `<button class="btn btn-sm btn-info" title="Detalle de la orden" data-id="${o.idorden}" data-action="detalle"><i class="fa-solid fa-clipboard-list"></i></button>`;
-        const btnVer = `<a class="btn btn-sm btn-primary" href="listar-observacion-orden.php?idorden=${o.idorden}"><i class="fa-solid fa-eye"></i></a>`;
-        let btnEliminar = '', btnSalida = '';
+        const btnDetalle = `<button class="btn btn-sm btn-info" title="Detalle" data-id="${o.idorden}" data-action="detalle">
+                             <i class="fa-solid fa-clipboard-list"></i>
+                           </button>`;
+        const btnVer = `<a class="btn btn-sm btn-primary" href="listar-observacion-orden.php?idorden=${o.idorden}">
+                             <i class="fa-solid fa-eye"></i>
+                           </a>`;
+        let btnEliminar = '',
+          btnSalida = '';
         if (!o.fechasalida) {
-          btnSalida = `<button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida"><i class="fa-solid fa-calendar-days"></i></button>`;
-          if(isToday(o.fechaingreso)){
-            btnEliminar = `<button class="btn btn-sm btn-danger" data-id="${o.idorden}" data-action="eliminar"><i class="fa-solid fa-trash"></i></button>`;
+          btnSalida = `<button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida">
+                       <i class="fa-solid fa-calendar-days"></i>
+                     </button>`;
+          if (isToday(o.fechaingreso)) {
+            btnEliminar = `<button class="btn btn-sm btn-danger" data-id="${o.idorden}" data-action="eliminar">
+                           <i class="fa-solid fa-trash"></i>
+                         </button>`;
           }
         }
         tablaBody.insertAdjacentHTML('beforeend', `
@@ -394,7 +259,7 @@ const isToday = iso => {
           <td>${o.propietario||''}</td>
           <td>${o.cliente||''}</td>
           <td>${fmt(o.fechaingreso)}</td>
-          <td>${o.fechasalida? fmt(o.fechasalida) : '<span class="text-muted">Servicios en desarrollo</span>'}</td>
+          <td>${o.fechasalida? fmt(o.fechasalida) : '<span class="text-muted">En progreso</span>'}</td>
           <td>${o.placa||''}</td>
           <td>
             <div class="d-flex gap-1 justify-content-center">
@@ -422,20 +287,20 @@ const isToday = iso => {
       });
     };
 
-    // Cambia apariencia del toggle de eliminados
+    // --- Cambia icono y estado del toggle ---
     const actualizarToggleEstado = () => {
       if (currentEstado === 'A') {
-        btnVerEliminados.classList.replace('btn-warning', 'btn-secondary');
-        btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-        btnVerEliminados.title = 'Ver eliminados';
+        btnVerElim.classList.replace('btn-warning', 'btn-secondary');
+        btnVerElim.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+        btnVerElim.title = 'Ver eliminados';
       } else {
-        btnVerEliminados.classList.replace('btn-secondary', 'btn-warning');
-        btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye"></i>';
-        btnVerEliminados.title = 'Ver activos';
+        btnVerElim.classList.replace('btn-secondary', 'btn-warning');
+        btnVerElim.innerHTML = '<i class="fa-solid fa-eye"></i>';
+        btnVerElim.title = 'Ver activos';
       }
     };
 
-    // Trae datos del servidor
+    // --- Trae datos y pinta ---
     const cargar = async (modo, fecha) => {
       try {
         const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}&estado=${currentEstado}`);
@@ -443,17 +308,17 @@ const isToday = iso => {
         if (json.status === 'success') pintar(json.data);
         else console.error(json.message);
       } catch (e) {
-        console.error('Fetch error', e);
+        console.error('Fetch error:', e);
       }
     };
 
-    // Delegación de clicks en tabla principal
+    // --- Delegación de clicks en la tabla ---
     tablaBody.addEventListener('click', async ev => {
       const btn = ev.target.closest('button[data-action]');
       if (!btn) return;
       const id = btn.dataset.id;
 
-      // -- Eliminar --
+      // Eliminar
       if (btn.dataset.action === 'eliminar') {
         jIdOrden.value = id;
         jTexto.value = '';
@@ -461,18 +326,42 @@ const isToday = iso => {
         return;
       }
 
-      // -- Detalle --
+      // Registrar salida
+      if (btn.dataset.action === 'salida') {
+        if (!confirm('¿Registrar fecha de salida?')) return;
+        try {
+          const resp = await fetch(API, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              action: 'setSalida',
+              idorden: id
+            })
+          });
+          const js = await resp.json();
+          if (js.status === 'success') showToast('Salida registrada', 'SUCCESS');
+          else showToast('Error al registrar', 'ERROR');
+        } catch {
+          showToast('Error de red', 'ERROR');
+        }
+        cargar(currentModo, fechaInput.value);
+        return;
+      }
+
+      // Detalle
       if (btn.dataset.action === 'detalle') {
         try {
-          const res = await fetch(`${API}?action=getDetalle&idorden=${id}`);
-          const json = await res.json();
+          const resp = await fetch(`${API}?action=getDetalle&idorden=${id}`);
+          const js = await resp.json();
           const {
             cabecera,
             detalle,
             total
-          } = json.data;
+          } = js.data;
 
-          // Poblar cabecera
+          // Cabecera
           dCliente.value = cabecera.cliente || '';
           dProp.value = cabecera.propietario || '';
           dVeh.value = cabecera.vehiculo || '';
@@ -482,7 +371,7 @@ const isToday = iso => {
           dGrua.checked = !!cabecera.ingresogrua;
           dObs.value = cabecera.observaciones || '';
 
-          // Poblar detalle
+          // Detalle de servicios
           tablaDet.innerHTML = '';
           detalle.forEach((r, i) => {
             tablaDet.insertAdjacentHTML('beforeend', `
@@ -494,6 +383,7 @@ const isToday = iso => {
             </tr>
           `);
           });
+
           // Total
           dTotal.textContent = parseFloat(total).toFixed(2);
 
@@ -501,47 +391,17 @@ const isToday = iso => {
         } catch (e) {
           console.error('Error detalle:', e);
         }
-        return;
-      }
-
-      if (btn.dataset.action === 'salida') {
-        // Podemos pedir confirmación si quieres:
-        if (!confirm('¿Confirmas registrar fecha de salida?')) return;
-        try {
-          const res = await fetch(API, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              action: 'setSalida',
-              idorden: id
-            })
-          });
-          const json = await res.json();
-          if (json.status === 'success' && json.updated > 0) {
-            showToast('Fecha de salida registrada', 'SUCCESS');
-          } else {
-            showToast('No se pudo registrar salida', 'ERROR');
-          }
-        } catch (e) {
-          console.error(e);
-          showToast('Error de red', 'ERROR');
-        }
-        // Refrescar la tabla tras el update
-        cargar(currentModo, fechaInput.value);
-        return;
       }
     });
 
-    // Envío de justificación para eliminar
+    // --- Envío del formulario de justificación ---
     formJust.addEventListener('submit', async ev => {
       ev.preventDefault();
       const idord = parseInt(jIdOrden.value, 10);
       const just = jTexto.value.trim();
       if (!just) return;
       try {
-        const res = await fetch(API, {
+        const resp = await fetch(API, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -552,49 +412,41 @@ const isToday = iso => {
             justificacion: just
           })
         });
-        const json = await res.json();
-        if (json.status === 'success') {
+        const js = await resp.json();
+        if (js.status === 'success') {
           showToast('Orden eliminada', 'SUCCESS');
           cargar(currentModo, fechaInput.value);
         } else {
-          showToast('Error: ' + json.message, 'ERROR');
+          showToast('Error: ' + js.message, 'ERROR');
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         showToast('Error de red', 'ERROR');
       } finally {
         modalJust.hide();
       }
     });
 
-    // Toggle de eliminados
-    btnVerEliminados.addEventListener('click', () => {
+    // --- Listeners de filtros y toggle ---
+    btnVerElim.addEventListener('click', () => {
       currentEstado = currentEstado === 'A' ? 'D' : 'A';
       actualizarToggleEstado();
       cargar(currentModo, fechaInput.value);
     });
-
-    // Botones de modo
-    btnsModo.forEach(btn => {
-      btn.addEventListener('click', () => {
-        currentModo = btn.dataset.modo;
-        btnsModo.forEach(b => b.classList.toggle('active', b === btn));
-        cargar(currentModo, fechaInput.value);
-      });
-    });
-
-    // Cambio de fecha
+    btnsModo.forEach(b => b.addEventListener('click', () => {
+      currentModo = b.dataset.modo;
+      btnsModo.forEach(x => x.classList.toggle('active', x === b));
+      cargar(currentModo, fechaInput.value);
+    }));
     fechaInput.addEventListener('change', () => {
       currentModo = 'dia';
-      btnsModo.forEach(b => b.classList.remove('active'));
+      btnsModo.forEach(x => x.classList.remove('active'));
       cargar(currentModo, fechaInput.value);
     });
 
-    // Inicialización
+    // --- Inicialización ---
     fechaInput.value = new Date().toISOString().slice(0, 10);
     actualizarToggleEstado();
     cargar(currentModo, fechaInput.value);
-
   });
 </script>
 

@@ -79,7 +79,7 @@ require_once "../../partials/header.php";
         </div>
       </div>
       <div class="card-footer text-end">
-        <button type="button" id="btnCancelar" class="btn btn-secondary">Cancelar</button>
+        <button type="button" id="btnCancelar" href="javascript:history.back()" class="btn btn-secondary">Cancelar</button>
         <button type="submit" id="btnGuardar" class="btn btn-success">Guardar</button>
       </div>
     </div>

@@ -137,7 +137,7 @@ require_once "../../partials/header.php";
 
       <div class="card-footer">
         <div style="display: flex; justify-content: flex-end; gap: 20px">
-          <button class="btn btn-secondary" onclick="window.location.href='listar-Producto.php'">
+          <button class="btn btn-secondary" href="javascript:history.back()">
             Cancelar
           </button>
           <button type="submit" class="btn btn-success" id="btnRegistrarProducto">

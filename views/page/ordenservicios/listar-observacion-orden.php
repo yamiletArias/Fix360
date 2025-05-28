@@ -98,7 +98,7 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
   <div id="obs-container" class="d-flex flex-wrap gap-4"></div>
 
   <div>
-    <a href="listar-ordenes.php" class="btn btn-secondary">Volver</a>
+    <a href="javascript:history.back()" class="btn btn-secondary">Volver</a>
   </div>
 </div>
 </div>

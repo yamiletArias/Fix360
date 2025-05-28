@@ -63,7 +63,7 @@ if ($idcliente) {
     </table>
   </div>
   <div class="text-right">
-    <a href="../clientes/listar-cliente.php" class="btn btn-secondary">Volver</a>
+    <a href="javascript:history.back()" class="btn btn-secondary">Volver</a>
   </div>
 </div>
 </div>
@@ -176,7 +176,7 @@ require_once "../../partials/_footer.php";
               <button class="btn btn-sm btn-info" title="Detalle" onclick="verDetalle('${row.modelo}', '${row.anio}', '${row.numserie}', '${row.tcombustible}','${row.modificado}','${row.vin}','${row.numchasis}')">
                 <i class="fa-solid fa-clipboard-list"></i>
               </button>
-              <a href="historial-vehiculos.php?id=${row.idvehiculo}" class="btn btn-sm btn-outline-primary" title="Ver más">
+                            <a href="historial-vehiculos-prueba.php?id=${row.idvehiculo}" class="btn btn-sm btn-outline-primary" title="Ver más">
                 <i class="fa-solid fa-list"></i>
               </a>
             `;
@@ -194,23 +194,24 @@ require_once "../../partials/_footer.php";
       }
     });
   });
+
   function cleanField(value) {
-  // si viene null, undefined, cadena 'null' o cadena vacía
-  if (value == null || value === 'null' || value === '') {
-    return 'No proporcionado';
+    // si viene null, undefined, cadena 'null' o cadena vacía
+    if (value == null || value === 'null' || value === '') {
+      return 'No proporcionado';
+    }
+    return value;
   }
-  return value;
-}
 
-function verDetalle(modelo, anio, serie, combustible, modificado, vin, numchasis) {
-  document.querySelector("#modeloInput").value      = cleanField(modelo);
-  document.querySelector("#anioInput").value        = cleanField(anio);
-  document.querySelector("#serieInput").value       = cleanField(serie);
-  document.querySelector("#combustibleInput").value = cleanField(combustible);
-  document.querySelector("#modificadoInput").value  = cleanField(modificado);
-  document.querySelector("#vinInput").value         = cleanField(vin);
-  document.querySelector("#numchasisInput").value   = cleanField(numchasis);
+  function verDetalle(modelo, anio, serie, combustible, modificado, vin, numchasis) {
+    document.querySelector("#modeloInput").value = cleanField(modelo);
+    document.querySelector("#anioInput").value = cleanField(anio);
+    document.querySelector("#serieInput").value = cleanField(serie);
+    document.querySelector("#combustibleInput").value = cleanField(combustible);
+    document.querySelector("#modificadoInput").value = cleanField(modificado);
+    document.querySelector("#vinInput").value = cleanField(vin);
+    document.querySelector("#numchasisInput").value = cleanField(numchasis);
 
-  new bootstrap.Modal(document.getElementById("miModal")).show();
-}
+    new bootstrap.Modal(document.getElementById("miModal")).show();
+  }
 </script>

@@ -200,4 +200,33 @@ public function deleteOrdenServicio(int $idorden, string $justificacion): int
     }
 }
 
+/**
+     * Lista órdenes de servicio para un vehículo en un rango (mes, semestral, anual).
+     *
+     * @param string $modo         'mes'|'semestral'|'anual'
+     * @param string $fecha        Fecha de referencia 'YYYY-MM-DD'
+     * @param string $estado       'A'|'D'
+     * @param int    $idvehiculo
+     * @return array
+     */
+    public function listarHistorialPorVehiculo(string $modo, string $fecha, string $estado, int $idvehiculo): array
+    {
+        try {
+            $sql = "CALL spHistorialOrdenesPorVehiculo(:modo, :fecha, :estado, :idvehiculo)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':modo'       => $modo,
+                ':fecha'      => $fecha,
+                ':estado'     => $estado,
+                ':idvehiculo' => $idvehiculo,
+            ]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $result;
+        } catch (Exception $e) {
+            error_log("OrdenServicio::listarHistorialPorVehiculo error: " . $e->getMessage());
+            return [];
+        }
+    }
+
 }

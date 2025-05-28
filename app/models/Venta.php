@@ -34,7 +34,6 @@ class Venta extends Conexion
                 // Retornar datos en formato JSON
                 header('Content-Type: application/json');
                 echo json_encode($resultado);
-
             } catch (Exception $e) {
                 header('Content-Type: application/json');
                 echo json_encode(['error' => 'Error al obtener datos: ' . $e->getMessage()]);
@@ -130,6 +129,34 @@ class Venta extends Conexion
         }
         return $result;
     }
+
+    /**
+     * Lista ventas de un vehículo en un rango (mes, semestral, anual).
+     *
+     * @param string $modo        'mes'|'semestral'|'anual'
+     * @param string $fecha       'YYYY-MM-DD'
+     * @param int    $idvehiculo
+     * @return array
+     */
+public function listarHistorialPorVehiculo(string $modo, string $fecha, int $idvehiculo, bool $estado = true): array
+{
+    try {
+        $stmt = $this->pdo->prepare("CALL spHistorialVentasPorVehiculo(:modo, :fecha, :idvehiculo, :estado)");
+        $stmt->execute([
+            ':modo'       => $modo,
+            ':fecha'      => $fecha,
+            ':idvehiculo' => $idvehiculo,
+            ':estado'     => $estado ? 1 : 0,
+        ]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $result;
+    } catch (Exception $e) {
+        error_log("Venta::listarHistorialPorVehiculo error: ".$e->getMessage());
+        return [];
+    }
+}
+
 
     // Buscar productos
     public function buscarProducto(string $termino): array
@@ -394,7 +421,4 @@ class Venta extends Conexion
             throw $e;
         }
     }
-
-
 }
-?>
