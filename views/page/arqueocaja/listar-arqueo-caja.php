@@ -7,25 +7,12 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
 <div class="container py-4 mt-4">
-    <!--     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h4 mb-0">
-            <i class="fa-solid fa-cash-register text-primary me-2"></i>
-            ARQUEO DE CAJA - FIX 360
-        </h2>
-    </div> -->
-
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <div>
                 <i class="fa-solid fa-info-circle me-2"></i>Información general
             </div>
             <div>
-                <!-- <button class="btn btn-sm btn-outline-light me-2" onclick="changeDate(-1)">
-                    <i class="fa-solid fa-chevron-left"></i> Día anterior
-                </button>
-                <button class="btn btn-sm btn-outline-light me-2" onclick="changeDate(1)">
-                    Día siguiente <i class="fa-solid fa-chevron-right"></i>
-                </button> -->
                 <button class="btn btn-danger btn-sm" id="print-btn">
                     <i class="fa-solid fa-file-pdf"></i> PDF
                 </button>
@@ -54,7 +41,7 @@ require_once "../../partials/header.php";
                     <input type="date" id="fecha" class="form-control input" value="" onchange="cargarIngresos()">
                 </div>
             </div>
-            <div class="row mb-1 align-items-center input">
+            <div class="row mb-4 align-items-center input">
                 <!-- Hora inicio -->
                 <label class="col-sm-3 col-form-label fw-bold">
                     <i class="fa-solid fa-clock me-2"></i>Hora inicio
@@ -69,6 +56,19 @@ require_once "../../partials/header.php";
                 </label>
                 <div class="col-sm-3">
                     <input type="text" readonly class="form-control-plaintext border-bottom" value="18:00">
+                </div>
+            </div>
+
+            <!-- NUEVA SECCIÓN: DESCRIPCIÓN -->
+            <div class="row mb-1 ">
+                <label for="descripcion" class="col-sm-2 input col-form-label fw-bold">
+                    <i class="fa-solid input fa-comment me-2"></i>Observaciones
+                </label>
+                <div class="col-sm-10">
+                    <textarea id="descripcion" class="form-control input" rows="3"
+                        placeholder="Escriba aquí observaciones o notas adicionales sobre el arqueo de caja..."
+                        maxlength="500"></textarea>
+                    <div class="form-text">Máximo 500 caracteres</div>
                 </div>
             </div>
         </div>
@@ -166,11 +166,6 @@ require_once "../../partials/header.php";
                 </table>
             </div>
         </div>
-        <!-- <div class="card-footer bg-light text-center">
-            <button class="btn btn-primary">
-                <i class="fa-solid fa-check me-2"></i>Confirmar arqueo
-            </button>
-        </div> -->
     </div>
 </div>
 </div>
@@ -292,29 +287,27 @@ require_once "../../partials/_footer.php";
         await cargarResumen();
     }
 
-
     document.addEventListener('DOMContentLoaded', () => {
         const hoy = new Date().toISOString().slice(0, 10);
         document.getElementById('fecha').value = hoy;
         cargarIngresos();
 
-        // Imprimir PDF
-        /* document.getElementById('print-btn').addEventListener('click', () => {
-            window.print();
-        }); */
+        // Imprimir PDF con descripción
         document.getElementById('print-btn').addEventListener('click', () => {
             const fecha = document.getElementById('fecha').value;
+            const descripcion = document.getElementById('descripcion').value;
+
             if (!fecha) {
                 alert('Selecciona primero una fecha');
                 return;
             }
-            // Si quieres pasar el nombre de usuario, toma la variable PHP 
-            // (asegúrate de imprimirla en JS)
+
             const usuario = <?= json_encode($usuario['nombreCompleto'] ?? 'Invitado') ?>;
 
             const url = `<?= SERVERURL ?>app/reports/reportearqueo.php`
                 + `?fecha=${encodeURIComponent(fecha)}`
-                + `&usuario=${encodeURIComponent(usuario)}`;
+                + `&usuario=${encodeURIComponent(usuario)}`
+                + `&descripcion=${encodeURIComponent(descripcion)}`;
             window.open(url, '_blank');
         });
     });

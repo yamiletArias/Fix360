@@ -106,6 +106,33 @@
         clear: both;
         margin-top: 15px;
     }
+
+    .descripcion-box {
+        position: absolute;
+        bottom: 6mm;
+        width: 95%;
+        /* o p. ej. 150mm, según tu necesidad */
+        left: 0%;
+        transform: translateX(-50%);
+        border: 1px solid #555;
+        padding: 15px;
+        page-break-inside: avoid;
+        background: #fff;
+    }
+
+    .descripcion-box .section {
+        font-weight: bold;
+        /* background: #f0f0f0; */
+        padding: 5px 1px;
+        /* border-bottom: 1px solid #555; */
+        margin-bottom: 6px;
+    }
+
+    .descripcion-box p {
+        margin: 0;
+        line-height: 1.4;
+        padding: 10px 6px;
+    }
 </style>
 
 <page format="A4-L" backtop="10mm" backbottom="15mm" backleft="10mm" backright="10mm">
@@ -223,6 +250,14 @@
                 <?php endforeach; ?>
             </table>
         </div>
+    </div>
+
+    <!-- DESCRIPCIÓN (posicionada absolutamente) -->
+    <div class="descripcion-box">
+        <div class="section">Observaciones</div>
+        <p>
+            <?= nl2br(htmlspecialchars($descripcion ?? 'No se proporcionó descripción.', ENT_QUOTES, 'UTF-8')) ?>
+        </p>
     </div>
 
     <!-- PIE FIJO -->

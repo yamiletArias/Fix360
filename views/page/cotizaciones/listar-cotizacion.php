@@ -320,32 +320,23 @@ require_once "../../partials/_footer.php";
     }
 
     function renderOpciones(data, type, row) {
-        const estado = row.estado;
-        const btnConvertir = estado === 'aprobada'
-            ? `<button title="Convertir a venta" class="btn btn-success btn-sm"
-                 onclick="window.location='../ventas/registrar-ventas-orden.php?id=${row.id}'">
-                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
-               </button>`
-            : `<button title="Convertir a venta" class="btn btn-success btn-sm" disabled>
-                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
-               </button>`;
-
         return `
-        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
-        <i class="fa-solid fa-trash"></i>
+        <button title="Eliminar" class="btn btn-danger btn-sm btnEliminar" data-id="${row.id}">
+            <i class="fa-solid fa-trash"></i>
         </button>
-        <button title="Detalle de la cotización" class="btn btn-info btn-sm btn-detalle"
-                data-action="detalle"
-                data-id="${row.id}"
-                data-bs-toggle="modal"
-                data-bs-target="#miModal">
-            <i class='fa-solid fa-clipboard-list'></i>
+        <button class="btn btn-info btn-sm"
+                onclick="verDetalleCotizacion(${row.id}, '${row.cliente}')">
+            <i class="fa-solid fa-circle-info"></i>
         </button>
-        ${btnConvertir}
+        <button class="btn btn-success btn-sm"
+                onclick="window.location='../ventas/registrar-ventas-orden.php?id=${row.id}'">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
         <button title="Pdf" class="btn btn-outline-dark btn-sm btn-descargar-pdf"
                 onclick="descargarPDF('${row.id}')">
-        <i class="fa-solid fa-file-pdf"></i>
-        </button>`;
+            <i class="fa-solid fa-file-pdf"></i>
+        </button>
+    `;
     }
 
     function descargarPDF(idcotizacion) {

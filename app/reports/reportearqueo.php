@@ -11,7 +11,7 @@ use Spipu\Html2Pdf\Exception\ExceptionFormatter;
 // Parámetros esperados: ?fecha=YYYY-MM-DD
 $fecha = $_GET['fecha'] ?? date('Y-m-d');
 $usuario = $_GET['usuario'] ?? null; // opcional: nombre o ID para mostrar
-
+$descripcion = $_GET['descripcion'] ?? '';
 try {
     // 1) Recuperar datos de ingresos y egresos vía tu API de Arqueo
     $baseUrl = 'http://localhost/Fix360/app/controllers/Arqueo.controller.php';
