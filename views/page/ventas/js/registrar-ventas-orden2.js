@@ -25,19 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
 
-  /*   function setFechaDefault() {
-      const input = document.getElementById('fechaIngreso');
-      const now = new Date(); const pad = n => String(n).padStart(2,'0');
-      const yyyy = now.getFullYear(), MM = pad(now.getMonth()+1), dd = pad(now.getDate());
-      const hh = pad(now.getHours()), mm = pad(now.getMinutes());
-      input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-  
-      const twoDaysAgo = new Date(now);
-      twoDaysAgo.setDate(now.getDate()-2);
-      input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth()+1)}-${pad(twoDaysAgo.getDate())}T00:00`;
-      input.max = `${yyyy}-${MM}-${dd}T23:59`;
-    }
-    setFechaDefault(); */
   // --- Funciones auxiliares ---
   function calcularTotales() {
     let totalImporte = 0;
@@ -835,20 +822,3 @@ document.addEventListener("click", function (e) {
     btnPermitir.title = "Fechas pasadas habilitadas";
   });
 });
-/* document.addEventListener('DOMContentLoaded', () => {
-  const cotId = new URLSearchParams(window.location.search).get('id');
-  if (!cotId) return;
-
-  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-  const inputProp       = document.getElementById("propietario");
-  if (!hiddenIdCli || !inputProp) return;
-
-  fetch(`<?= SERVERURL ?>app/controllers/cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
-    .then(res => res.json())
-    .then(data => {
-      hiddenIdCliente.value = data.idcliente;
-      inputProp.value = data.cliente;
-      hiddenIdCliente.dispatchEvent(new Event('change'));
-    })
-    .catch(console.error);
-}); */

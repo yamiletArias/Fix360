@@ -58,7 +58,7 @@ require_once "../../partials/header.php";
           <div class="col-md-4 d-flex">
             <!-- Input con flex-grow para que sea más largo -->
             <div class="form-floating flex-grow-1 ">
-              <input type="date" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
+              <input type="datetime-local" class="form-control input" name="fechaIngreso" id="fechaIngreso" required />
               <label for="fechaIngreso">Fecha de Compra:</label>
             </div>
 
@@ -365,6 +365,7 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
+<script src="<?= SERVERURL ?>views/page/compras/js/registrar-compras.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script src="<?= SERVERURL ?>views/page/clientes/js/registrar-cliente.js"></script>
@@ -424,17 +425,41 @@ require_once "../../partials/_footer.php";
   let originalPrecio = 0;
 </script>
 <script>
-  const inputFecha = document.getElementById("fechaIngreso");
-  const btnPermitir = document.getElementById("btnPermitirFechaPasada");
+  document.addEventListener("DOMContentLoaded", () => {
+    const fechaInput = document.getElementById("fechaIngreso");
+    const btnPermitir = document.getElementById('btnPermitirFechaPasada');
+    if (!fechaInput) return;
 
-  const hoy = new Date().toISOString().split("T")[0];
-  inputFecha.min = hoy;
+    // Función para rellenar con ceros
+    const pad = n => String(n).padStart(2, '0');
 
-  btnPermitir.addEventListener("click", () => {
-    inputFecha.removeAttribute("min");
-    btnPermitir.disabled = true;
-    btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
-    btnPermitir.title = "Fechas pasadas habilitadas";
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const MM = pad(now.getMonth() + 1);
+    const dd = pad(now.getDate());
+    const hh = pad(now.getHours());
+    const mm = pad(now.getMinutes());
+
+    // Valor por defecto: ahora mismo
+    fechaInput.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+
+    // Rango: desde hace 2 días hasta hoy
+    const twoDaysAgo = new Date(now);
+    twoDaysAgo.setDate(now.getDate() - 2);
+    const yyyy2 = twoDaysAgo.getFullYear();
+    const MM2 = pad(twoDaysAgo.getMonth() + 1);
+    const dd2 = pad(twoDaysAgo.getDate());
+
+    fechaInput.min = `${yyyy2}-${MM2}-${dd2}T00:00`;
+    fechaInput.max = `${yyyy}-${MM}-${dd}T23:59`;
+
+    btnPermitir.addEventListener("click", () => {
+      fechaInput.removeAttribute("min");
+      fechaInput.removeAttribute("max");
+      btnPermitir.disabled = true;
+      btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
+      btnPermitir.title = "Fechas pasadas habilitadas";
+    });
   });
 </script>
 <script>
@@ -553,7 +578,7 @@ require_once "../../partials/_footer.php";
     categoriaSelect.addEventListener("change", cargarSubcategorias);
   });
 </script>
-<script>
+<!-- <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
     const proveedorSelect = document.getElementById('proveedor');
@@ -571,6 +596,8 @@ require_once "../../partials/_footer.php";
     const inputPrecio = document.getElementById("preciocompra");
     const inputCantidad = document.getElementById("cantidadcompra");
     const inputDescuento = document.getElementById("descuento");
+    const fechaInput = document.getElementById("fechaIngreso");
+    
     inputPrecio.addEventListener("blur", () => {
       const val = parseFloat(inputPrecio.value);
       const precioOriginal = parseFloat(selectedProduct.precio);
@@ -589,19 +616,6 @@ require_once "../../partials/_footer.php";
         }
       }
     });
-    function initDateField(id) {
-      const el = document.getElementById(id);
-      if (!el) return;               // si no existe, no hace nada
-      const today = new Date();
-      const twoAgo = new Date();
-      twoAgo.setDate(today.getDate() - 2);
-      const fmt = d => d.toISOString().split('T')[0];
-      el.value = fmt(today);
-      el.min = fmt(twoAgo);
-      el.max = fmt(today);
-    }
-    initDateField('fechaIngreso');
-    const fechaInput = document.getElementById("fechaIngreso");
     // --- Funciones auxiliares ---
     function calcularTotales() {
       let totalImporte = 0;
@@ -1051,7 +1065,7 @@ require_once "../../partials/_footer.php";
       });
     });
   });
-</script>
+</script> -->
 </body>
 
 </html>
