@@ -18,7 +18,11 @@ require_once "../../partials/header.php";
                 <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
                 <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
                 <!-- Nuevo botón para ver eliminados -->
-                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                <!--                 <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </button> -->
+                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white" title="Ver eliminados"
+                    data-estado="A">
                     <i class="fa-solid fa-eye-slash"></i>
                 </button>
                 <button type="button" class="btn btn-danger text-white">
@@ -82,27 +86,43 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 
-<!-- Logica para obetner la justificacion en el modal -->
 <script>
-    let mostrandoEliminados = false;
-    const btnVerEliminados = document.getElementById("btnVerEliminados");
+    let currentEstado = 'A'; // 'A' para activos, 'E' para eliminados
+    const btnVerElim = document.getElementById("btnVerEliminados");
     const contActivos = document.getElementById("tableDia");
     const contEliminados = document.getElementById("tableEliminados");
 
-    btnVerEliminados.addEventListener("click", function () {
-        if (!mostrandoEliminados) {
+    // Función para actualizar la apariencia del toggle
+    const actualizarToggleEstado = () => {
+        if (currentEstado === 'A') {
+            btnVerElim.classList.replace('btn-warning', 'btn-secondary');
+            btnVerElim.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            btnVerElim.title = 'Ver eliminados';
+        } else {
+            btnVerElim.classList.replace('btn-secondary', 'btn-warning');
+            btnVerElim.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            btnVerElim.title = 'Ver activos';
+        }
+        btnVerElim.setAttribute('data-estado', currentEstado);
+    };
+
+    // Inicializa el toggle con el estado por defecto
+    actualizarToggleEstado();
+
+    btnVerElim.addEventListener("click", () => {
+        if (currentEstado === 'A') {
+            // Pasar a eliminados
             contActivos.style.display = "none";
             contEliminados.style.display = "block";
             cargarVentasEliminadas();
-            this.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
-            this.title = "Volver a ventas activas";
+            currentEstado = 'E';
         } else {
+            // Volver a activos
             contEliminados.style.display = "none";
             contActivos.style.display = "block";
-            this.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
-            this.title = "Ver eliminados";
+            currentEstado = 'A';
         }
-        mostrandoEliminados = !mostrandoEliminados;
+        actualizarToggleEstado();
     });
 </script>
 <script>
@@ -606,7 +626,8 @@ require_once "../../partials/_footer.php";
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btnGuardarAmortizacion" type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnGuardarAmortizacion" type="button" class="btn btn-primary btn-sm">Guardar</button>
             </div>
         </div>
     </div>
@@ -737,7 +758,7 @@ require_once "../../partials/_footer.php";
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnEliminarVenta" class="btn btn-danger btn-sm">Eliminar Venta</button>
+                <button type="button" id="btnEliminarVenta" class="btn btn-danger btn-sm">Eliminar</button>
             </div>
         </div>
     </div>

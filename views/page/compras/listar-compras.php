@@ -18,7 +18,11 @@ require_once "../../partials/header.php";
                 <button button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
                 <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
                 <!-- Nuevo botón para ver eliminados -->
-                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                <!-- <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </button> -->
+                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white" title="Ver eliminados"
+                    data-estado="A">
                     <i class="fa-solid fa-eye-slash"></i>
                 </button>
                 <button type="button" class="btn btn-danger text-white">
@@ -84,28 +88,42 @@ require_once "../../partials/_footer.php";
 ?>
 <script>
     // ——— Toggle Activos / Eliminados ———
-    let mostrandoComprasEliminadas = false;
+    let currentEstado = 'A'; // 'A' = activos, 'E' = eliminadas
     const btnVerEliminados = document.getElementById("btnVerEliminados");
     const contActivos = document.getElementById("tableDia");
     const contEliminados = document.getElementById("tableEliminados");
 
+    // Actualiza clase, icono y título según currentEstado
+    const actualizarToggleEstado = () => {
+        if (currentEstado === 'A') {
+            btnVerEliminados.classList.replace('btn-warning', 'btn-secondary');
+            btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            btnVerEliminados.title = 'Ver eliminados';
+        } else {
+            btnVerEliminados.classList.replace('btn-secondary', 'btn-warning');
+            btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            btnVerEliminados.title = 'Ver compras activas';
+        }
+        btnVerEliminados.setAttribute('data-estado', currentEstado);
+    };
+
+    // Inicializa el estado visual al cargar la página
+    actualizarToggleEstado();
+
     btnVerEliminados.addEventListener("click", () => {
-        if (!mostrandoComprasEliminadas) {
-            // Mostrar eliminadas
+        if (currentEstado === 'A') {
+            // Cambiamos a eliminadas
             contActivos.style.display = "none";
             contEliminados.style.display = "block";
             cargarComprasEliminadas();
-            btnVerEliminados.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
-            btnVerEliminados.title = "Volver a compras activas";
+            currentEstado = 'E';
         } else {
-            // Volver a activas
+            // Volvemos a activas
             contEliminados.style.display = "none";
             contActivos.style.display = "block";
-            // No recargamos: la tabla activa ya está cargada
-            btnVerEliminados.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
-            btnVerEliminados.title = "Ver eliminados";
+            currentEstado = 'A';
         }
-        mostrandoComprasEliminadas = !mostrandoComprasEliminadas;
+        actualizarToggleEstado();
     });
 </script>
 <script>
@@ -504,7 +522,8 @@ require_once "../../partials/_footer.php";
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btnGuardarAmortizacion" type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnGuardarAmortizacion" type="button" class="btn btn-primary btn-sm">Guardar</button>
             </div>
         </div>
     </div>
@@ -543,8 +562,8 @@ require_once "../../partials/_footer.php";
                     placeholder="Escribe tu justificación aquí..."></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnEliminarCompra" class="btn btn-danger">Eliminar Compra</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEliminarCompra" class="btn btn-danger btn-sm">Eliminar</button>
             </div>
         </div>
     </div>
@@ -594,7 +613,7 @@ require_once "../../partials/_footer.php";
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

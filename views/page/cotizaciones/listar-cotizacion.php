@@ -18,7 +18,11 @@ require_once "../../partials/header.php";
                 <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
                 <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
                 <!-- Nuevo botón para ver eliminados -->
-                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                <!-- <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </button> -->
+                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white" title="Ver eliminados"
+                    data-estado="A">
                     <i class="fa-solid fa-eye-slash"></i>
                 </button>
                 <button type="button" class="btn btn-danger text-white">
@@ -81,28 +85,44 @@ require_once "../../partials/header.php";
 <?php
 require_once "../../partials/_footer.php";
 ?>
-
-<!-- Logica para obtener la justificacion en el modal -->
 <script>
-    let mostrandoEliminados = false;
+    // ——— Toggle Activos / Eliminados ———
+    let currentEstado = 'A'; // 'A' = activos, 'E' = eliminadas
     const btnVerEliminados = document.getElementById("btnVerEliminados");
     const contActivos = document.getElementById("tableDia");
     const contEliminados = document.getElementById("tableEliminados");
 
-    btnVerEliminados.addEventListener("click", function () {
-        if (!mostrandoEliminados) {
+    // Actualiza la apariencia del botón según currentEstado
+    const actualizarToggleEstado = () => {
+        if (currentEstado === 'A') {
+            btnVerEliminados.classList.replace('btn-warning', 'btn-secondary');
+            btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            btnVerEliminados.title = 'Ver eliminados';
+        } else {
+            btnVerEliminados.classList.replace('btn-secondary', 'btn-warning');
+            btnVerEliminados.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            btnVerEliminados.title = 'Ver cotizaciones activas';
+        }
+        btnVerEliminados.setAttribute('data-estado', currentEstado);
+    };
+
+    // Inicializa el estado visual al cargar la página
+    actualizarToggleEstado();
+
+    btnVerEliminados.addEventListener("click", () => {
+        if (currentEstado === 'A') {
+            // Mostrar eliminadas
             contActivos.style.display = "none";
             contEliminados.style.display = "block";
             cargarCotizacionesEliminadas();
-            this.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
-            this.title = "Volver a cotizaciones activas";
+            currentEstado = 'E';
         } else {
+            // Volver a activas
             contEliminados.style.display = "none";
             contActivos.style.display = "block";
-            this.innerHTML = `<i class="fa-solid fa-eye-slash"></i>`;
-            this.title = "Ver eliminados";
+            currentEstado = 'A';
         }
-        mostrandoEliminados = !mostrandoEliminados;
+        actualizarToggleEstado();
     });
 </script>
 <script>
