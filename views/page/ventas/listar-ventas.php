@@ -6,7 +6,8 @@ require_once "../../partials/header.php";
 ?>
 <style>
     #am_formapago {
-        color: black; /* Cambia solo el color de la letra */
+        color: black;
+        /* Cambia solo el color de la letra */
     }
 </style>
 <div class="container-main mt-5">
@@ -204,138 +205,133 @@ require_once "../../partials/_footer.php";
     });
 
     function verDetalleVenta(idventa) {
-        $("#miModal tbody").empty();
+        // — Limpiar modal
+        $("#miModal tbody, #tabla-detalle-productos-modal tbody, #tabla-detalle-servicios-modal tbody").empty();
         $("#miModal .amortizaciones-container").remove();
         $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
         $("label[for='propietario']").text('');
 
-        // — Abrimos el modal
+        // — Abrir modal
         $("#miModal").modal("show");
 
+        // 1) Propietario
         fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=propietario&idventa=${idventa}`)
             .then(r => r.json())
             .then(jsonVenta => {
                 if (jsonVenta.status === 'success') {
                     $("label[for='propietario']").text(jsonVenta.data.propietario || 'Sin propietario');
+                } else {
+                    $("label[for='propietario']").text('No encontrado');
                 }
             })
-            .catch(err => {
-                console.error("Error al cargar propietario:", err);
+            .catch(() => {
                 $("label[for='propietario']").text('Error al cargar');
             });
 
-        $.ajax({
-            url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
-            method: "GET",
-            data: { idventa },
-            dataType: "json",
-            success(response) {
-                if (response.length === 0) {
-                    return $("#miModal tbody").append(
-                        `<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`
-                    );
+        // 2) Detalle completo (productos + servicios)
+        fetch(`<?= SERVERURL ?>app/controllers/Detventa.controller.php?idventa=${idventa}`)
+            .then(r => r.json())
+            .then(json => {
+                console.log("DETALLE VENTA RAW:", json);
+                if (json.status !== 'success') {
+                    console.error("Detventa error:", json.message);
+                    return;
                 }
-                // pinta productos como antes…
-                $("#modeloInput").val(response[0].cliente);
-                $("#fechaHora").val(response[0].fechahora);
-                $("#vehiculo").val(response[0].vehiculo ?? 'Sin vehiculo');
-                $("#kilometraje").val(response[0].kilometraje ?? 'sin kilometraje');
-                response.forEach((item, i) => {
-                    $("#miModal tbody").append(`
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${item.producto}</td>
-                        <td>${item.cantidad}</td>
-                        <td>${item.precio}</td>
-                        <td>${item.descuento} $</td>
-                        <td>${item.total_producto} $</td>
-                    </tr>`);
-                });
-                const $servBody = $("#tabla-detalle-servicios-modal tbody").empty();
+                const { productos, servicios } = json.data;
 
-                fetch(`<?= SERVERURL ?>app/controllers/Detventa.controller.php?action=servicios&idventa=${idventa}`)
-                    .then(r => r.json())
-                    .then(jsonServ => {
-                        // FILTRAMOS servicios con datos válidos (no todos nulos)
-                        const serviciosValidos = jsonServ.filter(s =>
-                            s.tiposervicio !== null || s.nombreservicio !== null || s.mecanico !== null || s.precio_servicio !== null
-                        );
-
-                        if (serviciosValidos.length === 0) {
-                            $servBody.append(`
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">No hay servicios registrados</td>
-                                </tr>
-                            `);
-                        } else {
-                            serviciosValidos.forEach((s, i) => {
-                                $servBody.append(`
-                                    <tr>
-                                        <td>${i + 1}</td>
-                                        <td>${s.tiposervicio ?? '-'}</td>
-                                        <td>${s.nombreservicio ?? '-'}</td>
-                                        <td>${s.mecanico ?? '-'}</td>
-                                        <td>${s.precio_servicio !== null ? parseFloat(s.precio_servicio).toFixed(2) + ' $' : '-'}</td>
-                                    </tr>
-                                `);
-                            });
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Error al cargar servicios:", err);
-                        $servBody.append(`
-                            <tr>
-                                <td colspan="5" class="text-center text-danger">Error al cargar servicios</td>
-                            </tr>
-                        `);
+                // — Productos —
+                const $prodBody = $("#tabla-detalle-productos-modal tbody").empty();
+                if (!productos.length) {
+                    $prodBody.append(`<tr><td colspan="6" class="text-center text-muted">No hay productos</td></tr>`);
+                } else {
+                    productos.forEach((p, i) => {
+                        $prodBody.append(`
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${p.producto}</td>
+                            <td>${p.cantidad}</td>
+                            <td>${parseFloat(p.precio).toFixed(2)} $</td>
+                            <td>${parseFloat(p.descuento).toFixed(2)} $</td>
+                            <td>${parseFloat(p.total_producto).toFixed(2)} $</td>
+                        </tr>`);
                     });
+                    // Campos generales
+                    $("#modeloInput").val(productos[0].cliente);
+                    $("#fechaHora").val(productos[0].fechahora);
+                    $("#vehiculo").val(productos[0].vehiculo || 'Sin vehículo');
+                    $("#kilometraje").val(productos[0].kilometraje || 'Sin kilometraje');
+                }
 
+                const serviciosValidos = servicios.filter(s =>
+                    s.tiposervicio !== null ||
+                    s.nombreservicio !== null ||
+                    s.mecanico !== null ||
+                    s.precio_servicio !== null
+                );
+                // — Servicios —
+                const $servBody = $("#tabla-detalle-servicios-modal tbody").empty();
+                if (!serviciosValidos.length) {
+                    $servBody.append(`<tr><td colspan="5" class="text-center text-muted">No hay servicios</td></tr>`);
+                } else {
+                    serviciosValidos.forEach((s, i) => {
+                        $servBody.append(`
+      <tr>
+        <td>${i + 1}</td>
+        <td>${s.tiposervicio ?? '-'}</td>
+        <td>${s.nombreservicio ?? '-'}</td>
+        <td>${s.mecanico ?? '-'}</td>
+        <td>${s.precio_servicio !== null
+                                ? parseFloat(s.precio_servicio).toFixed(2) + ' $'
+                                : '-'
+                            }</td>
+      </tr>`);
+                    });
+                }
 
-
-                // ─── AÑADE ESTE BLOQUE PARA LAS AMORTIZACIONES ───
+                // — Amortizaciones —
                 fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idventa=${idventa}`)
                     .then(r => r.json())
-                    .then(json => {
-                        if (json.status === 'success' && json.data.length) {
-                            // crear sección y tabla de amortizaciones
+                    .then(jsonA => {
+                        if (jsonA.status === 'success' && jsonA.data.length) {
                             const cont = $(`
-                                <div class="amortizaciones-container mt-4">
+                            <div class="amortizaciones-container mt-4">
                                 <h6>Amortizaciones</h6>
                                 <table class="table table-sm">
-                                    <thead><tr>
-                                        <th>#</th>
-                                        <th>Transacción</th>
-                                        <th>Nº Transacción</th>
-                                        <th>Monto</th>
-                                        <th>F. Pago</th>
-                                        <th>Saldo</th>
-                                    </tr></thead>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Transacción</th>
+                                            <th>Nº Transacción</th>
+                                            <th>Monto</th>
+                                            <th>F. Pago</th>
+                                            <th>Saldo</th>
+                                        </tr>
+                                    </thead>
                                     <tbody></tbody>
-                                    </table>
-                                </div>
-                            `);
-                            // rellenar filas
-                            json.data.forEach((a, i) => {
+                                </table>
+                            </div>
+                        `);
+                            jsonA.data.forEach((a, i) => {
                                 cont.find('tbody').append(`
                                 <tr>
                                     <td>${i + 1}</td>
                                     <td>${new Date(a.creado).toLocaleString()}</td>
                                     <td>${a.numtransaccion}</td>
-                                    <td>${parseFloat(a.amortizacion).toFixed(2)}</td>
+                                    <td>${parseFloat(a.amortizacion).toFixed(2)} $</td>
                                     <td>${a.formapago}</td>
-                                    <td>${parseFloat(a.saldo).toFixed(2)}</td>
+                                    <td>${parseFloat(a.saldo).toFixed(2)} $</td>
                                 </tr>`);
                             });
-                            // insertar después de la tabla de productos
                             $("#miModal .modal-body").append(cont);
                         }
                     })
-                    .catch(err => console.error("Error amortizaciones:", err));
-            },
-            error() {
+                    .catch(() => console.error("Error amortizaciones"));
+
+            })
+            .catch(() => {
+                console.error("Error al cargar detalle de venta");
                 alert("Ocurrió un error al cargar el detalle.");
-            }
-        });
+            });
     }
 </script>
 <script>
@@ -686,7 +682,7 @@ require_once "../../partials/_footer.php";
                     </div>
                 </div> -->
                 <div class="table-container">
-                    <table class="table table-striped table-bordered">
+                    <table id="tabla-detalle-productos-modal" class="table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -747,4 +743,5 @@ require_once "../../partials/_footer.php";
     </div>
 </div>
 </body>
+
 </html>
