@@ -54,22 +54,23 @@ $productos = [];
 $servicios = [];
 
 foreach ($rows as $row) {
-    // Agrega producto de cada fila
-    $productos[] = [
-        'producto'       => $row['producto'],
-        'cantidad'       => $row['cantidad'],
-        'precio'         => $row['precio'],
-        'descuento'      => $row['descuento'],
-        'total_producto' => $row['total_producto'],
-    ];
-    
-    // Si existe un servicio en esta fila
-    if (!empty($row['nombreservicio'])) {
+    // AHORA: solo productos si registro_tipo = 'producto'
+    if ($row['registro_tipo'] === 'producto') {
+        $productos[] = [
+          'producto'       => $row['producto'],
+          'cantidad'       => $row['cantidad'],
+          'precio'         => $row['precio'],
+          'descuento'      => $row['descuento'],
+          'total_producto' => $row['total_producto'],
+        ];
+    }
+    // Servicios sólo si registro_tipo = 'servicio'
+    elseif ($row['registro_tipo'] === 'servicio') {
         $servicios[] = [
-            'tiposervicio'    => $row['tiposervicio'],
-            'nombreservicio'  => $row['nombreservicio'],
-            'mecanico'        => $row['mecanico'],
-            'precio_servicio' => $row['precio_servicio'],
+          'tiposervicio'    => $row['tiposervicio'],
+          'nombreservicio'  => $row['nombreservicio'],
+          'mecanico'        => $row['mecanico'],
+          'precio_servicio' => $row['precio_servicio'],
         ];
     }
 }
