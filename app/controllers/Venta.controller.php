@@ -9,7 +9,7 @@ require_once __DIR__ . '/../helpers/helper.php';
 require_once __DIR__ . '/../models/Cotizacion.php';
 
 $venta = new Venta();
-$m     = new Cotizacion();
+$m = new Cotizacion();
 
 switch ($_SERVER['REQUEST_METHOD']) {
 
@@ -34,34 +34,50 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
 
     // 3) Historial por vehículo (mes / semestral / anual)
-if (
-  isset($_GET['action'], $_GET['modo'], $_GET['fecha'], $_GET['idvehiculo'])
-  && $_GET['action'] === 'historial'
-) {
-  $modo       = in_array($_GET['modo'], ['mes','semestral','anual'], true) ? $_GET['modo'] : 'mes';
-  $fecha      = $_GET['fecha'] ?: date('Y-m-d');
-  $idvehiculo = intval($_GET['idvehiculo']);
-  $estado     = isset($_GET['estado']) ? (bool)$_GET['estado'] : true;
+    if (
+      isset($_GET['action'], $_GET['modo'], $_GET['fecha'], $_GET['idvehiculo'])
+      && $_GET['action'] === 'historial'
+    ) {
+      $modo = in_array($_GET['modo'], ['mes', 'semestral', 'anual'], true) ? $_GET['modo'] : 'mes';
+      $fecha = $_GET['fecha'] ?: date('Y-m-d');
+      $idvehiculo = intval($_GET['idvehiculo']);
+      $estado = isset($_GET['estado']) ? (bool) $_GET['estado'] : true;
 
-  $datos = $venta->listarHistorialPorVehiculo($modo, $fecha, $idvehiculo, $estado);
-  echo json_encode([
-    'status' => 'success',
-    'data'   => $datos
-  ]);
-  exit;
-}
+      $datos = $venta->listarHistorialPorVehiculo($modo, $fecha, $idvehiculo, $estado);
+      echo json_encode([
+        'status' => 'success',
+        'data' => $datos
+      ]);
+      exit;
+    }
+
 
 
     // 4) Listado por periodo (dia / semana / mes) de todas las ventas
     if (isset($_GET['modo'], $_GET['fecha']) && !isset($_GET['action'])) {
-      $modo  = in_array($_GET['modo'], ['dia','semana','mes'], true)
-               ? $_GET['modo'] : 'dia';
+      $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true)
+        ? $_GET['modo'] : 'dia';
       $fecha = $_GET['fecha'] ?: date('Y-m-d');
 
       $ventas = $venta->listarPorPeriodoVentas($modo, $fecha);
       echo json_encode([
         'status' => 'success',
-        'data'   => $ventas
+        'data' => $ventas
+      ]);
+      exit;
+    }
+    // 4.b) Listado de OT por periodo (dia / semana / mes)
+    if (
+      isset($_GET['action'], $_GET['modo'], $_GET['fecha'])
+      && $_GET['action'] === 'ot_por_periodo'
+    ) {
+      $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true) ? $_GET['modo'] : 'dia';
+      $fecha = $_GET['fecha'] ?: date('Y-m-d');
+
+      $ots = $venta->listarPorPeriodoOT($modo, $fecha);
+      echo json_encode([
+        'status' => 'success',
+        'data' => $ots
       ]);
       exit;
     }
@@ -95,105 +111,126 @@ if (
     // 7) Operaciones sobre cotizaciones (getCabecera, getDetalle, getClienteCotizacion)
     if (isset($_GET['action'], $_GET['idcotizacion'])) {
       $task = $_GET['action'];
-      $id   = intval($_GET['idcotizacion']);
+      $id = intval($_GET['idcotizacion']);
       if ($task === 'getCabecera') {
         $cab = $m->getCabeceraById($id);
         echo json_encode($cab);
-      }
-      elseif ($task === 'getDetalle') {
+      } elseif ($task === 'getDetalle') {
         $det = $m->getDetalleById($id);
         echo json_encode($det);
-      }
-      elseif ($task === 'getClienteCotizacion') {
+      } elseif ($task === 'getClienteCotizacion') {
         $cab = $m->getCabeceraById($id);
         echo json_encode([
-          'idcliente' => $cab['idcliente']  ?? null,
-          'cliente'   => $cab['cliente']    ?? null
+          'idcliente' => $cab['idcliente'] ?? null,
+          'cliente' => $cab['cliente'] ?? null
         ]);
       }
       exit;
     }
 
     // 8) Propietario de una venta
-    if (isset($_GET['action'], $_GET['idventa']) && $_GET['action']==='propietario') {
+    if (isset($_GET['action'], $_GET['idventa']) && $_GET['action'] === 'propietario') {
       $idventa = intval($_GET['idventa']);
       try {
         $row = $venta->getPropietarioById($idventa);
         if ($row) {
-          echo json_encode(['status'=>'success','data'=>['propietario'=>$row['propietario']]]);
+          echo json_encode(['status' => 'success', 'data' => ['propietario' => $row['propietario']]]);
         } else {
-          echo json_encode(['status'=>'error','message'=>'Venta no encontrada']);
+          echo json_encode(['status' => 'error', 'message' => 'Venta no encontrada']);
         }
       } catch (Exception $e) {
-        echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
       }
       exit;
     }
 
     // 9) Detalle completo de venta para PDF
-    if (isset($_GET['action'], $_GET['idventa']) && $_GET['action']==='detalle_completo') {
+    if (isset($_GET['action'], $_GET['idventa']) && $_GET['action'] === 'detalle_completo') {
       $venta->detalleCompleto();
       exit;
     }
 
     // 10) Si no hay parámetro alguno, listamos todas las ventas
-    echo json_encode(['status'=>'success','data'=>$venta->getAll()]);
+    echo json_encode(['status' => 'success', 'data' => $venta->getAll()]);
     exit;
 
   case 'POST':
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true) ?? $_POST;
+    $action = $data['action'] ?? '';
+
+/* // 1) Combinar OT
+    if ($action === 'combinar_ot') {
+        $ids    = is_array($data['ids_ot']) ? $data['ids_ot'] : [];
+        $tipo   = trim($data['tipocom'] ?? '');
+        try {
+            // Aquí uso tu instancia $venta
+            $newId = $venta->combinarOtYCrearVenta($ids, $tipo);
+            echo json_encode(['status' => 'success', 'idventa' => $newId]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error',   'message' => $e->getMessage()]);
+        }
+        exit;
+    } */
 
     // 10) Anulación de venta (soft‑delete) con justificación
-    if (isset($data['action'], $data['idventa']) && $data['action']==='eliminar') {
-      $id           = intval($data['idventa']);
+    if (isset($data['action'], $data['idventa']) && $data['action'] === 'eliminar') {
+      $id = intval($data['idventa']);
       $justificacion = trim($data['justificacion'] ?? '');
       $ok = $venta->deleteVenta($id, $justificacion);
       echo json_encode([
-        'status'  => $ok ? 'success' : 'error',
+        'status' => $ok ? 'success' : 'error',
         'message' => $ok ? 'Venta anulada.' : 'No se pudo anular la Venta.'
       ]);
       exit;
     }
 
     // 11) Registro de venta (con o sin orden de servicio)
-    // Recogemos parámetros y llamamos a registerVentasConOrden()
-    $conOrden      = !empty($data['servicios']);
+    $conOrden = !empty($data['servicios']);
+
+    // Mapeo a NULL si está vacío
+    $idpropietario = (isset($data['idpropietario']) && $data['idpropietario'] !== '')
+      ? (int) $data['idpropietario']
+      : null;
+    $idcliente = (isset($data['idcliente']) && $data['idcliente'] !== '')
+      ? (int) $data['idcliente']
+      : null;
+
     $params = [
-      'conOrden'      => $conOrden,
+      'conOrden' => $conOrden,
       'idcolaborador' => $_SESSION['login']['idcolaborador'],
-      'idpropietario'=> $data['idpropietario'] ?? 0,
-      'idcliente'     => intval($data['idcliente'] ?? 0),
-      'idvehiculo'    => intval($data['idvehiculo'] ?? 0),
-      'kilometraje'   => floatval($data['kilometraje'] ?? 0),
+      'idpropietario' => $idpropietario,
+      'idcliente' => $idcliente,
+      'idvehiculo' => !empty($data['idvehiculo']) ? (int) $data['idvehiculo'] : null,
+      'kilometraje' => floatval($data['kilometraje'] ?? 0),
       'observaciones' => trim($data['observaciones'] ?? ''),
-      'ingresogrua'   => !empty($data['ingresogrua']) ? 1 : 0,
-      'fechaingreso'  => $data['fechaingreso'] ?? null,
-      'tipocom'       => $data['tipocom']   ?? '',
-      'fechahora'     => $data['fechahora'] ?? '',
-      'numserie'      => $data['numserie']  ?? '',
-      'numcom'        => $data['numcom']    ?? '',
-      'moneda'        => $data['moneda']    ?? '',
-      'productos'     => $data['productos'] ?? [],
-      'servicios'     => $data['servicios'] ?? [],
+      'ingresogrua' => !empty($data['ingresogrua']) ? 1 : 0,
+      'fechaingreso' => $data['fechaingreso'] ?? null,
+      'tipocom' => $data['tipocom'] ?? '',
+      'fechahora' => $data['fechahora'] ?? null,
+      'numserie' => $data['numserie'] ?? '',
+      'numcom' => $data['numcom'] ?? '',
+      'moneda' => $data['moneda'] ?? '',
+      'productos' => $data['productos'] ?? [],
+      'servicios' => $data['servicios'] ?? [],
     ];
 
     try {
       $res = $venta->registerVentasConOrden($params);
       echo json_encode([
-        'status'  => 'success',
+        'status' => 'success',
         'idventa' => $res['idventa'],
         'idorden' => $res['idorden']
       ]);
     } catch (Exception $e) {
       http_response_code(500);
-      echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+      echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
     exit;
 
   default:
     // Método no soportado
     http_response_code(405);
-    echo json_encode(['status'=>'error','message'=>'Método no permitido']);
+    echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
     exit;
 }

@@ -60,7 +60,7 @@ SELECT
   NULL AS precio_servicio,
   'producto' AS registro_tipo
 FROM ventas v
-JOIN clientes cte        ON v.idcliente = cte.idcliente
+LEFT JOIN clientes cte        ON v.idcliente = cte.idcliente
 LEFT JOIN personas p     ON cte.idpersona = p.idpersona
 LEFT JOIN empresas e     ON cte.idempresa = e.idempresa
 LEFT JOIN vehiculos vh   ON v.idvehiculo = vh.idvehiculo
@@ -92,7 +92,7 @@ SELECT
   dos.precio       AS precio_servicio,
   'servicio' AS registro_tipo
 FROM ventas v
-JOIN clientes cte        ON v.idcliente = cte.idcliente
+LEFT JOIN clientes cte        ON v.idcliente = cte.idcliente
 LEFT JOIN personas p     ON cte.idpersona = p.idpersona
 LEFT JOIN empresas e     ON cte.idempresa = e.idempresa
 LEFT JOIN vehiculos vh   ON v.idvehiculo = vh.idvehiculo
@@ -110,13 +110,11 @@ WHERE v.estado = TRUE;
 -- VISTA DE VENTAS PDF
 DROP VIEW IF EXISTS vista_detalle_venta_pdf;
 CREATE VIEW vista_detalle_venta_pdf AS
-
--- 1) Filas de productos
+-- 1) Productos
 SELECT
   v.idventa,
   v.tipocom,
   v.numcom    AS numcomp,
-  -- propietario
   COALESCE(
     CASE 
       WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
@@ -124,55 +122,48 @@ SELECT
     END,
     'Sin propietario'
   ) AS propietario,
-  -- cliente y datos generales
-  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+  COALESCE(
+    CASE
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
   v.fechahora AS fecha,
   v.kilometraje,
   CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-
-  -- columnas de producto
   CONCAT(su.subcategoria,' ',pr.descripcion) AS producto,
   dv.cantidad,
   dv.precioventa AS precio,
   dv.descuento,
   ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
-
-  -- columnas de servicio a NULL
   NULL AS tiposervicio,
   NULL AS nombreservicio,
   NULL AS mecanico,
   NULL AS precio_servicio,
-
   'producto' AS registro_tipo
-
 FROM ventas v
 LEFT JOIN propietarios prop       ON v.idpropietario = prop.idpropietario
 LEFT JOIN clientes propc          ON prop.idcliente   = propc.idcliente
 LEFT JOIN empresas epc            ON propc.idempresa  = epc.idempresa
 LEFT JOIN personas ppc            ON propc.idpersona  = ppc.idpersona
-
-JOIN clientes cte                 ON v.idcliente      = cte.idcliente
+LEFT JOIN clientes cte            ON v.idcliente      = cte.idcliente
 LEFT JOIN personas p              ON cte.idpersona    = p.idpersona
 LEFT JOIN empresas e              ON cte.idempresa    = e.idempresa
 LEFT JOIN vehiculos vh            ON v.idvehiculo     = vh.idvehiculo
 LEFT JOIN modelos m               ON vh.idmodelo      = m.idmodelo
 LEFT JOIN tipovehiculos tv        ON m.idtipov        = tv.idtipov
 LEFT JOIN marcas ma               ON m.idmarca        = ma.idmarca
-
-JOIN detalleventa dv              ON v.idventa        = dv.idventa
-JOIN productos pr                 ON dv.idproducto    = pr.idproducto
-JOIN subcategorias su             ON pr.idsubcategoria= su.idsubcategoria
-
+JOIN detalleventa dv              ON dv.idventa       = v.idventa
+JOIN productos pr                 ON pr.idproducto    = dv.idproducto
+JOIN subcategorias su             ON su.idsubcategoria= pr.idsubcategoria
 WHERE v.estado = TRUE
-
 UNION ALL
-
--- 2) Filas de servicios
+-- 2) Servicios
 SELECT
   v.idventa,
   v.tipocom,
   v.numcom    AS numcomp,
-  -- propietario (mismo join que arriba)
   COALESCE(
     CASE 
       WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
@@ -180,52 +171,48 @@ SELECT
     END,
     'Sin propietario'
   ) AS propietario,
-  -- cliente y datos generales
-  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+  COALESCE(
+    CASE
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
   v.fechahora AS fecha,
   v.kilometraje,
   CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-
-  -- columnas de producto a NULL
   NULL AS producto,
   NULL AS cantidad,
   NULL AS precio,
   NULL AS descuento,
   NULL AS total_producto,
-
-  -- columnas de servicio
   sc.subcategoria      AS tiposervicio,
   se.servicio          AS nombreservicio,
   col.namuser          AS mecanico,
   dos.precio           AS precio_servicio,
-
-  'servicio' AS registro_tipo
-
+  'servicio'           AS registro_tipo
 FROM ventas v
 LEFT JOIN propietarios prop       ON v.idpropietario = prop.idpropietario
 LEFT JOIN clientes propc          ON prop.idcliente   = propc.idcliente
 LEFT JOIN empresas epc            ON propc.idempresa  = epc.idempresa
 LEFT JOIN personas ppc            ON propc.idpersona  = ppc.idpersona
-
-JOIN clientes cte                 ON v.idcliente      = cte.idcliente
+LEFT JOIN clientes cte            ON v.idcliente      = cte.idcliente
 LEFT JOIN personas p              ON cte.idpersona    = p.idpersona
 LEFT JOIN empresas e              ON cte.idempresa    = e.idempresa
 LEFT JOIN vehiculos vh            ON v.idvehiculo     = vh.idvehiculo
 LEFT JOIN modelos m               ON vh.idmodelo      = m.idmodelo
 LEFT JOIN tipovehiculos tv        ON m.idtipov        = tv.idtipov
 LEFT JOIN marcas ma               ON m.idmarca        = ma.idmarca
-
-LEFT JOIN ordenservicios os       ON v.idcliente = os.idcliente
-                                 AND DATE(v.fechahora) = DATE(os.fechaingreso)
-LEFT JOIN detalleordenservicios dos ON os.idorden      = dos.idorden
-LEFT JOIN servicios se            ON dos.idservicio   = se.idservicio
-LEFT JOIN subcategorias sc        ON se.idsubcategoria= sc.idsubcategoria
-LEFT JOIN colaboradores col       ON dos.idmecanico   = col.idcolaborador
-
+LEFT JOIN ordenservicios os       ON v.idcliente      = os.idcliente
+AND DATE(v.fechahora) = DATE(os.fechaingreso)
+LEFT JOIN detalleordenservicios dos ON dos.idorden     = os.idorden
+LEFT JOIN servicios se            ON se.idservicio    = dos.idservicio
+LEFT JOIN subcategorias sc        ON sc.idsubcategoria= se.idsubcategoria
+LEFT JOIN colaboradores col       ON col.idcolaborador= dos.idmecanico
 WHERE v.estado = TRUE;
 
+
 -- ************************* VISTA DE AMORTIZACIÓN *************************
-SELECT * FROM amortizaciones;
 -- 1) VISTA PARA VER EL TOTAL DE LAS VENTAS (ID)
 DROP VIEW IF EXISTS vista_total_por_venta;
 CREATE VIEW vista_total_por_venta AS
@@ -276,7 +263,7 @@ SELECT
   COALESCE(a.total_amortizado, 0) AS total_pagado,
   vt.total - COALESCE(a.total_amortizado, 0) AS total_pendiente
 FROM ventas AS v
-JOIN clientes AS c ON v.idcliente = c.idcliente
+LEFT JOIN clientes AS c ON v.idcliente = c.idcliente
 LEFT JOIN personas AS p ON c.idpersona = p.idpersona
 LEFT JOIN empresas AS e ON c.idempresa = e.idempresa
 JOIN vista_total_por_venta AS vt ON v.idventa = vt.idventa
@@ -315,11 +302,38 @@ LEFT JOIN formapagos AS f ON a.idformapago = f.idformapago;
 -- ************************* VISTA DE VENTAS *************************
 
 -- 1) VISTA DE VENTAS PARA LISTAR-VENTAS
+/*
 DROP VIEW IF EXISTS vs_ventas;
 CREATE VIEW vs_ventas AS
 SELECT
   v.idventa AS id,
   CASE
+    WHEN c.idempresa IS NOT NULL THEN e.nomcomercial
+    WHEN c.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+  END AS cliente,
+  CASE
+    WHEN pc.idempresa IS NOT NULL THEN ep.nomcomercial
+    WHEN pc.idpersona IS NOT NULL THEN CONCAT(pp.nombres, ' ', pp.apellidos)
+  END AS propietario,
+  v.tipocom,
+  v.numcom,
+  vt.total_pendiente
+FROM ventas v
+LEFT JOIN clientes c ON v.idcliente = c.idcliente
+LEFT JOIN empresas e ON c.idempresa = e.idempresa
+LEFT JOIN personas p ON c.idpersona = p.idpersona
+LEFT JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
+LEFT JOIN propietarios prop ON v.idpropietario = prop.idpropietario
+LEFT JOIN clientes pc ON prop.idcliente = pc.idcliente
+LEFT JOIN empresas ep ON pc.idempresa = ep.idempresa
+LEFT JOIN personas pp ON pc.idpersona = pp.idpersona
+WHERE v.estado = TRUE;*/
+
+DROP VIEW IF EXISTS vs_ventas;
+CREATE VIEW vs_ventas AS
+SELECT
+  v.idventa AS id,
+CASE
     WHEN c.idempresa IS NOT NULL THEN e.nomcomercial
     WHEN c.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
   END AS cliente,
@@ -335,10 +349,10 @@ SELECT
     ELSE 'pendiente'
   END AS estado_pago
 FROM ventas v
-INNER JOIN clientes c ON v.idcliente = c.idcliente
+LEFT JOIN clientes c ON v.idcliente = c.idcliente
 LEFT JOIN empresas e ON c.idempresa = e.idempresa
 LEFT JOIN personas p ON c.idpersona = p.idpersona
-JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
+LEFT JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
 LEFT JOIN propietarios prop ON v.idpropietario = prop.idpropietario
 LEFT JOIN clientes pc ON prop.idcliente = pc.idcliente
 LEFT JOIN empresas ep ON pc.idempresa = ep.idempresa

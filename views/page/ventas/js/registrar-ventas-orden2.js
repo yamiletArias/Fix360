@@ -34,14 +34,11 @@ document.addEventListener("DOMContentLoaded", function () {
     tabla.querySelectorAll("tr").forEach((fila) => {
       // Lee precio desde input
       const precioInput = fila.querySelector(".precio-input");
-      const precio = precioInput
-        ? parseFloat(precioInput.value) || 0
-        : 0;
+      const precio = precioInput ? parseFloat(precioInput.value) || 0 : 0;
 
       // Lee cantidad desde input
-      const cantidad = parseFloat(
-        fila.querySelector(".cantidad-input").value
-      ) || 0;
+      const cantidad =
+        parseFloat(fila.querySelector(".cantidad-input").value) || 0;
 
       // Lee descuento desde input
       const descuentoInput = fila.querySelector(".descuento-input");
@@ -55,7 +52,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // 2) Servicios (igual que antes)
-    const totalServicios = detalleServicios.reduce((sum, s) => sum + s.precio, 0);
+    const totalServicios = detalleServicios.reduce(
+      (sum, s) => sum + s.precio,
+      0
+    );
     totalImporte += totalServicios;
 
     // 3) IGV y neto
@@ -324,8 +324,10 @@ document.addEventListener("DOMContentLoaded", function () {
     tabla.appendChild(fila);
     tabla.addEventListener("input", (e) => {
       // Precio y cantidad deben mostrarse como enteros
-      if (e.target.classList.contains("precio-input") ||
-        e.target.classList.contains("cantidad-input")) {
+      if (
+        e.target.classList.contains("precio-input") ||
+        e.target.classList.contains("cantidad-input")
+      ) {
         let valor = parseInt(e.target.value) || 0;
         e.target.value = valor;
       }
@@ -358,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const nuevoImporte = netoUnit * qty;
       importeCell.textContent = nuevoImporte.toFixed(2);
 
-      const idx = detalleVenta.findIndex(d => d.idproducto === idp);
+      const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
       if (idx >= 0) {
         detalleVenta[idx].cantidad = qty;
         detalleVenta[idx].precio = precioNuevo;
@@ -423,11 +425,9 @@ document.addEventListener("DOMContentLoaded", function () {
       filas[i].children[0].textContent = i + 1;
     }
   }
-
-  // Función de debounce para evitar demasiadas llamadas en tiempo real
   /**
-  * Crea una versión “debounced” de `func`. Además expone un método `cancel()` para anular el timer pendiente.
-  */
+   * Crea una versión “debounced” de `func`. Además expone un método `cancel()` para anular el timer pendiente.
+   */
   function debounce(func, delay) {
     let timeoutId;
     function wrapped(...args) {
@@ -442,7 +442,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     return wrapped;
   }
-
 
   // Función de navegación con el teclado para autocompletar
   function agregaNavegacion(input, itemsDiv) {
@@ -484,7 +483,6 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Busca productos y, si encuentra al menos uno, agrega automáticamente el primero a la tabla.
    * Si el término contiene letras o espacios, muestra un dropdown para búsqueda manual.
-   *
    * @param {HTMLInputElement} input  El <input> donde se escribe el término de búsqueda.
    */
   function mostrarOpcionesProducto(input) {
@@ -496,7 +494,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const esSoloDigitos = /^\d+$/.test(termino);
 
     fetch(
-      `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(termino)}&type=producto`
+      `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(
+        termino
+      )}&type=producto`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -562,7 +562,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 if (nuevo < originalPrecio) {
                   const ok = window.confirm(
-                    `Has ingresado un precio menor al original (${originalPrecio.toFixed(2)}). ¿Deseas continuar?`
+                    `Has ingresado un precio menor al original (${originalPrecio.toFixed(
+                      2
+                    )}). ¿Deseas continuar?`
                   );
                   if (!ok) {
                     inputPrecioVenta.value = originalPrecio.toFixed(2);
@@ -599,7 +601,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Listeners para el autocompletado de productos usando debounce
   // Creamos una versión debounced de mostrarOpcionesProducto:
-  const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+  const debouncedMostrarOpcionesProducto = debounce(
+    mostrarOpcionesProducto,
+    500
+  );
 
   // Cuando el usuario escribe (o hace clic), disparamos el autocompletado “normal” con debounce
   // 1) Listener de ‘input’: sólo para búsquedas manuales con debounce:
@@ -626,9 +631,15 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!codigo) return;
 
       // 2) aquí solo lógica de scanner
-      fetch(`${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(codigo)}&type=producto`)
-        .then(r => r.json())
-        .then(data => {
+      fetch(
+        `${
+          window.FIX360_BASE_URL
+        }app/controllers/Venta.controller.php?q=${encodeURIComponent(
+          codigo
+        )}&type=producto`
+      )
+        .then((r) => r.json())
+        .then((data) => {
           if (Array.isArray(data) && data.length) {
             const producto = data[0];
             // rellenas los campos
@@ -641,7 +652,7 @@ document.addEventListener("DOMContentLoaded", function () {
               idproducto: producto.idproducto,
               subcategoria_producto: producto.subcategoria_producto,
               precio: parseFloat(producto.precio),
-              stock: producto.stock
+              stock: producto.stock,
             };
             // y disparas tu “agregar”
             agregarProductoBtn.click();
@@ -657,32 +668,41 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-
   // --- Generación de Serie y Comprobante ---
-  function generateNumber(type) {
-    return `${type}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
+  function generateNumber(prefix) {
+    return `${prefix}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
   }
 
-  function generateComprobanteNumber(type) {
-    return `${type}-${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
+  function generateComprobanteNumber(prefix) {
+    return `${prefix}-${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
   }
 
   function inicializarCampos() {
     const tipo = document.querySelector('input[name="tipo"]:checked').value;
-    if (tipo === "boleta") {
-      numSerieInput.value = generateNumber("B");
-      numComInput.value = generateComprobanteNumber("B");
-    } else {
-      numSerieInput.value = generateNumber("F");
-      numComInput.value = generateComprobanteNumber("F");
+    let prefijoSerie, prefijoComprobante;
+    switch (tipo) {
+      case "factura":
+        prefijoSerie = "F";
+        prefijoComprobante = "F";
+        break;
+      case "boleta":
+        prefijoSerie = "B";
+        prefijoComprobante = "B";
+        break;
+      case "orden de trabajo":
+        prefijoSerie = "OT";
+        prefijoComprobante = "OT";
+        break;
+      default:
+        prefijoSerie = "";
+        prefijoComprobante = "";
     }
+    numSerieInput.value = generateNumber(prefijoSerie);
+    numComInput.value = generateComprobanteNumber(prefijoComprobante);
   }
   tipoInputs.forEach((i) => i.addEventListener("change", inicializarCampos));
   inicializarCampos();
   // --- Navegación con Enter entre campos de producto ---
-
-
-
   inputPrecio.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -771,8 +791,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (json.status === "success") {
             showToast(
               "Guardado con éxito. Venta #" +
-              json.idventa +
-              (json.idorden ? ", Orden #" + json.idorden : ""),
+                json.idventa +
+                (json.idorden ? ", Orden #" + json.idorden : ""),
               "SUCCESS",
               1500
             );
@@ -818,7 +838,8 @@ document.addEventListener("click", function (e) {
   btnPermitir.addEventListener("click", () => {
     inputFecha.removeAttribute("min");
     btnPermitir.disabled = true;
-    btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
+    btnPermitir.innerHTML =
+      '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
     btnPermitir.title = "Fechas pasadas habilitadas";
   });
 });
