@@ -614,32 +614,40 @@ BEGIN
       v.color,
       v.numserie,
       v.vin,
-      tv.tipov AS tipo_vehiculo,
+      v.numchasis,
+      -- Unificamos teléfono y correo en un solo alias
+      COALESCE(p.telprincipal, e.telefono)    AS telefono_prop,
+      COALESCE(p.correo,     e.correo)        AS email_prop,
+      tv.tipov        AS tipo_vehiculo,
       tc.tcombustible,
-      m.nombre AS marca,
+      m.nombre        AS marca,
       mo.modelo,
-      c.idcliente AS id_propietario,
-      -- Propietario actual (persona o empresa)
+      c.idcliente     AS id_propietario,
+      -- Nombre unificado (persona o empresa)
       CASE
         WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
         ELSE e.nomcomercial
-      END AS propietario,
-      COALESCE(p.numdoc, e.ruc) AS documento_propietario,
-      pr.fechainicio AS propiedad_desde,
-      pr.fechafinal  AS propiedad_hasta
+      END                  AS propietario,
+      COALESCE(p.numdoc, e.ruc)  AS documento_propietario,
+      pr.fechainicio      AS propiedad_desde
     FROM vehiculos v
     JOIN modelos mo       ON mo.idmodelo = v.idmodelo
     JOIN marcas m         ON mo.idmarca   = m.idmarca
     JOIN tipovehiculos tv ON tv.idtipov   = mo.idtipov
     JOIN tipocombustibles tc ON tc.idtcombustible = v.idtcombustible
-    LEFT JOIN propietarios pr ON pr.idvehiculo = v.idvehiculo
-                               AND (pr.fechafinal IS NULL OR pr.fechafinal >= CURRENT_DATE)
+
+    -- Solo la relación vigente (sin fecha final o con fecha_final futura)
+    LEFT JOIN propietarios pr 
+      ON pr.idvehiculo = v.idvehiculo
+     AND (pr.fechafinal IS NULL OR pr.fechafinal >= CURRENT_DATE)
+
     LEFT JOIN clientes c      ON c.idcliente = pr.idcliente
     LEFT JOIN personas p      ON p.idpersona = c.idpersona
     LEFT JOIN empresas e      ON e.idempresa = c.idempresa
+
     WHERE v.idvehiculo = _idvehiculo;
 END $$
-DELIMITER ;
+
 -- call spListOrdenesPorVehiculo(1)
 -- SP 2: Listado de órdenes de servicio por vehículo
 DROP PROCEDURE IF EXISTS spListOrdenesPorVehiculo;

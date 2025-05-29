@@ -87,6 +87,7 @@ if ($method === 'GET') {
             'anio'          => $datos['anio'],
             'color'         => $datos['color'],
             'numserie'      => $datos['numserie'],
+            'numchasis'      => $datos['numchasis'],
             'vin'           => $datos['vin'],
             'tipo_vehiculo' => $datos['tipo_vehiculo'],  
             'tcombustible'  => $datos['tcombustible'],   
@@ -99,14 +100,18 @@ if ($method === 'GET') {
             'id_propietario'       => $datos['id_propietario'],
             'propietario'          => $datos['propietario'],
             'documento_propietario'=> $datos['documento_propietario'],
+            'telefono_prop'=> $datos['telefono_prop'],
+            'email_prop'=> $datos['email_prop'],
             'propiedad_desde'      => $datos['propiedad_desde'],   
-            'propiedad_hasta'      => $datos['propiedad_hasta'],   
+            'propiedad_hasta'      => isset($row['propiedad_hasta']) 
+                     ? $row['propiedad_hasta'] 
+                     : null,
         ];
 
         echo json_encode([ 'general' => $general, 'propietario' => $propietario ]);
         exit;
     }
-    if ($task === 'getHistorial') {
+if ($task === 'getHistorial') {
         $id = intval($_GET['idvehiculo'] ?? 0);
         if ($id <= 0) {
             http_response_code(400);
@@ -121,31 +126,39 @@ if ($method === 'GET') {
             exit;
         }
 
+        // Armamos la parte "general"
         $general = [
-            'idvehiculo'    => $datos['idvehiculo'],        
+            'idvehiculo'    => $datos['idvehiculo'],
             'placa'         => $datos['placa'],
             'anio'          => $datos['anio'],
             'color'         => $datos['color'],
             'numserie'      => $datos['numserie'],
             'vin'           => $datos['vin'],
-            'tipo_vehiculo' => $datos['tipo_vehiculo'],  
-            'tcombustible'  => $datos['tcombustible'],   
+            'tipo_vehiculo' => $datos['tipo_vehiculo'],
+            'tcombustible'  => $datos['tcombustible'],
             'marca'         => $datos['marca'],
             'modelo'        => $datos['modelo'],
-            // 'modificado'  => $datos['modificado'],
         ];
 
+        // Armamos la parte "propietario", usando null-coalescing para claves opcionales
         $propietario = [
-            'id_propietario'       => $datos['idcliente'],
+            'id_propietario'       => $datos['id_propietario'],
             'propietario'          => $datos['propietario'],
             'documento_propietario'=> $datos['documento_propietario'],
-            'propiedad_desde'      => $datos['propiedad_desde'],   
-            'propiedad_hasta'      => $datos['propiedad_hasta'],   
+            'propiedad_desde'      => $datos['propiedad_desde'] ?? null,
+            'propiedad_hasta'      => $datos['propiedad_hasta'] ?? null,
+            'telefono_prop'        => $datos['telefono_prop'] ?? null,
+            'email_prop'           => $datos['email_prop'] ?? null,
         ];
 
-        echo json_encode([ 'general' => $general, 'propietario' => $propietario ]);
+        echo json_encode([
+            'status'      => 'success',
+            'general'     => $general,
+            'propietario' => $propietario
+        ]);
         exit;
     }
+
 
     // Si no coincide ningún task válido
     http_response_code(400);

@@ -19,7 +19,7 @@ $id = intval($_GET['id'] ?? 0);
 
   }
 
-  
+
 
   .container-main {
     margin: 30px;
@@ -39,22 +39,22 @@ $id = intval($_GET['id'] ?? 0);
         <div class="card-body">
           <p><strong>Nombre:</strong> <span id="prop-nombre">Cargando...</span></p>
           <p><strong>Documento:</strong> <span id="prop-doc">Cargando...</span></p>
-          <p><strong>Tel. Principal:</strong> <span id="prop-tel1">Cargando...</span></p>
-          <p><strong>Tel. Alternativo:</strong> <span id="prop-tel2">Cargando...</span></p>
+          <p><strong>Propietario desde:</strong> <span id="prop-desde">Cargando...</span></p>
+          <p><strong>Teléfono:</strong> <span id="prop-tel">Cargando...</span></p>
           <p><strong>Email:</strong> <span id="prop-email">Cargando...</span></p>
         </div>
       </div>
 
-        <div class="mb-3  mt-5">
-    <div class="btn-group" role="group" aria-label="Filtros periodo y estado">
-      <button type="button" data-modo="mes" class="btn btn-primary filtro-periodo active">Mes</button>
-      <button type="button" data-modo="semestral" class="btn btn-primary filtro-periodo">Semestre</button>
-      <button type="button" data-modo="anual" class="btn btn-primary filtro-periodo">Anual</button>
-      <button id="btnToggleEstado" class="btn btn-secondary" title="Ver eliminadas">
-        <i class="fa-solid fa-eye-slash"></i>
-      </button>
-    </div>
-  </div>
+      <div class="mb-3  mt-5">
+        <div class="btn-group" role="group" aria-label="Filtros periodo y estado">
+          <button type="button" data-modo="mes" class="btn btn-primary filtro-periodo active">Mes</button>
+          <button type="button" data-modo="semestral" class="btn btn-primary filtro-periodo">Semestre</button>
+          <button type="button" data-modo="anual" class="btn btn-primary filtro-periodo">Anual</button>
+          <button id="btnToggleEstado" class="btn btn-secondary" title="Ver eliminadas">
+            <i class="fa-solid fa-eye-slash"></i>
+          </button>
+        </div>
+      </div>
     </div>
     <!-- Vehículo -->
     <div class="col-md-6">
@@ -140,7 +140,7 @@ $id = intval($_GET['id'] ?? 0);
       </div>
     </div>
   </div>
-  </div>
+</div>
 
 </div>
 
@@ -398,11 +398,11 @@ $id = intval($_GET['id'] ?? 0);
         document.getElementById("vh-modificado").textContent = clean(g.modificado);
         document.getElementById("vh-vin").textContent = clean(g.vin);
         document.getElementById("vh-chasis").textContent = clean(g.numchasis);
-        document.getElementById("prop-nombre").textContent = clean(p.propietario);
-        document.getElementById("prop-doc").textContent = clean(p.documento_propietario);
-        document.getElementById("prop-tel1").textContent = clean(p.telprincipal);
-        document.getElementById("prop-tel2").textContent = clean(p.telalternativo);
-        document.getElementById("prop-email").textContent = clean(p.correo);
+        document.getElementById("prop-nombre").textContent = p.propietario;
+        document.getElementById("prop-doc").textContent = p.documento_propietario;
+        document.getElementById("prop-desde").textContent = p.propiedad_desde || '—';
+        document.getElementById("prop-tel").textContent = p.telefono_prop || '—';
+        document.getElementById("prop-email").textContent = p.email_prop || '—';
       })
       .catch(console.error);
 
@@ -623,48 +623,51 @@ $id = intval($_GET['id'] ?? 0);
       });
   }
 
-      function verDetalleVenta(idventa) {
-        // — Limpiar modal
-        $("#miModal tbody, #tabla-detalle-productos-modal tbody, #tabla-detalle-servicios-modal tbody").empty();
-        $("#miModal .amortizaciones-container").remove();
-        $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
-        $("label[for='propietario']").text('');
+  function verDetalleVenta(idventa) {
+    // — Limpiar modal
+    $("#miModal tbody, #tabla-detalle-productos-modal tbody, #tabla-detalle-servicios-modal tbody").empty();
+    $("#miModal .amortizaciones-container").remove();
+    $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
+    $("label[for='propietario']").text('');
 
-        // — Abrir modal
-        $("#miModal").modal("show");
+    // — Abrir modal
+    $("#miModal").modal("show");
 
-        // 1) Propietario
-        fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=propietario&idventa=${idventa}`)
-            .then(r => r.json())
-            .then(jsonVenta => {
-                if (jsonVenta.status === 'success') {
-                    $("label[for='propietario']").text(jsonVenta.data.propietario || 'Sin propietario');
-                } else {
-                    $("label[for='propietario']").text('No encontrado');
-                }
-            })
-            .catch(() => {
-                $("label[for='propietario']").text('Error al cargar');
-            });
+    // 1) Propietario
+    fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=propietario&idventa=${idventa}`)
+      .then(r => r.json())
+      .then(jsonVenta => {
+        if (jsonVenta.status === 'success') {
+          $("label[for='propietario']").text(jsonVenta.data.propietario || 'Sin propietario');
+        } else {
+          $("label[for='propietario']").text('No encontrado');
+        }
+      })
+      .catch(() => {
+        $("label[for='propietario']").text('Error al cargar');
+      });
 
-        // 2) Detalle completo (productos + servicios)
-        fetch(`<?= SERVERURL ?>app/controllers/Detventa.controller.php?idventa=${idventa}`)
-            .then(r => r.json())
-            .then(json => {
-                console.log("DETALLE VENTA RAW:", json);
-                if (json.status !== 'success') {
-                    console.error("Detventa error:", json.message);
-                    return;
-                }
-                const { productos, servicios } = json.data;
+    // 2) Detalle completo (productos + servicios)
+    fetch(`<?= SERVERURL ?>app/controllers/Detventa.controller.php?idventa=${idventa}`)
+      .then(r => r.json())
+      .then(json => {
+        console.log("DETALLE VENTA RAW:", json);
+        if (json.status !== 'success') {
+          console.error("Detventa error:", json.message);
+          return;
+        }
+        const {
+          productos,
+          servicios
+        } = json.data;
 
-                // — Productos —
-                const $prodBody = $("#tabla-detalle-productos-modal tbody").empty();
-                if (!productos.length) {
-                    $prodBody.append(`<tr><td colspan="6" class="text-center text-muted">No hay productos</td></tr>`);
-                } else {
-                    productos.forEach((p, i) => {
-                        $prodBody.append(`
+        // — Productos —
+        const $prodBody = $("#tabla-detalle-productos-modal tbody").empty();
+        if (!productos.length) {
+          $prodBody.append(`<tr><td colspan="6" class="text-center text-muted">No hay productos</td></tr>`);
+        } else {
+          productos.forEach((p, i) => {
+            $prodBody.append(`
                         <tr>
                             <td>${i + 1}</td>
                             <td>${p.producto}</td>
@@ -673,27 +676,27 @@ $id = intval($_GET['id'] ?? 0);
                             <td>${parseFloat(p.descuento).toFixed(2)} $</td>
                             <td>${parseFloat(p.total_producto).toFixed(2)} $</td>
                         </tr>`);
-                    });
-                    // Campos generales
-                    $("#modeloInput").val(productos[0].cliente);
-                    $("#fechaHora").val(productos[0].fechahora);
-                    $("#vehiculo").val(productos[0].vehiculo || 'Sin vehículo');
-                    $("#kilometraje").val(productos[0].kilometraje || 'Sin kilometraje');
-                }
+          });
+          // Campos generales
+          $("#modeloInput").val(productos[0].cliente);
+          $("#fechaHora").val(productos[0].fechahora);
+          $("#vehiculo").val(productos[0].vehiculo || 'Sin vehículo');
+          $("#kilometraje").val(productos[0].kilometraje || 'Sin kilometraje');
+        }
 
-                const serviciosValidos = servicios.filter(s =>
-                    s.tiposervicio !== null ||
-                    s.nombreservicio !== null ||
-                    s.mecanico !== null ||
-                    s.precio_servicio !== null
-                );
-                // — Servicios —
-                const $servBody = $("#tabla-detalle-servicios-modal tbody").empty();
-                if (!serviciosValidos.length) {
-                    $servBody.append(`<tr><td colspan="5" class="text-center text-muted">No hay servicios</td></tr>`);
-                } else {
-                    serviciosValidos.forEach((s, i) => {
-                        $servBody.append(`
+        const serviciosValidos = servicios.filter(s =>
+          s.tiposervicio !== null ||
+          s.nombreservicio !== null ||
+          s.mecanico !== null ||
+          s.precio_servicio !== null
+        );
+        // — Servicios —
+        const $servBody = $("#tabla-detalle-servicios-modal tbody").empty();
+        if (!serviciosValidos.length) {
+          $servBody.append(`<tr><td colspan="5" class="text-center text-muted">No hay servicios</td></tr>`);
+        } else {
+          serviciosValidos.forEach((s, i) => {
+            $servBody.append(`
       <tr>
         <td>${i + 1}</td>
         <td>${s.tiposervicio ?? '-'}</td>
@@ -704,15 +707,15 @@ $id = intval($_GET['id'] ?? 0);
                                 : '-'
                             }</td>
       </tr>`);
-                    });
-                }
+          });
+        }
 
-                // — Amortizaciones —
-                fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idventa=${idventa}`)
-                    .then(r => r.json())
-                    .then(jsonA => {
-                        if (jsonA.status === 'success' && jsonA.data.length) {
-                            const cont = $(`
+        // — Amortizaciones —
+        fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idventa=${idventa}`)
+          .then(r => r.json())
+          .then(jsonA => {
+            if (jsonA.status === 'success' && jsonA.data.length) {
+              const cont = $(`
                             <div class="amortizaciones-container mt-4">
                                 <h6>Amortizaciones</h6>
                                 <table class="table table-sm">
@@ -730,8 +733,8 @@ $id = intval($_GET['id'] ?? 0);
                                 </table>
                             </div>
                         `);
-                            jsonA.data.forEach((a, i) => {
-                                cont.find('tbody').append(`
+              jsonA.data.forEach((a, i) => {
+                cont.find('tbody').append(`
                                 <tr>
                                     <td>${i + 1}</td>
                                     <td>${new Date(a.creado).toLocaleString()}</td>
@@ -740,18 +743,18 @@ $id = intval($_GET['id'] ?? 0);
                                     <td>${a.formapago}</td>
                                     <td>${parseFloat(a.saldo).toFixed(2)} $</td>
                                 </tr>`);
-                            });
-                            $("#miModal .modal-body").append(cont);
-                        }
-                    })
-                    .catch(() => console.error("Error amortizaciones"));
+              });
+              $("#miModal .modal-body").append(cont);
+            }
+          })
+          .catch(() => console.error("Error amortizaciones"));
 
-            })
-            .catch(() => {
-                console.error("Error al cargar detalle de venta");
-                alert("Ocurrió un error al cargar el detalle.");
-            });
-    }
+      })
+      .catch(() => {
+        console.error("Error al cargar detalle de venta");
+        alert("Ocurrió un error al cargar el detalle.");
+      });
+  }
 
   // 2) Función para abrir y rellenar el modal de Detalle de Venta
 </script>
