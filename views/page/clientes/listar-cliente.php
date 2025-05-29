@@ -25,8 +25,8 @@ require_once "../../partials/header.php";
         </div>
       </div>
       <div class="text-end col-md-2">
-        <button onclick="window.location.href='registrar-cliente.php'"
-          class=" btn btn-success text-end">Registrar</button>
+        <a href='registrar-cliente.php'"
+          class=" btn btn-success text-end">Registrar</a>
       </div>
 
     </div>

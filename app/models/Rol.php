@@ -24,7 +24,7 @@ class Roles extends Conexion {
    */
   public function getAll() {
     try {
-      $query = "CALL spListRoles()";
+      $query = "SELECT * FROM vwRoles";
       $cmd = $this->pdo->prepare($query);
       $cmd->execute();
       return $cmd->fetchAll(PDO::FETCH_ASSOC);

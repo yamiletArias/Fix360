@@ -263,3 +263,42 @@ CREATE EVENT IF NOT EXISTS evCancelarRecordatoriosVencidos
        SET estado = 'C'
      WHERE estado IN ('P','R')
        AND fchproxvisita < CURDATE();
+       
+DROP VIEW IF EXISTS vwRoles;
+CREATE VIEW vwRoles AS 
+SELECT * FROM roles;
+
+
+DROP VIEW IF EXISTS vwColaboradoresDetalle;
+CREATE VIEW vwColaboradoresDetalle AS
+SELECT
+  c.idcolaborador,
+  c.namuser          AS username,
+  c.estado           AS usuario_activo,
+  -- Datos de la persona vinculada a su contrato
+  p.idpersona,
+  p.nombres,
+  p.apellidos,
+  p.tipodoc,
+  p.numdoc,
+  p.numruc,
+  p.direccion,
+  p.correo,
+  p.telprincipal,
+  p.telalternativo,
+  -- Fechas de su contrato
+  ct.fechainicio,
+  ct.fechafin,
+  -- Nombre del rol
+  r.idrol,
+  r.rol              AS nombre_rol
+FROM colaboradores c
+JOIN contratos ct
+  ON c.idcontrato = ct.idcontrato
+JOIN personas p
+  ON ct.idpersona  = p.idpersona
+JOIN roles r
+  ON ct.idrol      = r.idrol;
+  
+  
+

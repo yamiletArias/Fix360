@@ -1417,4 +1417,181 @@ BEGIN
   WHERE p.idproducto = _idproducto;
 END$$
 
+DROP PROCEDURE IF EXISTS spDeactivateColaborador $$
+CREATE PROCEDURE spDeactivateColaborador(
+  IN _idcolaborador INT,
+  IN _fechafin      DATE
+)
+BEGIN
+  -- Actualiza la fecha de fin del contrato activo de ese colaborador
+  UPDATE contratos ct
+    JOIN colaboradores c ON ct.idcontrato = c.idcontrato
+  SET ct.fechafin = _fechafin
+  WHERE c.idcolaborador = _idcolaborador
+    AND (ct.fechafin IS NULL OR ct.fechafin > _fechafin);
+END $$
+
+DROP PROCEDURE IF EXISTS spUpdateColaborador $$
+CREATE PROCEDURE spUpdateColaborador(
+  IN _idcolaborador  INT,
+  -- Datos persona
+  IN _nombres        VARCHAR(50),
+  IN _apellidos      VARCHAR(50),
+  IN _tipodoc        VARCHAR(30),
+  IN _numdoc         CHAR(20),
+  IN _numruc         CHAR(11),
+  IN _direccion      VARCHAR(70),
+  IN _correo         VARCHAR(100),
+  IN _telprincipal   VARCHAR(20),
+  IN _telalternativo VARCHAR(20),
+  -- Datos contrato
+  IN _idrol          INT,
+  IN _fechainicio    DATE,
+  IN _fechafin       DATE,
+  -- Datos de acceso
+  IN _namuser        VARCHAR(50),
+  IN _passuser       VARCHAR(255),
+  IN _estado         BOOLEAN
+)
+BEGIN
+  DECLARE _idcontrato INT;
+  DECLARE _idpersona  INT;
+
+  -- Obtenemos contrato y persona asociados
+  SELECT idcontrato INTO _idcontrato
+    FROM colaboradores
+   WHERE idcolaborador = _idcolaborador;
+
+  SELECT idpersona INTO _idpersona
+    FROM contratos
+   WHERE idcontrato = _idcontrato;
+
+  START TRANSACTION;
+
+    -- 1) Actualizar datos de la persona
+    UPDATE personas
+       SET nombres        = _nombres,
+           apellidos      = _apellidos,
+           tipodoc        = _tipodoc,
+           numdoc         = _numdoc,
+           numruc         = NULLIF(_numruc, ''),
+           direccion      = NULLIF(_direccion, ''),
+           correo         = NULLIF(_correo, ''),
+           telprincipal   = _telprincipal,
+           telalternativo = NULLIF(_telalternativo, ''),
+           modificado     = NOW()
+     WHERE idpersona = _idpersona;
+
+    -- 2) Actualizar datos del contrato
+    UPDATE contratos
+       SET idrol        = _idrol,
+           fechainicio  = _fechainicio,
+           fechafin     = _fechafin,
+           modificado   = NOW()
+     WHERE idcontrato = _idcontrato;
+
+    -- 3) Actualizar datos del usuario
+    UPDATE colaboradores
+       SET namuser   = _namuser,
+           passuser  = _passuser,
+           estado    = _estado
+     WHERE idcolaborador = _idcolaborador;
+
+  COMMIT;
+END $$
+
+DROP PROCEDURE IF EXISTS spGetColaboradorById $$
+CREATE PROCEDURE spGetColaboradorById(
+  IN _idcolaborador INT
+)
+BEGIN
+  SELECT
+    c.idcolaborador,
+    c.namuser            AS username,
+    c.estado             AS usuario_activo,
+    -- Datos de la persona
+    p.idpersona,
+    p.nombres,
+    p.apellidos,
+    p.tipodoc,
+    p.numdoc,
+    p.numruc,
+    p.direccion,
+    p.correo,
+    p.telprincipal,
+    p.telalternativo,
+    -- Datos del contrato
+    ct.idrol,
+    r.rol                AS nombre_rol,
+    ct.fechainicio,
+    ct.fechafin
+  FROM colaboradores c
+  JOIN contratos    ct ON c.idcontrato = ct.idcontrato
+  JOIN personas     p  ON ct.idpersona  = p.idpersona
+  JOIN roles        r  ON ct.idrol      = r.idrol
+  WHERE c.idcolaborador = _idcolaborador
+  LIMIT 1;
+END $$
+
+DROP PROCEDURE IF EXISTS spRegisterColaborador $$
+CREATE PROCEDURE spRegisterColaborador(
+  -- Datos de acceso
+  IN _namuser         VARCHAR(50),
+  IN _passuser        VARCHAR(255),
+  -- Datos de contrato
+  IN _idrol           INT,
+  IN _fechainicio     DATE,
+  IN _fechafin        DATE,               -- NULL si contrato abierto
+  -- Datos de persona
+  IN _nombres         VARCHAR(50),
+  IN _apellidos       VARCHAR(50),
+  IN _tipodoc         VARCHAR(30),
+  IN _numdoc          CHAR(20),
+  IN _numruc          CHAR(11),
+  IN _direccion       VARCHAR(70),
+  IN _correo          VARCHAR(100),
+  IN _telprincipal    VARCHAR(20),
+  IN _telalternativo  VARCHAR(20),
+  -- OUT
+  OUT _idcolaborador  INT
+)
+BEGIN
+  DECLARE _hashed_pwd   VARCHAR(64);
+  DECLARE _idpersona    INT;
+  DECLARE _idcontrato   INT;
+
+  START TRANSACTION;
+    -- 1) Hash de la contraseña
+    SET _hashed_pwd = SHA2(_passuser, 256);
+
+    -- 2) Insertar persona
+    INSERT INTO personas (
+      nombres, apellidos, tipodoc, numdoc,
+      numruc, direccion, correo,
+      telprincipal, telalternativo
+    ) VALUES (
+      _nombres, _apellidos, _tipodoc, _numdoc,
+      NULLIF(_numruc,''), NULLIF(_direccion,''), NULLIF(_correo,''),
+      _telprincipal, NULLIF(_telalternativo,'')
+    );
+    SET _idpersona = LAST_INSERT_ID();
+
+    -- 3) Insertar contrato
+    INSERT INTO contratos (
+      idrol, idpersona, fechainicio, fechafin
+    ) VALUES (
+      _idrol, _idpersona, _fechainicio, _fechafin
+    );
+    SET _idcontrato = LAST_INSERT_ID();
+
+    -- 4) Insertar colaborador con contraseña hasheada
+    INSERT INTO colaboradores (
+      idcontrato, namuser, passuser, estado
+    ) VALUES (
+      _idcontrato, _namuser, _hashed_pwd, TRUE
+    );
+    SET _idcolaborador = LAST_INSERT_ID();
+  COMMIT;
+END$$
+
 DELIMITER ;

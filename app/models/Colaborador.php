@@ -16,7 +16,8 @@ class Colaborador extends Conexion
      * @param string $passuser Contraseña en texto plano.
      * @return array|null Resultado del login: ['status'=>'SUCCESS','idcolaborador'=>x] o ['status'=>'FAILURE']
      */
-public function login($namuser, $passuser) {
+    public function login($namuser, $passuser)
+    {
         try {
             $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
             $stmt->bindParam(':namuser',  $namuser,   PDO::PARAM_STR);
@@ -35,8 +36,8 @@ public function login($namuser, $passuser) {
 
             if ($row && strtoupper($row['STATUS']) === 'SUCCESS') {
                 $permisos = isset($permsRow['permisos'])
-                         ? json_decode($permsRow['permisos'], true)
-                         : [];
+                    ? json_decode($permsRow['permisos'], true)
+                    : [];
                 return [
                     'status'         => true,
                     'idcolaborador'  => (int)$row['idcolaborador'],
@@ -46,7 +47,6 @@ public function login($namuser, $passuser) {
             }
 
             return ['status' => false];
-
         } catch (PDOException $e) {
             return [
                 'status'  => false,
@@ -55,7 +55,7 @@ public function login($namuser, $passuser) {
         }
     }
 
-    public function getById($idcolaborador)
+    public function getColaboradorById($idcolaborador)
     {
         try {
             $stmt = $this->pdo->prepare("CALL spGetColaboradorInfo(:idcolaborador)");
@@ -77,38 +77,135 @@ public function login($namuser, $passuser) {
         }
     }
 
-    /**
-     * Obtiene todos los colaboradores activos y con contrato vigente.
-     * @return array Lista de colaboradores.
-     */
-    public function getAll()
+        public function getAll()
     {
         try {
-            $query = "SELECT * FROM vwColaboradoresActivosVigentes";
-            $cmd = $this->pdo->prepare($query);
-            $cmd->execute();
-            return $cmd->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            die($e->getMessage());
+            $sql = "SELECT * FROM vwColaboradoresDetalle"; 
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            throw $e;
         }
     }
 
     /**
-     * Registra un nuevo colaborador.
-     * @param array $params Datos: idcontrato, namuser, passuser
-     * @return array Estado del registro.
+     * Obtener datos de un colaborador por su ID.
      */
-    public function add($params = [])
+    public function getById($idcolaborador)
     {
         try {
-            $stmt = $this->pdo->prepare("CALL spRegisterColaborador(:idcontrato, :namuser, :passuser)");
-            $stmt->bindParam(':idcontrato', $params['idcontrato'], PDO::PARAM_INT);
-            $stmt->bindParam(':namuser',    $params['namuser'],    PDO::PARAM_STR);
-            $stmt->bindParam(':passuser',   $params['passuser'],   PDO::PARAM_STR);
+            $stmt = $this->pdo->prepare("CALL spGetColaboradorById(:idcolaborador)");
+            $stmt->bindParam(':idcolaborador', $idcolaborador, PDO::PARAM_INT);
             $stmt->execute();
-            return ['status' => true, 'message' => 'Colaborador registrado correctamente.'];
-        } catch (PDOException $e) {
-            return ['status' => false, 'message' => 'Error al registrar: ' . $e->getMessage()];
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $data ?: null;
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Registrar un nuevo colaborador (persona + contrato + usuario).
+     */
+    public function add($params)
+    {
+        try {
+            $sql = "CALL spRegisterColaborador(
+                :namuser, :passuser,
+                :idrol, :fechainicio, :fechafin,
+                :nombres, :apellidos, :tipodoc, :numdoc,
+                :numruc, :direccion, :correo,
+                :telprincipal, :telalternativo,
+                @newId
+            )";
+            $stmt = $this->pdo->prepare($sql);
+
+            // Bind de entrada
+            $stmt->bindParam(':namuser',         $params['namuser'],         PDO::PARAM_STR);
+            $stmt->bindParam(':passuser',        $params['passuser'],        PDO::PARAM_STR);
+            $stmt->bindParam(':idrol',           $params['idrol'],           PDO::PARAM_INT);
+            $stmt->bindParam(':fechainicio',     $params['fechainicio'],     PDO::PARAM_STR);
+            $stmt->bindParam(':fechafin',        $params['fechafin'],        PDO::PARAM_STR);
+            $stmt->bindParam(':nombres',         $params['nombres'],         PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos',       $params['apellidos'],       PDO::PARAM_STR);
+            $stmt->bindParam(':tipodoc',         $params['tipodoc'],         PDO::PARAM_STR);
+            $stmt->bindParam(':numdoc',          $params['numdoc'],          PDO::PARAM_STR);
+            $stmt->bindParam(':numruc',          $params['numruc'],          PDO::PARAM_STR);
+            $stmt->bindParam(':direccion',       $params['direccion'],       PDO::PARAM_STR);
+            $stmt->bindParam(':correo',          $params['correo'],          PDO::PARAM_STR);
+            $stmt->bindParam(':telprincipal',    $params['telprincipal'],    PDO::PARAM_STR);
+            $stmt->bindParam(':telalternativo',  $params['telalternativo'],  PDO::PARAM_STR);
+
+            $stmt->execute();
+            // Recuperar OUT parameter
+            $row = $this->pdo->query("SELECT @newId AS idcolaborador")->fetch(PDO::FETCH_ASSOC);
+            return [
+                'status'         => true,
+                'idcolaborador'  => (int)$row['idcolaborador']
+            ];
+        } catch (\PDOException $e) {
+            return [
+                'status'  => false,
+                'message' => 'Error al registrar: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Actualizar datos de un colaborador (persona, contrato y usuario).
+     */
+    public function update($params)
+    {
+        try {
+            $sql = "CALL spUpdateColaborador(
+                :idcolaborador,
+                :nombres, :apellidos, :tipodoc, :numdoc,
+                :numruc, :direccion, :correo,
+                :telprincipal, :telalternativo,
+                :idrol, :fechainicio, :fechafin,
+                :namuser, :passuser, :estado
+            )";
+            $stmt = $this->pdo->prepare($sql);
+            // Bind
+            $stmt->bindParam(':idcolaborador',   $params['idcolaborador'],   PDO::PARAM_INT);
+            $stmt->bindParam(':nombres',         $params['nombres'],         PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos',       $params['apellidos'],       PDO::PARAM_STR);
+            $stmt->bindParam(':tipodoc',         $params['tipodoc'],         PDO::PARAM_STR);
+            $stmt->bindParam(':numdoc',          $params['numdoc'],          PDO::PARAM_STR);
+            $stmt->bindParam(':numruc',          $params['numruc'],          PDO::PARAM_STR);
+            $stmt->bindParam(':direccion',       $params['direccion'],       PDO::PARAM_STR);
+            $stmt->bindParam(':correo',          $params['correo'],          PDO::PARAM_STR);
+            $stmt->bindParam(':telprincipal',    $params['telprincipal'],    PDO::PARAM_STR);
+            $stmt->bindParam(':telalternativo',  $params['telalternativo'],  PDO::PARAM_STR);
+            $stmt->bindParam(':idrol',           $params['idrol'],           PDO::PARAM_INT);
+            $stmt->bindParam(':fechainicio',     $params['fechainicio'],     PDO::PARAM_STR);
+            $stmt->bindParam(':fechafin',        $params['fechafin'],        PDO::PARAM_STR);
+            $stmt->bindParam(':namuser',         $params['namuser'],         PDO::PARAM_STR);
+            $stmt->bindParam(':passuser',        $params['passuser'],        PDO::PARAM_STR);
+            $stmt->bindParam(':estado',          $params['estado'],          PDO::PARAM_BOOL);
+
+            $stmt->execute();
+            return ['status' => true, 'message' => 'Actualizado correctamente.'];
+        } catch (\PDOException $e) {
+            return ['status' => false, 'message' => 'Error al actualizar: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Dar de baja un colaborador (cerrar contrato).
+     */
+    public function deactivate($idcolaborador, $fechafin)
+    {
+        try {
+            $stmt = $this->pdo->prepare("CALL spDeactivateColaborador(:idcolaborador, :fechafin)");
+            $stmt->bindParam(':idcolaborador', $idcolaborador, PDO::PARAM_INT);
+            $stmt->bindParam(':fechafin',      $fechafin,      PDO::PARAM_STR);
+            $stmt->execute();
+            return ['status' => true, 'message' => 'Colaborador desactivado.'];
+        } catch (\PDOException $e) {
+            return ['status' => false, 'message' => 'Error al desactivar: ' . $e->getMessage()];
         }
     }
 }

@@ -20,7 +20,7 @@ if (
 $idadmin = $_SESSION['login']['idcolaborador'];
 require_once dirname(__DIR__, 2) . '/app/models/Colaborador.php';
 $colModel = new Colaborador();
-$usuario  = $colModel->getById($idadmin);
+$usuario  = $colModel->getColaboradorById($idadmin);
 
 // 1. Ajustamos la zona horaria
 date_default_timezone_set('America/Lima');
