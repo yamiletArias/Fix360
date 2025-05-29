@@ -108,14 +108,19 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 "codigobarra"   => Helper::limpiarCadena($_POST["codigobarra"] ?? ''),     // aquí pondremos la ruta si se sube
                 "stockInicial"   => intval($_POST["stockInicial"] ?? 0),
                 "stockmin"       => intval($_POST["stockmin"]     ?? 0),
-                "stockmax"       => intval($_POST["stockmax"]     ?? 0),
+                "stockmax"     => ($_POST["stockmax"] !== '' 
+                       ? intval($_POST["stockmax"]) 
+                       : null),
             ];
 
             // validaciones...
-            if ($registro['stockmin'] < 0 || $registro['stockmax'] < $registro['stockmin']) {
-                echo json_encode(['error' => 'El stock mínimo debe ser ≥ 0 y el máximo ≥ mínimo']);
-                exit;
-            }
+           if ($registro['stockmin'] < 0
+    || ($registro['stockmax'] !== null 
+        && $registro['stockmax'] < $registro['stockmin'])
+) {
+    echo json_encode(['error'=>'El stock mínimo debe ser ≥ 0 y el máximo ≥ mínimo']);
+    exit;
+}
 
             // *** Aquí agregamos el manejo de la imagen ***
             if (!empty($_FILES['img']['name']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {

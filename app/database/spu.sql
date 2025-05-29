@@ -1,8 +1,8 @@
 -- Cambiar delimitador para definir procedimiento
 -- 1) Registrar cliente (persona)
 USE dbfix360;
-DROP PROCEDURE IF EXISTS spRegisterClientePersona;
 DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterClientePersona $$
 CREATE PROCEDURE spRegisterClientePersona (
   IN _nombres         VARCHAR(50),
   IN _apellidos       VARCHAR(50),
@@ -31,36 +31,7 @@ BEGIN
   VALUES (_idpersona, _idcontactabilidad);
 END $$
 
--- 2) Registrar cliente (empresa)
-/*
-DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
-DELIMITER $$
-CREATE PROCEDURE spRegisterClienteEmpresa (
-  IN _ruc            CHAR(11),
-  IN _nomcomercial   VARCHAR(80),
-  IN _razonsocial    VARCHAR(80),
-  IN _telefono       VARCHAR(20),
-  IN _correo         VARCHAR(100),
-  IN _idcontactabilidad INT
-)
-BEGIN
-  DECLARE _idempresa INT;
-  INSERT INTO empresas (
-    ruc, nomcomercial, razonsocial,
-    telefono, correo
-  ) VALUES (
-    _ruc, _nomcomercial, _razonsocial,
-    NULLIF(_telefono, ''), NULLIF(_correo, '')
-  );
-  SET _idempresa = LAST_INSERT_ID();
-  INSERT INTO clientes (idempresa, idcontactabilidad)
-  VALUES (_idempresa, _idcontactabilidad);
-END$$
-*/
-
--- 2) PROCEDMIENTO PARA EL REGISTRO REAL DE CLIENTE EMPRESA (PARA QUE SE VEA EN PROVEEDORES AL REGISTRAR)
-DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa $$
 CREATE PROCEDURE spRegisterClienteEmpresa (
   IN _ruc CHAR(11),
   IN _nomcomercial VARCHAR(80),
@@ -101,8 +72,7 @@ BEGIN
 END $$
 
 -- 3) Registrar vehículo y propietario
-DROP PROCEDURE IF EXISTS spRegisterVehiculo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterVehiculo $$
 CREATE PROCEDURE spRegisterVehiculo(
   IN _idmodelo       INT,
   IN _idtcombustible INT,
@@ -130,35 +100,8 @@ BEGIN
   INSERT INTO propietarios (idcliente, idvehiculo)
   VALUES (_idcliente, _idvehiculo);
 END$$
-/*
--- 4) Registrar producto
-DROP PROCEDURE IF EXISTS spRegisterProducto;
-DELIMITER $$
-CREATE PROCEDURE spRegisterProducto(
-  IN _idsubcategoria INT,
-  IN _idmarca        INT,
-  IN _descripcion    VARCHAR(50),
-  IN _precio         DECIMAL(7,2),
-  IN _presentacion   VARCHAR(40),
-  IN _undmedida      VARCHAR(40),
-  IN _cantidad       DECIMAL(10,2),
-  IN _img            VARCHAR(255)
-)
-BEGIN
-  INSERT INTO productos (
-    idsubcategoria, idmarca, descripcion,
-    precio, presentacion, undmedida,
-    cantidad, img
-  ) VALUES (
-    _idsubcategoria, _idmarca, _descripcion,
-    _precio, _presentacion, _undmedida,
-    _cantidad, NULLIF(_img, '')
-  );
-END$$
-*/
 
-DROP PROCEDURE IF EXISTS spRegisterProducto;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterProducto $$
 CREATE PROCEDURE spRegisterProducto(
   IN  _idsubcategoria INT,
   IN  _idmarca        INT,
@@ -227,49 +170,7 @@ BEGIN
 
 END$$
 
-/*
-DROP PROCEDURE IF EXISTS spRegisterProducto;
-DELIMITER $$
-CREATE PROCEDURE spRegisterProducto(
-  IN  _idsubcategoria INT,
-  IN  _idmarca        INT,
-  IN  _descripcion    VARCHAR(50),
-  IN  _precio         DECIMAL(7,2),
-  IN  _presentacion   VARCHAR(40),
-  IN  _undmedida      VARCHAR(40),
-  IN  _cantidad       DECIMAL(10,2),
-  IN  _img            VARCHAR(255),
-  IN  _stockmin       INT,
-  IN  _stockmax       INT,           -- puede ser NULL si no lo usas
-  OUT _idproducto     INT
-)
-BEGIN
-  -- 1) Inserto el producto
-  INSERT INTO productos 
-    (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img)
-  VALUES 
-    (_idsubcategoria, _idmarca, _descripcion, _precio, _presentacion, _undmedida, _cantidad, NULLIF(_img, ''));
-
-  -- 2) Capturo el id que acabo de generar
-  SET _idproducto = LAST_INSERT_ID();
-
-  -- 3) Inserto el kardex asociado
-  INSERT INTO kardex
-    (idproducto, fecha, stockmin, stockmax)
-  VALUES
-    (_idproducto,
-     CURDATE(),          -- o la fecha que prefieras
-     _stockmin,
-     NULLIF(_stockmax,'')
-    );
-END$$
-*/
--- select * from kardex
--- select * from productos
--- 5) Registrar servicio
-
-DROP PROCEDURE IF EXISTS spRegisterServicio;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterServicio $$
 CREATE PROCEDURE spRegisterServicio(
   IN _idsubcategoria INT,
   IN _servicio VARCHAR(255)
@@ -280,8 +181,7 @@ BEGIN
 END$$
 
 -- 6) Obtener todas las contactabilidades
-DROP PROCEDURE IF EXISTS spGetAllContactabilidad;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetAllContactabilidad $$
 CREATE PROCEDURE spGetAllContactabilidad()
 BEGIN
   SELECT * FROM contactabilidad
@@ -289,16 +189,14 @@ BEGIN
 END$$
 
 -- 7) Obtener todas las categorías
-DROP PROCEDURE IF EXISTS spGetAllCategoria;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetAllCategoria $$
 CREATE PROCEDURE spGetAllCategoria()
 BEGIN
   SELECT * FROM categorias;
 END$$
 
 -- 8) Obtener todas las marcas de producto
-DROP PROCEDURE IF EXISTS spGetAllMarcaProducto;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetAllMarcaProducto $$
 CREATE PROCEDURE spGetAllMarcaProducto()
 BEGIN
   SELECT * FROM marcas
@@ -308,8 +206,7 @@ END$$
 -- select * from ordenservicios;
 -- select * from clientes;
 -- 9) Obtener todas las marcas de vehículo
-DROP PROCEDURE IF EXISTS spGetAllMarcaVehiculo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetAllMarcaVehiculo $$
 CREATE PROCEDURE spGetAllMarcaVehiculo()
 BEGIN
   SELECT * FROM marcas
@@ -325,8 +222,7 @@ END $$
 -- FIN PROCEDIMIENTO DE PRODUCTOS
 
 -- 10) Obtener todos los tipos de vehículo
-DROP PROCEDURE IF EXISTS spGetAllTipoVehiculo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetAllTipoVehiculo $$
 CREATE PROCEDURE spGetAllTipoVehiculo()
 BEGIN
   SELECT idtipov, tipov
@@ -335,8 +231,7 @@ BEGIN
 END$$
 
 -- 11) Obtener subcategorías por categoría
-DROP PROCEDURE IF EXISTS spGetSubcategoriaByCategoria;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetSubcategoriaByCategoria $$
 CREATE PROCEDURE spGetSubcategoriaByCategoria(
   IN _idcategoria INT
 )
@@ -347,8 +242,7 @@ BEGIN
 END$$
 
 -- 12) Obtener modelos por tipo y marca
-DROP PROCEDURE IF EXISTS spGetModelosByTipoMarca;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetModelosByTipoMarca $$
 CREATE PROCEDURE spGetModelosByTipoMarca(
   IN p_idtipov INT,
   IN p_idmarca INT
@@ -362,8 +256,7 @@ END$$
 -- DIN PRODUCTO
 
 -- 13) Obtener servicios por subcategoría
-DROP PROCEDURE IF EXISTS spGetServicioBySubcategoria;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetServicioBySubcategoria $$
 CREATE PROCEDURE spGetServicioBySubcategoria(
   IN _idsubcategoria INT
 )
@@ -374,8 +267,7 @@ BEGIN
 END$$
 
 -- 14) Obtener persona por ID
-DROP PROCEDURE IF EXISTS spGetPersonaById;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetPersonaById $$
 CREATE PROCEDURE spGetPersonaById(
   IN _idpersona INT
 )
@@ -385,8 +277,7 @@ BEGIN
 END$$
 
 -- 15) Obtener empresa por ID
-DROP PROCEDURE IF EXISTS spGetEmpresaById;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetEmpresaById $$
 CREATE PROCEDURE spGetEmpresaById(
   IN _idempresa INT
 )
@@ -396,8 +287,7 @@ BEGIN
 END$$
 
 -- 16) Buscar persona (por DNI o NOMBRE)
-DROP PROCEDURE IF EXISTS spBuscarPersona;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spBuscarPersona $$
 CREATE PROCEDURE spBuscarPersona(
   IN _tipoBusqueda VARCHAR(20),
   IN _criterio VARCHAR(100)
@@ -414,8 +304,7 @@ BEGIN
 END$$
 
 -- 17) Buscar empresa (por RUC, RAZONSOCIAL o NOMBRECOMERCIAL)
-DROP PROCEDURE IF EXISTS spBuscarEmpresa;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spBuscarEmpresa $$
 CREATE PROCEDURE spBuscarEmpresa(
   IN _tipoBusqueda VARCHAR(20),
   IN _criterio VARCHAR(100)
@@ -434,8 +323,7 @@ BEGIN
 END$$
 -- select * from vwclientespersona;
 -- 18) Obtener vehículos por cliente
-DROP PROCEDURE IF EXISTS spGetVehiculoByCliente;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetVehiculoByCliente $$
 CREATE PROCEDURE spGetVehiculoByCliente(
   IN _idcliente INT
 )
@@ -466,8 +354,7 @@ END$$
 -- select * from vwvehiculos;
 -- CALL spGetVehiculoByCliente(2)
 
-DROP PROCEDURE IF EXISTS spRegisterTcombustible;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterTcombustible $$
 CREATE PROCEDURE spRegisterTcombustible(
 IN _tcombustible VARCHAR(50)
 )
@@ -478,8 +365,7 @@ END $$
 
 -- Restaurar delimitador por defecto
 -- CALL spGetClienteById(12);
-DROP PROCEDURE IF EXISTS spGetClienteById;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetClienteById $$
 CREATE PROCEDURE spGetClienteById(
   IN _idcliente INT
 )
@@ -498,21 +384,8 @@ BEGIN
   WHERE c.idcliente = _idcliente
   LIMIT 1;
 END $$
--- Semana actual
--- CALL spListOrdenesPorPeriodo('semana', '2025-04-15');
 
--- Mes actual
--- CALL spListOrdenesPorPeriodo('mes',   '2025-04-02');
-
--- Día concreto
--- CALL spListOrdenesPorPeriodo('dia',   '2025-04-08');
--- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ --
--- select * from o;
--- call spRegisterOrdenServicio(1,1,1,1,200,'nose',True,'2025/10/10',null)
--- call insert
--- SP para insertar la cabecera de la orden de servicio
-DROP PROCEDURE IF EXISTS spRegisterOrdenServicio;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterOrdenServicio $$
 CREATE PROCEDURE spRegisterOrdenServicio (
   IN _idadmin           INT,
   IN _idpropietario     INT,
@@ -552,8 +425,7 @@ END$$
 -- select * from ordenservicios where idorden = 33;
 -- call spInsertDetalleOrdenServicio(33,1,1,200)
 -- SP para insertar cada línea de detalle de la orden de servicio
-DROP PROCEDURE IF EXISTS spInsertDetalleOrdenServicio;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spInsertDetalleOrdenServicio $$
 CREATE PROCEDURE spInsertDetalleOrdenServicio (
   IN _idorden    INT,
   IN _idservicio INT,
@@ -575,8 +447,7 @@ BEGIN
   );
 END$$
 
-DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo $$
 CREATE PROCEDURE spListOrdenesPorPeriodo(
   IN _modo    ENUM('semana','mes','dia'),
   IN _fecha   DATE,
@@ -635,8 +506,7 @@ BEGIN
 END$$
 
 
-DROP PROCEDURE IF EXISTS spInsertFechaSalida;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spInsertFechaSalida $$
 CREATE PROCEDURE spInsertFechaSalida(
 IN _idorden 	INT
 )
@@ -646,8 +516,7 @@ fechasalida = NOW()
 WHERE idorden = _idorden;
 END $$
 
-DROP PROCEDURE IF EXISTS spGetObservacionByOrden;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetObservacionByOrden $$
 CREATE PROCEDURE spGetObservacionByOrden(
   IN _idorden INT
 )
@@ -668,17 +537,7 @@ BEGIN
   WHERE o.idorden = _idorden;
 END $$
 
--- call spGetObservacionByOrden(39)
--- call spInsertFechaSalida(3)
--- select * from ordenservicios where idorden = 3;
--- select * from ordenservicios;
--- select * from productos;
--- select * from componentes;
--- select * from observaciones;
--- update observaciones set estado = TRUE where idobservacion = 52;
-
-DROP PROCEDURE IF EXISTS spRegisterObservacion;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterObservacion $$
 CREATE PROCEDURE spRegisterObservacion(
 IN _idcomponente INT,
 IN _idorden 	  INT,
@@ -689,8 +548,7 @@ BEGIN
 INSERT INTO observaciones (idcomponente,idorden,estado,foto) VALUES (_idcomponente,_idorden,_estado,NULLIF(_foto, ''));
 END $$
 
-DROP PROCEDURE IF EXISTS spRegisterComponente;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterComponente $$
 CREATE PROCEDURE spRegisterComponente(
 IN _componente VARCHAR(50)
 )
@@ -698,8 +556,7 @@ BEGIN
 INSERT INTO componentes (componente) VALUES (_componente);
 END $$
 
-DROP PROCEDURE IF EXISTS spRegisterRecordatorio;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterRecordatorio $$
 CREATE PROCEDURE spRegisterRecordatorio(
 IN _idpropietario INT,
 IN _fchproxvisita DATE,
@@ -712,8 +569,7 @@ END $$
 
 -- call spListAgendasPorPeriodo('dia','2025-05-10','A')
 
-DROP PROCEDURE IF EXISTS spListAgendasPorPeriodo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spListAgendasPorPeriodo $$
 CREATE PROCEDURE spListAgendasPorPeriodo(
   IN _modo    ENUM('semana','mes','dia'),
   IN _fecha   DATE,
@@ -762,8 +618,7 @@ BEGIN
   ORDER BY a.fchproxvisita;
 END$$
 
-DROP PROCEDURE IF EXISTS spUpdateEstado;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spUpdateEstado $$
 CREATE PROCEDURE spUpdateEstado(
 IN _idagenda INT,
 IN _estado ENUM('P','R','C','H')
@@ -774,8 +629,7 @@ estado = _estado
 WHERE idagenda = _idagenda;
 END $$
 
-DROP PROCEDURE IF EXISTS spReprogramarRecordatorio;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spReprogramarRecordatorio $$
 CREATE PROCEDURE spReprogramarRecordatorio(
   IN _idagenda        INT,
   IN _nueva_fecha     DATE
@@ -789,14 +643,7 @@ BEGIN
     idagenda = _idagenda;
 END$$
 
--- call spReprogramarRecordatorio(5,'2025-05-10')
--- select * from vwRecordatoriosHoy
--- select * from agendas;
-
--- call spGetVentasByVehiculo(1)
-
-DROP PROCEDURE IF EXISTS spGetVentasByVehiculo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetVentasByVehiculo $$	
 CREATE PROCEDURE spGetVentasByVehiculo(
   IN _idvehiculo INT
 )
@@ -854,11 +701,7 @@ BEGIN
   ORDER BY v.fechahora;
 END$$
 
-
--- call spGetOrdenesByVehiculo(1)
-
-DROP PROCEDURE IF EXISTS spGetOrdenesByVehiculo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetOrdenesByVehiculo $$
 CREATE PROCEDURE spGetOrdenesByVehiculo(
   IN _idvehiculo INT
 )
@@ -914,8 +757,7 @@ BEGIN
 END$$
 
 -- call spGetDetalleOrdenServicio(2)
-DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio $$
 CREATE PROCEDURE spGetDetalleOrdenServicio(
   IN _idorden INT
 )
@@ -938,8 +780,7 @@ BEGIN
   ORDER BY dos.iddetorden;
 END$$
 
-DROP PROCEDURE IF EXISTS spGetJustificacionByOrden;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetJustificacionByOrden $$
 CREATE PROCEDURE spGetJustificacionByOrden(
   IN _idorden INT
 )
@@ -949,8 +790,7 @@ BEGIN
    WHERE idorden = _idorden;
 END$$
 
-DROP PROCEDURE IF EXISTS spUpdateVehiculoConHistorico;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spUpdateVehiculoConHistorico $$
 CREATE PROCEDURE spUpdateVehiculoConHistorico(
   IN p_idvehiculo       INT,
   IN p_idmodelo         INT,
@@ -1023,8 +863,7 @@ BEGIN
 END $$
 
 
-DROP PROCEDURE IF EXISTS spDeleteObservacion;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spDeleteObservacion $$
 CREATE PROCEDURE spDeleteObservacion(
 IN _idobservacion INT
 )
@@ -1032,8 +871,7 @@ BEGIN
 DELETE FROM observaciones WHERE idobservacion = _idobservacion;
 END $$
 
-DROP PROCEDURE IF EXISTS spUpdateObservacion;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spUpdateObservacion $$
 CREATE PROCEDURE spUpdateObservacion(
 IN _idobservacion INT,
 IN _idcomponente INT,
@@ -1050,8 +888,7 @@ WHERE idobservacion = _idobservacion;
 END $$
 
 
-DROP PROCEDURE IF EXISTS spDeleteOrdenServicio;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spDeleteOrdenServicio $$
 CREATE PROCEDURE spDeleteOrdenServicio(
 IN _idorden INT,
 IN _justificacion VARCHAR(255)
@@ -1062,10 +899,8 @@ estado = 'D',
 justificacion = _justificacion
 WHERE idorden = _idorden;
 END $$
--- select * from detalleordenservicios where idorden = 1;
--- call spGetDetalleOrdenServicio(1)
-DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio;
-DELIMITER $$
+
+DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio $$
 CREATE PROCEDURE spGetDetalleOrdenServicio(
   IN _idorden INT
 )
@@ -1147,13 +982,7 @@ BEGIN
 
 END$$
 
--- select * from vehiculos
--- call spGetUltimoKilometraje(9)
--- explicacion: junta tanto ordenes de servicio como ventas, se lista de manera descendente, para traer el mas reciente, le ponemos limit 1 para solo recibir el 1ero 
- 
--- call spListEgresosPorPeriodo('dia','2025-05-01')
-DROP PROCEDURE IF EXISTS spListEgresosPorPeriodo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spListEgresosPorPeriodo $$
 CREATE PROCEDURE spListEgresosPorPeriodo(
   IN _modo   ENUM('semana','mes','dia'),
   IN _fecha  DATE,
@@ -1193,8 +1022,7 @@ FROM egresos e
 END$$
 
 -- 3) SP: registrar un nuevo egreso
-DROP PROCEDURE IF EXISTS spRegisterEgreso;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterEgreso $$
 CREATE PROCEDURE spRegisterEgreso(
   IN _idadmin        INT,
   IN _idcolaborador  INT,
@@ -1225,9 +1053,7 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idegreso;
 END$$
 
--- 4) SP: \"eliminar\" un egreso (marcar estado = 'D')
-DROP PROCEDURE IF EXISTS spDeleteEgreso;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spDeleteEgreso $$
 CREATE PROCEDURE spDeleteEgreso(
   IN _idegreso       INT,
   IN _justificacion  VARCHAR(255)
@@ -1239,16 +1065,7 @@ BEGIN
    WHERE idegreso     = _idegreso;
 END$$
 
--- select * from egresos
--- select * from kardex;
--- select * from productos where codigobarra = 'S8M0PH038476JTY'
--- select * from productos where idproducto = 10
--- CALL spGetUltimoKilometraje(8);
--- select * from ordenservicios;
--- select * from movimientos where idkardex = 1;
-CALL spListMovimientosPorProductoPorPeriodo(45, 'mes', '2025-05-10');
-DROP PROCEDURE IF EXISTS spListMovimientosPorProductoPorPeriodo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spListMovimientosPorProductoPorPeriodo $$
 CREATE PROCEDURE spListMovimientosPorProductoPorPeriodo(
     IN in_idproducto INT,
     IN in_modo       VARCHAR(10),
@@ -1295,8 +1112,7 @@ BEGIN
 END $$
 
 -- 1) Actualizar Persona
-DROP PROCEDURE IF EXISTS spUpdatePersona;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spUpdatePersona $$
 CREATE PROCEDURE spUpdatePersona(
   IN _idpersona       INT,
   IN _nombres         VARCHAR(50),
@@ -1325,8 +1141,7 @@ BEGIN
 END$$
 
 -- 2) Actualizar Empresa
-DROP PROCEDURE IF EXISTS spUpdateEmpresa;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spUpdateEmpresa $$
 CREATE PROCEDURE spUpdateEmpresa(
   IN _idempresa     INT,
   IN _nomcomercial  VARCHAR(80),
@@ -1344,8 +1159,7 @@ BEGIN
    WHERE idempresa    = _idempresa;
 END$$
 
-DROP PROCEDURE IF EXISTS spGetVehiculoConPropietario;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetVehiculoConPropietario $$
 CREATE PROCEDURE spGetVehiculoConPropietario(
   IN _idvehiculo INT
 )
@@ -1400,8 +1214,7 @@ END $$
 
 -- CALL spGetVehiculoConPropietario(5);
 
-DROP PROCEDURE IF EXISTS spRegisterMarcaVehiculo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterMarcaVehiculo $$
 CREATE PROCEDURE spRegisterMarcaVehiculo(
 IN _nombre VARCHAR(50)
 )
@@ -1410,8 +1223,7 @@ INSERT INTO marcas (nombre,tipo) VALUES (_nombre,'vehiculo');
  SELECT LAST_INSERT_ID() AS idmarca;
 END $$
 
-DROP PROCEDURE IF EXISTS spRegisterModelo;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterModelo $$
 CREATE PROCEDURE spRegisterModelo(
 IN _idtipov INT,
 IN _idmarca INT,
@@ -1422,8 +1234,7 @@ INSERT INTO modelos (idtipov,idmarca,modelo) VALUES (_idtipov,_idmarca,_modelo);
 SELECT LAST_INSERT_ID() AS idmodelo;
 END $$
 
-DROP PROCEDURE IF EXISTS spRegisterMarcaProducto;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterMarcaProducto $$
 CREATE PROCEDURE spRegisterMarcaProducto(
 IN _nombre VARCHAR(50)
 )
@@ -1432,8 +1243,7 @@ INSERT INTO marcas (nombre, tipo) VALUES (_nombre, 'producto');
 SELECT LAST_INSERT_ID() AS idmarca;
 END $$
 
-DROP PROCEDURE IF EXISTS spRegisterCategoria;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterCategoria $$
 CREATE PROCEDURE spRegisterCategoria(
 IN _categoria VARCHAR(50)
 )
@@ -1442,8 +1252,7 @@ INSERT INTO categorias (categoria) VALUES (_categoria);
 SELECT LAST_INSERT_ID() AS idcategoria;
 END $$
 
-DROP PROCEDURE IF EXISTS spRegisterSubcategoria;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spRegisterSubcategoria $$
 CREATE PROCEDURE spRegisterSubcategoria(
 IN _idcategoria INT,
 IN _subcategoria VARCHAR(50)
@@ -1454,8 +1263,7 @@ SELECT LAST_INSERT_ID() AS idsubcategoria;
 END $$
 
 
-DROP PROCEDURE IF EXISTS spUpdateProducto;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spUpdateProducto $$
 CREATE PROCEDURE spUpdateProducto(
   IN  _idproducto   INT,
   IN  _descripcion  VARCHAR(50),
@@ -1526,8 +1334,7 @@ BEGIN
   WHERE idproducto = _idproducto;
 END$$
 
-DROP PROCEDURE IF EXISTS spStockActualPorProducto;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spStockActualPorProducto $$
 CREATE PROCEDURE spStockActualPorProducto(
   IN _idproducto INT
 )
@@ -1566,8 +1373,7 @@ BEGIN
   END IF;
 END$$
 
-DROP PROCEDURE IF EXISTS spGetProductoById;
-DELIMITER $$
+DROP PROCEDURE IF EXISTS spGetProductoById $$
 CREATE PROCEDURE spGetProductoById(
   IN  _idproducto   INT
 )
@@ -1611,3 +1417,4 @@ BEGIN
   WHERE p.idproducto = _idproducto;
 END$$
 
+DELIMITER ;

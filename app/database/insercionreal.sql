@@ -227,7 +227,9 @@ CROSS JOIN tipovehiculos tv;
 
 INSERT INTO contactabilidad (contactabilidad)
 VALUES
-  ('Redes sociales'),
+  ('Facebook'),
+  ('Instagram'),
+  ('tiktok'),
   ('Folletos'),
   ('Campaña publicitaria'),
   ('Recomendacion');
@@ -375,7 +377,7 @@ INSERT INTO categorias (categoria)
  
 -- select * from personas order by idpersona desc;
  
- INSERT INTO roles (rol) VALUES ('mecanico');
+ INSERT INTO roles (rol) VALUES ('administrador'),('Jefe Mecanico'),('mecanico'),('Marketing');
  
  -- Insertar contratos con rol de mecánico (idrol = 2, por ejemplo)
  INSERT INTO Contratos ( idpersona, idrol, fechainicio, fechafin) VALUES

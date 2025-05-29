@@ -101,6 +101,15 @@ $hoy_count = count($hoy);
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
+
+    .nav-profile .text-wrapper .profile-name {
+  white-space: normal;        /* ya no forza todo en una sola línea */
+  overflow-wrap: break-word;  /* rompe palabras largas si es necesario */
+  word-break: break-word;     /* para navegadores que no soporten overflow-wrap */
+  line-height: 1.2;           /* ajusta el interlineado si quieres más separación */
+  margin-bottom: 0;           /* opcional: quita márgen extra abajo */
+}
+
     html,
     body {
       height: 100%;
@@ -423,6 +432,12 @@ $hoy_count = count($hoy);
             <a class="nav-link" href="<?= SERVERURL ?>views/page/vehiculos/listar-vehiculos.php">
               <span class="menu-title">Vehiculos</span>
               <i class="fa-solid fa-car-side menu-icon"></i>
+            </a>
+          </li>
+                    <li class="nav-item">
+            <a class="nav-link" href="<?= SERVERURL ?>views/page/colaboradores/listar-colaborador.php">
+              <span class="menu-title">Colaboradores</span>
+              <i class="fa-solid fa-users menu-icon"></i>
             </a>
           </li>
           <li class="nav-item nav-category">

@@ -176,7 +176,7 @@ CREATE TABLE clientes(
 idcliente 			INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idempresa 			INT,
 idpersona 			INT,
-idcontactabilidad INT 				NOT NULL,
+idcontactabilidad INT 				NULL,
 CONSTRAINT fk_idempresa_1 FOREIGN KEY (idempresa) REFERENCES empresas (idempresa),
 CONSTRAINT fk_idpersona FOREIGN KEY (idpersona) REFERENCES personas (idpersona),
 CONSTRAINT chk_cliente CHECK ((idempresa IS NOT NULL AND idpersona IS NULL) OR (idempresa IS NULL AND idpersona IS NOT NULL)),
@@ -460,7 +460,7 @@ creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 CONSTRAINT fk_idkardex FOREIGN KEY (idkardex) REFERENCES kardex (idkardex),
 CONSTRAINT fk_idtipomov FOREIGN KEY (idtipomov) REFERENCES tipomovimientos (idtipomov),
-CONSTRAINT chk_saldorestante CHECK (cantidad > 0),
+CONSTRAINT chk_saldorestante CHECK (cantidad >= 0),
 CONSTRAINT chk_movimientos_cantidad CHECK (saldorestante >= 0)
 
  )ENGINE = INNODB;
