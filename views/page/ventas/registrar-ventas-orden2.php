@@ -34,7 +34,7 @@ require_once "../../partials/header.php";
                             Boleta
                         </label>
                         <label style="padding-left: 10px;">
-                            <input class="form-check-input text-start" type="radio" name="tipo" value="orden de "
+                            <input class="form-check-input text-start" type="radio" name="tipo" value="orden de trabajo"
                                 onclick="inicializarCampos()">
                             OT
                         </label>

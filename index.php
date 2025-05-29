@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Preparamos el form data
     const fd = new FormData();
-    fd.append("operation", "login");
+    fd.append("action",    "login");
     fd.append("namuser", namuser.value.trim());
     fd.append("passuser", passuser.value);
 
