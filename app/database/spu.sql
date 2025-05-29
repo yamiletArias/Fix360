@@ -1416,19 +1416,20 @@ BEGIN
     ON p.idsubcategoria = sc.idsubcategoria
   WHERE p.idproducto = _idproducto;
 END$$
-
 DROP PROCEDURE IF EXISTS spDeactivateColaborador $$
 CREATE PROCEDURE spDeactivateColaborador(
   IN _idcolaborador INT,
   IN _fechafin      DATE
 )
 BEGIN
+update colaboradores c SET
+c.estado = false
+WHERE idcolaborador = _idcolaborador;
   -- Actualiza la fecha de fin del contrato activo de ese colaborador
   UPDATE contratos ct
     JOIN colaboradores c ON ct.idcontrato = c.idcontrato
   SET ct.fechafin = _fechafin
-  WHERE c.idcolaborador = _idcolaborador
-    AND (ct.fechafin IS NULL OR ct.fechafin > _fechafin);
+  WHERE c.idcolaborador = _idcolaborador;
 END $$
 
 DROP PROCEDURE IF EXISTS spUpdateColaborador $$
@@ -1439,19 +1440,16 @@ CREATE PROCEDURE spUpdateColaborador(
   IN _apellidos      VARCHAR(50),
   IN _tipodoc        VARCHAR(30),
   IN _numdoc         CHAR(20),
-  IN _numruc         CHAR(11),
   IN _direccion      VARCHAR(70),
   IN _correo         VARCHAR(100),
   IN _telprincipal   VARCHAR(20),
-  IN _telalternativo VARCHAR(20),
   -- Datos contrato
   IN _idrol          INT,
   IN _fechainicio    DATE,
   IN _fechafin       DATE,
   -- Datos de acceso
   IN _namuser        VARCHAR(50),
-  IN _passuser       VARCHAR(255),
-  IN _estado         BOOLEAN
+  IN _passuser       VARCHAR(255)
 )
 BEGIN
   DECLARE _idcontrato INT;
@@ -1474,11 +1472,9 @@ BEGIN
            apellidos      = _apellidos,
            tipodoc        = _tipodoc,
            numdoc         = _numdoc,
-           numruc         = NULLIF(_numruc, ''),
            direccion      = NULLIF(_direccion, ''),
            correo         = NULLIF(_correo, ''),
            telprincipal   = _telprincipal,
-           telalternativo = NULLIF(_telalternativo, ''),
            modificado     = NOW()
      WHERE idpersona = _idpersona;
 
@@ -1493,8 +1489,7 @@ BEGIN
     -- 3) Actualizar datos del usuario
     UPDATE colaboradores
        SET namuser   = _namuser,
-           passuser  = _passuser,
-           estado    = _estado
+           passuser  = _passuser
      WHERE idcolaborador = _idcolaborador;
 
   COMMIT;
@@ -1514,12 +1509,10 @@ BEGIN
     p.nombres,
     p.apellidos,
     p.tipodoc,
-    p.numdoc,
-    p.numruc,
+    p.numdoc,    
     p.direccion,
     p.correo,
     p.telprincipal,
-    p.telalternativo,
     -- Datos del contrato
     ct.idrol,
     r.rol                AS nombre_rol,
@@ -1547,13 +1540,9 @@ CREATE PROCEDURE spRegisterColaborador(
   IN _apellidos       VARCHAR(50),
   IN _tipodoc         VARCHAR(30),
   IN _numdoc          CHAR(20),
-  IN _numruc          CHAR(11),
   IN _direccion       VARCHAR(70),
   IN _correo          VARCHAR(100),
-  IN _telprincipal    VARCHAR(20),
-  IN _telalternativo  VARCHAR(20),
-  -- OUT
-  OUT _idcolaborador  INT
+  IN _telprincipal    VARCHAR(20)
 )
 BEGIN
   DECLARE _hashed_pwd   VARCHAR(64);
@@ -1567,12 +1556,12 @@ BEGIN
     -- 2) Insertar persona
     INSERT INTO personas (
       nombres, apellidos, tipodoc, numdoc,
-      numruc, direccion, correo,
-      telprincipal, telalternativo
+       direccion, correo,
+      telprincipal
     ) VALUES (
       _nombres, _apellidos, _tipodoc, _numdoc,
-      NULLIF(_numruc,''), NULLIF(_direccion,''), NULLIF(_correo,''),
-      _telprincipal, NULLIF(_telalternativo,'')
+       NULLIF(_direccion,''), NULLIF(_correo,''),
+      _telprincipal
     );
     SET _idpersona = LAST_INSERT_ID();
 
@@ -1580,7 +1569,7 @@ BEGIN
     INSERT INTO contratos (
       idrol, idpersona, fechainicio, fechafin
     ) VALUES (
-      _idrol, _idpersona, _fechainicio, _fechafin
+      _idrol, _idpersona, _fechainicio, nullif(_fechafin,'')
     );
     SET _idcontrato = LAST_INSERT_ID();
 
@@ -1590,8 +1579,150 @@ BEGIN
     ) VALUES (
       _idcontrato, _namuser, _hashed_pwd, TRUE
     );
-    SET _idcolaborador = LAST_INSERT_ID();
   COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo $$
+CREATE PROCEDURE spGetDatosGeneralesVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      v.idvehiculo,
+      v.placa,
+      v.anio,
+      v.color,
+      v.numserie,
+      v.vin,
+            v.numchasis,
+      -- Unificamos teléfono y correo en un solo alias
+      COALESCE(p.telprincipal, e.telefono)    AS telefono_prop,
+      COALESCE(p.correo,     e.correo)        AS email_prop,
+	
+      tv.tipov AS tipo_vehiculo,
+      tc.tcombustible,
+      m.nombre AS marca,
+      mo.modelo,
+      c.idcliente AS id_propietario,
+      -- Propietario actual (persona o empresa)
+      CASE
+        WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+        ELSE e.nomcomercial
+      END AS propietario,
+      COALESCE(p.numdoc, e.ruc) AS documento_propietario,
+      pr.fechainicio AS propiedad_desde,
+      pr.fechafinal  AS propiedad_hasta
+    FROM vehiculos v
+    JOIN modelos mo       ON mo.idmodelo = v.idmodelo
+    JOIN marcas m         ON mo.idmarca   = m.idmarca
+    JOIN tipovehiculos tv ON tv.idtipov   = mo.idtipov
+    JOIN tipocombustibles tc ON tc.idtcombustible = v.idtcombustible
+    LEFT JOIN propietarios pr ON pr.idvehiculo = v.idvehiculo
+                               AND (pr.fechafinal IS NULL OR pr.fechafinal >= CURRENT_DATE)
+    LEFT JOIN clientes c      ON c.idcliente = pr.idcliente
+    LEFT JOIN personas p      ON p.idpersona = c.idpersona
+    LEFT JOIN empresas e      ON e.idempresa = c.idempresa;
+END $$
+
+DROP PROCEDURE IF EXISTS spHistorialOrdenesPorVehiculo $$
+CREATE PROCEDURE spHistorialOrdenesPorVehiculo(
+  IN _modo        ENUM('mes','semestral','anual'),
+  IN _fecha       DATE,
+  IN _estado      CHAR(1),           -- 'A' activas, 'D' desactivadas
+  IN _idvehiculo  INT
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+
+  ELSEIF _modo = 'semestral' THEN
+    -- Últimos 6 meses desde la fecha
+    SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
+    SET end_date   = _fecha;
+
+  ELSEIF _modo = 'anual' THEN
+    -- Todo el año calendario de la fecha
+    SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
+    SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
+
+  END IF;
+
+  SELECT
+    o.idorden,
+    o.fechaingreso,
+    o.fechasalida,
+    v.placa,
+    CASE
+      WHEN cp.idpersona IS NOT NULL
+        THEN CONCAT(pp.nombres, ' ', pp.apellidos)
+      ELSE ce.nomcomercial
+    END AS propietario,
+    CASE
+      WHEN cc.idpersona IS NOT NULL
+        THEN CONCAT(pc.nombres, ' ', pc.apellidos)
+      ELSE cce.nomcomercial
+    END AS cliente
+  FROM ordenservicios o
+    JOIN vehiculos v      ON o.idvehiculo    = v.idvehiculo
+    JOIN clientes cp      ON o.idpropietario = cp.idcliente
+    LEFT JOIN personas pp ON cp.idpersona    = pp.idpersona
+    LEFT JOIN empresas ce ON cp.idempresa    = ce.idempresa
+    JOIN clientes cc      ON o.idcliente     = cc.idcliente
+    LEFT JOIN personas pc ON cc.idpersona    = pc.idpersona
+    LEFT JOIN empresas cce ON cc.idempresa   = cce.idempresa
+  WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
+    AND o.estado = _estado
+    AND o.idvehiculo = _idvehiculo
+  ORDER BY o.fechaingreso;
+END$$
+
+DROP PROCEDURE IF EXISTS spHistorialVentasPorVehiculo $$
+CREATE PROCEDURE spHistorialVentasPorVehiculo(
+  IN _modo        ENUM('mes','semestral','anual'),
+  IN _fecha       DATE,
+  IN _idvehiculo  INT,
+  IN _estado      BOOLEAN              -- TRUE = activas, FALSE = eliminadas
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+
+  ELSEIF _modo = 'semestral' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
+    SET end_date   = _fecha;
+
+  ELSEIF _modo = 'anual' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
+    SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
+  END IF;
+
+  SELECT
+    v.idventa                     AS id,
+    COALESCE(CONCAT(pp.nombres,' ',pp.apellidos), pe.nomcomercial)
+                                  AS propietario,
+    CONCAT(v.numserie,'‑',v.numcom) AS comprobante,
+    v.kilometraje                 AS kilometraje,
+    v.tipocom                     AS tipo_comprobante,
+    vt.total_pendiente            AS total_pendiente,
+    CASE WHEN vt.total_pendiente=0 THEN 'pagado' ELSE 'pendiente' END AS estado_pago
+  FROM ventas v
+    JOIN propietarios prop        ON v.idpropietario = prop.idpropietario
+    JOIN clientes c               ON prop.idcliente = c.idcliente
+    LEFT JOIN personas pp         ON c.idpersona    = pp.idpersona
+    LEFT JOIN empresas pe         ON c.idempresa    = pe.idempresa
+    JOIN vista_saldos_por_venta vt ON v.idventa      = vt.idventa
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado = _estado
+    AND v.idvehiculo = _idvehiculo
+  ORDER BY v.fechahora;
 END$$
 
 DELIMITER ;

@@ -41,3 +41,4 @@ INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, numruc, direccion, co
  INSERT INTO Contratos ( idpersona, idrol, fechainicio, fechafin) VALUES
  (1, 1, '2023-01-01', NULL);
   CALL spRegisterColaborador('ElenaCastilla','fix3602025',1)
+  

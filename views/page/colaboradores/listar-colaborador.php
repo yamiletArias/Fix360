@@ -37,52 +37,58 @@ require_once "../../partials/header.php";
 </div>
 </div>
 
+
+
 <!-- Modal: Detalle de Colaborador -->
 <div class="modal fade" id="modalDetalleColaborador" tabindex="-1" aria-labelledby="detalleLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog ">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="detalleLabel">Detalle de Colaborador</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Tipo de Documento</label>
-            <input type="text" id="detalleTipodoc" class="form-control" disabled>
+        <div class="row">
+          <div class="form-group">
+            <div class="form-floating input-group">
+              <input type="text"  id="detalleTipodoc" class="form-control input" disabled>
+              <label  for="detalleTipodoc">Tipo de Documento</label>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">N° Documento</label>
-            <input type="text" id="detalleNumdoc" class="form-control" disabled>
+          <div class="form-group">
+            <div class="form-floating input-group">
+              <input type="text" id="detalleNumdoc" class="form-control input" disabled>
+              <label for="detalleNumdoc">N° Documento</label>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">RUC</label>
-            <input type="text" id="detalleNumruc" class="form-control" disabled>
+          <div class="form-group">
+            <div class="form-floating input-group">
+              <input type="text" id="detalleCorreo" class="form-control input" disabled>
+              <label for="detalleCorreo">Correo</label>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Correo</label>
-            <input type="text" id="detalleCorreo" class="form-control" disabled>
+          <div class="form-group">
+            <div class="form-floating input-group">
+              <input type="text" id="detalleDireccion" class="form-control input" disabled>
+              <label for="detalleDireccion">Dirección</label>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Teléfono Alternativo</label>
-            <input type="text" id="detalleTelAlt" class="form-control" disabled>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Dirección</label>
-            <input type="text" id="detalleDireccion" class="form-control" disabled>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Fecha Inicio Contrato</label>
-            <input type="text" id="detalleFInicio" class="form-control" disabled>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Fecha Fin Contrato</label>
-            <input type="text" id="detalleFFin" class="form-control" disabled>
+          <div class="form-group">
+            <div class="form-floating input-group">
+              <input type="text" id="detalleFInicio" class="form-control input" disabled>
+              <label for="detalleFInicio">Fecha Inicio Contrato</label>
+            </div>
+            </div>
+          <div class="form-group">
+            <div class="form-floating input-group">
+              <input type="text" id="detalleFFin" class="form-control input" disabled>
+              <label class="form-label">Fecha Fin Contrato</label>
+            </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -128,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </button>
             <button class="btn btn-danger btn-sm" title="Dar de baja"
                     onclick="confirmDeactivate(${row.idcolaborador})">
-              <i class="fa-solid fa-trash"></i>
+              <i class="fa-solid fa-user-xmark"></i>
             </button>
           `;
         }
@@ -145,37 +151,43 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Show detail modal
-  window.verDetalleColaborador = function(id) {
-    $.getJSON(`../../controllers/colaborador.php?action=get&id=${id}`)
-      .done(resp => {
-        if (resp.status === "success") {
-          const d = resp.data;
-          $("#detalleTipodoc").val(d.tipodoc);
-          $("#detalleNumdoc").val(d.numdoc);
-          $("#detalleNumruc").val(d.numruc || "No proporcionado");
-          $("#detalleCorreo").val(d.correo || "No proporcionado");
-          $("#detalleTelAlt").val(d.telalternativo || "No proporcionado");
-          $("#detalleDireccion").val(d.direccion || "No proporcionado");
-          $("#detalleFInicio").val(d.fechainicio);
-          $("#detalleFFin").val(d.fechafin || "Activo");
-          new bootstrap.Modal($("#modalDetalleColaborador")).show();
-        }
-      });
-  };
+window.verDetalleColaborador = function(id) {
+  $.getJSON(`<?= SERVERURL?>app/controllers/Colaborador.controller.php?action=get&id=${id}`)
+    .done(resp => {
+      if (resp.status === "success") {
+        const d = resp.data;
+        $("#detalleTipodoc").val(d.tipodoc);
+        $("#detalleNumdoc").val(d.numdoc);
+        $("#detalleCorreo").val(d.correo || "No proporcionado");
+        $("#detalleDireccion").val(d.direccion || "No proporcionado");
+        $("#detalleFInicio").val(d.fechainicio);
+        $("#detalleFFin").val(d.fechafin || "No proporcionado");
+        new bootstrap.Modal($("#modalDetalleColaborador")).show();
+      } else {
+        Swal.fire("Error", resp.message, "error");
+      }
+    })
+    .fail((_, status, err) => {
+      console.error("AJAX Error:", status, err);
+    });
 
+
+};
   // Confirm deactivate
   window.confirmDeactivate = function(id) {
     Swal.fire({
       title: "¿Dar de baja a este colaborador?",
       text: "Se asignará la fecha de fin de contrato al día de hoy.",
       icon: "warning",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
       showCancelButton: true,
       confirmButtonText: "Sí, dar de baja",
       cancelButtonText: "Cancelar"
     }).then(result => {
       if (result.isConfirmed) {
         const today = new Date().toISOString().split("T")[0];
-        $.post("../../controllers/colaborador.php", {
+        $.post("<?= SERVERURL?>app/controllers/colaborador.controller.php", {
           action: "deactivate",
           idcolaborador: id,
           fechafin: today

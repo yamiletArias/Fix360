@@ -29,7 +29,7 @@ if ($id <= 0) {
           <!-- Datos de persona -->
           <div class="col-md-6">
             <div class="form-floating">
-              <input type="text" class="form-control" name="nombres" id="nombres" placeholder="Nombres" required>
+              <input type="text" class="form-control" name="nombres" id="nombres" placeholder="Nombres" autofocus required>
               <label for="nombres"><strong>Nombres</strong></label>
             </div>
           </div>
@@ -137,8 +137,8 @@ if ($id <= 0) {
       </form>
     </div>
     <div class="card-footer text-end">
-      <a href="colaboradores.php" class="btn btn-secondary">Cancelar</a>
-      <button id="btnActualizar" class="btn btn-primary">Guardar Cambios</button>
+      <a href="listar-colaborador.php" class="btn btn-secondary">Cancelar</a>
+      <button id="btnActualizar" class="btn btn-success">Guardar</button>
     </div>
   </div>
 </div>
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rolSelect = $("#idrol");
 
   // 1) Cargar lista de roles
-  $.getJSON("<?= rtrim(SERVERURL,'/') ?>/app/controllers/rol.php")
+  $.getJSON("<?= SERVERURL?>app/controllers/Rol.controller.php")
     .done(list => {
       rolSelect.empty().append('<option value="">Seleccione un rol</option>');
       list.forEach(r => rolSelect.append(
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   // 2) Obtener datos del colaborador
-  $.getJSON("../../controllers/colaborador.php?action=get&id=" + id)
+  $.getJSON("../../controllers/colaborador.controller.php?action=get&id=" + id)
     .done(resp => {
       if (resp.status === "success") {
         const d = resp.data;

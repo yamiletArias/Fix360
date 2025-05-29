@@ -1,7 +1,8 @@
 -- Test movements SQL for dbfix360
 USE dbfix360;
-
+-- select * from personas;
 -- select * from productos;
+-- select * from colaboradores;
 DELIMITER $$
 -- call fetchKilometraje(1)
 -- select * from kardex;
@@ -498,7 +499,7 @@ BEGIN
 END$$
 DELIMITER ;
 
-
+-- select * from personas
 
 DELIMITER $$
 
@@ -601,52 +602,6 @@ CALL seed_movimientos(5, 20, '2024-01-01', CURDATE());
 -- select * from egresos
 -- SP 1: Datos generales del vehículo
 -- call spGetDatosGeneralesVehiculo(1)
-DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo;
-DELIMITER $$
-CREATE PROCEDURE spGetDatosGeneralesVehiculo(
-    IN _idvehiculo INT
-)
-BEGIN
-    SELECT
-      v.idvehiculo,
-      v.placa,
-      v.anio,
-      v.color,
-      v.numserie,
-      v.vin,
-      v.numchasis,
-      -- Unificamos teléfono y correo en un solo alias
-      COALESCE(p.telprincipal, e.telefono)    AS telefono_prop,
-      COALESCE(p.correo,     e.correo)        AS email_prop,
-      tv.tipov        AS tipo_vehiculo,
-      tc.tcombustible,
-      m.nombre        AS marca,
-      mo.modelo,
-      c.idcliente     AS id_propietario,
-      -- Nombre unificado (persona o empresa)
-      CASE
-        WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
-        ELSE e.nomcomercial
-      END                  AS propietario,
-      COALESCE(p.numdoc, e.ruc)  AS documento_propietario,
-      pr.fechainicio      AS propiedad_desde
-    FROM vehiculos v
-    JOIN modelos mo       ON mo.idmodelo = v.idmodelo
-    JOIN marcas m         ON mo.idmarca   = m.idmarca
-    JOIN tipovehiculos tv ON tv.idtipov   = mo.idtipov
-    JOIN tipocombustibles tc ON tc.idtcombustible = v.idtcombustible
-
-    -- Solo la relación vigente (sin fecha final o con fecha_final futura)
-    LEFT JOIN propietarios pr 
-      ON pr.idvehiculo = v.idvehiculo
-     AND (pr.fechafinal IS NULL OR pr.fechafinal >= CURRENT_DATE)
-
-    LEFT JOIN clientes c      ON c.idcliente = pr.idcliente
-    LEFT JOIN personas p      ON p.idpersona = c.idpersona
-    LEFT JOIN empresas e      ON e.idempresa = c.idempresa
-
-    WHERE v.idvehiculo = _idvehiculo;
-END $$
 
 -- call spListOrdenesPorVehiculo(1)
 -- SP 2: Listado de órdenes de servicio por vehículo
@@ -708,151 +663,9 @@ END $$
 DELIMITER ;
 -- call spGetDatosGeneralesVehiculo(1)
 -- SP 1: Datos generales del vehículo
-DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo;
-DELIMITER $$
-CREATE PROCEDURE spGetDatosGeneralesVehiculo(
-    IN in_idvehiculo INT
-)
-BEGIN
-    SELECT
-      v.idvehiculo,
-      v.placa,
-      v.anio,
-      v.color,
-      v.numserie,
-      v.vin,
-      tv.tipov AS tipo_vehiculo,
-      tc.tcombustible,
-      m.nombre AS marca,
-      mo.modelo,
-      c.idcliente AS id_propietario,
-      -- Propietario actual (persona o empresa)
-      CASE
-        WHEN p.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
-        ELSE e.nomcomercial
-      END AS propietario,
-      COALESCE(p.numdoc, e.ruc) AS documento_propietario,
-      pr.fechainicio AS propiedad_desde,
-      pr.fechafinal  AS propiedad_hasta
-    FROM vehiculos v
-    JOIN modelos mo       ON mo.idmodelo = v.idmodelo
-    JOIN marcas m         ON mo.idmarca   = m.idmarca
-    JOIN tipovehiculos tv ON tv.idtipov   = mo.idtipov
-    JOIN tipocombustibles tc ON tc.idtcombustible = v.idtcombustible
-    LEFT JOIN propietarios pr ON pr.idvehiculo = v.idvehiculo
-                               AND (pr.fechafinal IS NULL OR pr.fechafinal >= CURRENT_DATE)
-    LEFT JOIN clientes c      ON c.idcliente = pr.idcliente
-    LEFT JOIN personas p      ON p.idpersona = c.idpersona
-    LEFT JOIN empresas e      ON e.idempresa = c.idempresa;
-END $$
-DELIMITER ;
 
 
 -- call spHistorialOrdenesPorVehiculo('anual','2025-05-28','A',1)
-DROP PROCEDURE IF EXISTS spHistorialOrdenesPorVehiculo;
-DELIMITER $$
-CREATE PROCEDURE spHistorialOrdenesPorVehiculo(
-  IN _modo        ENUM('mes','semestral','anual'),
-  IN _fecha       DATE,
-  IN _estado      CHAR(1),           -- 'A' activas, 'D' desactivadas
-  IN _idvehiculo  INT
-)
-BEGIN
-  DECLARE start_date DATE;
-  DECLARE end_date   DATE;
-
-  IF _modo = 'mes' THEN
-    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
-    SET end_date   = LAST_DAY(_fecha);
-
-  ELSEIF _modo = 'semestral' THEN
-    -- Últimos 6 meses desde la fecha
-    SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
-    SET end_date   = _fecha;
-
-  ELSEIF _modo = 'anual' THEN
-    -- Todo el año calendario de la fecha
-    SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
-    SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
-
-  END IF;
-
-  SELECT
-    o.idorden,
-    o.fechaingreso,
-    o.fechasalida,
-    v.placa,
-    CASE
-      WHEN cp.idpersona IS NOT NULL
-        THEN CONCAT(pp.nombres, ' ', pp.apellidos)
-      ELSE ce.nomcomercial
-    END AS propietario,
-    CASE
-      WHEN cc.idpersona IS NOT NULL
-        THEN CONCAT(pc.nombres, ' ', pc.apellidos)
-      ELSE cce.nomcomercial
-    END AS cliente
-  FROM ordenservicios o
-    JOIN vehiculos v      ON o.idvehiculo    = v.idvehiculo
-    JOIN clientes cp      ON o.idpropietario = cp.idcliente
-    LEFT JOIN personas pp ON cp.idpersona    = pp.idpersona
-    LEFT JOIN empresas ce ON cp.idempresa    = ce.idempresa
-    JOIN clientes cc      ON o.idcliente     = cc.idcliente
-    LEFT JOIN personas pc ON cc.idpersona    = pc.idpersona
-    LEFT JOIN empresas cce ON cc.idempresa   = cce.idempresa
-  WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
-    AND o.estado = _estado
-    AND o.idvehiculo = _idvehiculo
-  ORDER BY o.fechaingreso;
-END$$
--- select * from ventas
--- select * from vehiculos where idvehiculo = 1
--- call spHistorialVentasPorVehiculo('anual','2025-05-28',1,'D')
-DROP PROCEDURE IF EXISTS spHistorialVentasPorVehiculo;
-DELIMITER $$
-CREATE PROCEDURE spHistorialVentasPorVehiculo(
-  IN _modo        ENUM('mes','semestral','anual'),
-  IN _fecha       DATE,
-  IN _idvehiculo  INT,
-  IN _estado      BOOLEAN              -- TRUE = activas, FALSE = eliminadas
-)
-BEGIN
-  DECLARE start_date DATE;
-  DECLARE end_date   DATE;
-
-  IF _modo = 'mes' THEN
-    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
-    SET end_date   = LAST_DAY(_fecha);
-
-  ELSEIF _modo = 'semestral' THEN
-    SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
-    SET end_date   = _fecha;
-
-  ELSEIF _modo = 'anual' THEN
-    SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
-    SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
-  END IF;
-
-  SELECT
-    v.idventa                     AS id,
-    COALESCE(CONCAT(pp.nombres,' ',pp.apellidos), pe.nomcomercial)
-                                  AS propietario,
-    CONCAT(v.numserie,'‑',v.numcom) AS comprobante,
-    v.kilometraje                 AS kilometraje,
-    v.tipocom                     AS tipo_comprobante,
-    vt.total_pendiente            AS total_pendiente,
-    CASE WHEN vt.total_pendiente=0 THEN 'pagado' ELSE 'pendiente' END AS estado_pago
-  FROM ventas v
-    JOIN propietarios prop        ON v.idpropietario = prop.idpropietario
-    JOIN clientes c               ON prop.idcliente = c.idcliente
-    LEFT JOIN personas pp         ON c.idpersona    = pp.idpersona
-    LEFT JOIN empresas pe         ON c.idempresa    = pe.idempresa
-    JOIN vista_saldos_por_venta vt ON v.idventa      = vt.idventa
-  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
-    AND v.estado = _estado
-    AND v.idvehiculo = _idvehiculo
-  ORDER BY v.fechahora;
-END$$
 -- *** Datos de prueba para vehículo ID = 1 ***
 -- 5 órdenes de servicio con su detalle
 INSERT INTO ordenservicios (idadmin, idpropietario, idcliente, idvehiculo, kilometraje, ingresogrua, fechaingreso, fechasalida, estado, observaciones)
@@ -887,7 +700,7 @@ VALUES
 
 -- Obtener los últimos 5 IDs de ventas para detalle
 SET @v1 = (SELECT MAX(idventa) - 4 FROM ventas);
-
+ 
 INSERT INTO detalleventa (idventa, idproducto, cantidad, numserie, precioventa, descuento)
 VALUES
   (@v1,   1, 2, JSON_ARRAY('','',''), 48.50, 0),
