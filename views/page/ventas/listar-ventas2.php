@@ -6,10 +6,26 @@ require_once "../../partials/header.php";
 ?>
 <style>
     #am_formapago {
-        color: black; /* Cambia solo el color de la letra */
+        color: black;
+        /* Cambia solo el color de la letra */
+    }
+
+    /* Reduce el padding inferior del header */
+    #miModal .modal-header {
+        padding-bottom: 0.5rem;
+    }
+
+    /* Reduce el padding superior del body */
+    #miModal .modal-body {
+        padding-top: 0.5rem;
+    }
+
+    /* Quita márgenes extra de ese párrafo */
+    #miModal .modal-body>p {
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
     }
 </style>
-
 <div class="container-main mt-5">
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
@@ -18,7 +34,11 @@ require_once "../../partials/header.php";
                 <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
                 <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
                 <!-- Nuevo botón para ver eliminados -->
-                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                <!--                 <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </button> -->
+                <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white" title="Ver eliminados"
+                    data-estado="A">
                     <i class="fa-solid fa-eye-slash"></i>
                 </button>
                 <button type="button" class="btn btn-danger text-white">
@@ -30,7 +50,7 @@ require_once "../../partials/header.php";
                     <div class="input-group">
                         <input type="date" class="form-control input" aria-label="Fecha"
                             aria-describedby="button-addon2" id="Fecha">
-                        <a href="registrar-ventas.php" class="btn btn-success text-center" type="button"
+                        <a href="registrar-ventas-orden.php" class="btn btn-success text-center" type="button"
                             id="button-addon2">Registrar</a>
                     </div>
                 </div>
@@ -82,77 +102,45 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 
-<!-- Logica para ver los registro eliminados -->
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        cargarTablaVentas();
+<script>
+    let currentEstado = 'A'; // 'A' para activos, 'E' para eliminados
+    const btnVerElim = document.getElementById("btnVerEliminados");
+    const contActivos = document.getElementById("tableDia");
+    const contEliminados = document.getElementById("tableEliminados");
 
-        document.getElementById("btnVerEliminados").addEventListener("click", function () {
-            const tableDia = document.getElementById("tableDia");
-            const tableEliminados = document.getElementById("tableEliminados");
+    // Función para actualizar la apariencia del toggle
+    const actualizarToggleEstado = () => {
+        if (currentEstado === 'A') {
+            btnVerElim.classList.replace('btn-warning', 'btn-secondary');
+            btnVerElim.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            btnVerElim.title = 'Ver eliminados';
+        } else {
+            btnVerElim.classList.replace('btn-secondary', 'btn-warning');
+            btnVerElim.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            btnVerElim.title = 'Ver activos';
+        }
+        btnVerElim.setAttribute('data-estado', currentEstado);
+    };
 
-            tableDia.style.display = "none";
-            tableEliminados.style.display = "block";
+    // Inicializa el toggle con el estado por defecto
+    actualizarToggleEstado();
 
-            if ($.fn.DataTable.isDataTable("#tablaventaseliminadas")) {
-                $("#tablaventaseliminadas").DataTable().destroy();
-            }
-
-            $("#tablaventaseliminadas").DataTable({
-                ajax: {
-                    url: "<?= SERVERURL ?>app/controllers/Venta.controller.php?action=ventas_eliminadas",
-                    dataSrc: function (json) {
-                        return json.status === 'success' ? json.data : [];
-                    }
-                },
-                columns: [
-                    {
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    { data: "cliente", class: "text-start", defaultContent: "No disponible" },
-                    { data: "tipocom", class: "text-center", defaultContent: "No disponible" },
-                    { data: "numcom", class: "text-center", defaultContent: "No disponible" },
-                    {
-                        data: null,
-                        class: "text-center",
-                        render: function (data, type, row) {
-                            return `
-                            <button class="btn btn-info btn-sm btn-ver-justificacion" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#modalVerJustificacion"
-                                data-id="${row.id}">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button class="btn btn-warning btn-sm btn-amortizar" 
-                                data-id="${row.id}">
-                                <i class="fa-solid fa-dollar-sign"></i>
-                            </button>
-                            <button class="btn btn-primary btn-sm"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#miModal"
-                                onclick="verDetalleVenta('${row.id}')">
-                                <i class="fa-solid fa-circle-info"></i>
-                            </button>`;
-                        }
-                    }
-                ],
-                language: {
-                    lengthMenu: "Mostrar _MENU_ registros por página",
-                    zeroRecords: "No se encontraron resultados",
-                    info: "Mostrando página _PAGE_ de _PAGES_",
-                    infoEmpty: "No hay registros disponibles",
-                    infoFiltered: "(filtrado de _MAX_ registros totales)",
-                    search: "Buscar:",
-                    loadingRecords: "Cargando...",
-                    processing: "Procesando...",
-                    emptyTable: "No hay datos disponibles en la tabla"
-                }
-            });
-        });
+    btnVerElim.addEventListener("click", () => {
+        if (currentEstado === 'A') {
+            // Pasar a eliminados
+            contActivos.style.display = "none";
+            contEliminados.style.display = "block";
+            cargarVentasEliminadas();
+            currentEstado = 'E';
+        } else {
+            // Volver a activos
+            contEliminados.style.display = "none";
+            contActivos.style.display = "block";
+            currentEstado = 'A';
+        }
+        actualizarToggleEstado();
     });
-</script> -->
-<!-- Logica para obetner la justificacion en el modal -->
+</script>
 <script>
     $(document).on('click', '.btn-ver-justificacion', async function () {
         const id = $(this).data('id');
@@ -174,6 +162,15 @@ require_once "../../partials/_footer.php";
 </script>
 <!-- Vista en el modal de detalle de venta para visualizar informacion de esa venta -->
 <script>
+    function toggleNumTransAmort() {
+        const texto = $('#am_formapago option:selected').text().trim().toLowerCase();
+        if (texto === 'efectivo') {
+            $('#div_num_transaccion').hide()
+                .find('input').val('');
+        } else {
+            $('#div_num_transaccion').show();
+        }
+    }
     $(document).on('click', '.btn-amortizar', async function () {
         const id = $(this).data('id');
         const monto = parseFloat($(this).data('total')) || 0;
@@ -218,6 +215,9 @@ require_once "../../partials/_footer.php";
             $sel.html('<option>Error</option>');
         } finally {
             $sel.prop('disabled', false);
+            toggleNumTransAmort();
+            $sel.off('change', toggleNumTransAmort)
+                .on('change', toggleNumTransAmort);
         }
 
         // carga amortizaciones previas...
@@ -241,90 +241,136 @@ require_once "../../partials/_footer.php";
     });
 
     function verDetalleVenta(idventa) {
-        // limpia la tabla de productos...
-        $("#miModal tbody").empty();
-        // y limpia cualquier tabla de amortizaciones previa:
+        // — Limpiar modal
+        $("#miModal tbody, #tabla-detalle-productos-modal tbody, #tabla-detalle-servicios-modal tbody").empty();
         $("#miModal .amortizaciones-container").remove();
-        // ahora continúa como antes…
-        $("#miModal").modal("show");
-        $("#miModal").modal("show");
-        // limpia cualquier contenido previo
         $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
-        $("#miModal tbody").empty();
+        $("label[for='propietario']").text('');
 
-        $.ajax({
-            url: "<?= SERVERURL ?>app/controllers/Detventa.controller.php",
-            method: "GET",
-            data: { idventa },
-            dataType: "json",
-            success(response) {
-                if (response.length === 0) {
-                    return $("#miModal tbody").append(
-                        `<tr><td colspan="4" class="text-center">No hay detalles disponibles</td></tr>`
-                    );
+        // — Abrir modal
+        $("#miModal").modal("show");
+
+        // 1) Propietario
+        fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=propietario&idventa=${idventa}`)
+            .then(r => r.json())
+            .then(jsonVenta => {
+                if (jsonVenta.status === 'success') {
+                    $("label[for='propietario']").text(jsonVenta.data.propietario || 'Sin propietario');
+                } else {
+                    $("label[for='propietario']").text('No encontrado');
                 }
-                // pinta productos como antes…
-                $("#modeloInput").val(response[0].cliente);
-                $("#fechaHora").val(response[0].fechahora);
-                $("#vehiculo").val(response[0].vehiculo ?? 'Sin vehiculo');
-                $("#kilometraje").val(response[0].kilometraje ?? 'sin kilometraje');
-                response.forEach((item, i) => {
-                    $("#miModal tbody").append(`
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${item.producto}</td>
-                        <td>${item.precio}</td>
-                        <td>${item.descuento} $</td>
-                    </tr>`);
-                });
+            })
+            .catch(() => {
+                $("label[for='propietario']").text('Error al cargar');
+            });
 
-                // ─── AÑADE ESTE BLOQUE PARA LAS AMORTIZACIONES ───
+        // 2) Detalle completo (productos + servicios)
+        fetch(`<?= SERVERURL ?>app/controllers/Detventa.controller.php?idventa=${idventa}`)
+            .then(r => r.json())
+            .then(json => {
+                console.log("DETALLE VENTA RAW:", json);
+                if (json.status !== 'success') {
+                    console.error("Detventa error:", json.message);
+                    return;
+                }
+                const { productos, servicios } = json.data;
+
+                // — Productos —
+                const $prodBody = $("#tabla-detalle-productos-modal tbody").empty();
+                if (!productos.length) {
+                    $prodBody.append(`<tr><td colspan="6" class="text-center text-muted">No hay productos</td></tr>`);
+                } else {
+                    productos.forEach((p, i) => {
+                        $prodBody.append(`
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${p.producto}</td>
+                            <td>${p.cantidad}</td>
+                            <td>${parseFloat(p.precio).toFixed(2)} $</td>
+                            <td>${parseFloat(p.descuento).toFixed(2)} $</td>
+                            <td>${parseFloat(p.total_producto).toFixed(2)} $</td>
+                        </tr>`);
+                    });
+                    // Campos generales
+                    $("#modeloInput").val(productos[0].cliente || 'Sin Cliente');
+                    $("#fechaHora").val(productos[0].fechahora);
+                    $("#vehiculo").val(productos[0].vehiculo || 'Sin vehículo');
+                    $("#kilometraje").val(productos[0].kilometraje || 'Sin kilometraje');
+                }
+
+                const serviciosValidos = servicios.filter(s =>
+                    s.tiposervicio !== null ||
+                    s.nombreservicio !== null ||
+                    s.mecanico !== null ||
+                    s.precio_servicio !== null
+                );
+                // — Servicios —
+                const $servBody = $("#tabla-detalle-servicios-modal tbody").empty();
+                if (!serviciosValidos.length) {
+                    $servBody.append(`<tr><td colspan="5" class="text-center text-muted">No hay servicios</td></tr>`);
+                } else {
+                    serviciosValidos.forEach((s, i) => {
+                        $servBody.append(`
+      <tr>
+        <td>${i + 1}</td>
+        <td>${s.tiposervicio ?? '-'}</td>
+        <td>${s.nombreservicio ?? '-'}</td>
+        <td>${s.mecanico ?? '-'}</td>
+        <td>${s.precio_servicio !== null
+                                ? parseFloat(s.precio_servicio).toFixed(2) + ' $'
+                                : '-'
+                            }</td>
+      </tr>`);
+                    });
+                }
+
+                // — Amortizaciones —
                 fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idventa=${idventa}`)
                     .then(r => r.json())
-                    .then(json => {
-                        if (json.status === 'success' && json.data.length) {
-                            // crear sección y tabla de amortizaciones
+                    .then(jsonA => {
+                        if (jsonA.status === 'success' && jsonA.data.length) {
                             const cont = $(`
-                                <div class="amortizaciones-container mt-4">
+                            <div class="amortizaciones-container mt-4">
                                 <h6>Amortizaciones</h6>
                                 <table class="table table-sm">
-                                    <thead><tr>
-                                        <th>#</th>
-                                        <th>Transacción</th>
-                                        <th>Monto</th>
-                                        <th>F. Pago</th>
-                                        <th>Saldo</th>
-                                    </tr></thead>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Transacción</th>
+                                            <th>Nº Transacción</th>
+                                            <th>Monto</th>
+                                            <th>F. Pago</th>
+                                            <th>Saldo</th>
+                                        </tr>
+                                    </thead>
                                     <tbody></tbody>
-                                    </table>
-                                </div>
-                            `);
-                            // rellenar filas
-                            json.data.forEach((a, i) => {
+                                </table>
+                            </div>
+                        `);
+                            jsonA.data.forEach((a, i) => {
                                 cont.find('tbody').append(`
                                 <tr>
                                     <td>${i + 1}</td>
                                     <td>${new Date(a.creado).toLocaleString()}</td>
-                                    <td>${parseFloat(a.amortizacion).toFixed(2)}</td>
+                                    <td>${a.numtransaccion}</td>
+                                    <td>${parseFloat(a.amortizacion).toFixed(2)} $</td>
                                     <td>${a.formapago}</td>
-                                    <td>${parseFloat(a.saldo).toFixed(2)}</td>
+                                    <td>${parseFloat(a.saldo).toFixed(2)} $</td>
                                 </tr>`);
                             });
-                            // insertar después de la tabla de productos
                             $("#miModal .modal-body").append(cont);
                         }
                     })
-                    .catch(err => console.error("Error amortizaciones:", err));
-            },
-            error() {
+                    .catch(() => console.error("Error amortizaciones"));
+
+            })
+            .catch(() => {
+                console.error("Error al cargar detalle de venta");
                 alert("Ocurrió un error al cargar el detalle.");
-            }
-        });
+            });
     }
 </script>
-
 <script>
-
     let tablaVentas;
     const API = "<?= SERVERURL ?>app/controllers/Venta.controller.php";
     const fechaInput = document.getElementById('Fecha');
@@ -356,7 +402,7 @@ require_once "../../partials/_footer.php";
                 }, // Cierra columna 1
                 { // Columna 2: cliente
                     data: "cliente",
-                    defaultContent: "No disponible",
+                    defaultContent: "Sin cliente",
                     class: 'text-start'
                 }, // Cierra columna 2
                 { // Columna 3: tipo de comprobante
@@ -413,24 +459,25 @@ require_once "../../partials/_footer.php";
                     class: "text-center",
                     render: function (data, type, row) {
                         return `
-                            <button class="btn btn-info btn-sm btn-ver-justificacion"
-                                    data-id="${row.id}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalVerJustificacion">
+                            <button class="btn btn-primary btn-sm btn-ver-justificacion"
+                                data-id="${row.id}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalVerJustificacion">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                             <button class="btn btn-warning btn-sm btn-amortizar"
-                                    data-id="${row.id}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalAmortizar">
+                                data-id="${row.id}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAmortizar">
                                 <i class="fa-solid fa-dollar-sign"></i>
                             </button>
-                            <button class="btn btn-primary btn-sm"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#miModal"
-                                                onclick="verDetalleVenta('${row.id}')">
-                                                <i class="fa-solid fa-circle-info"></i>
-                                            </button>`;
+                            <button title="Detalle de la venta" class="btn btn-info btn-sm btn-detalle"
+                                    data-action="detalle"
+                                    data-id="${row.id}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#miModal">
+                                <i class='fa-solid fa-clipboard-list'></i>
+                            </button>`;
                     }
                 }
             ],
@@ -452,23 +499,31 @@ require_once "../../partials/_footer.php";
         const pagado = row.estado_pago === 'pagado';
         const btnAmort = pagado
             ? `<button class="btn btn-success btn-sm" disabled><i class="fa-solid fa-check"></i></button>`
-            : `<button class="btn btn-warning btn-sm btn-amortizar"
+            : `<button title="Amortizacion" class="btn btn-warning btn-sm btn-amortizar"
          data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#modalAmortizar">
          <i class="fa-solid fa-dollar-sign"></i>
        </button>`;
 
         return `
-        <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
         <i class="fa-solid fa-trash"></i>
         </button>
         ${btnAmort}
-        <button class="btn btn-primary btn-sm btn-detalle"
+        <button title="Detalle de la venta" class="btn btn-info btn-sm btn-detalle"
                 data-action="detalle"
                 data-id="${row.id}"
                 data-bs-toggle="modal"
                 data-bs-target="#miModal">
-        <i class="fa-solid fa-circle-info"></i>
+            <i class='fa-solid fa-clipboard-list'></i>
+        </button>
+        <button title="Pdf" class="btn btn-outline-dark btn-sm btn-descargar-pdf"
+                onclick="descargarPDF('${row.id}')">
+        <i class="fa-solid fa-file-pdf"></i>
         </button>`;
+    }
+    function descargarPDF(idventa) {
+        const url = `<?= SERVERURL ?>app/reports/reporteventa.php?idventa=${encodeURIComponent(idventa)}`;
+        window.open(url, '_blank');
     }
     document.addEventListener("DOMContentLoaded", () => {
         // inicializo fecha de hoy
@@ -492,13 +547,6 @@ require_once "../../partials/_footer.php";
             currentModo = 'dia';
             marcarActivo(btnDia);
             cargarTablaVentas(currentModo, fechaInput.value);
-        });
-
-        // Botón Ver Eliminados
-        document.getElementById("btnVerEliminados").addEventListener("click", function () {
-            document.getElementById("tableDia").style.display = "none";
-            document.getElementById("tableEliminados").style.display = "block";
-            cargarVentasEliminadas();
         });
 
         // eliminación con justificación
@@ -532,13 +580,23 @@ require_once "../../partials/_footer.php";
             const monto = parseFloat($('#am_monto').val());
             const formapago = +$('#am_formapago').val();
             if (!monto || monto <= 0) return alert('Monto inválido');
+
             const form = new FormData();
             form.append('idventa', idventa);
             form.append('monto', monto);
             form.append('idformapago', formapago);
+
+            // *** Aquí: solo si el input está visible y tiene valor ***
+            const $numField = $('#num_transaccion');
+            if ($numField.is(':visible') && $numField.val().trim() !== '') {
+                form.append('numtransaccion', $numField.val().trim());
+            }
+
             const res = await fetch("<?= SERVERURL ?>app/controllers/Amortizacion.controller.php", {
-                method: 'POST', body: form
+                method: 'POST',
+                body: form
             }).then(r => r.json());
+
             if (res.status === 'success') {
                 showToast(res.message, 'SUCCESS', 1500);
                 $('#modalAmortizar').modal('hide');
@@ -553,6 +611,7 @@ require_once "../../partials/_footer.php";
             verDetalleVenta(idventa);
             $('#miModal').modal('show');
         });
+
     });
 </script>
 
@@ -576,9 +635,15 @@ require_once "../../partials/_footer.php";
                         <!-- Aquí puedes cargar las formas de pago si tienes disponibles -->
                     </select>
                 </div>
+                <!-- Oculto por defecto -->
+                <div class="mb-3" id="div_num_transaccion" style="display: none;">
+                    <label>Numero de Transacción</label>
+                    <input type="text" id="num_transaccion" name="numtransaccion" class="form-control input">
+                </div>
             </div>
             <div class="modal-footer">
-                <button id="btnGuardarAmortizacion" type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnGuardarAmortizacion" type="button" class="btn btn-primary btn-sm">Guardar</button>
             </div>
         </div>
     </div>
@@ -596,7 +661,7 @@ require_once "../../partials/_footer.php";
                 <!-- Aquí se insertará dinámicamente la justificación -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -604,13 +669,14 @@ require_once "../../partials/_footer.php";
 
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 900px;">
+    <div class="modal-dialog" style="max-width: 950px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Venta</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <p><strong>Propietario:</strong> <label for="propietario"></label></p>
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <div class="form-floating">
@@ -653,23 +719,41 @@ require_once "../../partials/_footer.php";
                     </div>
                 </div> -->
                 <div class="table-container">
-                    <table class="table table-striped table-bordered">
+                    <table id="tabla-detalle-productos-modal" class="table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Productos</th>
-                                <th>Precio</th>
-                                <th>Descuento</th>
+                                <th>Cantidad</th>
+                                <th>Precio UNT</th>
+                                <th>Descuento UNT</th>
+                                <th>T. producto</th>
                             </tr>
                         </thead>
                         <tbody>
 
                         </tbody>
                     </table>
+                    <hr>
+                    <h6>Servicios asociados</h6>
+                    <table class="table table-striped table-bordered" id="tabla-detalle-servicios-modal">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tipo Servicio</th>
+                                <th>Servicio</th>
+                                <th>Mecánico</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán con JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -689,13 +773,12 @@ require_once "../../partials/_footer.php";
                     placeholder="Escribe tu justificación aquí..."></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnEliminarVenta" class="btn btn-danger">Eliminar Venta</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEliminarVenta" class="btn btn-danger btn-sm">Eliminar</button>
             </div>
         </div>
     </div>
 </div>
-
 </body>
 
 </html>

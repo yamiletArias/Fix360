@@ -138,24 +138,24 @@ class Venta extends Conexion
      * @param int    $idvehiculo
      * @return array
      */
-public function listarHistorialPorVehiculo(string $modo, string $fecha, int $idvehiculo, bool $estado = true): array
-{
-    try {
-        $stmt = $this->pdo->prepare("CALL spHistorialVentasPorVehiculo(:modo, :fecha, :idvehiculo, :estado)");
-        $stmt->execute([
-            ':modo'       => $modo,
-            ':fecha'      => $fecha,
-            ':idvehiculo' => $idvehiculo,
-            ':estado'     => $estado ? 1 : 0,
-        ]);
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $result;
-    } catch (Exception $e) {
-        error_log("Venta::listarHistorialPorVehiculo error: ".$e->getMessage());
-        return [];
+    public function listarHistorialPorVehiculo(string $modo, string $fecha, int $idvehiculo, bool $estado = true): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("CALL spHistorialVentasPorVehiculo(:modo, :fecha, :idvehiculo, :estado)");
+            $stmt->execute([
+                ':modo' => $modo,
+                ':fecha' => $fecha,
+                ':idvehiculo' => $idvehiculo,
+                ':estado' => $estado ? 1 : 0,
+            ]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $result;
+        } catch (Exception $e) {
+            error_log("Venta::listarHistorialPorVehiculo error: " . $e->getMessage());
+            return [];
+        }
     }
-}
 
 
     // Buscar productos
@@ -278,6 +278,29 @@ public function listarHistorialPorVehiculo(string $modo, string $fecha, int $idv
             return $result;
         } catch (Exception $e) {
             error_log("Ventas::listarPorPeriodoVentas error: " . $e->getMessage());
+            return [];
+        }
+    }
+    /**
+     * Lista OT (orden de trabajo) por periodo: dia, semana, mes
+     * 
+     * @param string $modo  dia | semana | mes
+     * @param string $fecha YYYY-MM-DD
+     * @return array
+     */
+    public function listarPorPeriodoOT(string $modo, string $fecha): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("CALL spListOTPorPeriodo(:modo, :fecha)");
+            $stmt->execute([
+                ':modo' => $modo,
+                ':fecha' => $fecha,
+            ]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            return $result;
+        } catch (Exception $e) {
+            error_log("Ventas::listarPorPeriodoOT error: " . $e->getMessage());
             return [];
         }
     }
@@ -421,4 +444,119 @@ public function listarHistorialPorVehiculo(string $modo, string $fecha, int $idv
             throw $e;
         }
     }
+
+    /* public function combinarOtYCrearVenta(array $idsOT, string $tipocom): int
+    {
+        if (count($idsOT) < 2) {
+            throw new Exception("Debes combinar al menos dos OT.");
+        }
+
+        // 1) Validar propietario único
+        $in = implode(',', array_fill(0, count($idsOT), '?'));
+        $stmt = $this->pdo->prepare("
+        SELECT DISTINCT idpropietario 
+        FROM ventas 
+        WHERE idventa IN ($in)
+          AND tipocom = 'orden de trabajo'
+          AND estado = TRUE
+    ");
+        $stmt->execute($idsOT);
+        $props = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        if (count($props) !== 1) {
+            throw new Exception("Todas las OT deben pertenecer al mismo propietario.");
+        }
+        $idprop = (int) $props[0];
+
+        // 2) Traer detalles reales de esas OT
+        $det = $this->getDetallesOt($idsOT);  // debe devolver ['productos'=>…, 'servicios'=>…]
+
+        // 3) Iniciar transacción
+        $this->pdo->beginTransaction();
+        try {
+            // 4) Crear la venta (sin generar nueva OT)
+            $sp = $this->pdo->prepare("CALL spRegisterVentaConOrden(
+            FALSE, 0, :idpropietario, 0, 0, 0, '', FALSE, NULL,
+            :tipocom, NOW(), :numserie, :numcom, 'SOLES', :idcolaborador
+        )");
+            $numserie = strtoupper(substr($tipocom, 0, 2)) . '-' . date('y');
+            $numcom = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+            $idcolab = $_SESSION['idcolaborador'] ?? 0;
+            $sp->execute([
+                ':idpropietario' => $idprop,
+                ':tipocom' => $tipocom,
+                ':numserie' => $numserie,
+                ':numcom' => $numcom,
+                ':idcolaborador' => $idcolab
+            ]);
+            // Capturar nuevo ID de venta
+            do {
+                $row = $sp->fetch(PDO::FETCH_ASSOC);
+                if (!empty($row['idventa'])) {
+                    $newId = (int) $row['idventa'];
+                    break;
+                }
+            } while ($sp->nextRowset());
+            $sp->closeCursor();
+            if (empty($newId)) {
+                throw new Exception("No se obtuvo el id de la nueva venta.");
+            }
+
+            // 5) Insertar detalle de productos
+            $stmtP = $this->pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
+            foreach ($det['productos'] as $p) {
+                $stmtP->execute([
+                    $newId,
+                    $p['idproducto'],
+                    $p['cantidad'],
+                    $numserie,
+                    $p['precio'],
+                    $p['descuento']
+                ]);
+            }
+
+            // 6) Insertar detalle de servicios
+            $stmtS = $this->pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
+            foreach ($det['servicios'] as $s) {
+                $stmtS->execute([
+                    $s['idorden'],
+                    $s['idservicio'],
+                    $s['idmecanico'],
+                    $s['precio']
+                ]);
+            }
+
+            // 7) Confirmar todo
+            $this->pdo->commit();
+            return $newId;
+
+        } catch (Exception $e) {
+            // Si alguien falló, todo se revierte
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    } */
+
+
+    /* private function getDetallesOt(array $idsOT): array
+    {
+        $in = implode(',', array_fill(0, count($idsOT), '?'));
+        // Productos
+        $sqlP = "SELECT idorden, idproducto, cantidad, precio, descuento
+             FROM detalle_orden_trabajo
+             WHERE idorden IN ($in)";
+        $stmtP = $this->pdo->prepare($sqlP);
+        $stmtP->execute($idsOT);
+        $productos = $stmtP->fetchAll(PDO::FETCH_ASSOC);
+
+        // Servicios
+        $sqlS = "SELECT idorden, idservicio, idmecanico, precio
+             FROM detalle_orden_servicio
+             WHERE idorden IN ($in)";
+        $stmtS = $this->pdo->prepare($sqlS);
+        $stmtS->execute($idsOT);
+        $servicios = $stmtS->fetchAll(PDO::FETCH_ASSOC);
+
+        return ['productos' => $productos, 'servicios' => $servicios];
+    } */
+
 }

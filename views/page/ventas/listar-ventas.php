@@ -9,18 +9,31 @@ require_once "../../partials/header.php";
         color: black;
         /* Cambia solo el color de la letra */
     }
+
+    /* Reduce el padding inferior del header */
+    #miModal .modal-header {
+        padding-bottom: 0.5rem;
+    }
+
+    /* Reduce el padding superior del body */
+    #miModal .modal-body {
+        padding-top: 0.5rem;
+    }
+
+    /* Quita márgenes extra de ese párrafo */
+    #miModal .modal-body>p {
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
 </style>
 <div class="container-main mt-5">
+    <!-- filtros generales (día/semana/mes + fecha + registrar + ver eliminados) -->
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <button type="button" data-modo="dia" class="btn btn-primary text-white">Día</button>
+            <div class="btn-group" role="group" aria-label="Periodo">
+                <button type="button" data-modo="dia" class="btn btn-primary text-white active">Día</button>
                 <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
                 <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
-                <!-- Nuevo botón para ver eliminados -->
-                <!--                 <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white">
-                    <i class="fa-solid fa-eye-slash"></i>
-                </button> -->
                 <button id="btnVerEliminados" type="button" class="btn btn-secondary text-white" title="Ver eliminados"
                     data-estado="A">
                     <i class="fa-solid fa-eye-slash"></i>
@@ -29,39 +42,14 @@ require_once "../../partials/header.php";
                     <i class="fa-solid fa-file-pdf"></i>
                 </button>
             </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="input-group">
-                        <input type="date" class="form-control input" aria-label="Fecha"
-                            aria-describedby="button-addon2" id="Fecha">
-                        <a href="registrar-ventas-orden.php" class="btn btn-success text-center" type="button"
-                            id="button-addon2">Registrar</a>
-                    </div>
-                </div>
+
+            <div class="input-group" style="max-width: 300px;">
+                <input type="date" id="Fecha" class="form-control input" value="<?= date('Y-m-d') ?>">
+                <a href="registrar-ventas-orden.php" class="btn btn-success" id="button-addon2">Registrar</a>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div id="tableDia" class="col-12">
-            <table class="table table-striped display" id="tablaventasdia">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Cliente</th>
-                        <th class="text-center">T. Comprobante</th>
-                        <th class="text-center">N° Comprobante</th>
-                        <th class="text-center">Opciones</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <!-- Aquí se agregan los datos dinámicos -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Agregar aquí la tabla para las ventas eliminadas, inicialmente oculta -->
-    <div id="tableEliminados" class="col-12" style="display: none;">
+    <!-- <div id="tableEliminados" class="col-12" style="display: none;">
         <table class="table table-striped display" id="tablaventaseliminadas">
             <thead>
                 <tr>
@@ -73,12 +61,81 @@ require_once "../../partials/header.php";
                 </tr>
             </thead>
             <tbody class="text-center">
-                <!-- Aquí se agregan los datos dinámicos de eliminados -->
+
             </tbody>
         </table>
-    </div>
-</div>
+    </div> -->
+    <!-- aquí van las pestañas -->
+    <ul class="nav nav-tabs mb-3" id="ventasTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-ventas" data-bs-toggle="tab" data-bs-target="#pane-ventas"
+                type="button" role="tab">
+                Ventas
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-ot" data-bs-toggle="tab" data-bs-target="#pane-ot" type="button"
+                role="tab">
+                orden de trabajo
+            </button>
+        </li>
+    </ul>
 
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="pane-ventas" role="tabpanel">
+            <div id="tableDia">
+                <table class="table table-striped display w-100" id="tablaventasdia">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th class="text-center">T. Comprobante</th>
+                            <th class="text-center">N° Comprobante</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="tableEliminados" style="display:none;">
+                <table class="table table-striped display w-100" id="tablaventaseliminadas">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th class="text-center">T. Comprobante</th>
+                            <th class="text-center">N° Comprobante</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <button id="btnCombinarOT" class="btn btn-primary mb-2" disabled>
+            <i class="fa-solid fa-compress-arrows-alt"></i> Combinar OT
+        </button>
+        <!-- === PESTAÑA OT (orden de trabajo) === -->
+        <div class="tab-pane fade" id="pane-ot" role="tabpanel">
+            <table class="table table-striped display w-100" id="tabla_ot">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th class="text-center">T. Comprobante</th>
+                        <!-- <th class="text-center">F. Hora</th> -->
+                        <th class="text-center">N° Serie</th>
+                        <th>Combinar</th>
+                        <th class="text-center">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div><!-- /.tab-content -->
+</div><!-- /.container-main -->
+</div>
 </div>
 </div>
 <!--FIN VENTAS-->
@@ -276,7 +333,7 @@ require_once "../../partials/_footer.php";
                         </tr>`);
                     });
                     // Campos generales
-                    $("#modeloInput").val(productos[0].cliente);
+                    $("#modeloInput").val(productos[0].cliente || 'Sin Cliente');
                     $("#fechaHora").val(productos[0].fechahora);
                     $("#vehiculo").val(productos[0].vehiculo || 'Sin vehículo');
                     $("#kilometraje").val(productos[0].kilometraje || 'Sin kilometraje');
@@ -362,17 +419,62 @@ require_once "../../partials/_footer.php";
     const btnSemana = document.querySelector('button[data-modo="semana"]');
     const btnMes = document.querySelector('button[data-modo="mes"]');
     const filtros = [btnDia, btnSemana, btnMes];
+    let tablaOT;
 
+    // — 2) función para cargar OT según periodo/fecha —
+    function cargarTablaOT(modo, fecha) {
+        if ($.fn.DataTable.isDataTable("#tabla_ot")) {
+            tablaOT.destroy();
+            $("#tabla_ot tbody").empty();
+        }
+
+        tablaOT = $("#tabla_ot").DataTable({
+            ajax: {
+                url: "<?= SERVERURL ?>app/controllers/Venta.controller.php",
+                data: {
+                    action: "ot_por_periodo",
+                    modo: modo,
+                    fecha: fecha
+                },
+                dataSrc: "data"
+            },
+            columns: [
+                { data: null, render: (_, __, ___, meta) => meta.row + 1 },   // #
+                { data: "cliente", className: "text-start", defaultContent: "Sin cliente" },        // Cliente
+                { data: "tipocom", className: "text-center" },        // F. Hora
+                { data: "numserie", className: "text-center" },        // N° Serie
+                {
+                    data: null,
+                    orderable: false,
+                    className: "select-checkbox text-center",
+                    render: (row, type, set, meta) =>
+                        `<input type="checkbox" class="select-ot" data-id="${row.id}" data-prop="${row.propietario}">`
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    className: "text-center",
+                    render: row => `
+          <button class="btn btn-sm btn-info"
+                  onclick="verDetalleVenta(${row.id});"
+                  title="Detalle OT">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </button>`
+                }
+            ],
+            language: {
+                emptyTable: "No hay OT en este periodo"
+            }
+        });
+    }
     function marcarActivo(btn) {
         filtros.forEach(b => b.classList.toggle('active', b === btn));
     }
-
     function cargarTablaVentas(modo, fecha) {
         if (tablaVentas) {
             tablaVentas.destroy();
             $("#tablaventasdia tbody").empty();
         }
-
         tablaVentas = $("#tablaventasdia").DataTable({
             ajax: {
                 url: "<?= SERVERURL ?>app/controllers/Venta.controller.php",
@@ -386,7 +488,7 @@ require_once "../../partials/_footer.php";
                 }, // Cierra columna 1
                 { // Columna 2: cliente
                     data: "cliente",
-                    defaultContent: "No disponible",
+                    defaultContent: "Sin cliente",
                     class: 'text-start'
                 }, // Cierra columna 2
                 { // Columna 3: tipo de comprobante
@@ -418,7 +520,6 @@ require_once "../../partials/_footer.php";
             }
         }); // Cierra DataTable inicialización
     } // Cierra cargarTablaVehiculos()
-
     // Carga la tabla de registros eliminados
     function cargarVentasEliminadas() {
         if ($.fn.DataTable.isDataTable("#tablaventaseliminadas")) {
@@ -514,23 +615,25 @@ require_once "../../partials/_footer.php";
         const hoy = new Date().toISOString().slice(0, 10);
         fechaInput.value = hoy;
         let currentModo = 'dia';
+
         marcarActivo(btnDia);
         cargarTablaVentas(currentModo, hoy);
+        cargarTablaOT(currentModo, hoy);
 
-        // clicks en filtros
         filtros.forEach(btn => {
-            btn.addEventListener("click", () => {
+            btn.addEventListener('click', () => {
                 currentModo = btn.dataset.modo;
                 marcarActivo(btn);
                 cargarTablaVentas(currentModo, fechaInput.value);
+                cargarTablaOT(currentModo, fechaInput.value);
             });
         });
 
-        // cambio de fecha → día
-        fechaInput.addEventListener("change", () => {
+        fechaInput.addEventListener('change', () => {
             currentModo = 'dia';
             marcarActivo(btnDia);
             cargarTablaVentas(currentModo, fechaInput.value);
+            cargarTablaOT(currentModo, fechaInput.value);
         });
 
         // eliminación con justificación
@@ -556,6 +659,54 @@ require_once "../../partials/_footer.php";
                     showToast(res.message || 'Error', 'ERROR', 1500);
                 }
             }, 'json');
+        });
+        const $btnCombinar = $('#btnCombinarOT'),
+            $tablaOT = $('#tabla_ot');
+
+        // cada vez que (re)señalas un checkbox:
+        $(document).on('change', '.select-ot', () => {
+            const seleccionadas = $('.select-ot:checked');
+            if (seleccionadas.length < 2) {
+                // al menos 2 para combinar
+                $btnCombinar.prop('disabled', true);
+            } else {
+                // extrae todos los propietarios
+                const props = seleccionadas.map((i, el) => $(el).data('prop')).get();
+                const todosIguales = props.every(p => p === props[0]);
+                $btnCombinar.prop('disabled', !todosIguales);
+            }
+        });
+        // Mostrar modal
+        $btnCombinar.on('click', () => {
+            const count = $('.select-ot:checked').length;
+            $('#countOT').text(count);
+            new bootstrap.Modal($('#modalCombinarOT')).show();
+        });
+
+        // Al enviar formulario
+        $('#formCombinarOT').on('submit', async function (e) {
+            e.preventDefault();
+            const idsOT = $('.select-ot:checked').map((i, el) => $(el).data('id')).get();
+            const tipocom = $('#comboTipocom').val();
+
+            const res = await fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'combinar_ot',   // <<< aquí
+                    ids_ot: idsOT,
+                    tipocom: tipocom
+                })
+            });
+            const js = await res.json();
+            if (js.status === 'success') {
+                showToast('Venta creada con éxito (ID: ' + js.idventa + ')', 'SUCCESS');
+                cargarTablaOT(currentModo, fechaInput.value);      // recarga OT
+                cargarTablaVentas(currentModo, fechaInput.value); // recarga Ventas
+                $('#modalCombinarOT').modal('hide');
+            } else {
+                showToast(js.message || 'Error al combinar OT', 'ERROR');
+            }
         });
 
         // guardar amortización
@@ -598,6 +749,32 @@ require_once "../../partials/_footer.php";
 
     });
 </script>
+
+<!-- Modal Combinar OT -->
+<div class="modal fade" id="modalCombinarOT" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="formCombinarOT" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Combinar Órdenes de Trabajo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Vas a combinar <span id="countOT"></span> OT para el mismo propietario.</p>
+                <div class="mb-3">
+                    <label class="form-label">Tipo de comprobante</label>
+                    <select id="comboTipocom" class="form-select" required>
+                        <option value="boleta">Boleta</option>
+                        <option value="factura">Factura</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-sm">Confirmar</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Modal Amortización -->
 <div class="modal fade" id="modalAmortizar" tabindex="-1">
@@ -653,7 +830,7 @@ require_once "../../partials/_footer.php";
 
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 950px;" style="margin-top: 20px;">
+    <div class="modal-dialog" style="max-width: 950px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Venta</h5>
@@ -709,8 +886,8 @@ require_once "../../partials/_footer.php";
                                 <th>#</th>
                                 <th>Productos</th>
                                 <th>Cantidad</th>
-                                <th>Precio</th>
-                                <th>Descuento</th>
+                                <th>Precio UNT</th>
+                                <th>Descuento UNT</th>
                                 <th>T. producto</th>
                             </tr>
                         </thead>

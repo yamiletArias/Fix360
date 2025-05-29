@@ -33,7 +33,7 @@ END$$
 	  IN _observaciones VARCHAR(255),
 	  IN _ingresogrua   BOOLEAN,
 	  IN _fechaingreso  DATETIME,
-	  IN _tipocom       ENUM('boleta','factura'),
+	  IN _tipocom ENUM('boleta','factura','orden de trabajo'),
 	  IN _fechahora     DATETIME,
 	  IN _numserie      VARCHAR(10),
 	  IN _numcom        VARCHAR(10),
@@ -90,8 +90,8 @@ END$$
 		justificacion,
 		estado
 	  ) VALUES (
-		_idcliente,
-		_idpropietario,
+		NULLIF(_idcliente,0),       -- convierte 0 en NULL
+		NULLIF(_idpropietario,0),   -- convierte 0 en NULL
 		_idcolaborador,
 		NULLIF(_idvehiculo,0),
 		_tipocom,
@@ -879,6 +879,53 @@ CREATE PROCEDURE spListVentasPorPeriodo(
 BEGIN
   DECLARE start_date DATE;
   DECLARE end_date   DATE;
+  -- Calcular rango segun modo
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;  
+  END IF;
+
+  SELECT
+    v.idventa    AS id,
+    COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+    v.tipocom,
+    v.numcom,
+    vt.total_pendiente,
+    CASE 
+      WHEN vt.total_pendiente = 0 THEN 'pagado' 
+      ELSE 'pendiente' 
+    END AS estado_pago
+  FROM ventas v
+  LEFT JOIN clientes c 
+    ON v.idcliente = c.idcliente
+  LEFT JOIN personas p 
+    ON c.idpersona = p.idpersona
+  LEFT JOIN empresas e 
+    ON c.idempresa = e.idempresa
+  LEFT JOIN vista_saldos_por_venta vt 
+    ON v.idventa = vt.idventa
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado = TRUE
+    -- excluyo OT, solo boleta y factura:
+    AND v.tipocom IN ('boleta','factura')
+  ORDER BY v.fechahora;
+END$$
+DELIMITER ;
+/*DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListVentasPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
   IF _modo = 'semana' THEN
     SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
     SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
@@ -897,14 +944,14 @@ BEGIN
     vt.total_pendiente,
     CASE WHEN vt.total_pendiente = 0 THEN 'pagado' ELSE 'pendiente' END AS estado_pago
   FROM ventas v
-    JOIN clientes c      ON v.idcliente  = c.idcliente
+LEFT JOIN clientes c ON v.idcliente = c.idcliente
     LEFT JOIN personas p ON c.idpersona  = p.idpersona
     LEFT JOIN empresas e ON c.idempresa  = e.idempresa
-    JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
+LEFT JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
     AND v.estado = TRUE
   ORDER BY v.fechahora;
-END$$
+END$$*/
 
 -- 14) PROCEDIMIENTO PARA DATOS DE COMPRA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListComprasPorPeriodo;
