@@ -88,6 +88,7 @@ require_once "../../partials/header.php";
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Propietario</th>
                             <th>Cliente</th>
                             <th class="text-center">T. Comprobante</th>
                             <th class="text-center">N° Comprobante</th>
@@ -113,15 +114,17 @@ require_once "../../partials/header.php";
             </div>
         </div>
 
-        <button id="btnCombinarOT" class="btn btn-primary mb-2" disabled>
-            <i class="fa-solid fa-compress-arrows-alt"></i> Combinar OT
-        </button>
+
         <!-- === PESTAÑA OT (orden de trabajo) === -->
         <div class="tab-pane fade" id="pane-ot" role="tabpanel">
+            <button id="btnCombinarOT" class="btn btn-primary mb-2" disabled>
+                <i class="fa-solid fa-compress-arrows-alt"></i> Combinar OT
+            </button>
             <table class="table table-striped display w-100" id="tabla_ot">
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Propietario</th>
                         <th>Cliente</th>
                         <th class="text-center">T. Comprobante</th>
                         <!-- <th class="text-center">F. Hora</th> -->
@@ -440,6 +443,7 @@ require_once "../../partials/_footer.php";
             },
             columns: [
                 { data: null, render: (_, __, ___, meta) => meta.row + 1 },   // #
+                { data: "propietario", className: "text-start", defaultContent: "Sin propietario" },
                 { data: "cliente", className: "text-start", defaultContent: "Sin cliente" },        // Cliente
                 { data: "tipocom", className: "text-center" },        // F. Hora
                 { data: "numserie", className: "text-center" },        // N° Serie
@@ -448,24 +452,43 @@ require_once "../../partials/_footer.php";
                     orderable: false,
                     className: "select-checkbox text-center",
                     render: (row, type, set, meta) =>
-                        `<input type="checkbox" class="select-ot" data-id="${row.id}" data-prop="${row.propietario}">`
+                        `<input type="checkbox" class="select-ot" data-id="${row.id}" data-prop="${row.idpropietario}">`
                 },
                 {
                     data: null,
-                    orderable: false,
                     className: "text-center",
-                    render: row => `
-          <button class="btn btn-sm btn-info"
-                  onclick="verDetalleVenta(${row.id});"
-                  title="Detalle OT">
-            <i class="fa-solid fa-clipboard-list"></i>
-          </button>`
+                    render: renderOpciones2
                 }
             ],
             language: {
                 emptyTable: "No hay OT en este periodo"
             }
         });
+    }
+
+    function renderOpciones2(data, type, row) {
+        const pagado = row.estado_pago === 'pagado';
+        const btnAmort = pagado
+            ? `<button class="btn btn-success btn-sm" disabled><i class="fa-solid fa-check"></i></button>`
+            : `<button title="Amortizacion" class="btn btn-warning btn-sm btn-amortizar"
+         data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#modalAmortizar">
+         <i class="fa-solid fa-dollar-sign"></i>
+       </button>`;
+
+        return `
+        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+        <i class="fa-solid fa-trash"></i>
+        </button>
+        ${btnAmort}
+        <button class="btn btn-sm btn-info"
+                onclick="verDetalleVenta(${row.id});"
+                title="Detalle OT">
+            <i class="fa-solid fa-clipboard-list"></i>
+        </button>
+        <button title="Pdf" class="btn btn-outline-dark btn-sm btn-descargar-pdf"
+                onclick="descargarPDF('${row.id}')">
+        <i class="fa-solid fa-file-pdf"></i>
+        </button>`;
     }
     function marcarActivo(btn) {
         filtros.forEach(b => b.classList.toggle('active', b === btn));
@@ -486,6 +509,11 @@ require_once "../../partials/_footer.php";
                     data: null,
                     render: (data, type, row, meta) => meta.row + 1
                 }, // Cierra columna 1
+                { // Columna 2: cliente
+                    data: "propietario",
+                    defaultContent: "Sin cliente",
+                    class: 'text-start'
+                },
                 { // Columna 2: cliente
                     data: "cliente",
                     defaultContent: "Sin cliente",
@@ -585,18 +613,19 @@ require_once "../../partials/_footer.php";
         const btnAmort = pagado
             ? `<button class="btn btn-success btn-sm" disabled><i class="fa-solid fa-check"></i></button>`
             : `<button title="Amortizacion" class="btn btn-warning btn-sm btn-amortizar"
-         data-id="${row.id}" data-bs-toggle="modal" data-bs-target="#modalAmortizar">
+         data-id="${row.idventa}"
+         data-bs-toggle="modal" data-bs-target="#modalAmortizar">
          <i class="fa-solid fa-dollar-sign"></i>
        </button>`;
 
         return `
-        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
-        <i class="fa-solid fa-trash"></i>
-        </button>
+        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.idventa}">
+      <i class="fa-solid fa-trash"></i>
+    </button>
         ${btnAmort}
         <button title="Detalle de la venta" class="btn btn-info btn-sm btn-detalle"
                 data-action="detalle"
-                data-id="${row.id}"
+                data-id="${row.idventa}"
                 data-bs-toggle="modal"
                 data-bs-target="#miModal">
             <i class='fa-solid fa-clipboard-list'></i>
@@ -610,6 +639,7 @@ require_once "../../partials/_footer.php";
         const url = `<?= SERVERURL ?>app/reports/reporteventa.php?idventa=${encodeURIComponent(idventa)}`;
         window.open(url, '_blank');
     }
+
     document.addEventListener("DOMContentLoaded", () => {
         // inicializo fecha de hoy
         const hoy = new Date().toISOString().slice(0, 10);
@@ -693,7 +723,7 @@ require_once "../../partials/_footer.php";
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'combinar_ot',   // <<< aquí
+                    action: 'combinar_ot',
                     ids_ot: idsOT,
                     tipocom: tipocom
                 })
@@ -701,8 +731,25 @@ require_once "../../partials/_footer.php";
             const js = await res.json();
             if (js.status === 'success') {
                 showToast('Venta creada con éxito (ID: ' + js.idventa + ')', 'SUCCESS');
-                cargarTablaOT(currentModo, fechaInput.value);      // recarga OT
-                cargarTablaVentas(currentModo, fechaInput.value); // recarga Ventas
+
+                // 1) Carga de nuevo las OT y ventas si quieres…
+                cargarTablaOT(currentModo, fechaInput.value);
+                cargarTablaVentas(currentModo, fechaInput.value);
+
+                // 2) Pero inmediatamente también puedes actualizar en la tabla existente:
+                const dt = tablaVentas; // tu instancia de DataTable
+                // Para cada checkbox seleccionado, buscamos la fila y actualizamos sus datos:
+                $('.select-ot:checked').each(function () {
+                    const $tr = $(this).closest('tr');
+                    const row = dt.row($tr);
+                    const data = row.data();
+                    data.tipocom = tipocom;          // opcional: uniformizar el tipo
+                    data.numserie = js.numserie;     // nueva serie
+                    data.numcom = js.numcom;      // nuevo comprobante
+                    row.data(data).invalidate();     // marca la fila para re-render
+                });
+                dt.draw(false);  // redibuja sin resetear paginación
+
                 $('#modalCombinarOT').modal('hide');
             } else {
                 showToast(js.message || 'Error al combinar OT', 'ERROR');
@@ -770,9 +817,27 @@ require_once "../../partials/_footer.php";
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary btn-sm">Confirmar</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-combinar-ot">Confirmar</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVerJustificacion" tabindex="-1" aria-labelledby="modalJustificacionLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalJustificacionLabel">Justificación de la eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="contenidoJustificacion">
+                <!-- Aquí se insertará dinámicamente la justificación -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -805,24 +870,6 @@ require_once "../../partials/_footer.php";
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
                 <button id="btnGuardarAmortizacion" type="button" class="btn btn-primary btn-sm">Guardar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalVerJustificacion" tabindex="-1" aria-labelledby="modalJustificacionLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalJustificacionLabel">Justificación de la eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body" id="contenidoJustificacion">
-                <!-- Aquí se insertará dinámicamente la justificación -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

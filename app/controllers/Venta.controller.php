@@ -51,8 +51,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
       exit;
     }
 
-
-
     // 4) Listado por periodo (dia / semana / mes) de todas las ventas
     if (isset($_GET['modo'], $_GET['fecha']) && !isset($_GET['action'])) {
       $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true)
@@ -155,11 +153,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
     exit;
 
   case 'POST':
+    
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true) ?? $_POST;
     $action = $data['action'] ?? '';
 
-/* // 1) Combinar OT
+    // 1) Combinar OT
     if ($action === 'combinar_ot') {
         $ids    = is_array($data['ids_ot']) ? $data['ids_ot'] : [];
         $tipo   = trim($data['tipocom'] ?? '');
@@ -171,7 +170,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             echo json_encode(['status' => 'error',   'message' => $e->getMessage()]);
         }
         exit;
-    } */
+    }
 
     // 10) Anulación de venta (soft‑delete) con justificación
     if (isset($data['action'], $data['idventa']) && $data['action'] === 'eliminar') {
@@ -189,9 +188,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $conOrden = !empty($data['servicios']);
 
     // Mapeo a NULL si está vacío
-    $idpropietario = (isset($data['idpropietario']) && $data['idpropietario'] !== '')
+    /* $idpropietario = (isset($data['idpropietario']) && $data['idpropietario'] !== '')
       ? (int) $data['idpropietario']
-      : null;
+      : null; */
     $idcliente = (isset($data['idcliente']) && $data['idcliente'] !== '')
       ? (int) $data['idcliente']
       : null;
@@ -199,7 +198,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $params = [
       'conOrden' => $conOrden,
       'idcolaborador' => $_SESSION['login']['idcolaborador'],
-      'idpropietario' => $idpropietario,
+      'idpropietario' => $data['idpropietario'] ?? 0,
       'idcliente' => $idcliente,
       'idvehiculo' => !empty($data['idvehiculo']) ? (int) $data['idvehiculo'] : null,
       'kilometraje' => floatval($data['kilometraje'] ?? 0),

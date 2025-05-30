@@ -17,100 +17,209 @@ BEGIN
   SELECT LAST_INSERT_ID() AS idempresa;
 END$$
 
-	DELIMITER ;	
+DELIMITER ;	
 
-	-- registro de venta con orden
-	DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
-	DELIMITER $$
+-- registro de venta con orden
 
-	CREATE PROCEDURE spRegisterVentaConOrden (
-	  IN _conOrden      BOOLEAN,
-	  IN _idadmin       INT,
-	  IN _idpropietario INT,
-	  IN _idcliente     INT,
-	  IN _idvehiculo    INT,
-	  IN _kilometraje   DECIMAL(10,2),
-	  IN _observaciones VARCHAR(255),
-	  IN _ingresogrua   BOOLEAN,
-	  IN _fechaingreso  DATETIME,
-	  IN _tipocom ENUM('boleta','factura','orden de trabajo'),
-	  IN _fechahora     DATETIME,
-	  IN _numserie      VARCHAR(10),
-	  IN _numcom        VARCHAR(10),
-	  IN _moneda        VARCHAR(20),
-	  IN _idcolaborador INT
-	)
-	BEGIN
-	  DECLARE v_idorden INT DEFAULT NULL;
-	  DECLARE v_idventa INT DEFAULT 0;
-	  DECLARE v_fechaing DATETIME;
+DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
+DELIMITER $$
 
-	  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
+CREATE PROCEDURE spRegisterVentaConOrden (
+  IN _conOrden        BOOLEAN,
+  IN _idadmin         INT,
+  IN _idpropietario   INT,
+  IN _idcliente       INT,
+  IN _idvehiculo      INT,
+  IN _kilometraje     DECIMAL(10,2),
+  IN _observaciones   VARCHAR(255),
+  IN _ingresogrua     BOOLEAN,
+  IN _fechaingreso    DATETIME,
+  IN _tipocom         ENUM('boleta','factura','orden de trabajo'),
+  IN _fechahora       DATETIME,
+  IN _numserie        VARCHAR(10),
+  IN _numcom          VARCHAR(10),
+  IN _moneda          VARCHAR(20),
+  IN _idcolaborador   INT
+)
+BEGIN
+  DECLARE v_idorden INT DEFAULT NULL;
+  DECLARE v_idventa INT DEFAULT NULL;
+  DECLARE v_fechaing DATETIME;
+  DECLARE v_idexpediente_ot INT DEFAULT NULL;
 
-	  -- 1) Inserta orden de servicio si corresponde
-	  IF _conOrden THEN
-		INSERT INTO ordenservicios (
-		  idadmin,
-		  idpropietario,
-		  idcliente,
-		  idvehiculo,
-		  kilometraje,
-		  observaciones,
-		  ingresogrua,
-		  fechaingreso,
-		  fechasalida,
-		  estado
-		) VALUES (
-		  _idadmin,
-		  _idpropietario,
-		  _idcliente,
-		  _idvehiculo,
-		  _kilometraje,
-		  _observaciones,
-		  _ingresogrua,
-		  v_fechaing,
-		  NULL,
-		  'A'
-		);
-		SET v_idorden = LAST_INSERT_ID();
-	  END IF;
+  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
 
-	  -- 2) Inserta venta
-	  INSERT INTO ventas (
-		idcliente,
-		idpropietario,
-		idcolaborador,
-		idvehiculo,
-		tipocom,
-		fechahora,
-		numserie,
-		numcom,
-		moneda,
-		kilometraje,
-		justificacion,
-		estado
-	  ) VALUES (
-		NULLIF(_idcliente,0),       -- convierte 0 en NULL
-		NULLIF(_idpropietario,0),   -- convierte 0 en NULL
-		_idcolaborador,
-		NULLIF(_idvehiculo,0),
-		_tipocom,
-		_fechahora,
-		_numserie,
-		_numcom,
-		_moneda,
-		NULLIF(_kilometraje,0),
-		NULL,
-		TRUE
-	  );
-	  SET v_idventa = LAST_INSERT_ID();
+  -- 1) Si es orden de trabajo, crear expediente_ot
+  IF _tipocom = 'orden de trabajo' THEN
+    INSERT INTO expediente_ot (
+      idcliente,
+      idvehiculo
+    ) VALUES (
+      NULLIF(_idcliente,0),
+      NULLIF(_idvehiculo,0)
+    );
+    SET v_idexpediente_ot = LAST_INSERT_ID();
+  END IF;
 
-	  -- 3) Devuelve IDs
-	  SELECT v_idventa AS idventa,
-			 v_idorden AS idorden;
-	END$$
+  -- 2) Inserta orden de servicio si corresponde
+  IF _conOrden THEN
+    INSERT INTO ordenservicios (
+      idadmin,
+      idpropietario,
+      idcliente,
+      idvehiculo,
+      kilometraje,
+      observaciones,
+      ingresogrua,
+      fechaingreso,
+      fechasalida,
+      estado
+    ) VALUES (
+      _idadmin,
+      _idpropietario,
+      _idcliente,
+      _idvehiculo,
+      _kilometraje,
+      _observaciones,
+      _ingresogrua,
+      v_fechaing,
+      NULL,
+      'A'
+    );
+    SET v_idorden = LAST_INSERT_ID();
+  END IF;
 
-	DELIMITER ;
+  -- 3) Inserta venta incluyendo idexpediente_ot si lo creamos
+  INSERT INTO ventas (
+    idcliente,
+    idpropietario,
+    idcolaborador,
+    idvehiculo,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda,
+    idexpediente_ot,
+    kilometraje,
+    justificacion,
+    estado
+  ) VALUES (
+    NULLIF(_idcliente,0),
+    _idpropietario,
+    _idcolaborador,
+    NULLIF(_idvehiculo,0),
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda,
+    v_idexpediente_ot,
+    NULLIF(_kilometraje,0),
+    NULL,
+    TRUE
+  );
+  SET v_idventa = LAST_INSERT_ID();
+  -- 4) Devuelve IDs
+  SELECT v_idventa AS idventa,
+         v_idorden AS idorden;
+END$$
+DELIMITER ;
+
+/*DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
+DELIMITER $$
+
+CREATE PROCEDURE spRegisterVentaConOrden (
+  IN _conOrden      BOOLEAN,
+  IN _idadmin       INT,
+  IN _idpropietario INT,
+  IN _idcliente     INT,
+  IN _idvehiculo    INT,
+  IN _kilometraje   DECIMAL(10,2),
+  IN _observaciones VARCHAR(255),
+  IN _ingresogrua   BOOLEAN,
+  IN _fechaingreso  DATETIME,
+  IN _tipocom ENUM('boleta','factura','orden de trabajo'),
+  IN _fechahora     DATETIME,
+  IN _numserie      VARCHAR(10),
+  IN _numcom        VARCHAR(10),
+  IN _moneda        VARCHAR(20),
+  IN _idcolaborador INT
+)
+BEGIN
+  DECLARE v_idorden INT DEFAULT NULL;
+  DECLARE v_idventa INT DEFAULT 0;
+  DECLARE v_fechaing DATETIME;
+  
+
+  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
+
+  -- 1) Inserta orden de servicio si corresponde
+  IF _conOrden THEN
+	INSERT INTO ordenservicios (
+	  idadmin,
+	  idpropietario,
+	  idcliente,
+	  idvehiculo,
+	  kilometraje,
+	  observaciones,
+	  ingresogrua,
+	  fechaingreso,
+	  fechasalida,
+	  estado
+	) VALUES (
+	  _idadmin,
+	  _idpropietario,
+	  _idcliente,
+	  _idvehiculo,
+	  _kilometraje,
+	  _observaciones,
+	  _ingresogrua,
+	  v_fechaing,
+	  NULL,
+	  'A'
+	);
+	SET v_idorden = LAST_INSERT_ID();
+  END IF;
+
+  -- 2) Inserta venta
+  INSERT INTO ventas (
+	idcliente,
+	idpropietario,
+	idcolaborador,
+	idvehiculo,
+	tipocom,
+	fechahora,
+	numserie,
+	numcom,
+	moneda,
+	kilometraje,
+	justificacion,
+	estado
+  ) VALUES (
+	NULLIF(_idcliente,0),       -- convierte 0 en NULL
+	_idpropietario,   -- convierte 0 en NULL
+	_idcolaborador,
+	NULLIF(_idvehiculo,0),
+	_tipocom,
+	_fechahora,
+	_numserie,
+	_numcom,
+	_moneda,
+	NULLIF(_kilometraje,0),
+	NULL,
+	TRUE
+  );
+  SET v_idventa = LAST_INSERT_ID();
+
+  -- 3) Devuelve IDs
+  SELECT v_idventa AS idventa,
+		 v_idorden AS idorden;
+END$$
+
+DELIMITER ;
+*/
+
 /*
 SELECT
   v.idventa,
@@ -868,6 +977,9 @@ BEGIN
   COMMIT;
 END$$
 DELIMITER ;
+
+-- PROCEDIMIENTO PARA DATOS DE ORDEN DE TRABAJO (OT)
+
 
 -- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;

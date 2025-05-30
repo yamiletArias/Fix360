@@ -1,4 +1,4 @@
-<!-- VISTA REAL -->
+<!-- VISTA de prueba con OT -->
 <?php
 const NAMEVIEW = "Ventas | Registro";
 require_once "../../../app/helpers/helper.php";
@@ -32,6 +32,11 @@ require_once "../../partials/header.php";
               <input class="form-check-input text-start" type="radio" name="tipo" value="boleta"
                 onclick="inicializarCampos()" checked>
               Boleta
+            </label>
+            <label style="padding-left: 10px;">
+              <input class="form-check-input text-start" type="radio" name="tipo" value="orden de trabajo"
+                onclick="inicializarCampos()">
+              OT
             </label>
           </div>
           <!-- N° serie y N° comprobante -->
@@ -515,104 +520,3 @@ require_once "../../partials/_footer.php";
 </body>
 
 </html>
-<!-- <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // — variables del modal de Propietario —
-    const selectMetodo = document.getElementById("selectMetodo");
-    const vbuscado = document.getElementById("vbuscado");
-    const tablaRes = document.getElementById("tabla-resultado").getElementsByTagName("tbody")[0];
-    const hiddenIdPropietario = document.getElementById("hiddenIdPropietario");
-    const hiddenIdCliente     = document.getElementById("hiddenIdCliente");
-    const vehiculoSelect = document.getElementById("vehiculo");
-    const inputProp = document.getElementById("propietario");
-    
-    let propietarioTimer;
-    // --- NUEVO: cargarVehiculos y listener ---
-    function cargarVehiculos() {
-      const id = hiddenIdCliente.value;
-      vehiculoSelect.innerHTML = '<option value="">Sin vehículo</option>';
-      if (!id) return;
-      fetch(`${FIX360_BASE_URL}app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${encodeURIComponent(id)}`)
-        .then(res => res.json())
-        .then(data => {
-          // Agregar opciones
-          data.forEach(item => {
-            const opt = document.createElement("option");
-            opt.value = item.idvehiculo;
-            opt.textContent = item.vehiculo;
-            vehiculoSelect.appendChild(opt);
-          });
-          // Si hay al menos un vehículo, seleccionamos el primero
-          if (data.length > 0) {
-            // data[0].idvehiculo es el id del primer vehículo
-            vehiculoSelect.value = data[0].idvehiculo;
-          }
-        })
-        .catch(err => console.error("Error al cargar vehículos:", err));
-    }
-    hiddenIdCliente.addEventListener("change", cargarVehiculos);
-    // — FIN cargarVehiculos —
-    // 1) Actualiza las opciones de búsqueda según Persona / Empresa
-    window.actualizarOpciones = function () {
-      const esEmpresa = document.getElementById("rbtnempresa").checked;
-      // redefinimos los métodos disponibles
-      selectMetodo.innerHTML = esEmpresa
-        ? '<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>'
-        : '<option value="dni">DNI</option><option value="nombre">Apellidos y Nombres</option>';
-    };
-    // 2) Función que invoca al controlador y pinta resultados
-    window.buscarPropietario = function () {
-      const tipo = document.querySelector('input[name="tipoBusqueda"]:checked').id === 'rbtnempresa' ? 'empresa' : 'persona';
-      const metodo = selectMetodo.value;
-      const valor = vbuscado.value.trim();
-      if (!valor) {
-        tablaRes.innerHTML = '';
-        return;
-      }
-      fetch(`http://localhost/fix360/app/controllers/propietario.controller.php?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`)
-        .then(r => r.json())
-        .then(data => {
-          tablaRes.innerHTML = '';
-          data.forEach((item, i) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td>${item.nombre}</td>
-            <td>${item.documento}</td>
-            <td>
-              <button class="btn btn-success btn-sm" data-id="${item.idcliente}">
-                <i class="fa-solid fa-circle-check"></i>
-              </button>
-            </td>`;
-            tablaRes.appendChild(tr);
-          });
-        })
-        .catch(console.error);
-    };
-    // 3) Dispara búsqueda con debounce al tipear o cambiar método
-    vbuscado.addEventListener('input', () => {
-      clearTimeout(propietarioTimer);
-      propietarioTimer = setTimeout(buscarPropietario, 300);
-    });
-    selectMetodo.addEventListener('change', () => {
-      clearTimeout(propietarioTimer);
-      propietarioTimer = setTimeout(buscarPropietario, 300);
-    });
-    
-    // 4) Cuando el usuario hace click en “✔” asignamos ID y nombre, y cerramos modal
-    document.querySelector("#tabla-resultado").addEventListener("click", function (e) {
-      const btn = e.target.closest(".btn-success");
-      if (!btn) return;
-      const id = btn.getAttribute("data-id");
-      const nombre = btn.closest("tr").cells[1].textContent;
-      hiddenIdPropietario.value = id;
-      inputProp.value           = nombre;
-      // disparar evento change para que cargue vehículos, si aplica
-      hiddenIdCli.dispatchEvent(new Event("change"));
-      // cerrar modal
-      document.querySelector("#miModal .btn-close").click();
-    });
-    // Inicializamos las opciones al abrir el modal
-    actualizarOpciones();
-  });
-</script> -->

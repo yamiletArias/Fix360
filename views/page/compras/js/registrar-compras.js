@@ -110,14 +110,14 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("Este producto ya ha sido agregado.");
             return resetCamposProducto();
         }
-        const stockDisponible = selectedProduct.stock || 0;
+        /* const stockDisponible = selectedProduct.stock || 0;
         if (cantidadProducto > stockDisponible) {
             alert(
                 `No puedes pedir ${cantidadProducto} unidades; solo hay ${stockDisponible} en stock.`
             );
             inputCantidad.value = stockDisponible || 1;
             return;
-        }
+        } */
 
         // 4) Cálculo de importe unitario descontado y total
         const netoUnit = precioProducto - descuentoProducto;
@@ -135,9 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
             <input type="number"
                   class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                  value="${cantidadProducto}"
-                  min="1"
-                  max="${stockDisponible}">
+                  value="${cantidadProducto}">
             <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
           </div>
         </td>

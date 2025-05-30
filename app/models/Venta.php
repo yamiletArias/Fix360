@@ -1,5 +1,6 @@
 <?php
 require_once "../models/Conexion.php";
+require_once __DIR__ . '/Amortizacion.php';
 
 class Venta extends Conexion
 {
@@ -445,42 +446,63 @@ class Venta extends Conexion
         }
     }
 
-    /* public function combinarOtYCrearVenta(array $idsOT, string $tipocom): int
+/*     public function getDetalleCompleto(int $idventa): array
+    {
+        $sql = "SELECT * FROM vista_detalle_venta WHERE idventa = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idventa]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+ */
+    public function combinarOtYCrearVenta(array $idsOT, string $tipocom): int
     {
         if (count($idsOT) < 2) {
             throw new Exception("Debes combinar al menos dos OT.");
         }
 
-        // 1) Validar propietario único
-        $in = implode(',', array_fill(0, count($idsOT), '?'));
-        $stmt = $this->pdo->prepare("
-        SELECT DISTINCT idpropietario 
-        FROM ventas 
-        WHERE idventa IN ($in)
-          AND tipocom = 'orden de trabajo'
-          AND estado = TRUE
-    ");
+        // 1) Validar propietario
+        $placeholders = implode(',', array_fill(0, count($idsOT), '?'));
+        $sql = "
+        SELECT 
+            COUNT(DISTINCT idpropietario) AS cnt,
+            MIN(idpropietario)            AS idprop
+        FROM ventas
+        WHERE idventa IN ($placeholders)
+            AND tipocom = 'orden de trabajo'
+            AND estado = TRUE
+        ";
+        $stmt = $this->pdo->prepare($sql);
         $stmt->execute($idsOT);
-        $props = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        if (count($props) !== 1) {
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ((int) $row['cnt'] !== 1) {
             throw new Exception("Todas las OT deben pertenecer al mismo propietario.");
         }
-        $idprop = (int) $props[0];
+        $idprop = (int) $row['idprop'];
 
-        // 2) Traer detalles reales de esas OT
-        $det = $this->getDetallesOt($idsOT);  // debe devolver ['productos'=>…, 'servicios'=>…]
+        // 2) Recoger amortizaciones previas
+        $sqlAm = "
+        SELECT numtransaccion, amortizacion, idformapago
+        FROM amortizaciones
+        WHERE idventa IN ($placeholders)
+        ";
+        $stmtAm = $this->pdo->prepare($sqlAm);
+        $stmtAm->execute($idsOT);
+        $amortPrevias = $stmtAm->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3) Iniciar transacción
+        // 3) Detalles de productos y servicios
+        $det = $this->getDetallesOt($idsOT);
+
+        // 4) Iniciar transacción
         $this->pdo->beginTransaction();
         try {
-            // 4) Crear la venta (sin generar nueva OT)
+            // 4.1) Crear la venta combinada
             $sp = $this->pdo->prepare("CALL spRegisterVentaConOrden(
-            FALSE, 0, :idpropietario, 0, 0, 0, '', FALSE, NULL,
-            :tipocom, NOW(), :numserie, :numcom, 'SOLES', :idcolaborador
-        )");
+                FALSE, 0, :idpropietario, 0, 0, 0, '', FALSE, NULL,
+                :tipocom, NOW(), :numserie, :numcom, 'SOLES', :idcolaborador
+            )");
             $numserie = strtoupper(substr($tipocom, 0, 2)) . '-' . date('y');
             $numcom = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
-            $idcolab = $_SESSION['idcolaborador'] ?? 0;
+            $idcolab = $_SESSION['login']['idcolaborador'] ?? 0;
             $sp->execute([
                 ':idpropietario' => $idprop,
                 ':tipocom' => $tipocom,
@@ -488,20 +510,22 @@ class Venta extends Conexion
                 ':numcom' => $numcom,
                 ':idcolaborador' => $idcolab
             ]);
-            // Capturar nuevo ID de venta
+
+            // 4.2) Capturar nuevo idventa
+            $newId = 0;
             do {
-                $row = $sp->fetch(PDO::FETCH_ASSOC);
-                if (!empty($row['idventa'])) {
-                    $newId = (int) $row['idventa'];
+                $res = $sp->fetch(PDO::FETCH_ASSOC);
+                if (!empty($res['idventa'])) {
+                    $newId = (int) $res['idventa'];
                     break;
                 }
             } while ($sp->nextRowset());
             $sp->closeCursor();
-            if (empty($newId)) {
+            if (!$newId) {
                 throw new Exception("No se obtuvo el id de la nueva venta.");
             }
 
-            // 5) Insertar detalle de productos
+            // 4.3) Insertar productos
             $stmtP = $this->pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
             foreach ($det['productos'] as $p) {
                 $stmtP->execute([
@@ -514,49 +538,127 @@ class Venta extends Conexion
                 ]);
             }
 
-            // 6) Insertar detalle de servicios
+            // 4.4) Insertar servicios
             $stmtS = $this->pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
             foreach ($det['servicios'] as $s) {
                 $stmtS->execute([
-                    $s['idorden'],
+                    $newId,
                     $s['idservicio'],
                     $s['idmecanico'],
                     $s['precio']
                 ]);
             }
 
-            // 7) Confirmar todo
+            // 4.5) Transferir amortizaciones previas usando el modelo
+            $amModel = new Amortizacion();
+            foreach ($amortPrevias as $prev) {
+                $amModel->create(
+                    'venta',
+                    $newId,
+                    (int) $prev['idformapago'],
+                    (float) $prev['amortizacion'],
+                    $prev['numtransaccion']
+                );
+            }
+
+            // 4.6) Cerrar las OT originales
+            $upd = $this->pdo->prepare("
+            UPDATE ordenservicios
+            SET estado = 'C'
+            WHERE idorden IN ($placeholders)
+            ");
+            $upd->execute($idsOT);
+            // 4.7) Desactivar las ventas de esas OT para que no aparezcan
+            $updV = $this->pdo->prepare("
+            UPDATE ventas
+            SET estado = FALSE
+            WHERE idventa IN ($placeholders)
+            ");
+            $updV->execute($idsOT);
+
+            // 5) Commit
             $this->pdo->commit();
             return $newId;
 
         } catch (Exception $e) {
-            // Si alguien falló, todo se revierte
             $this->pdo->rollBack();
             throw $e;
         }
-    } */
+    }
 
-
-    /* private function getDetallesOt(array $idsOT): array
+    private function getDetallesOt(array $idsOT): array
     {
         $in = implode(',', array_fill(0, count($idsOT), '?'));
-        // Productos
-        $sqlP = "SELECT idorden, idproducto, cantidad, precio, descuento
-             FROM detalle_orden_trabajo
-             WHERE idorden IN ($in)";
-        $stmtP = $this->pdo->prepare($sqlP);
-        $stmtP->execute($idsOT);
-        $productos = $stmtP->fetchAll(PDO::FETCH_ASSOC);
 
-        // Servicios
-        $sqlS = "SELECT idorden, idservicio, idmecanico, precio
-             FROM detalle_orden_servicio
-             WHERE idorden IN ($in)";
+        // 1) Servicios
+        $sqlS = "
+      SELECT 
+        dos.idorden,
+        dos.idservicio,
+        dos.idmecanico,
+        dos.precio
+      FROM detalleordenservicios AS dos
+      WHERE dos.idorden IN ($in)
+    ";
         $stmtS = $this->pdo->prepare($sqlS);
         $stmtS->execute($idsOT);
         $servicios = $stmtS->fetchAll(PDO::FETCH_ASSOC);
 
-        return ['productos' => $productos, 'servicios' => $servicios];
-    } */
+        // 2) Productos
+        $sqlP = "
+      SELECT 
+        dv.idproducto,
+        dv.cantidad,
+        dv.precioventa AS precio,
+        dv.descuento
+      FROM detalleventa AS dv
+      WHERE dv.iddetorden IN (
+        SELECT iddetorden FROM detalleordenservicios WHERE idorden IN ($in)
+      )
+    ";
+        $stmtP = $this->pdo->prepare($sqlP);
+        $stmtP->execute($idsOT);
+        $productos = $stmtP->fetchAll(PDO::FETCH_ASSOC);
 
+        return ['servicios' => $servicios, 'productos' => $productos];
+    }
+
+    /*     private function getDetallesOt(array $idsOT): array
+        {
+            $in = implode(',', array_fill(0, count($idsOT), '?'));
+
+            // 1) Servicios
+            $sqlS = "
+          SELECT 
+            dos.idorden,
+            dos.idservicio,
+            dos.idmecanico,
+            dos.precio
+          FROM detalleordenservicios AS dos
+          WHERE dos.idorden IN ($in)
+        ";
+            $stmtS = $this->pdo->prepare($sqlS);
+            $stmtS->execute($idsOT);
+            $servicios = $stmtS->fetchAll(PDO::FETCH_ASSOC);
+
+            // 2) Productos (unimos con detalleventa)
+            $sqlP = "
+          SELECT 
+            dos.idorden,
+            dv.idproducto,
+            dv.cantidad,
+            dv.precioventa AS precio,
+            dv.descuento
+          FROM detalleordenservicios AS dos
+          JOIN detalleventa AS dv 
+            ON dv.iddetorden = dos.iddetorden
+          WHERE dos.idorden IN ($in)
+        ";
+            $stmtP = $this->pdo->prepare($sqlP);
+            $stmtP->execute($idsOT);
+            $productos = $stmtP->fetchAll(PDO::FETCH_ASSOC);
+
+            return ['servicios' => $servicios, 'productos' => $productos];
+        }
+     */
 }
