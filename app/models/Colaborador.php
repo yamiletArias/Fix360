@@ -19,6 +19,7 @@ class Colaborador extends Conexion
     public function login($namuser, $passuser)
     {
         try {
+            
             $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
             $stmt->bindParam(':namuser',  $namuser,   PDO::PARAM_STR);
             $stmt->bindParam(':passuser', $passuser,  PDO::PARAM_STR);

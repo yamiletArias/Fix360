@@ -589,7 +589,7 @@ END$$
 
 DELIMITER ;
 
-
+-- select * from colaboradores;
 -- Restauramos el delimitador
 DELIMITER ;
 CALL seed_movimientos(5, 20, '2024-01-01', CURDATE());

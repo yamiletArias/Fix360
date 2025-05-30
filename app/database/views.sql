@@ -251,7 +251,6 @@ ORDER BY nombre_completo;
 DROP VIEW IF EXISTS vwFormaPagos;
 CREATE VIEW vwFormapagos AS
 SELECT * FROM formapagos;
-
 SET GLOBAL event_scheduler = ON;
 -- Evento para cancelar automaticamente los recordatorios si tiene el estado de 'P' o 'R'
 CREATE EVENT IF NOT EXISTS evCancelarRecordatoriosVencidos

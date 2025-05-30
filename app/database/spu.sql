@@ -1431,7 +1431,7 @@ WHERE idcolaborador = _idcolaborador;
   SET ct.fechafin = _fechafin
   WHERE c.idcolaborador = _idcolaborador;
 END $$
-
+-- select * from colaboradores;
 DROP PROCEDURE IF EXISTS spUpdateColaborador $$
 CREATE PROCEDURE spUpdateColaborador(
   IN _idcolaborador  INT,
@@ -1480,21 +1480,32 @@ BEGIN
 
     -- 2) Actualizar datos del contrato
     UPDATE contratos
-       SET idrol        = _idrol,
-           fechainicio  = _fechainicio,
-           fechafin     = _fechafin,
-           modificado   = NOW()
-     WHERE idcontrato = _idcontrato;
+   SET idrol       = _idrol,
+       fechainicio = CASE 
+                        WHEN _fechainicio IS NULL OR _fechainicio = '' 
+                          THEN fechainicio 
+                        ELSE _fechainicio 
+                      END,
+       fechafin    = CASE 
+                        WHEN _fechafin    IS NULL OR _fechafin = '' 
+                          THEN fechafin 
+                        ELSE _fechafin 
+                      END,
+       modificado  = NOW()
+ WHERE idcontrato = _idcontrato;
 
     -- 3) Actualizar datos del usuario
     UPDATE colaboradores
-       SET namuser   = _namuser,
-           passuser  = _passuser
-     WHERE idcolaborador = _idcolaborador;
+        SET namuser  = _namuser,
+       passuser = CASE
+                    WHEN _passuser IS NULL OR _passuser = '' THEN passuser
+                    ELSE SHA2(_passuser,256)
+                  END
+ WHERE idcolaborador = _idcolaborador;
 
   COMMIT;
 END $$
-
+-- select * from colaboradores;
 DROP PROCEDURE IF EXISTS spGetColaboradorById $$
 CREATE PROCEDURE spGetColaboradorById(
   IN _idcolaborador INT

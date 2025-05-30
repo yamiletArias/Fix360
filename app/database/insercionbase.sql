@@ -35,10 +35,10 @@ VALUES
 INSERT INTO tipomovimientos (flujo,tipomov) 
 VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion'),('salida', 'devolucion'),('entrada', 'stock inicial');
 
+/*
 INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, numruc, direccion, correo, telprincipal, telalternativo) VALUES
 ('Maria Elena', 'Castila Hernandez', 'DNI', '75849320', '20123456789', 'Av. Los Pinos 123', 'elenafix360@gmail.com', '987654321', NULL);
-
- INSERT INTO Contratos ( idpersona, idrol, fechainicio, fechafin) VALUES
- (1, 1, '2023-01-01', NULL);
-  CALL spRegisterColaborador('ElenaCastilla','fix3602025',1)
+*/
+CALL spRegisterColaborador('ElenaCastilla','fix3602025',1,curdate(),null,'Maria Elena', 'Castila Hernandez', 'DNI', '75849320', 'Av. Los Pinos 123', 'elenafix360@gmail.com', '987654321');
+  
   

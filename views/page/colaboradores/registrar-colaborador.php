@@ -28,7 +28,8 @@ require_once "../../partials/header.php";
           </div>
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="numdoc" name="numdoc" minlength="6" maxlength="20" pattern="[0-9A-Za-z]+" placeholder="Documento" required>
+              <input type="text" class="form-control input" id="numdoc" name="numdoc" minlength="6" maxlength="20"
+                pattern="[0-9A-Za-z]+" placeholder="Documento" required>
               <label for="numdoc"><strong>N° Documento</strong></label>
             </div>
           </div>
@@ -36,13 +37,15 @@ require_once "../../partials/header.php";
           <!-- Datos personales -->
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50" placeholder="Apellidos" required>
+              <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50"
+                placeholder="Apellidos" required>
               <label for="apellidos"><strong>Apellidos</strong></label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50" placeholder="Nombres" required>
+              <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50"
+                placeholder="Nombres" required>
               <label for="nombres"><strong>Nombres</strong></label>
             </div>
           </div>
@@ -50,13 +53,15 @@ require_once "../../partials/header.php";
           <!-- Dirección y correo -->
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="direccion" name="direccion" minlength="5" maxlength="100" placeholder="Dirección">
+              <input type="text" class="form-control input" id="direccion" name="direccion" minlength="5"
+                maxlength="100" placeholder="Dirección">
               <label for="direccion">Dirección</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="email" class="form-control input" id="correo" name="correo" minlength="5" maxlength="100" placeholder="Correo">
+              <input type="email" class="form-control input" id="correo" name="correo" minlength="5" maxlength="100"
+                placeholder="Correo">
               <label for="correo">Correo</label>
             </div>
           </div>
@@ -64,7 +69,8 @@ require_once "../../partials/header.php";
           <!-- Teléfono principal -->
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="telprincipal" name="telprincipal" minlength="9" maxlength="9" pattern="9\d{8}" placeholder="Tel. principal" required>
+              <input type="text" class="form-control input" id="telprincipal" name="telprincipal" minlength="9"
+                maxlength="9" pattern="9\d{8}" placeholder="Tel. principal" required>
               <label for="telprincipal"><strong>Tel. Principal</strong></label>
             </div>
           </div>
@@ -82,13 +88,15 @@ require_once "../../partials/header.php";
           <!-- Datos de acceso -->
           <div class="col-md-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50" placeholder="Usuario" required>
+              <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50"
+                placeholder="Usuario" required>
               <label for="namuser"><strong>Username</strong></label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-floating">
-              <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6" maxlength="100" placeholder="Contraseña" required>
+              <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6"
+                maxlength="100" placeholder="Contraseña" required>
               <label for="passuser"><strong>Contraseña</strong></label>
             </div>
           </div>
@@ -96,7 +104,7 @@ require_once "../../partials/header.php";
           <!-- Fechas de contrato -->
           <div class="col-md-3">
             <div class="form-floating">
-              <input type="date" class="form-control input" name="fechainicio" id="fechainicio" required>
+              <input type="date" class="form-control input" name="fechainicio" id="fechainicio" value="<?= date('Y-m-d') ?>" required disabled>
               <label for="fechainicio"><strong>Fecha Inicio</strong></label>
             </div>
           </div>
@@ -168,11 +176,11 @@ require_once "../../partials/header.php";
       // Ejemplo: validar correo
       const correo = document.getElementById('correo').value.trim();
       if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-        showToast('Correo invalido', 'ERROR', 1500);return false;
+        showToast('Correo invalido', 'ERROR', 1500); return false;
       }
       // Validar DNI formato
       if (tipodoc.value === 'DNI' && !/^\d{8}$/.test(numdoc.value.trim())) {
-        showToast('El DNI debe de contar con 8 digitos', 'ERROR', 1500);return false;
+        showToast('El DNI debe de contar con 8 digitos', 'ERROR', 1500); return false;
       }
       // Validar celular
       const tel = document.getElementById('telprincipal').value.trim();
@@ -192,7 +200,7 @@ require_once "../../partials/header.php";
       const result = await resp.json();
       if (result.status) {
         showToast('Colaborador registrado exitosamente.', 'SUCCESS', 1000);
-          setTimeout(() => window.location.href = 'listar-colaborador.php', 1500);
+        setTimeout(() => window.location.href = 'listar-colaborador.php', 1500);
       } else {
         Swal.fire('Error', result.message, 'error');
       }
