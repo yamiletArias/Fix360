@@ -40,6 +40,102 @@ WHERE v.estado = TRUE;*/
 -- real
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
+SELECT
+  v.idventa,
+  v.fechahora,
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+  v.kilometraje,
+  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+  CONCAT(su.subcategoria,' ', pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa         AS precio,
+  dv.descuento,
+  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
+  NULL                   AS tiposervicio,
+  NULL                   AS nombreservicio,
+  NULL                   AS mecanico,
+  NULL                   AS precio_servicio,
+  'producto'             AS registro_tipo
+FROM ventas v
+  -- Propietario
+  LEFT JOIN propietarios prop     ON v.idpropietario = prop.idpropietario
+  LEFT JOIN clientes propc       ON prop.idcliente   = propc.idcliente
+  LEFT JOIN empresas epc         ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas ppc         ON propc.idpersona  = ppc.idpersona
+  -- Cliente
+  LEFT JOIN clientes cte         ON v.idcliente      = cte.idcliente
+  LEFT JOIN personas p           ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas e           ON cte.idempresa    = e.idempresa
+  -- Vehículo
+  LEFT JOIN vehiculos vh         ON v.idvehiculo     = vh.idvehiculo
+  LEFT JOIN modelos m            ON vh.idmodelo      = m.idmodelo
+  LEFT JOIN tipovehiculos tv     ON m.idtipov        = tv.idtipov
+  LEFT JOIN marcas ma            ON m.idmarca        = ma.idmarca
+  -- Detalle de productos
+  JOIN detalleventa dv           ON v.idventa        = dv.idventa
+  JOIN productos pr              ON dv.idproducto    = pr.idproducto
+  JOIN subcategorias su          ON pr.idsubcategoria = su.idsubcategoria
+WHERE v.estado = TRUE
+
+UNION ALL
+
+-- === BLOQUE de SERVICIOS ===
+SELECT
+  v.idventa,
+  v.fechahora,
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
+  v.kilometraje,
+  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+  NULL                   AS producto,
+  NULL                   AS cantidad,
+  NULL                   AS precio,
+  NULL                   AS descuento,
+  NULL                   AS total_producto,
+  sc.subcategoria        AS tiposervicio,
+  se.servicio            AS nombreservicio,
+  col.namuser            AS mecanico,
+  dos.precio             AS precio_servicio,
+  'servicio'             AS registro_tipo
+FROM ventas v
+  -- Propietario
+  LEFT JOIN propietarios prop     ON v.idpropietario = prop.idpropietario
+  LEFT JOIN clientes propc       ON prop.idcliente   = propc.idcliente
+  LEFT JOIN empresas epc         ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas ppc         ON propc.idpersona  = ppc.idpersona
+  -- Cliente
+  LEFT JOIN clientes cte         ON v.idcliente      = cte.idcliente
+  LEFT JOIN personas p           ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas e           ON cte.idempresa    = e.idempresa
+  -- Vehículo
+  LEFT JOIN vehiculos vh         ON v.idvehiculo     = vh.idvehiculo
+  LEFT JOIN modelos m            ON vh.idmodelo      = m.idmodelo
+  LEFT JOIN tipovehiculos tv     ON m.idtipov        = tv.idtipov
+  LEFT JOIN marcas ma            ON m.idmarca        = ma.idmarca
+  -- Unir directamente a la OT asociada a la venta
+  INNER JOIN ordenservicios os      ON v.idexpediente_ot = os.idorden
+  INNER JOIN detalleordenservicios dos ON os.idorden    = dos.idorden
+  INNER JOIN servicios se           ON dos.idservicio    = se.idservicio
+  INNER JOIN subcategorias sc       ON se.idsubcategoria = sc.idsubcategoria
+  INNER JOIN colaboradores col      ON dos.idmecanico    = col.idcolaborador
+WHERE v.estado = TRUE
+  AND v.idexpediente_ot IS NOT NULL;
+/* ESTE ES EL QUE FUNCIONA
+DROP VIEW IF EXISTS vista_detalle_venta;
+CREATE VIEW vista_detalle_venta AS
 
 -- === Filas de productos ===
 SELECT
@@ -142,7 +238,7 @@ FROM ventas v
   LEFT JOIN subcategorias sc        ON se.idsubcategoria = sc.idsubcategoria
   LEFT JOIN colaboradores col       ON dos.idmecanico    = col.idcolaborador
 WHERE v.estado = TRUE
-  AND dos.idorden IS NOT NULL; 
+  AND dos.idorden IS NOT NULL; */
 /*
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
