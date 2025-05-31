@@ -49,23 +49,7 @@ require_once "../../partials/header.php";
             </div>
         </div>
     </div>
-    <!-- <div id="tableEliminados" class="col-12" style="display: none;">
-        <table class="table table-striped display" id="tablaventaseliminadas">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Cliente</th>
-                    <th class="text-center">T. Comprobante</th>
-                    <th class="text-center">N° Comprobante</th>
-                    <th class="text-center">Opciones</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
 
-            </tbody>
-        </table>
-    </div> -->
-    <!-- aquí van las pestañas -->
     <ul class="nav nav-tabs mb-3" id="ventasTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="tab-ventas" data-bs-toggle="tab" data-bs-target="#pane-ventas"
@@ -285,6 +269,7 @@ require_once "../../partials/_footer.php";
     });
 
     function verDetalleVenta(idventa) {
+        console.log("verDetalleVenta se está ejecutando para idventa =", idventa);
         // — Limpiar modal
         $("#miModal tbody, #tabla-detalle-productos-modal tbody, #tabla-detalle-servicios-modal tbody").empty();
         $("#miModal .amortizaciones-container").remove();
@@ -573,7 +558,7 @@ require_once "../../partials/_footer.php";
                     render: function (data, type, row) {
                         return `
                             <button class="btn btn-primary btn-sm btn-ver-justificacion"
-                                data-id="${row.id}"
+                                data-id="${row.idventa}"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalVerJustificacion">
                                 <i class="fa-solid fa-eye"></i>
@@ -613,23 +598,23 @@ require_once "../../partials/_footer.php";
         const btnAmort = pagado
             ? `<button class="btn btn-success btn-sm" disabled><i class="fa-solid fa-check"></i></button>`
             : `<button title="Amortizacion" class="btn btn-warning btn-sm btn-amortizar"
-         data-id="${row.idventa}"
+         data-id="${row.id}"
          data-bs-toggle="modal" data-bs-target="#modalAmortizar">
          <i class="fa-solid fa-dollar-sign"></i>
        </button>`;
 
         return `
-        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.idventa}">
+        <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
       <i class="fa-solid fa-trash"></i>
     </button>
         ${btnAmort}
         <button title="Detalle de la venta" class="btn btn-info btn-sm btn-detalle"
-                data-action="detalle"
-                data-id="${row.idventa}"
-                data-bs-toggle="modal"
-                data-bs-target="#miModal">
-            <i class='fa-solid fa-clipboard-list'></i>
-        </button>
+            data-action="detalle"
+            data-id="${row.id}"
+            data-bs-toggle="modal"
+            data-bs-target="#miModal">
+        <i class='fa-solid fa-clipboard-list'></i>
+    </button>
         <button title="Pdf" class="btn btn-outline-dark btn-sm btn-descargar-pdf"
                 onclick="descargarPDF('${row.id}')">
         <i class="fa-solid fa-file-pdf"></i>

@@ -979,10 +979,122 @@ END$$
 DELIMITER ;
 
 -- PROCEDIMIENTO PARA DATOS DE ORDEN DE TRABAJO (OT)
+DROP PROCEDURE IF EXISTS spListOTPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListOTPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
 
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    v.idventa           AS id,             -- Mantén el id de la venta
+    v.idpropietario     AS idpropietario,
+    COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial, 'Cliente anónimo') AS cliente,
+    v.tipocom,
+    v.numserie,
+    v.numcom,
+    DATE_FORMAT(v.fechahora, '%Y-%m-%d %H:%i') AS fechahora,
+    vt.total_pendiente,
+    CASE WHEN vt.total_pendiente = 0 THEN 'pagado' ELSE 'pendiente' END AS estado_pago,
+    COALESCE(CONCAT(po_p.apellidos,' ',po_p.nombres), po_e.nomcomercial, 'Sin propietario') AS propietario
+  FROM ventas v
+
+  LEFT JOIN clientes c      ON v.idcliente      = c.idcliente
+  LEFT JOIN personas p      ON c.idpersona      = p.idpersona
+  LEFT JOIN empresas e      ON c.idempresa      = e.idempresa
+  LEFT JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
+
+  LEFT JOIN propietarios pr ON v.idpropietario = pr.idpropietario
+  LEFT JOIN clientes po_c  ON pr.idcliente = po_c.idcliente
+  LEFT JOIN personas po_p  ON po_c.idpersona = po_p.idpersona
+  LEFT JOIN empresas po_e  ON po_c.idempresa = po_e.idempresa
+
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado  = TRUE
+    AND v.tipocom = 'orden de trabajo'
+  ORDER BY v.fechahora;
+END$$
+DELIMITER ;
 
 -- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
+-- real
 DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListVentasPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  -- Calcular rango según el modo
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    v.idventa AS id,
+    -- propietario: nombre de empresa o persona, o 'Sin propietario'
+    COALESCE(
+      CASE
+        WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+        WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+      END,
+      'Sin propietario'
+    ) AS propietario,
+    -- cliente original
+    COALESCE(
+      CONCAT(p.apellidos,' ',p.nombres),
+      e.nomcomercial
+    ) AS cliente,
+    v.tipocom,
+    v.numcom,
+    vt.total_pendiente,
+    CASE 
+      WHEN vt.total_pendiente = 0 THEN 'pagado' 
+      ELSE 'pendiente' 
+    END AS estado_pago
+  FROM ventas v
+  LEFT JOIN propietarios prop       ON v.idpropietario = prop.idpropietario
+  LEFT JOIN clientes propc          ON prop.idcliente   = propc.idcliente
+  LEFT JOIN empresas epc            ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas ppc            ON propc.idpersona  = ppc.idpersona
+
+  LEFT JOIN clientes c              ON v.idcliente      = c.idcliente
+  LEFT JOIN personas p              ON c.idpersona      = p.idpersona
+  LEFT JOIN empresas e              ON c.idempresa      = e.idempresa
+
+  LEFT JOIN vista_saldos_por_venta vt ON v.idventa      = vt.idventa
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado = TRUE
+    AND v.tipocom IN ('boleta','factura')
+  ORDER BY v.fechahora;
+END$$
+DELIMITER ;
+
+/*DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListVentasPorPeriodo(
   IN _modo   ENUM('semana','mes','dia'),
@@ -1028,7 +1140,9 @@ BEGIN
     AND v.tipocom IN ('boleta','factura')
   ORDER BY v.fechahora;
 END$$
-DELIMITER ;
+DELIMITER ;*/
+
+
 /*DROP PROCEDURE IF EXISTS spListVentasPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListVentasPorPeriodo(
