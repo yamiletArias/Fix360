@@ -1422,8 +1422,8 @@ CREATE PROCEDURE spDeactivateColaborador(
   IN _fechafin      DATE
 )
 BEGIN
-update colaboradores c SET
-c.estado = false
+UPDATE colaboradores c SET
+c.estado = FALSE
 WHERE idcolaborador = _idcolaborador;
   -- Actualiza la fecha de fin del contrato activo de ese colaborador
   UPDATE contratos ct
@@ -1580,7 +1580,7 @@ BEGIN
     INSERT INTO contratos (
       idrol, idpersona, fechainicio, fechafin
     ) VALUES (
-      _idrol, _idpersona, _fechainicio, nullif(_fechafin,'')
+      _idrol, _idpersona, _fechainicio, NULLIF(_fechafin,'')
     );
     SET _idcontrato = LAST_INSERT_ID();
 
@@ -1735,5 +1735,169 @@ BEGIN
     AND v.idvehiculo = _idvehiculo
   ORDER BY v.fechahora;
 END$$
+
+DROP PROCEDURE IF EXISTS spLoginColaborador $$
+CREATE PROCEDURE spLoginColaborador(
+  IN  _namuser    VARCHAR(50),
+  IN  _passuser   VARCHAR(255)
+)
+BEGIN
+  DECLARE _hashed_pwd    VARCHAR(64);
+  DECLARE _idcolaborador INT;
+  DECLARE _idrol         INT;
+  DECLARE _count         INT;
+  DECLARE _fullname      VARCHAR(101);
+
+  SET _hashed_pwd = SHA2(_passuser, 256);
+
+  -- Validar colaborador activo
+  SELECT c.idcolaborador
+    INTO _idcolaborador
+    FROM colaboradores c
+   WHERE c.namuser  = _namuser
+     AND c.passuser = _hashed_pwd
+     AND c.estado   = TRUE
+   LIMIT 1;
+
+  -- Verificar contrato vigente
+  SELECT COUNT(*) INTO _count
+    FROM contratos t
+    JOIN colaboradores c2 ON c2.idcontrato = t.idcontrato
+   WHERE c2.idcolaborador = _idcolaborador
+     AND t.fechainicio    <= CURDATE()
+     AND (t.fechafin IS NULL OR t.fechafin >= CURDATE());
+
+  IF _count = 1 THEN
+    -- Obtener rol y nombre completo
+    SELECT 
+      t.idrol,
+      CONCAT(p.nombres, ' ', p.apellidos)
+    INTO
+      _idrol,
+      _fullname
+    FROM contratos t
+    JOIN colaboradores c3 ON c3.idcontrato = t.idcontrato
+    JOIN personas     p  ON p.idpersona   = t.idpersona
+    WHERE c3.idcolaborador = _idcolaborador
+      AND t.fechainicio    <= CURDATE()
+      AND (t.fechafin IS NULL OR t.fechafin >= CURDATE())
+    LIMIT 1;
+
+    -- Primer result‑set
+    SELECT 
+      'SUCCESS'      AS STATUS,
+      _idcolaborador AS idcolaborador,
+      _fullname      AS nombreCompleto;
+
+    -- Segundo result‑set: permisos “manual” en JSON
+    SELECT 
+      IFNULL(
+        CONCAT(
+          '[', 
+          GROUP_CONCAT(CONCAT('"', REPLACE(v.ruta, '"', '\"'), '"')), 
+          ']'
+        ),
+        '[]'
+      ) AS permisos
+    FROM rolVistas rv
+    JOIN vistas    v ON v.idvista = rv.idvista
+    WHERE rv.idrol = _idrol;
+
+  ELSE
+    -- Login fallido
+    SELECT 
+      'FAILURE'       AS STATUS,
+      NULL            AS idcolaborador,
+      NULL            AS nombreCompleto;
+  END IF;
+END$$
+
+DROP PROCEDURE IF EXISTS spGetColaboradorInfo $$
+CREATE PROCEDURE spGetColaboradorInfo(
+    IN in_idcolaborador INT
+)
+BEGIN
+    SELECT
+        CONCAT(p.nombres, ' ', p.apellidos) AS nombreCompleto,
+        col.namuser,
+        r.rol,
+        -- Construye un JSON array de rutas: ["ruta1","ruta2",...]
+        CONCAT(
+          '[',
+          IFNULL(
+            GROUP_CONCAT(
+              CONCAT(
+                '"',
+                REPLACE(v.ruta, '"', '\"'),
+                '"'
+              )
+            ),
+            ''
+          ),
+          ']'
+        ) AS permisos
+    FROM colaboradores AS col
+    JOIN contratos    AS ct ON ct.idcontrato = col.idcontrato
+    JOIN personas     AS p  ON p.idpersona  = ct.idpersona
+    JOIN roles        AS r  ON r.idrol      = ct.idrol
+    LEFT JOIN rolVistas AS rv ON rv.idrol   = r.idrol
+    LEFT JOIN vistas    AS v  ON v.idvista  = rv.idvista
+    WHERE col.idcolaborador = in_idcolaborador
+    GROUP BY col.idcolaborador
+    LIMIT 1;
+END $$
+
+DROP PROCEDURE IF EXISTS spListOrdenesPorVehiculo $$
+CREATE PROCEDURE spListOrdenesPorVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      o.idorden,
+      o.fechaingreso,
+      o.fechasalida,
+      o.kilometraje,
+      o.ingresogrua,
+      o.estado,
+      o.observaciones,
+      col.namuser AS tecnico,
+      -- total de mano de obra y repuestos (se asume cantidad = 1 por registro)
+      SUM(CASE WHEN srv.servicio LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_mano_obra,
+      SUM(CASE WHEN srv.servicio NOT LIKE '%mano%' THEN dos.precio ELSE 0 END) AS total_repuestos
+    FROM ordenservicios o
+    JOIN detalleordenservicios dos ON dos.idorden = o.idorden
+    JOIN servicios srv             ON srv.idservicio = dos.idservicio
+    JOIN colaboradores col         ON col.idcolaborador = dos.idmecanico
+    WHERE o.idvehiculo = in_idvehiculo
+    GROUP BY
+      o.idorden, o.fechaingreso, o.fechasalida,
+      o.kilometraje, o.ingresogrua, o.estado,
+      o.observaciones, col.namuser;
+END $$
+
+DROP PROCEDURE IF EXISTS spListVentasPorVehiculo $$
+CREATE PROCEDURE spListVentasPorVehiculo(
+    IN in_idvehiculo INT
+)
+BEGIN
+    SELECT
+      v.idventa,
+      v.fechahora,
+      v.tipocom,
+      CONCAT(v.numserie, '-', v.numcom) AS comprobante,
+      v.moneda,
+      v.kilometraje,
+      col.namuser AS vendedor,
+      SUM(dv.precioventa * dv.cantidad * (1 - dv.descuento/100)) AS total_neto,
+      COUNT(DISTINCT dv.idproducto) AS items_vendidos
+    FROM ventas v
+    JOIN detalleventa dv ON dv.idventa = v.idventa
+    JOIN colaboradores col ON col.idcolaborador = v.idcolaborador
+    WHERE v.idvehiculo = in_idvehiculo
+    GROUP BY
+      v.idventa, v.fechahora, v.tipocom,
+      v.numserie, v.numcom, v.moneda,
+      v.kilometraje, col.namuser;
+END $$
 
 DELIMITER ;

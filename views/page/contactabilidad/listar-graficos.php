@@ -4,94 +4,304 @@ CONST NAMEVIEW = "Graficos de Contactabilidad";
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
-
 ?>
-      <div class="container-main">
-        <h2><strong>Grafico de Contactabilidad de los clientes:</strong></h2>
-        <div>
-          <canvas style="margin-bottom: 100px;" id="myChart"></canvas>
-        </div>
-        <h2><strong>Grafico de Clientes registrados por mes:</strong></h2>
-        <div>
-          <canvas id="Chart"></canvas>
-        </div>
 
+<div class="container-main">
 
-
-
-
-      </div>
-
+  <!-- 1) Controles para seleccionar Período y Fecha Desde/Hasta -->
+  <div class="row mb-4">
+    <div class="form-floating col-md-3">
+      <select id="selectPeriodo" class="form-control input" style="color:black;">
+        <option value="ANUAL">Anual</option>
+        <option value="MENSUAL">Mensual</option>
+        <option value="SEMANAL">Semanal</option>
+      </select>
+      <label for="selectPeriodo" style="margin-left: 5px;"><strong>Periodo:</strong></label>
     </div>
-
-
+    <div class="form-floating col-md-3">
+      <input type="date" id="inputDesde" class="form-control input  " />
+      <label for="inputDesde" style="margin-left: 5px;"><strong>Desde:</strong></label>
+    </div>
+    <div class="form-floating col-md-3">
+      <input type="date" id="inputHasta" class="form-control input" />
+      <label for="inputHasta" style="margin-left: 5px;"><strong>Hasta:</strong></label>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+      <button id="btnActualizar" class="btn btn-primary w-100">
+        Mostrar
+      </button>
+    </div>
   </div>
-  <!--FIN VENTAS-->
 
-  <?php
+  <!-- 2) Gráfico de barras: Contactabilidad agrupada -->
+  <div class="mb-4">
+    <canvas id="myChart" style="margin-bottom: 50px;"></canvas>
+  </div>
 
+  <!-- 3) Card con tabla de resumen -->
+  <div class="card">
+    <div class="card-header">
+      <strong>Resumen de datos</strong>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="tablaResumen" class="table table-bordered">
+          <thead>
+            <!-- Se genera dinámicamente desde JS -->
+          </thead>
+          <tbody>
+            <!-- Se genera dinámicamente desde JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<?php
 require_once "../../partials/_footer.php";
-
 ?>
 
-  <script>
-    const ctx = document.getElementById('myChart');
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // -------------------------------------------------------
+  // 1) Referencias a elementos HTML
+  // -------------------------------------------------------
+  const selectPeriodo = document.getElementById('selectPeriodo');
+  const inputDesde    = document.getElementById('inputDesde');
+  const inputHasta    = document.getElementById('inputHasta');
+  const btnActualizar = document.getElementById('btnActualizar');
 
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Redes sociales', 'Referencias de amistades', 'Folletos', 'Campañas publicitarias'],
-        datasets: [{
-          label: '# de Clientes',
-          data: [12, 19, 3, 5],
+  // Canvas context
+  const ctxContactabilidad = document.getElementById('myChart');
+
+  // Tabla de resumen
+  const tablaResumen = document.getElementById('tablaResumen');
+
+  // -------------------------------------------------------
+  // 2) Instancia inicial de Chart.js (vacía)
+  // -------------------------------------------------------
+  let chartContactabilidad = new Chart(ctxContactabilidad, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: []
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          stacked: false,
+          title: {
+            display: true,
+            text: 'Período'
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Total de Clientes'
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Distribución de Clientes por Contactabilidad'
+        }
+      }
+    }
+  });
+
+  // -------------------------------------------------------
+  // 3) Función auxiliar: formatea "YYYY-MM" a nombre de mes en español
+  // -------------------------------------------------------
+  function nombreMes(esLabel) {
+    const [anno, mes] = esLabel.split("-");
+    const mesesArr = [
+      'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+      'Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'
+    ];
+    return mesesArr[parseInt(mes, 10) - 1] + ' ' + anno;
+  }
+
+  // -------------------------------------------------------
+  // 4) Función que llama al Controller y actualiza el gráfico y la tabla
+  // -------------------------------------------------------
+  async function actualizarGraficos() {
+    const periodo    = selectPeriodo.value;
+    const desde      = inputDesde.value;
+    const hasta      = inputHasta.value;
+
+    if (!desde || !hasta) {
+      alert('Por favor, seleccione las fechas "Desde" y "Hasta".');
+      return;
+    }
+    if (desde > hasta) {
+      alert('"Desde" no puede ser mayor que "Hasta".');
+      return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('operation', 'getGraficoContactabilidad');
+    formData.append('periodo',    periodo);
+    formData.append('fecha_desde', desde);
+    formData.append('fecha_hasta', hasta);
+
+    try {
+      const response = await fetch('<?= SERVERURL ?>app/controllers/Contactabilidad.Controller.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData.toString()
+      });
+      const datos = await response.json();
+
+      if (datos.error) {
+        console.error(datos.error);
+        alert('Error del servidor: ' + datos.error);
+        return;
+      }
+
+      // 1) Listados únicos de 'periodo_label' y de 'contactabilidad'
+      const periodosSet = new Set();
+      const canalesSet  = new Set();
+      datos.forEach(row => {
+        periodosSet.add(row.periodo_label);
+        canalesSet.add(row.contactabilidad);
+      });
+      const periodos = Array.from(periodosSet).sort();
+      const canales  = Array.from(canalesSet).sort();
+
+      // 2) “Matriz de conteos”
+      const conteosPorCanal = {};
+      canales.forEach(canal => {
+        conteosPorCanal[canal] = new Array(periodos.length).fill(0);
+      });
+      datos.forEach(row => {
+        const idxPeriodo = periodos.indexOf(row.periodo_label);
+        const canal      = row.contactabilidad;
+        const total      = parseInt(row.total_clientes, 10) || 0;
+        conteosPorCanal[canal][idxPeriodo] = total;
+      });
+
+      // -------------------------------------------------------
+      // 3) Actualizar gráfico de barras (chartContactabilidad)
+      // -------------------------------------------------------
+      chartContactabilidad.data.labels = periodos;
+      chartContactabilidad.data.datasets = canales.map((canal, i) => {
+        return {
+          label: canal,
+          data: conteosPorCanal[canal],
           backgroundColor: [
-            'rgba(255, 99, 132, 0.8)',  // Color para "Redes sociales"
-            'rgba(54, 162, 235, 0.8)',  // Color para "Referencias de amistades"
-            'rgba(255, 206, 86, 0.8)',  // Color para "Folletos"
-            'rgba(75, 192, 192, 0.8)'   // Color para "Campañas publicitarias"
-          ],
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)'
+          ][i % 6],
           borderColor: [
             'rgba(255, 99, 132, 1)',
             'rgba(54, 162, 235, 1)',
             'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)'
-          ],
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+          ][i % 6],
           borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
+        };
+      });
+      chartContactabilidad.update();
+
+      // -------------------------------------------------------
+      // 4) Construir la tabla de resumen, incluyendo “Total” por fila
+      // -------------------------------------------------------
+      tablaResumen.querySelector('thead').innerHTML = '';
+      tablaResumen.querySelector('tbody').innerHTML = '';
+
+      // a) Crear encabezado: “Período” + cada canal + “Total”
+      const theadTr = document.createElement('tr');
+      const thPeriodo = document.createElement('th');
+      thPeriodo.textContent = 'Período';
+      theadTr.appendChild(thPeriodo);
+
+      canales.forEach(canal => {
+        const th = document.createElement('th');
+        th.textContent = canal;
+        theadTr.appendChild(th);
+      });
+
+      const thTotal = document.createElement('th');
+      thTotal.textContent = 'Total';
+      theadTr.appendChild(thTotal);
+
+      tablaResumen.querySelector('thead').appendChild(theadTr);
+
+      // b) Crear filas: una por cada periodo
+      periodos.forEach((periodoLabel, idx) => {
+        const tr = document.createElement('tr');
+
+        // Columna Período
+        const tdPer = document.createElement('td');
+        if (/^\d{4}-\d{2}$/.test(periodoLabel)) {
+          tdPer.textContent = nombreMes(periodoLabel);
+        } else {
+          tdPer.textContent = periodoLabel;
         }
-      }
-    });
-  </script>
+        tr.appendChild(tdPer);
 
-  <script>
-    const chart = document.getElementById('Chart');
+        // Columnas por cada canal y cálculo del máximo
+        let maxEnEstaFila = 0;
+        canales.forEach(canal => {
+          const valor = conteosPorCanal[canal][idx];
+          const td = document.createElement('td');
+          td.textContent = valor;
+          tr.appendChild(td);
 
-    new Chart(chart, {
-      type: 'line',
-      data: {
-        labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-        datasets: [{
-          label: '# de clientes',
-          data: [10, 20, 15, 5, 25, 30, 10, 15, 25, 14, 23, 10],
-          fill: false,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1
+          if (valor > maxEnEstaFila) {
+            maxEnEstaFila = valor;
+          }
+        });
 
-        }]
-      }
-    })
+        // Celda “Total” con el valor máximo
+        const tdMax = document.createElement('td');
+        tdMax.textContent = maxEnEstaFila;
+        tdMax.style.fontWeight = 'bold';
+        tr.appendChild(tdMax);
 
-  </script>
+        tablaResumen.querySelector('tbody').appendChild(tr);
+      });
 
-  <!-- endinject -->
-  <!-- Custom js for this page -->
-  <!-- End custom js for this page -->
-</body>
+    } catch (err) {
+      console.error('Error en fetch o parseo de JSON:', err);
+      alert('Ocurrió un error al obtener los datos para el gráfico.');
+    }
+  }
 
-</html>
+  // -------------------------------------------------------
+  // 5) Inicializar fechas por defecto y primera carga
+  // -------------------------------------------------------
+  window.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm   = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd   = String(hoy.getDate()).padStart(2, '0');
+
+    inputDesde.value = `${yyyy}-${mm}-01`;
+    inputHasta.value = `${yyyy}-${mm}-${dd}`;
+
+    actualizarGraficos();
+  });
+
+  // -------------------------------------------------------
+  // 6) Evento click en el botón “Mostrar”
+  // -------------------------------------------------------
+  btnActualizar.addEventListener('click', () => {
+    actualizarGraficos();
+  });
+</script>
