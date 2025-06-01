@@ -133,6 +133,7 @@ FROM ventas v
   INNER JOIN colaboradores col      ON dos.idmecanico    = col.idcolaborador
 WHERE v.estado = TRUE
   AND v.idexpediente_ot IS NOT NULL;
+  
 /* ESTE ES EL QUE FUNCIONA
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
@@ -239,7 +240,7 @@ FROM ventas v
   LEFT JOIN colaboradores col       ON dos.idmecanico    = col.idcolaborador
 WHERE v.estado = TRUE
   AND dos.idorden IS NOT NULL; */
-/*
+/* REAL no fake
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
 -- filas de productos

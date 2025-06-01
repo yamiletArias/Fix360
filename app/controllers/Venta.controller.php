@@ -153,23 +153,30 @@ switch ($_SERVER['REQUEST_METHOD']) {
     exit;
 
   case 'POST':
-    
+
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true) ?? $_POST;
     $action = $data['action'] ?? '';
 
     // 1) Combinar OT
     if ($action === 'combinar_ot') {
-        $ids    = is_array($data['ids_ot']) ? $data['ids_ot'] : [];
-        $tipo   = trim($data['tipocom'] ?? '');
-        try {
-            // Aquí uso tu instancia $venta
-            $newId = $venta->combinarOtYCrearVenta($ids, $tipo);
-            echo json_encode(['status' => 'success', 'idventa' => $newId]);
-        } catch (Exception $e) {
-            echo json_encode(['status' => 'error',   'message' => $e->getMessage()]);
-        }
-        exit;
+      $ids = is_array($data['ids_ot']) ? $data['ids_ot'] : [];
+      $tipo = trim($data['tipocom'] ?? '');
+      $serie = trim($data['numserie'] ?? '');
+      $com = trim($data['numcom'] ?? '');
+
+      try {
+        $newId = $venta->combinarOtYCrearVenta($ids, $tipo, $serie, $com);
+        echo json_encode([
+          'status' => 'success',
+          'idventa' => $newId,
+          'numserie' => $serie,
+          'numcom' => $com
+        ]);
+      } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+      }
+      exit;
     }
 
     // 10) Anulación de venta (soft‑delete) con justificación
@@ -226,6 +233,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
     exit;
+
 
   default:
     // Método no soportado

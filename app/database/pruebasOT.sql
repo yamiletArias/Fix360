@@ -1,3 +1,4 @@
+/* SOLO PRUEBA
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
 SELECT
@@ -93,10 +94,7 @@ FROM ventas v
   INNER JOIN colaboradores col      ON dos.idmecanico    = col.idcolaborador
 WHERE v.estado = TRUE
   AND v.idexpediente_ot IS NOT NULL;-- filtrar para que no aparezca fila vacía de servicio
-
-SELECT *
-  FROM detalleordenservicios
- WHERE idorden = 2;
+*/
 
 -- PRUEBA
 
@@ -209,6 +207,8 @@ BEGIN
 END $$
 DELIMITER ;
 
+
+/*
 DROP PROCEDURE IF EXISTS spListOTPorPeriodo;
 DELIMITER $$
 CREATE PROCEDURE spListOTPorPeriodo(
@@ -271,7 +271,7 @@ BEGIN
   ORDER BY v.fechahora;
 END $$
 DELIMITER ;
-
+*/
 
 /*
 DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
@@ -378,7 +378,7 @@ BEGIN
          v_idorden AS idorden;
 END$$
 DELIMITER ;*/
-select * from expediente_ot;
+/*select * from expediente_ot;*/
 -- 1) Tabla de Expedientes OT
 CREATE TABLE expediente_ot (
   idexpediente_ot   INT           PRIMARY KEY AUTO_INCREMENT,
@@ -408,7 +408,7 @@ ALTER TABLE ventas
       OR
       (tipocom <> 'orden de trabajo' AND idexpediente_ot IS NULL)
     );
-
+/*
 -- PRUEBA real (ya esta en spuVentas)
 DROP PROCEDURE IF EXISTS spListOTPorPeriodo;
 DELIMITER $$
@@ -463,7 +463,7 @@ BEGIN
   ORDER BY v.fechahora;
 END$$
 DELIMITER ;
-
+*/
 /*
 DROP PROCEDURE IF EXISTS spListOTPorPeriodo;
 DELIMITER $$

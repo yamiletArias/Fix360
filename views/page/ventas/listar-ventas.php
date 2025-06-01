@@ -625,15 +625,34 @@ require_once "../../partials/_footer.php";
         window.open(url, '_blank');
     }
 
+
     document.addEventListener("DOMContentLoaded", () => {
         // inicializo fecha de hoy
         const hoy = new Date().toISOString().slice(0, 10);
         fechaInput.value = hoy;
         let currentModo = 'dia';
 
+
         marcarActivo(btnDia);
         cargarTablaVentas(currentModo, hoy);
         cargarTablaOT(currentModo, hoy);
+        const comboTipocom = document.getElementById("comboTipocom");
+        if (comboTipocom) {
+            comboTipocom.addEventListener("change", inicializarCombinarOT);
+        }
+
+        // B) Cada vez que se muestre el modal (evento Bootstrap 'show.bs.modal')
+        const modalCombinar = document.getElementById("modalCombinarOT");
+        if (modalCombinar) {
+            modalCombinar.addEventListener("show.bs.modal", () => {
+                inicializarCombinarOT();
+            });
+        }
+
+        // ¡También puedes invocar inmediatamente para tener valores iniciales!
+        if (comboTipocom) {
+            inicializarCombinarOT();
+        }
 
         filtros.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -701,39 +720,48 @@ require_once "../../partials/_footer.php";
         // Al enviar formulario
         $('#formCombinarOT').on('submit', async function (e) {
             e.preventDefault();
+
+            // 1) Construimos el array de OT seleccionadas
             const idsOT = $('.select-ot:checked').map((i, el) => $(el).data('id')).get();
             const tipocom = $('#comboTipocom').val();
 
+            // 2) Obtenemos la serie y el número generados
+            const numserie = $('#numSerieCombinar').val();
+            const numcom = $('#numComCombinar').val();
+
+            // 3) Enviamos todo en el payload
             const res = await fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'combinar_ot',
                     ids_ot: idsOT,
-                    tipocom: tipocom
+                    tipocom: tipocom,
+                    numserie: numserie,
+                    numcom: numcom
                 })
             });
+
             const js = await res.json();
             if (js.status === 'success') {
                 showToast('Venta creada con éxito (ID: ' + js.idventa + ')', 'SUCCESS');
 
-                // 1) Carga de nuevo las OT y ventas si quieres…
+                // 1) Recargar tablas (si quieres)
                 cargarTablaOT(currentModo, fechaInput.value);
                 cargarTablaVentas(currentModo, fechaInput.value);
 
-                // 2) Pero inmediatamente también puedes actualizar en la tabla existente:
-                const dt = tablaVentas; // tu instancia de DataTable
-                // Para cada checkbox seleccionado, buscamos la fila y actualizamos sus datos:
+                // 2) Actualizar filas seleccionadas “al vuelo” en la DataTable de Ventas
+                const dt = tablaVentas;
                 $('.select-ot:checked').each(function () {
                     const $tr = $(this).closest('tr');
                     const row = dt.row($tr);
                     const data = row.data();
-                    data.tipocom = tipocom;          // opcional: uniformizar el tipo
-                    data.numserie = js.numserie;     // nueva serie
-                    data.numcom = js.numcom;      // nuevo comprobante
-                    row.data(data).invalidate();     // marca la fila para re-render
+                    data.tipocom = tipocom;
+                    data.numserie = numserie;
+                    data.numcom = numcom;
+                    row.data(data).invalidate();
                 });
-                dt.draw(false);  // redibuja sin resetear paginación
+                dt.draw(false);
 
                 $('#modalCombinarOT').modal('hide');
             } else {
@@ -780,10 +808,89 @@ require_once "../../partials/_footer.php";
         });
 
     });
+    // --- Funciones para generar Serie y Número de Comprobante ---
+    function generateNumber(prefix) {
+        // Tres dígitos aleatorios entre 000 y 099
+        return `${prefix}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
+    }
+
+    function generateComprobanteNumber(prefix) {
+        // Siete dígitos aleatorios entre 0000000 y 9999999
+        return `${prefix}-${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
+    }
+
+    // --- Función para inicializar (o regenerar) Serie y Número en el modal ---
+    function inicializarCombinarOT() {
+        const comboTipocom = document.getElementById("comboTipocom");
+        const tipo = comboTipocom.value; // 'boleta' o 'factura'
+
+        let prefijoSerie = "";
+        let prefijoComprobante = "";
+
+        switch (tipo) {
+            case "factura":
+                prefijoSerie = "F";
+                prefijoComprobante = "F";
+                break;
+            case "boleta":
+                prefijoSerie = "B";
+                prefijoComprobante = "B";
+                break;
+            default:
+                prefijoSerie = "";
+                prefijoComprobante = "";
+                break;
+        }
+
+        const numSerieInput = document.getElementById("numSerieCombinar");
+        const numComInput = document.getElementById("numComCombinar");
+
+        numSerieInput.value = generateNumber(prefijoSerie);
+        numComInput.value = generateComprobanteNumber(prefijoComprobante);
+    }
 </script>
 
 <!-- Modal Combinar OT -->
 <div class="modal fade" id="modalCombinarOT" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="formCombinarOT" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Combinar Órdenes de Trabajo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Vas a combinar <span id="countOT"></span> OT para el mismo propietario.</p>
+
+                <div class="mb-3">
+                    <label class="form-label">Tipo de comprobante</label>
+                    <select id="comboTipocom" class="form-select" required>
+                        <option value="boleta">Boleta</option>
+                        <option value="factura">Factura</option>
+                    </select>
+                </div>
+
+                <!-- NUEVOS CAMPOS PARA SERIE Y NÚMERO DE COMPROBANTE -->
+                <div class="mb-3">
+                    <label class="form-label">Serie</label>
+                    <input type="text" id="numSerieCombinar" class="form-control" readonly
+                        placeholder="Se genera automáticamente">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Número de Comprobante</label>
+                    <input type="text" id="numComCombinar" class="form-control" readonly
+                        placeholder="Se genera automáticamente">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-combinar-ot">Confirmar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- <div class="modal fade" id="modalCombinarOT" tabindex="-1">
     <div class="modal-dialog">
         <form id="formCombinarOT" class="modal-content">
             <div class="modal-header">
@@ -806,7 +913,7 @@ require_once "../../partials/_footer.php";
             </div>
         </form>
     </div>
-</div>
+</div> -->
 
 <div class="modal fade" id="modalVerJustificacion" tabindex="-1" aria-labelledby="modalJustificacionLabel"
     aria-hidden="true">
