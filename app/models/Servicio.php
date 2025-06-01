@@ -27,22 +27,30 @@ class Servicio extends Conexion
     return $result;
   }
 
-  public function registerServicio($params =[]): int{
-    $numRows = 0;
+  /**
+   * Registra un servicio (idsubcategoria + servicio) y devuelve el ID recién creado.
+   * El procedimiento almacenado debe hacer: INSERT …; SELECT LAST_INSERT_ID() AS idservicio;
+   */
+  public function registerServicio($params = []): array
+  {
+    $response = ['idservicio' => 0, 'servicio' => ''];
     try {
-      $query = "CALL spRegisterServicio(?,?)";
+      $query = "CALL spRegisterServicio(?, ?)";
       $stmt = $this->pdo->prepare($query);
       $stmt->execute([
         $params["idsubcategoria"],
         $params["servicio"]
       ]);
-      $numRows = $stmt->rowCount();
+      // El SP devuelve un SELECT LAST_INSERT_ID() AS idservicio
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($row && isset($row['idservicio'])) {
+        $response['idservicio'] = (int)$row['idservicio'];
+        $response['servicio']   = $params["servicio"];
+      }
     } catch (PDOException $e) {
-      error_log("Error DB: " . $e->getMessage());
-      return $numRows;
+      error_log("Error DB en registerServicio: " . $e->getMessage());
+      // En caso de error, devolvemos id = 0
     }
-    return $numRows;
+    return $response;
   }
-
-  
 }
