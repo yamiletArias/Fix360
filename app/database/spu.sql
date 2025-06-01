@@ -178,6 +178,7 @@ CREATE PROCEDURE spRegisterServicio(
 BEGIN
   INSERT INTO servicios (idsubcategoria, servicio)
   VALUES (_idsubcategoria, _servicio);
+  SELECT LAST_INSERT_ID() AS idservicio;
 END$$
 
 -- 6) Obtener todas las contactabilidades
