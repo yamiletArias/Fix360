@@ -63,12 +63,7 @@ BEGIN
   INSERT INTO clientes (idempresa, idcontactabilidad)
   VALUES (_idempresa, _idcontactabilidad);
   -- Insertar en la tabla proveedores solo si no existe
-  IF NOT EXISTS (
-    SELECT 1 FROM proveedores WHERE idempresa = _idempresa
-  ) THEN
-    INSERT INTO proveedores (idempresa)
-    VALUES (_idempresa);
-  END IF;
+  
 END $$
 
 -- 3) Registrar vehículo y propietario
@@ -882,6 +877,7 @@ BEGIN
       /*------------------------------------------------------
         5) Si NO existe entrada para hoy, hago INSERT; si existe, UPDATE
       ------------------------------------------------------*/
+      IF v_existe_para_hoy = 0 THEN
         INSERT INTO propietarios (
           idcliente,
           idvehiculo,
@@ -1490,6 +1486,7 @@ BEGIN
     ON p.idsubcategoria = sc.idsubcategoria
   WHERE p.idproducto = _idproducto;
 END$$
+
 DROP PROCEDURE IF EXISTS spDeactivateColaborador $$
 CREATE PROCEDURE spDeactivateColaborador(
   IN _idcolaborador INT,
@@ -1505,80 +1502,87 @@ WHERE idcolaborador = _idcolaborador;
   SET ct.fechafin = _fechafin
   WHERE c.idcolaborador = _idcolaborador;
 END $$
--- select * from colaboradores;
+
 DROP PROCEDURE IF EXISTS spUpdateColaborador $$
 CREATE PROCEDURE spUpdateColaborador(
-  IN _idcolaborador  INT,
-  -- Datos persona
-  IN _nombres        VARCHAR(50),
-  IN _apellidos      VARCHAR(50),
-  IN _tipodoc        VARCHAR(30),
-  IN _numdoc         CHAR(20),
-  IN _direccion      VARCHAR(70),
-  IN _correo         VARCHAR(100),
-  IN _telprincipal   VARCHAR(20),
-  -- Datos contrato
-  IN _idrol          INT,
-  IN _fechainicio    DATE,
-  IN _fechafin       DATE,
-  -- Datos de acceso
-  IN _namuser        VARCHAR(50),
-  IN _passuser       VARCHAR(255)
+    IN  _idcolaborador INT,
+    IN  _nombres        VARCHAR(50),
+    IN  _apellidos      VARCHAR(50),
+    -- IN  _tipodoc        VARCHAR(30), -- Ya no se usa si no se actualiza
+    -- IN  _numdoc         CHAR(20),    -- Ya no se usa si no se actualiza
+    IN  _numruc         CHAR(11),    -- Necesitas recibirlo si lo vas a actualizar
+    IN  _direccion      VARCHAR(70),
+    IN  _correo         VARCHAR(100),
+    IN  _telprincipal   VARCHAR(20),
+    IN  _telalternativo VARCHAR(20), -- Necesitas recibirlo si lo vas a actualizar
+    IN  _idrol          INT,
+    IN  _fechainicio    DATE,
+    IN  _fechafin       DATE,
+    IN  _namuser        VARCHAR(50),
+    IN  _passuser       VARCHAR(255)
+    -- Ya no necesitas OUT _filas_afi si PHP usa rowCount() del statement execute
 )
 BEGIN
-  DECLARE _idcontrato INT;
-  DECLARE _idpersona  INT;
+    -- DECLARE v_total INT DEFAULT 0; -- No es necesario si no se usa como OUT
+    DECLARE _idpersona  INT;
+    DECLARE _idcontrato INT;
 
-  -- Obtenemos contrato y persona asociados
-  SELECT idcontrato INTO _idcontrato
-    FROM colaboradores
-   WHERE idcolaborador = _idcolaborador;
+    -- Obtener IDs necesarios
+    SELECT idcontrato INTO _idcontrato
+        FROM colaboradores
+        WHERE idcolaborador = _idcolaborador;
 
-  SELECT idpersona INTO _idpersona
-    FROM contratos
-   WHERE idcontrato = _idcontrato;
+    IF _idcontrato IS NOT NULL THEN -- Solo proceder si se encontró el contrato
+        SELECT idpersona INTO _idpersona
+            FROM contratos
+            WHERE idcontrato = _idcontrato;
 
-  START TRANSACTION;
+        IF _idpersona IS NOT NULL THEN -- Solo proceder si se encontró la persona
+            -- 1) Actualizar datos de la persona
+            UPDATE personas
+               SET nombres        = _nombres,
+                   apellidos      = _apellidos,
+                   numruc         = NULLIF(_numruc, ''),
+                   direccion      = NULLIF(_direccion, ''),
+                   correo         = NULLIF(_correo, ''),
+                   telprincipal   = _telprincipal,
+                   telalternativo = NULLIF(_telalternativo, ''),
+                   modificado     = NOW()
+             WHERE idpersona = _idpersona;
+            -- SET v_total = v_total + ROW_COUNT(); -- Opcional
 
-    -- 1) Actualizar datos de la persona
-    UPDATE personas
-       SET nombres        = _nombres,
-           apellidos      = _apellidos,
-           tipodoc        = _tipodoc,
-           numdoc         = _numdoc,
-           direccion      = NULLIF(_direccion, ''),
-           correo         = NULLIF(_correo, ''),
-           telprincipal   = _telprincipal,
-           modificado     = NOW()
-     WHERE idpersona = _idpersona;
+            -- 2) Actualizar datos del contrato
+            UPDATE contratos
+               SET idrol       = _idrol,
+                   fechainicio = CASE
+                                    WHEN _fechainicio IS NULL OR _fechainicio = '' THEN fechainicio
+                                    ELSE _fechainicio
+                                  END,
+                   fechafin    = _fechafin, -- Asumiendo que _fechafin ya es NULL o una fecha válida desde PHP
+                   modificado  = NOW()
+             WHERE idcontrato = _idcontrato;
+            -- SET v_total = v_total + ROW_COUNT(); -- Opcional
 
-    -- 2) Actualizar datos del contrato
-    UPDATE contratos
-   SET idrol       = _idrol,
-       fechainicio = CASE 
-                        WHEN _fechainicio IS NULL OR _fechainicio = '' 
-                          THEN fechainicio 
-                        ELSE _fechainicio 
-                      END,
-       fechafin    = CASE 
-                        WHEN _fechafin    IS NULL OR _fechafin = '' 
-                          THEN fechafin 
-                        ELSE _fechafin 
-                      END,
-       modificado  = NOW()
- WHERE idcontrato = _idcontrato;
-
-    -- 3) Actualizar datos del usuario
-    UPDATE colaboradores
-        SET namuser  = _namuser,
-       passuser = CASE
-                    WHEN _passuser IS NULL OR _passuser = '' THEN passuser
-                    ELSE SHA2(_passuser,256)
-                  END
- WHERE idcolaborador = _idcolaborador;
-
-  COMMIT;
+            -- 3) Actualizar usuario y/o contraseña en colaboradores
+            -- Solo username si no se provee contraseña
+            IF (_passuser IS NULL OR _passuser = '') AND (_namuser IS NOT NULL AND _namuser <> '') THEN
+                UPDATE colaboradores
+                   SET namuser  = _namuser
+                 WHERE idcolaborador = _idcolaborador;
+                -- SET v_total = v_total + ROW_COUNT(); -- Opcional
+            -- Username y contraseña si se provee contraseña
+            ELSEIF (_passuser IS NOT NULL AND _passuser <> '') AND (_namuser IS NOT NULL AND _namuser <> '') THEN
+                UPDATE colaboradores
+                   SET namuser  = _namuser,
+                       passuser = SHA2(_passuser, 256)
+                 WHERE idcolaborador = _idcolaborador;
+                -- SET v_total = v_total + ROW_COUNT(); -- Opcional
+            END IF;
+        END IF; -- _idpersona IS NOT NULL
+    END IF; -- _idcontrato IS NOT NULL
+    -- SET _filas_afi = v_total; -- Ya no es necesario si PHP usa su propio rowCount
 END $$
+
 -- select * from colaboradores;
 DROP PROCEDURE IF EXISTS spGetColaboradorById $$
 CREATE PROCEDURE spGetColaboradorById(
@@ -1654,7 +1658,7 @@ BEGIN
     INSERT INTO contratos (
       idrol, idpersona, fechainicio, fechafin
     ) VALUES (
-      _idrol, _idpersona, _fechainicio, NULLIF(_fechafin,'')
+      _idrol, _idpersona, CURDATE(), NULLIF(_fechafin,'')
     );
     SET _idcontrato = LAST_INSERT_ID();
 

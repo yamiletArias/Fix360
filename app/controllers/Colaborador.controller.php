@@ -13,10 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         'status'        => false,
         'idcolaborador' => -1,
         'namuser'       => '',
-        'nombreCompleto'=> '',
+        'nombreCompleto' => '',
         'permisos'      => []
     ];
-    echo json_encode([ 'status' => true, 'message' => 'Sesión cerrada' ]);
+    echo json_encode(['status' => true, 'message' => 'Sesión cerrada']);
     exit;
 }
 
@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'list') {
     try {
         $data = $col->getAll();
-        echo json_encode([ 'status' => 'success', 'data' => $data ]);
+        echo json_encode(['status' => 'success', 'data' => $data]);
     } catch (Exception $e) {
-        echo json_encode([ 'status' => 'error', 'message' => $e->getMessage() ]);
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
     exit;
 }
@@ -35,13 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'detail') {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
     if ($id <= 0) {
-        echo json_encode([ 'status' => 'error', 'message' => 'ID inválido' ]);
+        echo json_encode(['status' => 'error', 'message' => 'ID inválido']);
     } else {
         $row = $col->getColaboradorById($id);
         if ($row) {
-            echo json_encode([ 'status' => 'success', 'data' => $row ]);
+            echo json_encode(['status' => 'success', 'data' => $row]);
         } else {
-            echo json_encode([ 'status' => 'error', 'message' => 'No se encontró colaborador' ]);
+            echo json_encode(['status' => 'error', 'message' => 'No se encontró colaborador']);
         }
     }
     exit;
@@ -51,13 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'get') {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
     if ($id <= 0) {
-        echo json_encode([ 'status' => 'error', 'message' => 'ID inválido' ]);
+        echo json_encode(['status' => 'error', 'message' => 'ID inválido']);
     } else {
         $colData = $col->getById($id);
         if ($colData) {
-            echo json_encode([ 'status' => 'success', 'data' => $colData ]);
+            echo json_encode(['status' => 'success', 'data' => $colData]);
         } else {
-            echo json_encode([ 'status' => 'error', 'message' => 'No se encontró colaborador' ]);
+            echo json_encode(['status' => 'error', 'message' => 'No se encontró colaborador']);
         }
     }
     exit;
@@ -66,24 +66,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 // 5) Crear colaborador
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') {
     $p = [
-    'namuser'      => Helper::limpiarCadena($_POST['namuser']      ?? ''),
-    'passuser'     => Helper::limpiarCadena($_POST['passuser']     ?? ''),
-    'idrol'        => intval($_POST['idrol']                       ?? 0),
-    'fechainicio'  => Helper::limpiarCadena($_POST['fechainicio']  ?? ''),
-    'fechafin'     => Helper::limpiarCadena($_POST['fechafin']     ?? ''),
-    'nombres'      => Helper::limpiarCadena($_POST['nombres']      ?? ''),
-    'apellidos'    => Helper::limpiarCadena($_POST['apellidos']    ?? ''),
-    'tipodoc'      => Helper::limpiarCadena($_POST['tipodoc']      ?? ''),
-    'numdoc'       => Helper::limpiarCadena($_POST['numdoc']       ?? ''),
-    'direccion'    => Helper::limpiarCadena($_POST['direccion']    ?? ''),
-    'correo'       => Helper::limpiarCadena($_POST['correo']       ?? ''),
-    'telprincipal' => Helper::limpiarCadena($_POST['telprincipal'] ?? '')
-];
+        'namuser'      => Helper::limpiarCadena($_POST['namuser']      ?? ''),
+        'passuser'     => Helper::limpiarCadena($_POST['passuser']     ?? ''),
+        'idrol'        => intval($_POST['idrol']                       ?? 0),
+        'fechainicio'  => Helper::limpiarCadena($_POST['fechainicio']  ?? ''),
+        'fechafin'     => Helper::limpiarCadena($_POST['fechafin']     ?? ''),
+        'nombres'      => Helper::limpiarCadena($_POST['nombres']      ?? ''),
+        'apellidos'    => Helper::limpiarCadena($_POST['apellidos']    ?? ''),
+        'tipodoc'      => Helper::limpiarCadena($_POST['tipodoc']      ?? ''),
+        'numdoc'       => Helper::limpiarCadena($_POST['numdoc']       ?? ''),
+        'direccion'    => Helper::limpiarCadena($_POST['direccion']    ?? ''),
+        'correo'       => Helper::limpiarCadena($_POST['correo']       ?? ''),
+        'telprincipal' => Helper::limpiarCadena($_POST['telprincipal'] ?? '')
+    ];
     $inserted = $col->add($p);
     if ($inserted > 0) {
-        echo json_encode([ 'status' => true, 'message' => 'Registrado correctamente.' ]);
+        echo json_encode(['status' => true, 'message' => 'Registrado correctamente.']);
     } else {
-        echo json_encode([ 'status' => false, 'message' => 'Error al registrar.' ]);
+        echo json_encode(['status' => false, 'message' => 'Error al registrar.']);
     }
     exit;
 }
@@ -91,25 +91,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // 6) Actualizar colaborador
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
     $p = [
-    'idcolaborador'=> intval( Helper::limpiarCadena($_POST['idcolaborador'] ?? '') ),
-    'nombres'      => Helper::limpiarCadena($_POST['nombres']      ?? ''),
-    'apellidos'    => Helper::limpiarCadena($_POST['apellidos']    ?? ''),
-    'tipodoc'      => Helper::limpiarCadena($_POST['tipodoc']      ?? ''),
-    'numdoc'       => Helper::limpiarCadena($_POST['numdoc']       ?? ''),
-    'direccion'    => Helper::limpiarCadena($_POST['direccion']    ?? ''),
-    'correo'       => Helper::limpiarCadena($_POST['correo']       ?? ''),
-    'telprincipal' => Helper::limpiarCadena($_POST['telprincipal'] ?? ''),
-    'idrol'        => intval( Helper::limpiarCadena($_POST['idrol'] ?? '') ),
-    'fechainicio'  => Helper::limpiarCadena($_POST['fechainicio']  ?? ''),
-    'fechafin'     => Helper::limpiarCadena($_POST['fechafin']     ?? ''),
-    'namuser'      => Helper::limpiarCadena($_POST['namuser']      ?? ''),
-    'passuser'     => Helper::limpiarCadena($_POST['passuser']     ?? '')
-];
+        'idcolaborador' => intval(Helper::limpiarCadena($_POST['idcolaborador'] ?? '')),
+        'nombres'      => Helper::limpiarCadena($_POST['nombres']      ?? ''),
+        'apellidos'    => Helper::limpiarCadena($_POST['apellidos']    ?? ''),
+        'tipodoc'      => Helper::limpiarCadena($_POST['tipodoc']      ?? ''),
+        'numdoc'       => Helper::limpiarCadena($_POST['numdoc']       ?? ''),
+        'direccion'    => Helper::limpiarCadena($_POST['direccion']    ?? ''),
+        'correo'       => Helper::limpiarCadena($_POST['correo']       ?? ''),
+        'telprincipal' => Helper::limpiarCadena($_POST['telprincipal'] ?? ''),
+        'idrol'        => intval(Helper::limpiarCadena($_POST['idrol'] ?? '')),
+        'fechainicio'  => Helper::limpiarCadena($_POST['fechainicio']  ?? ''), // Sigue llegando ''
+        'fechafin'     => empty($_POST['fechafin']) ? null : Helper::limpiarCadena($_POST['fechafin']), // Cambio aquí
+        'namuser'      => Helper::limpiarCadena($_POST['namuser']      ?? ''),
+        'passuser'     => Helper::limpiarCadena($_POST['passuser']     ?? '')
+    ];
+
+    error_log("Parámetros para actualizar colaborador: " . print_r($p, true)); // Añade esto
     $updated = $col->update($p);
     if ($updated > 0) {
-        echo json_encode([ 'status' => true, 'message' => 'Actualizado correctamente.' ]);
+        echo json_encode(['status' => true, 'message' => 'Actualizado correctamente.']);
     } else {
-        echo json_encode([ 'status' => false, 'message' => 'No se realizaron cambios o hubo un error.' ]);
+        echo json_encode(['status' => false, 'message' => 'No se realizaron cambios o hubo un error.']);
     }
     exit;
 }
@@ -151,5 +153,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Operación no soportada
-echo json_encode([ 'status' => 'error', 'message' => 'Operación no soportada' ]);
+echo json_encode(['status' => 'error', 'message' => 'Operación no soportada']);
 exit;

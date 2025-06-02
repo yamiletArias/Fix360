@@ -8,6 +8,7 @@ class Colaborador extends Conexion
     public function __CONSTRUCT()
     {
         $this->pdo = parent::getConexion();
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     /**
@@ -19,7 +20,7 @@ class Colaborador extends Conexion
     public function login($namuser, $passuser)
     {
         try {
-            
+
             $stmt = $this->pdo->prepare("CALL spLoginColaborador(:namuser, :passuser)");
             $stmt->bindParam(':namuser',  $namuser,   PDO::PARAM_STR);
             $stmt->bindParam(':passuser', $passuser,  PDO::PARAM_STR);
@@ -78,10 +79,10 @@ class Colaborador extends Conexion
         }
     }
 
-        public function getAll()
+    public function getAll()
     {
         try {
-            $sql = "SELECT * FROM vwColaboradoresDetalle where usuario_activo = 1"; 
+            $sql = "SELECT * FROM vwColaboradoresDetalle where usuario_activo = 1";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -110,12 +111,13 @@ class Colaborador extends Conexion
     /**
      * Registrar un nuevo colaborador (persona + contrato + usuario).
      */
-    public function add($params = [] ):int {
+    public function add($params = []): int
+    {
         $numRows = 0;
         try {
             $query = "CALL spRegisterColaborador(?,?,?,?,?,?,?,?,?,?,?,?)";
             $stmt = $this->pdo->prepare($query);
-            
+
             $stmt->execute(array(
                 $params['namuser'],
                 $params['passuser'],
@@ -132,18 +134,18 @@ class Colaborador extends Conexion
             ));
 
             $numRows = $stmt->rowCount();
-            
-            } catch (PDOException $e) {
-      error_log("Error DB: " . $e->getMessage());
-      return $numRows;
-    } 
-    return $numRows;
-  }
+        } catch (PDOException $e) {
+            error_log("Error DB: " . $e->getMessage());
+            return $numRows;
+        }
+        return $numRows;
+    }
 
     /**
      * Actualizar datos de un colaborador (persona, contrato y usuario).
      */
-    public function update($params = [] ):int {
+    public function update($params = []): int
+    {
         $numRows = 0;
         try {
             $query = "CALL spUpdateColaborador(?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -159,20 +161,20 @@ class Colaborador extends Conexion
                     $params['correo'],
                     $params['telprincipal'],
                     $params['idrol'],
-                    $params['fechainicio'],
-                    $params['fechafin'] ?? null,
+                    $params['fechainicio'], // Sigue siendo '' si está disabled
+                    $params['fechafin'],    // Ahora puede ser null
                     $params['namuser'],
                     $params['passuser']
-                    
-                ));
-           $numRows = $stmt->rowCount();
 
-    } catch (PDOException $e) {
-      error_log("Error DB: " . $e->getMessage());
-      return $numRows;
-    } 
-    return $numRows;
-  }
+                )
+            );
+            $numRows = $stmt->rowCount();
+        } catch (PDOException $e) {
+            error_log("Error DB: " . $e->getMessage());
+            return $numRows;
+        }
+        return $numRows;
+    }
 
     /**
      * Dar de baja un colaborador (cerrar contrato).
