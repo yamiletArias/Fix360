@@ -4,21 +4,21 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once dirname(__DIR__, 2) . '/app/models/sesion.php';
 
-// 1) Incluyo el header para tener sesión y $usuario
 require_once dirname(__DIR__, 2) . '/app/config/app.php';
 require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
 require_once dirname(__DIR__, 2) . '/app/models/Colaborador.php';
-
-
 
 use Spipu\Html2Pdf\Html2Pdf;
 use Spipu\Html2Pdf\Exception\Html2PdfException;
 use Spipu\Html2Pdf\Exception\ExceptionFormatter;
 
 // Parámetros básicos
-$colModel       = new Colaborador();
-$usuario        = $colModel->getById($idadmin);
-$usuarioNombre  = $usuario['nombreCompleto'];
+$colModel      = new Colaborador();
+$usuario       = $colModel->getById($idadmin);
+
+// Concatenamos directamente apellidos + nombres:
+$usuarioNombre = trim("{$usuario['apellidos']} {$usuario['nombres']}");
+
 $idproducto = $_GET['idproducto'] ?? null;
 $fecha      = $_GET['fecha']      ?? date('Y-m-d');
 $modo       = $_GET['modo']       ?? 'dia';
@@ -37,7 +37,7 @@ $apiMovUrl = sprintf(
 );
 $jsonMov = @file_get_contents($apiMovUrl);
 $objMov  = $jsonMov ? json_decode($jsonMov, true) : null;
-$datos   = ($objMov && isset($objMov['status']) && $objMov['status']==='success')
+$datos   = ($objMov && isset($objMov['status']) && $objMov['status'] === 'success')
            ? $objMov['data']
            : [];
 
@@ -52,16 +52,15 @@ $stock_actual = $objStock['stock_actual'] ?? '';
 $stock_min    = $objStock['stockmin']      ?? '';
 $stock_max    = $objStock['stockmax']      ?? '';
 
-// 4) Nombre de usuario (viene de header.php)
-$usuarioNombre = $usuario['nombreCompleto'];
+// (YA NO volver a asignar $usuarioNombre aquí; la dejamos con apellidos+nombres)
 
 // 5) Capturar plantilla
 ob_start();
 
-  // variables disponibles en la plantilla:
-  //   $datos, $stock_actual, $stock_min, $stock_max, $usuarioNombre, $nombre, $fecha, $modo
-  require __DIR__ . '/css/estilos_pdf.html';
-  require __DIR__ . '/content/data-reporte-kardex.php';
+// variables disponibles en la plantilla:
+//   $datos, $stock_actual, $stock_min, $stock_max, $usuarioNombre, $nombre, $fecha, $modo
+require __DIR__ . '/css/estilos_pdf.html';
+require __DIR__ . '/content/data-reporte-kardex.php';
 $content = ob_get_clean();
 
 // 6) Generar PDF
