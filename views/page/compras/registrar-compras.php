@@ -454,8 +454,8 @@ require_once "../../partials/_footer.php";
     fechaInput.max = `${yyyy}-${MM}-${dd}T23:59`;
 
     btnPermitir.addEventListener("click", () => {
+      // Solo quitamos el "min", mantenemos "max" = hoy
       fechaInput.removeAttribute("min");
-      fechaInput.removeAttribute("max");
       btnPermitir.disabled = true;
       btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
       btnPermitir.title = "Fechas pasadas habilitadas";

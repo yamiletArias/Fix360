@@ -32,18 +32,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 1) Productos
     tabla.querySelectorAll("tr").forEach((fila) => {
-      // Lee precio desde input
-      const precioInput = fila.querySelector(".precio-input");
-      const precio = precioInput ? parseFloat(precioInput.value) || 0 : 0;
+      // ----------- LECTURA DESDE <span class="precio-texto"> -----------
+      const precioSpan = fila.querySelector(".precio-texto");
+      const precio = precioSpan ? parseFloat(precioSpan.textContent) || 0 : 0;
 
-      // Lee cantidad desde input
+      // Cantidad (sigue siendo input)
       const cantidad =
         parseFloat(fila.querySelector(".cantidad-input").value) || 0;
 
-      // Lee descuento desde input
-      const descuentoInput = fila.querySelector(".descuento-input");
-      const descuento = descuentoInput
-        ? parseFloat(descuentoInput.value) || 0
+      // ----------- LECTURA DESDE <span class="descuento-texto"> -----------
+      const descuentoSpan = fila.querySelector(".descuento-texto");
+      const descuento = descuentoSpan
+        ? parseFloat(descuentoSpan.textContent) || 0
         : 0;
 
       const importeLinea = (precio - descuento) * cantidad;
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
       totalDescuento += descuento * cantidad;
     });
 
-    // 2) Servicios (igual que antes)
+    // 2) Servicios
     const totalServicios = detalleServicios.reduce(
       (sum, s) => sum + s.precio,
       0
@@ -132,11 +132,11 @@ document.addEventListener("DOMContentLoaded", function () {
             <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>`;
           tabla.appendChild(tr);
           detalleVenta.push({
-            idproducto: item.idproducto,
+            idproducto: item.idproducto, // <-- aquí sí debería venir el entero
             producto: item.producto,
-            precio,
-            cantidad,
-            descuento,
+            precio: precio,
+            cantidad: cantidad,
+            descuento: descuento,
             importe: importe.toFixed(2),
           });
         });
@@ -198,11 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
   agregarProductoBtn.addEventListener("click", () => {
     const idp = selectedProduct.idproducto;
     const nombre = inputProductElement.value.trim();
-    /* const nombre = inputProductElement.value; */
     const precio = parseFloat(inputPrecio.value);
-    const cantidad = parseFloat(inputCantidad.value);
+    const cantidad = parseInt(inputCantidad.value, 10); // <-- entero desde el inicio
     if (isNaN(cantidad) || cantidad < 1) {
-      alert("La cantidad debe ser un número mayor o igual a 1.");
+      alert("La cantidad debe ser un número entero mayor o igual a 1.");
       inputCantidad.value = 1;
       inputCantidad.focus();
       return;
@@ -210,16 +209,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (inputDescuento.value.trim() === "") {
       inputDescuento.value = "0";
     }
-    /* inputPrecio.addEventListener("blur", () => {
-      const val = parseFloat(inputPrecio.value);
-      if (isNaN(val) || val <= 0) {
-        alert("Precio inválido.");
-        // Asegúrate de que selectedProduct.precio sea un número
-        inputPrecio.value = parseFloat(selectedProduct.precio).toFixed(2);
-      }
-    }); */
     const descuento = parseFloat(inputDescuento.value);
 
+    // Validaciones…
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
       alert("Ese producto no existe. Elige uno de la lista.");
       return resetCamposProducto();
@@ -233,26 +225,22 @@ document.addEventListener("DOMContentLoaded", function () {
       inputPrecio.focus();
       return;
     }
-    if (cantidad <= 0) {
+    if (cantidad < 1) {
       alert("La cantidad debe ser mayor que cero.");
-      inputCantidad.value = 1; // reset al mínimo
+      inputCantidad.value = 1;
       return;
     }
-
     const stockDisponible = selectedProduct.stock || 0;
-    /* const stockDisponible = parseFloat(inputStock.value) || 0; */
     if (cantidad > stockDisponible) {
       alert(
         `No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`
       );
-      document.getElementById("cantidad").value = stockDisponible;
+      inputCantidad.value = stockDisponible;
       return;
     }
-
-    // Validación de descuento unitario
     if (descuento > precio) {
       alert("El descuento unitario no puede ser mayor que el precio unitario.");
-      document.getElementById("descuento").value = "";
+      inputDescuento.value = "";
       return;
     }
     if (descuento < 0) {
@@ -260,120 +248,84 @@ document.addEventListener("DOMContentLoaded", function () {
       inputDescuento.value = 0;
       return;
     }
-
     if (detalleVenta.some((d) => d.idproducto === idp)) {
       alert("Este producto ya ha sido agregado.");
       return resetCamposProducto();
     }
 
-    /* const importe = (precio * cantidad) - descuento; */
     const netoUnit = precio - descuento;
     const importe = netoUnit * cantidad;
 
+    // — Creamos la fila con cantidad en step=1 y sin toFixed(2) —
     const fila = document.createElement("tr");
-    // le pongo data-idproducto a la fila
     fila.dataset.idproducto = idp;
     fila.innerHTML = `
-        <td>${tabla.rows.length + 1}</td>
-        <td>${nombre}</td>
-  <td>
-    <input type="number"
-          class="form-control form-control-sm precio-input"
-          value="${parseInt(precio)}"
-          min="1"
-          step="1"
-          style="width:5rem;">
-  </td>
-  <td>
-    <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
-      <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
-        <input type="number"
-          class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-          value="${parseInt(cantidad)}"
-          min="1"
-          step="1"
-          max="${stockDisponible}">
-      <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
-    </div>
-  </td>
-  <td>
-    <input type="number"
-          class="form-control form-control-sm descuento-input"
-          value="${parseInt(descuento)}"
-          min="0"
-          step="1"
-          style="width:5rem;">
+    <td>${tabla.rows.length + 1}</td>
+    <td>${nombre}</td>
+
+    <!-- Precio fijo (no editable) -->
+    <td>
+      <span class="precio-texto">${precio.toFixed(2)}</span>
     </td>
-        <td class="importe-cell">${importe.toFixed(2)}</td>
 
-        <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
-      `;
-    // al crear el botón de quitar
-    fila.querySelector(".btn-quitar").addEventListener("click", () => {
-      // 1) quito la fila del DOM
-      fila.remove();
-      // 2) quito del array usando el idproducto guardado en la fila
-      const idElim = parseInt(fila.dataset.idproducto, 10);
-      const idx = detalleVenta.findIndex((d) => d.idproducto === idElim);
-      if (idx >= 0) detalleVenta.splice(idx, 1);
-      // 3) renumero y recalculo
-      actualizarNumeros();
-      calcularTotales();
-    });
+    <!-- Cantidad como entero, step=1 -->
+    <td>
+      <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+        <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
+        <input type="number"
+               class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+               value="${cantidad}"
+               min="1"
+               step="1">
+        <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
+      </div>
+    </td>
 
+    <!-- Descuento fijo (no editable) -->
+    <td>
+      <span class="descuento-texto">${descuento.toFixed(2)}</span>
+    </td>
+
+    <td class="importe-cell">${importe.toFixed(2)}</td>
+    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+  `;
     tabla.appendChild(fila);
-    tabla.addEventListener("input", (e) => {
-      // Precio y cantidad deben mostrarse como enteros
-      if (
-        e.target.classList.contains("precio-input") ||
-        e.target.classList.contains("cantidad-input")
-      ) {
-        let valor = parseInt(e.target.value) || 0;
-        e.target.value = valor;
-      }
-    });
 
+    // — Referencias dentro de la fila recién creada —
     const decBtn = fila.querySelector(".btn-decrement");
     const incBtn = fila.querySelector(".btn-increment");
-    const priceInput = fila.querySelector(".precio-input");
     const qtyInput = fila.querySelector(".cantidad-input");
     const importeCell = fila.querySelector(".importe-cell");
-    const descInput = fila.querySelector(".descuento-input");
-    const discountInput = fila.querySelector(".descuento-input");
+    const precioSpan = fila.querySelector(".precio-texto");
+    const descuentoSpan = fila.querySelector(".descuento-texto");
 
+    // — Función que actualiza esta línea cuando cambie cantidad —
     function actualizarLinea() {
-      let qty = parseFloat(qtyInput.value) || 1;
+      // Leer cantidad como entero
+      let qty = parseInt(qtyInput.value, 10) || 1;
       if (qty < 1) qty = 1;
-      if (qty > stockDisponible) qty = stockDisponible;
-      qtyInput.value = qty.toFixed(2);
+      qtyInput.value = qty; // <-- quede "1", "2", "3", sin decimales
 
-      let precioNuevo = parseFloat(priceInput.value) || 0;
-      if (precioNuevo < 0.01) precioNuevo = 0.01;
-      priceInput.value = precioNuevo.toFixed(2);
+      // Leer precio/desc desde los spans
+      const precioValor = parseFloat(precioSpan.textContent) || 0;
+      const descuentoValor = parseFloat(descuentoSpan.textContent) || 0;
 
-      let descuentoNuevo = parseFloat(discountInput.value) || 0;
-      if (descuentoNuevo < 0) descuentoNuevo = 0;
-      if (descuentoNuevo > precioNuevo) descuentoNuevo = precioNuevo;
-      discountInput.value = descuentoNuevo.toFixed(2);
-
-      const netoUnit = precioNuevo - descuentoNuevo;
+      const netoUnit = precioValor - descuentoValor;
       const nuevoImporte = netoUnit * qty;
       importeCell.textContent = nuevoImporte.toFixed(2);
 
+      // Actualizo en el array detalleVenta
       const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
       if (idx >= 0) {
         detalleVenta[idx].cantidad = qty;
-        detalleVenta[idx].precio = precioNuevo;
-        detalleVenta[idx].descuento = descuentoNuevo;
         detalleVenta[idx].importe = nuevoImporte.toFixed(2);
       }
+
+      actualizarNumeros();
       calcularTotales();
     }
-    priceInput.addEventListener("input", actualizarLinea);
-    qtyInput.addEventListener("input", actualizarLinea);
-    discountInput.addEventListener("input", actualizarLinea);
-    descInput.addEventListener("input", actualizarLinea);
-    // incr/decr
+
+    // — Listeners para subir/bajar cantidad en pasos de 1 —
     decBtn.addEventListener("click", () => {
       qtyInput.stepDown();
       actualizarLinea();
@@ -382,9 +334,9 @@ document.addEventListener("DOMContentLoaded", function () {
       qtyInput.stepUp();
       actualizarLinea();
     });
-    // y si alguien escribe un número directamente
     qtyInput.addEventListener("input", actualizarLinea);
-    // 3) resto de tu listener de quitar…
+
+    // — Botón de eliminar fila —
     fila.querySelector(".btn-quitar").addEventListener("click", () => {
       fila.remove();
       const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
@@ -393,15 +345,18 @@ document.addEventListener("DOMContentLoaded", function () {
       calcularTotales();
     });
 
+    // — Agrego al array detalleVenta con cantidad entera —
     detalleVenta.push({
       idproducto: idp,
       producto: nombre,
-      precio,
-      cantidad,
-      descuento,
+      precio: precio.toFixed(2),
+      cantidad: cantidad,
+      descuento: descuento.toFixed(2),
       importe: importe.toFixed(2),
     });
+
     resetCamposProducto();
+    actualizarNumeros();
     calcularTotales();
   });
 
@@ -817,7 +772,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("btn-increment")) {
+  /*   if (e.target.classList.contains("btn-increment")) {
     const input = e.target.parentElement.querySelector(".cantidad-input");
     input.value = parseInt(input.value || "0") + 1;
     input.dispatchEvent(new Event("input"));
@@ -828,7 +783,8 @@ document.addEventListener("click", function (e) {
     const newVal = parseInt(input.value || "1") - 1;
     input.value = newVal > 0 ? newVal : 1;
     input.dispatchEvent(new Event("input"));
-  }
+  } */
+
   const inputFecha = document.getElementById("fechaIngreso");
   const btnPermitir = document.getElementById("btnPermitirFechaPasada");
 

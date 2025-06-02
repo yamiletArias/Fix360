@@ -279,7 +279,12 @@ BEGIN
 END$$
 DELIMITER ;
 */
-
+SELECT idcliente
+FROM clientes
+WHERE idcliente = 1;
+SELECT idcliente
+FROM clientes
+WHERE idcliente = 1;
 /*
 -- 1) Tabla de Expedientes OT
 CREATE TABLE expediente_ot (

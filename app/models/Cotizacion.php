@@ -15,19 +15,20 @@ class Cotizacion extends Conexion
   public function getCabeceraById(int $id)
   {
     $sql = "
-      SELECT 
-        c.idcotizacion,
-        COALESCE(CONCAT(p.nombres,' ',p.apellidos), e.nomcomercial) AS cliente,
-        c.fechahora,
-        c.vigenciadias,
-        c.estado
-      FROM cotizaciones c
-      JOIN clientes cli ON c.idcliente = cli.idcliente
-      LEFT JOIN personas p ON cli.idpersona = p.idpersona
-      LEFT JOIN empresas e ON cli.idempresa = e.idempresa
-      WHERE c.idcotizacion = ?
-      LIMIT 1
-    ";
+    SELECT 
+      c.idcotizacion,
+      c.idcliente,                                             -- ← lo agregamos aquí
+      COALESCE(CONCAT(p.nombres,' ',p.apellidos), e.nomcomercial) AS cliente,
+      c.fechahora,
+      c.vigenciadias,
+      c.estado
+    FROM cotizaciones c
+    JOIN clientes cli ON c.idcliente = cli.idcliente
+    LEFT JOIN personas p ON cli.idpersona = p.idpersona
+    LEFT JOIN empresas e ON cli.idempresa = e.idempresa
+    WHERE c.idcotizacion = ?
+    LIMIT 1
+  ";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
