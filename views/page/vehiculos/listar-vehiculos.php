@@ -1,6 +1,6 @@
 <?php
 
-const NAMEVIEW = "Vehiculo";
+const NAMEVIEW = "Vehiculos";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -10,10 +10,12 @@ require_once "../../partials/header.php";
 <div class="container-main">
   <div class="header-group">
     <div class="text-end">
+      <!--
       <button title="Registrar vehiculo" type="button" onclick="window.location.href='registrar-vehiculos.php'"
         class="btn btn-success ">
         Registrar
       </button>
+-->
     </div>
   </div>
   <div class="table-container" id="tablaVehiculosContainer">
@@ -132,7 +134,7 @@ require_once "../../partials/_footer.php";
           defaultContent: "No disponible"
         }, // Cierra columna 3
         { // Columna 4: Marca (nombre)
-          data: "nombre",
+          data: "marca",
           defaultContent: "No disponible"
         }, // Cierra columna 4
         { // Columna 5: Placa

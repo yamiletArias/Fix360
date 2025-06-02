@@ -272,7 +272,7 @@ fechainicio 		DATE 			DEFAULT CURRENT_TIMESTAMP,
 fechafinal 			DATE 			NULL,
 CONSTRAINT fk_idcliente_8 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente),
 CONSTRAINT fk_idvehiculo_8 FOREIGN KEY (idvehiculo) REFERENCES vehiculos (idvehiculo),
-CONSTRAINT uq_propietario_unico UNIQUE(idvehiculo, fechainicio)
+CONSTRAINT uq_propietario_unico UNIQUE(idcliente,idvehiculo, fechainicio)
 
 )ENGINE = INNODB;
 

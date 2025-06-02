@@ -312,6 +312,7 @@ require_once "../../partials/_footer.php";
         `${SERVERURL}app/controllers/Vehiculo.controller.php?task=getVehiculoConPropietario&idvehiculo=${idvehiculo}`
       );
       const data = await res.json();
+      console.log("DEBUG: datos retornados por getVehiculoConPropietario:", data);
       if (!data.idvehiculo) return console.warn("Vehículo no encontrado:", idvehiculo);
 
       // Text inputs
@@ -336,6 +337,7 @@ require_once "../../partials/_footer.php";
       document.getElementById("modelo").value = data.idmodelo;
 
     } catch (err) {
+       
       console.error("Error al cargar datos del vehículo:", err);
     }
   }
@@ -523,15 +525,16 @@ require_once "../../partials/_footer.php";
       });
       const js = await res.json();
 
-      if (js.status === true) {
-        showToast("Vehículo actualizado correctamente", "SUCCESS", 1500);
-        setTimeout(() => {
-          window.location.href = "listar-vehiculos.php";
-        }, 1000);
-      } else {
-        const msg = js.message || "Error al actualizar el vehículo";
-        showToast(msg, "ERROR", 2000);
-      }
+     if (js.status === 'success') {
+  showToast("Vehículo actualizado correctamente", "SUCCESS", 1500);
+  setTimeout(() => {
+    window.location.href = "listar-vehiculos.php";
+  }, 1500);
+} else {
+  const msg = js.message || "Error al actualizar el vehículo";
+  showToast(msg, "ERROR", 2000);
+}
+
     } catch (err) {
       console.error("Error en fetch al actualizar vehículo:", err);
       showToast("Error de red o servidor", "ERROR", 2000);

@@ -126,7 +126,7 @@ SELECT
   END AS propietario,
   v.idvehiculo,
   t.tipov,
-  ma.nombre,
+  ma.nombre     AS marca,
   m.modelo,
   v.anio,
   v.numserie,
@@ -136,23 +136,33 @@ SELECT
   v.vin,
   v.numchasis,
   v.modificado
-FROM propietarios p
-LEFT JOIN vehiculos v
-  ON p.idvehiculo = v.idvehiculo
-LEFT JOIN clientes c
-  ON p.idcliente = c.idcliente
-LEFT JOIN modelos m
-  ON v.idmodelo = m.idmodelo
-LEFT JOIN tipovehiculos t
-  ON m.idtipov = t.idtipov
-LEFT JOIN marcas ma
-  ON m.idmarca = ma.idmarca
-LEFT JOIN personas pe
-  ON c.idpersona = pe.idpersona
-LEFT JOIN empresas em
-  ON c.idempresa = em.idempresa
+FROM vehiculos v
+  -- Unimos sólo el registro “activo” de propietarios (fechafinal IS NULL)
+  LEFT JOIN propietarios p
+    ON p.idvehiculo = v.idvehiculo
+   AND p.fechafinal IS NULL
+
+  LEFT JOIN clientes c
+    ON p.idcliente = c.idcliente
+
+  LEFT JOIN modelos m
+    ON v.idmodelo = m.idmodelo
+
+  LEFT JOIN tipovehiculos t
+    ON m.idtipov = t.idtipov
+
+  LEFT JOIN marcas ma
+    ON m.idmarca = ma.idmarca
+
+  LEFT JOIN personas pe
+    ON c.idpersona = pe.idpersona
+
+  LEFT JOIN empresas em
+    ON c.idempresa = em.idempresa
+
   LEFT JOIN tipocombustibles tc
-  ON v.idtcombustible = tc.idtcombustible;
+    ON v.idtcombustible = tc.idtcombustible;
+
   
 -- select * from vwtcombustible;  
   
