@@ -818,6 +818,15 @@ BEGIN
     END IF;
 END $$
 
+USE dbfix360;
+
+-- 1) Verifica que existe spUpdatePersona y se ejecuta sin errores:
+CALL spUpdatePersona(1, 'Prueba', 'Usuario', 'DNI', '12345678', '', 'Av. Prueba 123', 'prueba@mail.com', '999111222', '');
+
+-- 2) Verifica que existe spUpdateEmpresa y se ejecuta sin errores:
+CALL spUpdateEmpresa(1, 'Empresa Prueba', 'Razón Prueba S.A.', '012345678', 'empresa@mail.com');
+
+
 
 
 

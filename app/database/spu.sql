@@ -273,9 +273,15 @@ CREATE PROCEDURE spGetPersonaById(
   IN _idpersona INT
 )
 BEGIN
-  SELECT * FROM personas
-  WHERE idpersona = _idpersona;
-END$$
+  SELECT
+    p.*,
+    c.idcontactabilidad
+  FROM personas AS p
+  INNER JOIN clientes AS c
+    ON p.idpersona = c.idpersona
+  WHERE p.idpersona = _idpersona;
+END $$
+
 
 -- 15) Obtener empresa por ID
 DROP PROCEDURE IF EXISTS spGetEmpresaById $$
@@ -283,9 +289,15 @@ CREATE PROCEDURE spGetEmpresaById(
   IN _idempresa INT
 )
 BEGIN
-  SELECT * FROM empresas
-  WHERE idempresa = _idempresa;
-END$$
+  SELECT
+    e.*,
+    c.idcontactabilidad
+  FROM empresas AS e
+  INNER JOIN clientes AS c
+    ON e.idempresa = c.idempresa
+  WHERE e.idempresa = _idempresa;
+END $$
+
 
 -- 16) Buscar persona (por DNI o NOMBRE)
 DROP PROCEDURE IF EXISTS spBuscarPersona $$

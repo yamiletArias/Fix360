@@ -19,7 +19,7 @@ if (isset($_GET['idpersona'])) {
   // Inyectamos en JS
   const TIPODECLIENTE = "<?= $tipo ?>";
   const CLIENTE_ID = <?= $id ?>;
-  const SERVERURL     = "<?= SERVERURL ?>"; 
+  const SERVERURL = "<?= SERVERURL ?>";
 </script>
 
 <div class="container-main">
@@ -165,19 +165,22 @@ if (isset($_GET['idpersona'])) {
 <?php require_once "../../partials/_footer.php"; ?>
 
 <script>
-  console.log({ TIPODECLIENTE, CLIENTE_ID, SERVERURL });
-
   // views/page/clientes/js/editar-cliente.js
-// Lógica para editar cliente (persona o empresa)
-document.addEventListener("DOMContentLoaded", () => {
-  // 1) Referencias
-  const formPersona  = document.getElementById("formPersona");
-  const formEmpresa  = document.getElementById("formEmpresa");
-  const btnRegistrar = document.getElementById("btnRegistrar");
-  const radioPersona = document.querySelector('input[name="tipo"][value="persona"]');
-  const radioEmpresa = document.querySelector('input[name="tipo"][value="empresa"]');
 
-  // 2) Función para mostrar/ocultar formularios y deshabilitar el radio opuesto
+// Se asume que en la página se inyectan estas constantes:
+//   const TIPODECLIENTE = "persona" o "empresa";
+//   const CLIENTE_ID    = <número>;
+//   const SERVERURL     = "<URL base del servidor>";
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Referencias a formularios, radios y botón
+  const formPersona   = document.getElementById("formPersona");
+  const formEmpresa   = document.getElementById("formEmpresa");
+  const btnRegistrar  = document.getElementById("btnRegistrar");
+  const radioPersona  = document.querySelector('input[name="tipo"][value="persona"]');
+  const radioEmpresa  = document.querySelector('input[name="tipo"][value="empresa"]');
+
+  // Muestra u oculta los formularios según el tipo de cliente
   function mostrarFormulario(tipo) {
     if (tipo === "persona") {
       formPersona.style.display = "block";
@@ -192,11 +195,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 3) Inicialización: marcar radio y mostrar formulario
+  // Inicial: marcar radio correspondiente y mostrar el formulario adecuado
   document.querySelector(`input[name="tipo"][value="${TIPODECLIENTE}"]`).checked = true;
   mostrarFormulario(TIPODECLIENTE);
 
-  // 4) Cargar contactabilidad y luego datos existentes
+  // 1) Cargar opciones de Contactabilidad en ambos <select>
   function cargarContactabilidad() {
     return fetch(`${SERVERURL}app/controllers/Contactabilidad.controller.php`, {
       method: "POST",
@@ -211,14 +214,17 @@ document.addEventListener("DOMContentLoaded", () => {
       selE.innerHTML = "<option value=''>-- Contactabilidad --</option>";
       lista.forEach(item => {
         const opt = `<option value="${item.idcontactabilidad}">${item.contactabilidad}</option>`;
-        selP && (selP.innerHTML += opt);
-        selE && (selE.innerHTML += opt);
+        selP.innerHTML += opt;
+        selE.innerHTML += opt;
       });
-    });
+    })
+    .catch(err => console.error("Error al cargar contactabilidad:", err));
   }
 
+  // 2) Traer datos existentes del cliente (persona o empresa) y rellenar campos
   function cargarDatos() {
     if (CLIENTE_ID <= 0) return;
+
     const url = TIPODECLIENTE === 'persona'
       ? `${SERVERURL}app/controllers/Cliente.controller.php?task=getById&tipo=persona&idpersona=${CLIENTE_ID}`
       : `${SERVERURL}app/controllers/Cliente.controller.php?task=getById&tipo=empresa&idempresa=${CLIENTE_ID}`;
@@ -230,64 +236,124 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!reg) return;
 
         if (TIPODECLIENTE === "persona") {
-          // Poblar persona
-          ["tipodoc","numdoc","apellidos","nombres","direccion","telprincipal","telalternativo","correo","numruc"].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = reg[id] || '';
-          });
-          document.getElementById("cpersona").value = reg.idcontactabilidad;
-          // Deshabilitar inmutables
+          // Rellenar formulario de persona
+          document.getElementById("tipodoc").value         = reg.tipodoc             || "";
+          document.getElementById("numdoc").value         = reg.numdoc              || "";
+          document.getElementById("apellidos").value      = reg.apellidos           || "";
+          document.getElementById("nombres").value        = reg.nombres             || "";
+          document.getElementById("direccion").value      = reg.direccion           || "";
+          document.getElementById("telprincipal").value   = reg.telprincipal        || "";
+          document.getElementById("telalternativo").value = reg.telalternativo      || "";
+          document.getElementById("correo").value         = reg.correo              || "";
+          document.getElementById("numruc").value         = reg.numruc              || "";
+          document.getElementById("cpersona").value       = reg.idcontactabilidad   || "";
+
+          // Deshabilitar campos inmutables
           ["tipodoc","numdoc","apellidos","nombres"].forEach(id => {
             document.getElementById(id).disabled = true;
           });
+
+          // Guardar el idpersona en data-attribute para el POST
           formPersona.dataset.idpersona = reg.idpersona;
         } else {
-          // Poblar empresa
-          document.getElementById('ruc').value          = reg.ruc || '';
-          document.getElementById('nomcomercial').value = reg.nomcomercial || '';
-          document.getElementById('razonsocial').value  = reg.razonsocial || '';
-          document.getElementById('telempresa').value   = reg.telefono || '';
-          document.getElementById('correoemp').value    = reg.correo || '';
-          document.getElementById('cempresa').value     = reg.idcontactabilidad;
-          // Deshabilitar inmutables
-          ['ruc','nomcomercial','razonsocial'].forEach(id => {
+          // Rellenar formulario de empresa
+          document.getElementById("ruc").value           = reg.ruc                  || "";
+          document.getElementById("nomcomercial").value  = reg.nomcomercial         || "";
+          document.getElementById("razonsocial").value   = reg.razonsocial          || "";
+          document.getElementById("telempresa").value    = reg.telefono             || "";
+          document.getElementById("correoemp").value     = reg.correo               || "";
+          document.getElementById("cempresa").value      = reg.idcontactabilidad    || "";
+
+          // Deshabilitar campos inmutables
+          ["ruc","nomcomercial","razonsocial"].forEach(id => {
             document.getElementById(id).disabled = true;
           });
+
+          // Guardar el idempresa en data-attribute para el POST
           formEmpresa.dataset.idempresa = reg.idempresa;
         }
-      });
+      })
+      .catch(err => console.error("Error al cargar datos del cliente:", err));
   }
 
-  // 5) Ejecutar carga encadenada: primero contactabilidad, luego datos
-  cargarContactabilidad().then(cargarDatos);
+  // 3) Validación básica de formulario: los campos required no deben quedar vacíos
+  function validarFormulario(formElement) {
+    const elementos = Array.from(formElement.querySelectorAll("input, select"));
+    for (let el of elementos) {
+      if (el.hasAttribute("required") && el.value.trim() === "") {
+        el.classList.add("is-invalid");
+        el.focus();
+        return false;
+      }
+      el.classList.remove("is-invalid");
+    }
+    return true;
+  }
 
-  // 6) Envío de actualización
+  // 4) Ejecutar carga encadenada: primero contactabilidad, luego datos del cliente
+  cargarContactabilidad()
+    .then(cargarDatos)
+    .catch(err => console.error(err));
+
+  // 5) Al hacer click en "Aceptar", armar y enviar el body JSON en lugar de FormData
   btnRegistrar.addEventListener("click", async (e) => {
-  e.preventDefault();
-  const form = formPersona.style.display === 'block' ? formPersona : formEmpresa;
-  if (!validarFormulario(form)) return;
+    e.preventDefault();
 
-  const fd = new FormData(form);
+    const esPersona = formPersona.style.display === 'block';
+    const formActual = esPersona ? formPersona : formEmpresa;
 
-  // *** IMPORTANTE: *** agregar el campo “tipo” para que el controller lo reciba:
-  fd.append('tipo', TIPODECLIENTE);
-  fd.append('operation', 'update');
+    if (!validarFormulario(formActual)) return;
 
-  if (TIPODECLIENTE === 'persona') 
-       fd.append('idpersona', form.dataset.idpersona);
-  else fd.append('idempresa', form.dataset.idempresa);
+    let payload = {};
 
-  const resp = await fetch(`${SERVERURL}app/controllers/Cliente.controller.php`, {
-    method: 'POST',
-    body: fd
-  }).then(r => r.json());
+    if (esPersona) {
+      // Configurar para actualizar persona
+      payload.operation     = "updatePersona";
+      payload.idpersona     = parseInt(formPersona.dataset.idpersona, 10);
+      payload.nombres       = document.getElementById("nombres").value.trim();
+      payload.apellidos     = document.getElementById("apellidos").value.trim();
+      payload.tipodoc       = document.getElementById("tipodoc").value;
+      payload.numdoc        = document.getElementById("numdoc").value.trim();
+      payload.numruc        = document.getElementById("numruc").value.trim();
+      payload.direccion     = document.getElementById("direccion").value.trim();
+      payload.correo        = document.getElementById("correo").value.trim();
+      payload.telprincipal  = document.getElementById("telprincipal").value.trim();
+      payload.telalternativo= document.getElementById("telalternativo").value.trim();
+    } else {
+      // Configurar para actualizar empresa
+      payload.operation    = "updateEmpresa";
+      payload.idempresa    = parseInt(formEmpresa.dataset.idempresa, 10);
+      payload.nomcomercial = document.getElementById("nomcomercial").value.trim();
+      payload.razonsocial  = document.getElementById("razonsocial").value.trim();
+      payload.telefono     = document.getElementById("telempresa").value.trim();
+      payload.correo       = document.getElementById("correoemp").value.trim();
+    }
 
-  showToast(resp.message, resp.status ? 'SUCCESS' : 'ERROR', 1500);
-  if (resp.status) {
-    setTimeout(() => window.location.href = 'listar-cliente.php', 1000);
-  }
-});
+    try {
+      const respuesta = await fetch(`${SERVERURL}app/controllers/Cliente.controller.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
 
+      const json = await respuesta.json();
+
+      // Mostrar toast (suponiendo que exista la función showToast)
+      showToast(json.message, json.status ? 'SUCCESS' : 'ERROR', 1500);
+
+      if (json.status) {
+        // Si todo va bien, redirige a listar-cliente.php al cabo de 1 segundo
+        setTimeout(() => {
+          window.location.href = "listar-cliente.php";
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error al actualizar cliente:", error);
+      showToast("Error inesperado al actualizar", "ERROR", 1500);
+    }
+  });
 
 });
 

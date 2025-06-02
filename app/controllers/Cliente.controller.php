@@ -9,10 +9,10 @@ require_once "../models/Empresa.php";
 require_once "../models/Cliente.php";
 require_once "../helpers/helper.php";
 
-$pdo = Conexion::getConexion();
-$personaModel = new Persona();
-$empresaModel = new Empresa();
-$clienteModel = new Cliente();
+$pdo           = Conexion::getConexion();
+$personaModel  = new Persona();
+$empresaModel  = new Empresa();
+$clienteModel  = new Cliente();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 1) Detalle único (editar)
@@ -83,9 +83,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = file_get_contents('php://input');
+    // Leemos JSON
+    $input    = file_get_contents('php://input');
     $dataJSON = json_decode($input, true);
 
+    // Si viene "operation", revisamos si es actualización o eliminación
+    if (isset($dataJSON['operation'])) {
+        switch ($dataJSON['operation']) {
+            // ────────────────────────────────────────────────────
+            // a) Actualizar datos de cliente persona
+            case "updatePersona":
+                $idpersona = intval(Helper::limpiarCadena($dataJSON['idpersona'] ?? 0));
+                if ($idpersona <= 0) {
+                    echo json_encode(["status" => false, "message" => "ID persona inválido"]);
+                    exit;
+                }
+                $paramsPersona = [
+                  "idpersona"      => $idpersona,
+                  "nombres"        => Helper::limpiarCadena($dataJSON['nombres']      ?? ""),
+                  "apellidos"      => Helper::limpiarCadena($dataJSON['apellidos']    ?? ""),
+                  "tipodoc"        => Helper::limpiarCadena($dataJSON['tipodoc']      ?? ""),
+                  "numdoc"         => Helper::limpiarCadena($dataJSON['numdoc']       ?? ""),
+                  "numruc"         => Helper::limpiarCadena($dataJSON['numruc']       ?? ""),
+                  "direccion"      => Helper::limpiarCadena($dataJSON['direccion']    ?? ""),
+                  "correo"         => Helper::limpiarCadena($dataJSON['correo']       ?? ""),
+                  "telprincipal"   => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
+                  "telalternativo" => Helper::limpiarCadena($dataJSON['telalternativo'] ?? "")
+                ];
+                // Invocamos spUpdatePersona a través del modelo Persona
+                $result = $personaModel->update($paramsPersona);
+                echo json_encode($result);
+                exit;
+
+            // ────────────────────────────────────────────────────
+            // b) Actualizar datos de cliente empresa
+            case "updateEmpresa":
+                $idempresa = intval(Helper::limpiarCadena($dataJSON['idempresa'] ?? 0));
+                if ($idempresa <= 0) {
+                    echo json_encode(["status" => false, "message" => "ID empresa inválido"]);
+                    exit;
+                }
+                $paramsEmpresa = [
+                  "idempresa"    => $idempresa,
+                  "nomcomercial" => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
+                  "razonsocial"  => Helper::limpiarCadena($dataJSON['razonsocial']  ?? ""),
+                  "telefono"     => Helper::limpiarCadena($dataJSON['telefono']     ?? ""),
+                  "correo"       => Helper::limpiarCadena($dataJSON['correo']       ?? "")
+                ];
+                // Invocamos spUpdateEmpresa a través del modelo Empresa
+                $result = $empresaModel->update($paramsEmpresa);
+                echo json_encode($result);
+                exit;
+
+            // ────────────────────────────────────────────────────
+            // c) (Opcional) Eliminar cliente persona
+            case "deletePersona":
+                $idpersona = intval(Helper::limpiarCadena($dataJSON['idpersona'] ?? 0));
+                if ($idpersona <= 0) {
+                    echo json_encode(["status" => false, "message" => "ID persona inválido"]);
+                    exit;
+                }
+                $result = $personaModel->delete(["idpersona" => $idpersona]);
+                echo json_encode($result);
+                exit;
+
+            // ────────────────────────────────────────────────────
+            // d) (Opcional) Eliminar cliente empresa
+            case "deleteEmpresa":
+                $idempresa = intval(Helper::limpiarCadena($dataJSON['idempresa'] ?? 0));
+                if ($idempresa <= 0) {
+                    echo json_encode(["status" => false, "message" => "ID empresa inválido"]);
+                    exit;
+                }
+                $result = $empresaModel->delete($idempresa);
+                echo json_encode($result);
+                exit;
+
+            default:
+                echo json_encode(["status" => false, "message" => "Operación no válida"]);
+                exit;
+        }
+    }
+
+    // Si no se envió "operation", asumimos que es registro nuevo:
     $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? '');
 
     if ($tipo === "persona") {
