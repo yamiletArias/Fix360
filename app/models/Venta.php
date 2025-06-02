@@ -300,7 +300,7 @@ class Venta extends Conexion
         $result = [];
         try {
             // Consulta la vista vs_ventas_eliminadas
-            $sql = "SELECT id, cliente, tipocom, numcom FROM vs_ventas_eliminadas";
+            $sql = "SELECT idventa, cliente, tipocom, numcom FROM vs_ventas_eliminadas";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
             // Obtiene todos los resultados de la consulta

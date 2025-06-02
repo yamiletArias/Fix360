@@ -168,7 +168,68 @@ require_once "../../partials/header.php";
               <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
             </div>
           </div>
-          <!-- Pon esto donde estaban tus columnas de servicio -->
+          <!-- Sección Servicios -->
+          <div id="serviceSection" class="row g-2 mt-3 d-none">
+            <!-- 1) SELECT de subcategoría (Tipo de servicio) -->
+            <div class="col-md-3">
+              <div class="form-floating">
+                <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
+                  <option value="">Eliga un tipo de servicio</option>
+                  <?php
+                  // Ejemplo de carga con PHP (reemplaza con tu fuente real)
+                  // foreach($tusSubcategorias as $row) {
+                  //   echo "<option value=\"{$row['idsubcategoria']}\">{$row['subcategoria']}</option>";
+                  // }
+                  ?>
+                </select>
+                <label for="subcategoria">Tipo de Servicio:</label>
+              </div>
+            </div>
+
+            <!-- 2) SELECT de servicio dentro de la subcategoría -->
+            <div class="col-md-3">
+              <div class="input-group">
+                <div class="form-floating">
+                  <select class="form-select" id="servicio" name="servicio" style="color: black;" required>
+                    <option value="">Eliga un servicio</option>
+                    <!-- Se cargan vía AJAX al cambiar #subcategoria -->
+                  </select>
+                  <label for="servicio">Servicio:</label>
+                </div>
+                <!-- Botón que abre el modal para registrar un servicio nuevo -->
+                <button class="btn btn-sm btn-success" type="button" id="btnAgregarServicio">
+                  <i class="fa-solid fa-circle-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3) SELECT de mecánico -->
+            <div class="col-md-3">
+              <div class="form-floating">
+                <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
+                  <option value="">Eliga un mecánico</option>
+                  <!-- … -->
+                </select>
+                <label for="mecanico">Mecánico:</label>
+              </div>
+            </div>
+
+            <!-- 4) Input de precio de servicio y botón para agregar -->
+            <div class="col-md-3">
+              <div class="input-group">
+                <div class="form-floating">
+                  <input type="number" class="form-control input" step="0.1" placeholder="Precio Servicio"
+                    aria-label="Precio Servicio" min="0.01" id="precioServicio" />
+                  <label for="precioServicio">Precio Servicio</label>
+                </div>
+                <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalleServicio">
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- FIN sección de servicios -->
+          <!-- 
           <div id="serviceSection" class="row g-2 mt-3 d-none">
             <div class="col-md-3">
               <div class="form-floating">
@@ -210,7 +271,7 @@ require_once "../../partials/header.php";
                 <button class="btn btn-sm btn-success" type="button" id="btnAgregarServicio">Agregar</button>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </form>
     </div>
@@ -443,7 +504,36 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
-
+<!-- Modal para registrar Nuevo Servicio -->
+<div class="modal fade" id="ModalServicio" tabindex="-1" aria-labelledby="ModalServicioLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formNuevoServicio">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ModalServicioLabel">Registrar Nuevo Servicio</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Subcategoría seleccionada (sólo lectura) -->
+          <div class="form-floating mb-3">
+            <input type="text" id="modalSubcategoriaNombre" class="form-control" readonly>
+            <label for="modalSubcategoriaNombre">Tipo de Servicio</label>
+          </div>
+          <input type="hidden" id="modalSubcategoriaId">
+          <!-- Nombre del servicio nuevo -->
+          <div class="form-floating mb-3">
+            <input type="text" id="modalServicioNombre" class="form-control" placeholder="Nombre del servicio" required>
+            <label for="modalServicioNombre">Servicio</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnRegistrarServicioModal" class="btn btn-primary">Registrar Servicio</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <?php
 require_once "../../partials/_footer.php";
 ?>
@@ -471,6 +561,97 @@ require_once "../../partials/_footer.php";
     obsField.disabled = false;
     gruField.disabled = false;
   });
+  // 2) Cargar lista de servicios por subcategoría
+  /* async function cargarServiciosPorSubcategoria(idsubcat) {
+    if (!idsubcat) {
+      document.getElementById('servicio').innerHTML = '<option value="">Eliga un servicio</option>';
+      return;
+    }
+    try {
+      const resp = await fetch(`${FIX360_BASE_URL}app/controllers/Servicio.Controller.php?task=getServicioBySubcategoria&idsubcategoria=${idsubcat}`);
+      const data = await resp.json();
+      let html = '<option value="">Eliga un servicio</option>';
+      data.forEach(item => {
+        html += `<option value="${item.idservicio}">${item.servicio}</option>`;
+      });
+      document.getElementById('servicio').innerHTML = html;
+    } catch (err) {
+      console.error('Error al cargar servicios:', err);
+    }
+  }
+
+  document.getElementById('subcategoria').addEventListener('change', function() {
+    const idsubcat = this.value;
+    cargarServiciosPorSubcategoria(idsubcat);
+  });
+
+  // 3) Abrir modal para registrar un servicio nuevo
+  document.getElementById('btnAgregarServicio').addEventListener('click', function() {
+    const selectSub = document.getElementById('subcategoria');
+    const idsubcat = selectSub.value;
+    const textoSub = selectSub.options[selectSub.selectedIndex]?.text || '';
+
+    if (!idsubcat) {
+      alert('Primero debe seleccionar un Tipo de Servicio (subcategoría).');
+      return;
+    }
+    document.getElementById('modalSubcategoriaId').value     = idsubcat;
+    document.getElementById('modalSubcategoriaNombre').value = textoSub;
+    document.getElementById('modalServicioNombre').value     = '';
+    new bootstrap.Modal(document.getElementById('ModalServicio')).show();
+  });
+
+  // 4) Registrar servicio desde el modal
+  document.getElementById('btnRegistrarServicioModal').addEventListener('click', async function() {
+    const idsubcategoria = document.getElementById('modalSubcategoriaId').value;
+    const servicioNombre = document.getElementById('modalServicioNombre').value.trim();
+
+    if (!servicioNombre) {
+      alert('Debe ingresar el nombre del servicio.');
+      return;
+    }
+
+    const payload = {
+      task: 'registerServicio',
+      idsubcategoria: idsubcategoria,
+      servicio: servicioNombre
+    };
+
+    try {
+      const resp = await fetch(`${FIX360_BASE_URL}app/controllers/Servicio.Controller.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await resp.json();
+      if (json.error) {
+        alert('Error: ' + json.error);
+        return;
+      }
+
+      // Si tuvo éxito:
+      const nuevoId  = json.idservicio;
+      const nuevoNom = json.servicio;
+
+      // Cerrar modal
+      const modalEl = document.getElementById('ModalServicio');
+      bootstrap.Modal.getInstance(modalEl).hide();
+
+      // Agregar nueva opción al <select id="servicio"> y seleccionarla
+      const selectServ = document.getElementById('servicio');
+      const opt = document.createElement('option');
+      opt.value = nuevoId;
+      opt.textContent = nuevoNom;
+      opt.selected = true;
+      selectServ.appendChild(opt);
+
+      alert('Servicio registrado correctamente.');
+    } catch (err) {
+      console.error('Error al registrar servicio:', err);
+      alert('Ocurrió un error al registrar el servicio.');
+    }
+  });
+ */
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {

@@ -2,6 +2,36 @@ USE dbfix360;
 DELIMITER $$
 
 -- 1) PROCEDIMIENTO PARA REGISTRAR EMPRESA
+DROP PROCEDURE IF EXISTS spRegisterEmpresaProveedor $$
+CREATE PROCEDURE spRegisterEmpresaProveedor (
+  IN _nomcomercial VARCHAR(80),
+  IN _razonsocial  VARCHAR(80),
+  IN _telefono     VARCHAR(20),
+  IN _correo       VARCHAR(100),
+  IN _ruc          CHAR(11)
+)
+BEGIN
+  DECLARE new_idempresa INT;
+  DECLARE new_idproveedor INT;
+
+  -- 1) Insertamos primero en la tabla empresas
+  INSERT INTO empresas (nomcomercial, razonsocial, telefono, correo, ruc)
+    VALUES (_nomcomercial, _razonsocial, _telefono, _correo, _ruc);
+
+  SET new_idempresa = LAST_INSERT_ID();
+
+  -- 2) A continuación insertamos en proveedores usando el id que acabamos de generar
+  INSERT INTO proveedores (idempresa)
+    VALUES (new_idempresa);
+
+  SET new_idproveedor = LAST_INSERT_ID();
+
+  -- 3) Finalmente devolvemos ambos IDs en una sola fila
+  SELECT new_idempresa   AS idempresa,
+         new_idproveedor AS idproveedor;
+END $$
+-- REAL
+/*
 DROP PROCEDURE IF EXISTS spRegisterEmpresa $$
 CREATE PROCEDURE spRegisterEmpresa (
   IN _nomcomercial VARCHAR(80),
@@ -14,7 +44,7 @@ BEGIN
   INSERT INTO empresas (nomcomercial, razonsocial, telefono, correo, ruc)
   VALUES (_nomcomercial, _razonsocial, _telefono, _correo, _ruc);
   SELECT LAST_INSERT_ID() AS idempresa;
-END $$
+END $$*/
   
 -- 2) PROCEDIMIENTO PARA REGISTRAR VENTA CON ORDEN
 DROP PROCEDURE IF EXISTS spRegisterVentaConOrden $$

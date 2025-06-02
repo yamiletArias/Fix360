@@ -557,25 +557,24 @@ require_once "../../partials/_footer.php";
                     class: "text-center",
                     render: function (data, type, row) {
                         return `
-                            <button class="btn btn-primary btn-sm btn-ver-justificacion"
-                                data-id="${row.idventa}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalVerJustificacion">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button class="btn btn-warning btn-sm btn-amortizar"
-                                data-id="${row.id}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalAmortizar">
-                                <i class="fa-solid fa-dollar-sign"></i>
-                            </button>
-                            <button title="Detalle de la venta" class="btn btn-info btn-sm btn-detalle"
-                                    data-action="detalle"
-                                    data-id="${row.id}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#miModal">
-                                <i class='fa-solid fa-clipboard-list'></i>
-                            </button>`;
+                    <button class="btn btn-primary btn-sm btn-ver-justificacion"
+                            data-id="${row.idventa}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalVerJustificacion">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    <button class="btn btn-warning btn-sm btn-amortizar"
+                            data-id="${row.idventa}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalAmortizar">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </button>
+                    <button title="Detalle de la venta" class="btn btn-info btn-sm btn-detalle"
+                            data-id="${row.idventa}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#miModal">
+                        <i class='fa-solid fa-clipboard-list'></i>
+                    </button>`;
                     }
                 }
             ],
@@ -889,32 +888,7 @@ require_once "../../partials/_footer.php";
         </form>
     </div>
 </div>
-
-<!-- <div class="modal fade" id="modalCombinarOT" tabindex="-1">
-    <div class="modal-dialog">
-        <form id="formCombinarOT" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Combinar Órdenes de Trabajo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Vas a combinar <span id="countOT"></span> OT para el mismo propietario.</p>
-                <div class="mb-3">
-                    <label class="form-label">Tipo de comprobante</label>
-                    <select id="comboTipocom" class="form-select" required>
-                        <option value="boleta">Boleta</option>
-                        <option value="factura">Factura</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary btn-sm btn-combinar-ot">Confirmar</button>
-            </div>
-        </form>
-    </div>
-</div> -->
-
+<!-- Modal justificacion -->
 <div class="modal fade" id="modalVerJustificacion" tabindex="-1" aria-labelledby="modalJustificacionLabel"
     aria-hidden="true">
     <div class="modal-dialog">
