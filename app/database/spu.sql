@@ -1016,22 +1016,40 @@ BEGIN
   END IF;
 
   SELECT
-  e.idegreso,
-  DATE_FORMAT(e.fecharegistro, '%d/%m/%Y') AS fecha,
-  TIME(e.fecharegistro) AS hora,
-  adm.namuser    AS registrador,
-  col.namuser    AS receptor,
-  e.concepto,
-  e.monto,
-  e.numcomprobante,
-  e.justificacion
-FROM egresos e
-    JOIN colaboradores adm ON e.idadmin       = adm.idcolaborador
-    JOIN colaboradores col ON e.idcolaborador = col.idcolaborador
-  WHERE DATE(e.fecharegistro) BETWEEN start_date AND end_date
+    e.idegreso,
+    DATE_FORMAT(e.fecharegistro, '%d/%m/%Y') AS fecha,
+    TIME(e.fecharegistro) AS hora,
+    -- CONCAT para registrador: apellidos + ' ' + nombres
+    CONCAT(p1.apellidos, ' ', p1.nombres) AS registrador,
+    -- CONCAT para receptor: apellidos + ' ' + nombres
+    CONCAT(p2.apellidos, ' ', p2.nombres) AS receptor,
+    e.concepto,
+    e.monto,
+    e.numcomprobante,
+    e.justificacion
+  FROM egresos e
+    -- JOIN para registrar (idadmin → colaboradores → contratos → personas)
+    JOIN colaboradores adm 
+      ON e.idadmin = adm.idcolaborador
+    JOIN contratos c1 
+      ON adm.idcontrato = c1.idcontrato
+    JOIN personas p1 
+      ON c1.idpersona = p1.idpersona
+
+    -- JOIN para receptor (idcolaborador → colaboradores → contratos → personas)
+    JOIN colaboradores col 
+      ON e.idcolaborador = col.idcolaborador
+    JOIN contratos c2 
+      ON col.idcontrato = c2.idcontrato
+    JOIN personas p2 
+      ON c2.idpersona = p2.idpersona
+
+  WHERE
+    DATE(e.fecharegistro) BETWEEN start_date AND end_date
     AND e.estado = _estado
   ORDER BY e.fecharegistro;
-END$$
+END $$
+
 
 -- 3) SP: registrar un nuevo egreso
 DROP PROCEDURE IF EXISTS spRegisterEgreso $$
