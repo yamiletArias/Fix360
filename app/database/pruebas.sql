@@ -843,7 +843,7 @@ CALL spUpdateVehiculoConHistorico(
 
 -- select * from productos
 -- select * from movimientos
-
+-- select * from vehiculos
 
 INSERT INTO personas (
     nombres, apellidos, tipodoc, numdoc, numruc, direccion, correo,

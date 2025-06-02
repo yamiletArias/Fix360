@@ -89,6 +89,7 @@ if ($method === 'GET') {
             'numserie'      => $datos['numserie'],
             'numchasis'     => $datos['numchasis'],
             'vin'           => $datos['vin'],
+            'modificado'    => $datos['modificado'],
             'tipo_vehiculo' => $datos['tipo_vehiculo'],
             'tcombustible'  => $datos['tcombustible'],
             'marca'         => $datos['marca'],
@@ -97,7 +98,7 @@ if ($method === 'GET') {
 
         // Armar la sección "propietario"
         $propietario = [
-            'id_propietario'       => $datos['idpropietario'],            // si el SP usa alias idpropietario
+            'id_propietario'       => $datos['id_propietario'],            // si el SP usa alias idpropietario
             'propietario'          => $datos['propietario'],
             'documento_propietario'=> $datos['documento_propietario'],
             'telefono_prop'        => $datos['telefono_prop']    ?? null,

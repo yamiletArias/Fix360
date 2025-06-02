@@ -353,6 +353,7 @@ BEGIN
     v.vin,
     v.numserie,
     tc.tcombustible,
+    v.modificado,
     v.numchasis,
     v.modificado,
     CONCAT(tv.tipov, ' ', ma.nombre, ' ', v.color, ' (', v.placa, ')') AS vehiculo
@@ -1616,6 +1617,7 @@ BEGIN
       v.color,
       v.numserie,
       v.vin,
+      v.modificado,
             v.numchasis,
       -- Unificamos teléfono y correo en un solo alias
       COALESCE(p.telprincipal, e.telefono)    AS telefono_prop,
