@@ -337,6 +337,7 @@ BEGIN
 END$$
 -- select * from vwclientespersona;
 -- 18) Obtener vehículos por cliente
+-- call spGetVehiculoByCliente(1)
 DROP PROCEDURE IF EXISTS spGetVehiculoByCliente $$
 CREATE PROCEDURE spGetVehiculoByCliente(
   IN _idcliente INT
@@ -363,7 +364,7 @@ BEGIN
     LEFT JOIN tipovehiculos tv ON m.idtipov = tv.idtipov
     LEFT JOIN marcas ma ON m.idmarca = ma.idmarca
     LEFT JOIN tipocombustibles tc ON v.idtcombustible = tc.idtcombustible
-  WHERE p.idcliente = _idcliente;
+  WHERE p.idcliente = _idcliente AND p.fechafinal IS NULL;
 END$$
 
 -- select * from vwvehiculos;
@@ -819,14 +820,17 @@ CREATE PROCEDURE spUpdateVehiculoConHistorico(
     IN _idcliente_nuevo  INT
 )
 BEGIN
-  DECLARE v_idcliente_actual INT;
-  DECLARE v_hoy DATE;
+  DECLARE v_idcliente_actual  INT;
+  DECLARE v_hoy               DATE;
+  DECLARE v_existe_para_hoy   INT DEFAULT 0;
 
   SET v_hoy = CURDATE();
 
   START TRANSACTION;
 
-    -- 1) Actualizar los datos "estáticos" del vehículo
+    /*-----------------------------------------------
+      1) Actualizar siempre los datos “estáticos” del vehículo
+    ------------------------------------------------*/
     UPDATE vehiculos
        SET idmodelo       = _idmodelo,
            idtcombustible = _idtcombustible,
@@ -835,11 +839,13 @@ BEGIN
            numserie       = NULLIF(_numserie, ''),    
            color          = _color,
            vin            = NULLIF(_vin,    ''),      
-           numchasis      = NULLIF(_numchasis, ''),
+           numchasis      = NULLIF(_numchasis, ''),  
            modificado     = NOW()
      WHERE idvehiculo = _idvehiculo;
 
-    -- 2) Obtener el propietario "activo" (fechafinal IS NULL), si existe
+    /*-----------------------------------------------
+      2) Obtener el propietario “activo” (fechafinal IS NULL), si existe
+    ------------------------------------------------*/
     SELECT idcliente
       INTO v_idcliente_actual
       FROM propietarios
@@ -847,33 +853,71 @@ BEGIN
        AND fechafinal IS NULL
      LIMIT 1;
 
-    -- 3) Si existe un propietario activo distinto o simplemente hay que cerrarlo:
-    IF v_idcliente_actual IS NOT NULL THEN
-      -- 3a) Cerrar vínculo anterior estableciendo fechafinal = hoy
-      UPDATE propietarios
-         SET fechafinal = v_hoy
-       WHERE idvehiculo  = _idvehiculo
-         AND fechafinal IS NULL;
-    END IF;
+    /*----------------------------------------------------
+      3) Si el nuevo cliente es distinto al que ya estaba activo,
+         entonces sí cierro/insertó la tabla propietarios.
+    ----------------------------------------------------*/
+    IF _idcliente_nuevo <> v_idcliente_actual THEN
 
-    -- 4) Insertar siempre un registro NUEVO con el nuevo propietario
-    INSERT INTO propietarios (
-      idcliente,
-      idvehiculo,
-      fechainicio,
-      fechafinal
-    ) VALUES (
-      _idcliente_nuevo,
-      _idvehiculo,
-      v_hoy,
-      NULL
-    );
+      /*-------------------------
+        3a) Cerrar vínculo anterior
+      -------------------------*/
+      IF v_idcliente_actual IS NOT NULL THEN
+        UPDATE propietarios
+           SET fechafinal = v_hoy
+         WHERE idvehiculo  = _idvehiculo
+           AND fechafinal IS NULL;
+      END IF;
+
+      /*---------------------------------------------
+        4) Verificar si ya existe registro con inicio = hoy
+         (uso DATE(fechainicio) = v_hoy por si es DATETIME)
+      ---------------------------------------------*/
+      SELECT COUNT(*) 
+        INTO v_existe_para_hoy
+      FROM propietarios
+      WHERE idvehiculo = _idvehiculo
+        AND DATE(fechainicio) = v_hoy;
+
+      /*------------------------------------------------------
+        5) Si NO existe entrada para hoy, hago INSERT; si existe, UPDATE
+      ------------------------------------------------------*/
+        INSERT INTO propietarios (
+          idcliente,
+          idvehiculo,
+          fechainicio,
+          fechafinal
+        ) VALUES (
+          _idcliente_nuevo,
+          _idvehiculo,
+          v_hoy,
+          NULL
+        );
+      ELSE
+        UPDATE propietarios
+           SET idcliente = _idcliente_nuevo
+         WHERE idvehiculo   = _idvehiculo
+           AND DATE(fechainicio) = v_hoy;
+      END IF;
+
+    END IF;  -- fin de IF _idcliente_nuevo <> v_idcliente_actual
 
   COMMIT;
 
-  -- 5) Devolver el idcliente que ahora quedó activo ("el último insertado")
-  SELECT LAST_INSERT_ID() AS idcliente_propietario_nuevo;
+  /*--------------------------------------
+    6) Devolver el idcliente que quedó activo 
+       (puede ser NULL si no hubo cambio de dueño)
+  --------------------------------------*/
+  SELECT 
+    (SELECT idcliente 
+       FROM propietarios 
+      WHERE idvehiculo    = _idvehiculo 
+        AND DATE(fechainicio) = v_hoy
+      LIMIT 1
+    ) AS idcliente_propietario_nuevo;
 END $$
+
+
 
 DROP PROCEDURE IF EXISTS spDeleteObservacion $$
 CREATE PROCEDURE spDeleteObservacion(

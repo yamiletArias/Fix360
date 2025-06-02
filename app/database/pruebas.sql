@@ -844,6 +844,8 @@ CALL spUpdateVehiculoConHistorico(
 -- select * from productos
 -- select * from movimientos
 -- select * from vehiculos
+-- select * from propietarios
+-- update propietarios set fechainicio = '2025-01-01'
 
 INSERT INTO personas (
     nombres, apellidos, tipodoc, numdoc, numruc, direccion, correo,

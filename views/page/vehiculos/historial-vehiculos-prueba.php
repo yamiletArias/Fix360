@@ -71,6 +71,7 @@ $id = intval($_GET['id'] ?? 0);
           <p><strong>Últ. Modificación:</strong> <span id="vh-modificado">Cargando...</span></p>
           <p><strong>VIN:</strong> <span id="vh-vin">Cargando...</span></p>
           <p><strong>N° Chasis:</strong> <span id="vh-chasis">Cargando...</span></p>
+          <p><strong>N° Serie:</strong> <span id="vh-numserie">Cargando...</span></p>
         </div>
       </div>
     </div>
@@ -398,6 +399,7 @@ $id = intval($_GET['id'] ?? 0);
         document.getElementById("vh-modificado").textContent = clean(g.modificado);
         document.getElementById("vh-vin").textContent = clean(g.vin);
         document.getElementById("vh-chasis").textContent = clean(g.numchasis);
+        document.getElementById("vh-numserie").textContent = clean(g.numserie);
         document.getElementById("prop-nombre").textContent = p.propietario;
         document.getElementById("prop-doc").textContent = p.documento_propietario;
         document.getElementById("prop-desde").textContent = p.propiedad_desde || '—';
