@@ -101,9 +101,11 @@ require_once "../../partials/header.php";
     if (jsonCol.status === 'success') {
       let htmlCol = '<option value="" style="color:black;">Seleccione un colaborador</option>';
       jsonCol.data.forEach(c => {
-        htmlCol += `<option value="${c.idcolaborador}">${c.nombre_completo}</option>`;
+        const nombreCompleto = `${c.apellidos} ${c.nombres}`;
+        htmlCol += `<option value="${c.idcolaborador}">${nombreCompleto}</option>`;
       });
       document.getElementById('idcolaborador').innerHTML = htmlCol;
+
     } else {
       console.error('Error cargando colaboradores:', jsonCol.message);
     }
@@ -163,6 +165,15 @@ require_once "../../partials/header.php";
     // Submit del form
     document.getElementById('form-egreso').addEventListener('submit', async e => {
       e.preventDefault();
+
+      // 1) Mostrar confirmación al usuario
+      const confirmar = confirm("¿Estás seguro de que deseas registrar este egreso?");
+      if (!confirmar) {
+        // Si el usuario presiona “Cancelar”, salimos sin enviar nada
+        return;
+      }
+
+      // 2) Si confirma, armamos el objeto data y enviamos igual que antes
       const form = e.target;
       const data = {
         action: 'register',
@@ -171,7 +182,7 @@ require_once "../../partials/header.php";
         concepto: form.concepto.value.trim(),
         monto: parseFloat(form.monto.value),
         numcomprobante: form.numcomprobante.value.trim(),
-          fecharegistro: document.getElementById('fechaIngreso').value
+        fecharegistro: document.getElementById('fechaIngreso').value
       };
 
       // validaciones ligeras
