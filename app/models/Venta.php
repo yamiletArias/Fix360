@@ -51,16 +51,15 @@ class Venta extends Conexion
       SELECT
         COALESCE(
           CASE
-            WHEN pc.idempresa IS NOT NULL THEN ep.nomcomercial
-            WHEN pc.idpersona IS NOT NULL THEN CONCAT(pp.nombres, ' ', pp.apellidos)
+            WHEN c.idempresa IS NOT NULL THEN e.nomcomercial
+            WHEN c.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
           END,
           'Sin propietario'
         ) AS propietario
       FROM ventas v
-      LEFT JOIN propietarios prop ON v.idpropietario = prop.idpropietario
-      LEFT JOIN clientes pc      ON prop.idcliente    = pc.idcliente
-      LEFT JOIN empresas ep      ON pc.idempresa      = ep.idempresa
-      LEFT JOIN personas pp      ON pc.idpersona      = pp.idpersona
+      LEFT JOIN clientes c ON v.idpropietario = c.idcliente
+      LEFT JOIN empresas e ON c.idempresa    = e.idempresa
+      LEFT JOIN personas p ON c.idpersona    = p.idpersona
       WHERE v.idventa = :idventa
       LIMIT 1
     ";
@@ -68,19 +67,6 @@ class Venta extends Conexion
         $stmt->execute([':idventa' => $idventa]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
-    /*     public function getPropietarioById(int $idventa): ?array
-        {
-            try {
-                $sql = "SELECT propietario FROM vs_ventas WHERE id = ?";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([$idventa]);
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                return $row ?: null;
-            } catch (PDOException $e) {
-                throw new Exception("Error al obtener propietario: " . $e->getMessage());
-            }
-        }
-     */
 
     public function getAll(): array
     {
@@ -446,202 +432,198 @@ class Venta extends Conexion
         }
     }
 
-/*     public function getDetalleCompleto(int $idventa): array
+    /**
+     * Summary of combinarOtYCrearVenta
+     * @param array $idsOT
+     * @param string $tipocom
+     * @param string $numserie
+     * @param string $numcom
+     * @throws \Exception
+     * @return int
+     */
+    public function combinarOtYCrearVenta(array $idsOT, string $tipocom, string $numserie, string $numcom): int
     {
-        $sql = "SELECT * FROM vista_detalle_venta WHERE idventa = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idventa]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
- */
-public function combinarOtYCrearVenta(array $idsOT, string $tipocom, string $numserie, string $numcom): int
-{
-    // 1) Validar que haya al menos dos OT y que todas pertenezcan al mismo propietario
-    if (count($idsOT) < 2) {
-        throw new Exception("Debes combinar al menos dos OT.");
-    }
+        // 1) Validar que haya al menos dos OT y que todas pertenezcan al mismo propietario
+        if (count($idsOT) < 2) {
+            throw new Exception("Debes combinar al menos dos OT.");
+        }
 
-    // Construimos placeholders para el IN (…) de la consulta de propietario
-    $placeholders = implode(',', array_fill(0, count($idsOT), '?'));
-
-    // 1.1) Consultamos cuántos propietarios distintos hay entre las ventas que son OT
-    $sql = "
+        // 1.1) Consultamos cuántos propietarios distintos hay entre esas ventas (OT)
+        $placeholders = implode(',', array_fill(0, count($idsOT), '?'));
+        $sql = "
         SELECT 
             COUNT(DISTINCT idpropietario) AS cnt,
-            MIN(idpropietario)            AS idprop
+            MIN(idpropietario)              AS idprop
         FROM ventas
         WHERE idventa IN ($placeholders)
           AND tipocom = 'orden de trabajo'
           AND estado = TRUE
     ";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute($idsOT);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ((int) $row['cnt'] !== 1) {
-        throw new Exception("Todas las OT deben pertenecer al mismo propietario.");
-    }
-    $idprop = (int) $row['idprop']; // identificador único del propietario
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($idsOT);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ((int) $row['cnt'] !== 1) {
+            throw new Exception("Todas las OT deben pertenecer al mismo propietario.");
+        }
+        $idprop = (int) $row['idprop']; // El único propietario común
 
-    // 2) Recoger amortizaciones previas de esas OT
-    $sqlAm = "
+        // 2) Recoger amortizaciones previas de esas OT (si las hay)
+        $sqlAm = "
         SELECT numtransaccion, amortizacion, idformapago
         FROM amortizaciones
         WHERE idventa IN ($placeholders)
     ";
-    $stmtAm = $this->pdo->prepare($sqlAm);
-    $stmtAm->execute($idsOT);
-    $amortPrevias = $stmtAm->fetchAll(PDO::FETCH_ASSOC);
+        $stmtAm = $this->pdo->prepare($sqlAm);
+        $stmtAm->execute($idsOT);
+        $amortPrevias = $stmtAm->fetchAll(PDO::FETCH_ASSOC);
 
-    // 3) Obtener los detalles de productos y servicios de cada OT
-    $det = $this->getDetallesOt($idsOT);
-    // $det['productos']  → arreglo de productos con keys: idproducto, cantidad, precio, descuento
-    // $det['servicios']  → arreglo de servicios con keys: idorden, idservicio, idmecanico, precio
+        // 3) Obtener los detalles de productos y servicios de cada OT
+        $det = $this->getDetallesOt($idsOT);
+        //  - $det['productos']  → array de [ ['idproducto'=>..., 'cantidad'=>..., 'precio'=>..., 'descuento'=>...], ... ]
+        //  - $det['servicios']  → array de [ ['idorden'=>..., 'idservicio'=>..., 'idmecanico'=>..., 'precio'=>...], ... ]
 
-    // 4) Iniciar transacción para asegurar atomicidad
-    $this->pdo->beginTransaction();
-    try {
-        // 4.1) Crear la nueva venta (combinada) invocando el SP spRegisterVentaConOrden
-        //      Pasamos: FALSE porque no queremos crear otra OT aquí, 0 en los valores que no se usan,
-        //      sí pasamos el tipocom, numserie y numcom recibidos.
-        $sp = $this->pdo->prepare("
-            CALL spRegisterVentaConOrden(
+        // 4) Iniciar transacción
+        $this->pdo->beginTransaction();
+        try {
+            // 4.1) Crear la nueva venta combinada (sin crear otra OT)
+            $sp = $this->pdo->prepare(
+                "CALL spRegisterVentaConOrden(
                 FALSE, 0, :idpropietario, 0, 0, 0, '', FALSE, NULL,
                 :tipocom, NOW(), :numserie, :numcom, 'SOLES', :idcolaborador
-            )
-        ");
-        // Generamos el id del colaborador actual (mecánico/usuario) desde la sesión
-        $idcolab = $_SESSION['login']['idcolaborador'] ?? 0;
-
-        $sp->execute([
-            ':idpropietario' => $idprop,
-            ':tipocom'       => $tipocom,
-            ':numserie'      => $numserie,
-            ':numcom'        => $numcom,
-            ':idcolaborador' => $idcolab
-        ]);
-
-        // 4.2) Capturar el nuevo idventa devuelto por el SP
-        $newId = 0;
-        do {
-            $res = $sp->fetch(PDO::FETCH_ASSOC);
-            if (!empty($res['idventa'])) {
-                $newId = (int) $res['idventa'];
-                break;
-            }
-        } while ($sp->nextRowset());
-        $sp->closeCursor();
-
-        if (!$newId) {
-            throw new Exception("No se obtuvo el id de la nueva venta.");
-        }
-
-        // 4.3) Insertar productos en detalleventa usando el SP spuInsertDetalleVenta
-        $stmtP = $this->pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
-        foreach ($det['productos'] as $p) {
-            $stmtP->execute([
-                $newId,           // idventa (la venta combinada)
-                $p['idproducto'], // id del producto
-                $p['cantidad'],   // cantidad
-                $numserie,        // numserie: mismo de la venta
-                $p['precio'],     // precio unitario
-                $p['descuento']   // descuento unitario
-            ]);
-        }
-
-        // 4.4) Insertar servicios en detalleordenservicios usando el SP spInsertDetalleOrdenServicio
-        $stmtS = $this->pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
-        foreach ($det['servicios'] as $s) {
-            $stmtS->execute([
-                $newId,            // idventa (la venta combinada se comporta como OT aquí)
-                $s['idservicio'],  // id del servicio
-                $s['idmecanico'],  // id del mecánico
-                $s['precio']       // precio del servicio
-            ]);
-        }
-
-        // 4.5) Transferir amortizaciones previas a la nueva venta (usando el modelo Amortizacion)
-        $amModel = new Amortizacion();
-        foreach ($amortPrevias as $prev) {
-            $amModel->create(
-                'venta',
-                $newId,
-                (int)   $prev['idformapago'],
-                (float) $prev['amortizacion'],
-                $prev['numtransaccion']
+            )"
             );
-        }
+            $idcolab = $_SESSION['login']['idcolaborador'] ?? 0;
+            $sp->execute([
+                ':idpropietario' => $idprop,
+                ':tipocom' => $tipocom,
+                ':numserie' => $numserie,
+                ':numcom' => $numcom,
+                ':idcolaborador' => $idcolab
+            ]);
 
-        // 4.6) Marcar como cerradas (C) las OT originales en ordenservicios
-        $upd = $this->pdo->prepare("
-            UPDATE ordenservicios
-            SET estado = 'C'
-            WHERE idorden IN ($placeholders)
-        ");
-        $upd->execute($idsOT);
+            // 4.2) Capturar el idventa recién creado
+            $newId = 0;
+            do {
+                $res = $sp->fetch(PDO::FETCH_ASSOC);
+                if (!empty($res['idventa'])) {
+                    $newId = (int) $res['idventa'];
+                    break;
+                }
+            } while ($sp->nextRowset());
+            $sp->closeCursor();
 
-        // 4.7) Desactivar (estado = FALSE) las ventas antiguas que correspondían a esas OT
-        $updV = $this->pdo->prepare("
+            if (!$newId) {
+                throw new Exception("No se obtuvo el id de la nueva venta combinada.");
+            }
+
+            // 4.3) Insertar productos fusionados en detalleventa
+            $stmtP = $this->pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
+            foreach ($det['productos'] as $p) {
+                $stmtP->execute([
+                    $newId,             // idventa = venta combinada
+                    $p['idproducto'],   // id del producto
+                    $p['cantidad'],     // cantidad total
+                    $numserie,          // numserie de la venta combinada
+                    $p['precio'],       // precio unitario (del primer registro)
+                    $p['descuento']     // descuento unitario
+                ]);
+            }
+
+            // 4.4) Insertar servicios en detalleordenservicios
+            $stmtS = $this->pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
+            foreach ($det['servicios'] as $s) {
+                $stmtS->execute([
+                    $newId,            // idorden = idventa combinada
+                    $s['idservicio'],  // id del servicio
+                    $s['idmecanico'],  // id del mecánico
+                    $s['precio']       // precio del servicio
+                ]);
+            }
+
+            // 4.5) Transferir amortizaciones previas (si existen)
+            $amModel = new Amortizacion();
+            foreach ($amortPrevias as $prev) {
+                $amModel->create(
+                    'venta',
+                    $newId,
+                    (int) $prev['idformapago'],
+                    (float) $prev['amortizacion'],
+                    $prev['numtransaccion']
+                );
+            }
+
+            // 4.6) Marcar como “C” (cerradas) las OT originales en ordenservicios
+            //     Primero, obtenemos los idorden reales de esas OT (su idexpediente_ot)  
+            $sqlOrd2 = "
+            SELECT idexpediente_ot AS idorden
+            FROM ventas
+            WHERE idventa IN ($placeholders)
+              AND tipocom = 'orden de trabajo'
+              AND idexpediente_ot IS NOT NULL
+        ";
+            $stmtOrd2 = $this->pdo->prepare($sqlOrd2);
+            $stmtOrd2->execute($idsOT);
+            $ordenes = array_column($stmtOrd2->fetchAll(PDO::FETCH_ASSOC), 'idorden');
+            if (!empty($ordenes)) {
+                $inOrdenes = implode(',', array_fill(0, count($ordenes), '?'));
+                $upd = $this->pdo->prepare("
+                UPDATE ordenservicios
+                SET estado = 'C'
+                WHERE idorden IN ($inOrdenes)
+            ");
+                $upd->execute($ordenes);
+            }
+
+            // 4.7) Desactivar las ventas antiguas (OT) en la tabla ventas
+            $updV = $this->pdo->prepare("
             UPDATE ventas
             SET estado = FALSE
             WHERE idventa IN ($placeholders)
         ");
-        $updV->execute($idsOT);
+            $updV->execute($idsOT);
 
-        // 5) Commit de toda la transacción
-        $this->pdo->commit();
+            // 5) Confirmar toda la transacción
+            $this->pdo->commit();
+            return $newId;
 
-        // Devolver el id de la venta combinada que acaba de crearse
-        return $newId;
-
-    } catch (Exception $e) {
-        // En caso de error, revertir todos los cambios
-        $this->pdo->rollBack();
-        throw $e;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
-}
 
+
+    /**
+     * Devuelve dos arrays:
+     *   - 'productos': cada producto único con la suma de cantidades de todas las OT
+     *   - 'servicios' : lista de servicios a partir de detalleordenservicios
+     *
+     * @param array $idsOT  Lista de idventa (OT) a combinar
+     * @return array {productos: array, servicios: array}
+     */
     private function getDetallesOt(array $idsOT): array
     {
-        $in = implode(',', array_fill(0, count($idsOT), '?'));
+        $pdo = $this->pdo;
+        // 1) Placeholder para IN (…) con los idventa de OT
+        $inVentas = implode(',', array_fill(0, count($idsOT), '?'));
 
-        // 1) Servicios
-        $sqlS = "
-      SELECT 
-        dos.idorden,
-        dos.idservicio,
-        dos.idmecanico,
-        dos.precio
-      FROM detalleordenservicios AS dos
-      WHERE dos.idorden IN ($in)
+        // ─── PASO A: OBTENER LOS idorden (PK en ordenservicios) DE CADA idventa de OT ───
+        $sqlOrd = "
+        SELECT idexpediente_ot AS idorden
+        FROM ventas
+        WHERE idventa IN ($inVentas)
+          AND tipocom = 'orden de trabajo'
+          AND idexpediente_ot IS NOT NULL
     ";
-        $stmtS = $this->pdo->prepare($sqlS);
-        $stmtS->execute($idsOT);
-        $servicios = $stmtS->fetchAll(PDO::FETCH_ASSOC);
+        $stmtOrd = $pdo->prepare($sqlOrd);
+        $stmtOrd->execute($idsOT);
+        $ordenes = array_column($stmtOrd->fetchAll(PDO::FETCH_ASSOC), 'idorden');
 
-        // 2) Productos
-        $sqlP = "
-      SELECT 
-        dv.idproducto,
-        dv.cantidad,
-        dv.precioventa AS precio,
-        dv.descuento
-      FROM detalleventa AS dv
-      WHERE dv.iddetorden IN (
-        SELECT iddetorden FROM detalleordenservicios WHERE idorden IN ($in)
-      )
-    ";
-        $stmtP = $this->pdo->prepare($sqlP);
-        $stmtP->execute($idsOT);
-        $productos = $stmtP->fetchAll(PDO::FETCH_ASSOC);
-
-        return ['servicios' => $servicios, 'productos' => $productos];
-    }
-
-    /*     private function getDetallesOt(array $idsOT): array
-        {
-            $in = implode(',', array_fill(0, count($idsOT), '?'));
-
-            // 1) Servicios
+        // ─── PASO B: TOMAR TODOS LOS SERVICIOS DE ESAS OT (usando idorden) ───
+        if (empty($ordenes)) {
+            $servicios = [];
+        } else {
+            $inOrdenes = implode(',', array_fill(0, count($ordenes), '?'));
             $sqlS = "
           SELECT 
             dos.idorden,
@@ -649,30 +631,54 @@ public function combinarOtYCrearVenta(array $idsOT, string $tipocom, string $num
             dos.idmecanico,
             dos.precio
           FROM detalleordenservicios AS dos
-          WHERE dos.idorden IN ($in)
+          WHERE dos.idorden IN ($inOrdenes)
         ";
-            $stmtS = $this->pdo->prepare($sqlS);
-            $stmtS->execute($idsOT);
+            $stmtS = $pdo->prepare($sqlS);
+            $stmtS->execute($ordenes);
             $servicios = $stmtS->fetchAll(PDO::FETCH_ASSOC);
-
-            // 2) Productos (unimos con detalleventa)
-            $sqlP = "
-          SELECT 
-            dos.idorden,
-            dv.idproducto,
-            dv.cantidad,
-            dv.precioventa AS precio,
-            dv.descuento
-          FROM detalleordenservicios AS dos
-          JOIN detalleventa AS dv 
-            ON dv.iddetorden = dos.iddetorden
-          WHERE dos.idorden IN ($in)
-        ";
-            $stmtP = $this->pdo->prepare($sqlP);
-            $stmtP->execute($idsOT);
-            $productos = $stmtP->fetchAll(PDO::FETCH_ASSOC);
-
-            return ['servicios' => $servicios, 'productos' => $productos];
         }
-     */
+
+        // ─── PASO C: TOMAR TODOS LOS PRODUCTOS ASOCIADOS A CADA idventa ───
+        $sqlP = "
+      SELECT 
+        dv.idproducto,
+        dv.cantidad,
+        dv.precioventa AS precio,
+        dv.descuento
+      FROM detalleventa AS dv
+      WHERE dv.idventa IN ($inVentas)
+    ";
+        $stmtP = $pdo->prepare($sqlP);
+        $stmtP->execute($idsOT);
+        $productosRaw = $stmtP->fetchAll(PDO::FETCH_ASSOC);
+
+        // ─── PASO D: AGREGAR (FUSIONAR) POR idproducto ───
+        $productosAgregados = [];
+        foreach ($productosRaw as $fila) {
+            $pid = (int) $fila['idproducto'];
+            $cantidad = (float) $fila['cantidad'];
+            $precio = (float) $fila['precio'];
+            $descuento = (float) $fila['descuento'];
+
+            if (!isset($productosAgregados[$pid])) {
+                // Primera vez que aparece este idproducto
+                $productosAgregados[$pid] = [
+                    'idproducto' => $pid,
+                    'cantidad' => $cantidad,
+                    'precio' => $precio,
+                    'descuento' => $descuento
+                ];
+            } else {
+                // Ya existía: sumamos la cantidad
+                $productosAgregados[$pid]['cantidad'] += $cantidad;
+            }
+        }
+        $productos = array_values($productosAgregados);
+
+        return [
+            'productos' => $productos,
+            'servicios' => $servicios
+        ];
+    }
+
 }

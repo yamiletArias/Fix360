@@ -548,7 +548,7 @@ CONSTRAINT chk_detallecompra CHECK (cantidad > 0 AND preciocompra > 0),
 CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100)
 )ENGINE = INNODB;
 
-
+/*
 DROP TABLE IF EXISTS amortizaciones;
 CREATE TABLE amortizaciones (
   idamortizacion     INT             PRIMARY KEY AUTO_INCREMENT,
@@ -562,7 +562,7 @@ CREATE TABLE amortizaciones (
   CONSTRAINT fk_idventa_1 FOREIGN KEY (idventa) REFERENCES ventas(idventa),
   CONSTRAINT fk_idformapago FOREIGN KEY (idformapago) REFERENCES formapagos(idformapago),
   CONSTRAINT chk_amortizacion CHECK (amortizacion > 0)
-) ENGINE = INNODB;
+) ENGINE = INNODB;*/
 
 -- INTENTO CON CHK_AMORTIZACION_VC (idventa - idcompra)
 DROP TABLE IF EXISTS amortizaciones;
@@ -581,3 +581,22 @@ CONSTRAINT chk_amortizacion_vc CHECK ((idventa IS NOT NULL AND idcompra IS NULL)
   CONSTRAINT fk_idformapago FOREIGN KEY (idformapago) REFERENCES formapagos(idformapago),
   CONSTRAINT chk_amortizacion CHECK (amortizacion > 0)
 ) ENGINE = INNODB;
+
+DROP TABLE IF EXISTS expediente_ot;
+CREATE TABLE expediente_ot (
+  idexpediente_ot   INT           PRIMARY KEY AUTO_INCREMENT,
+  idcliente         INT           NULL,
+  idvehiculo        INT           NULL,
+  idcotizacion      INT           NULL,       -- opcional: enlazar cotización previa
+  fecha_apertura    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  estado            ENUM('ABIERTA','CERRADA') NOT NULL DEFAULT 'ABIERTA',
+  total_estimado    DECIMAL(10,2) NULL,       -- presupuesto inicial
+  creado            TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modificado        TIMESTAMP     NOT NULL 
+                     DEFAULT CURRENT_TIMESTAMP 
+                     ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_exp_ot_cliente   FOREIGN KEY (idcliente)  REFERENCES clientes(idcliente),
+  CONSTRAINT fk_exp_ot_vehiculo  FOREIGN KEY (idvehiculo) REFERENCES vehiculos(idvehiculo),
+  CONSTRAINT fk_exp_ot_cotizacion FOREIGN KEY (idcotizacion) REFERENCES cotizaciones(idcotizacion)
+) ENGINE=INNODB;
+

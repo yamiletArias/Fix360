@@ -1,8 +1,8 @@
 -- PROCEDIMIENTO ALMACENADOS DE VENTAS REAL
 
 -- PROCEDIMINETO PARA REGISTRAR EMPRESA
+DROP PROCEDURE IF EXISTS spRegisterEmpresa;
 DELIMITER $$
-
 CREATE PROCEDURE spRegisterEmpresa (
   IN _nomcomercial VARCHAR(80),
   IN _razonsocial VARCHAR(80),
@@ -20,7 +20,117 @@ END$$
 DELIMITER ;	
 
 -- registro de venta con orden
+DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
+DELIMITER $$
+CREATE PROCEDURE spRegisterVentaConOrden (
+  IN _conOrden        BOOLEAN,                -- ¿Crear o no OT?
+  IN _idadmin         INT,                    -- id del colaborador que administra la OT
+  IN _idpropietario   INT,                    -- idpropietario (propietario del vehículo)
+  IN _idcliente       INT,                    -- idcliente final (puede ser 0 o NULL)
+  IN _idvehiculo      INT,                    -- idvehículo (puede ser 0 o NULL)
+  IN _kilometraje     DECIMAL(10,2),          -- lectura de km
+  IN _observaciones   VARCHAR(255),           -- texto libre de observaciones
+  IN _ingresogrua     BOOLEAN,                -- si ingresó con grúa o no
+  IN _fechaingreso    DATETIME,               -- fecha/hora en que ingresa la OT
+  IN _tipocom         ENUM('boleta','factura','orden de trabajo'),
+  IN _fechahora       DATETIME,
+  IN _numserie        VARCHAR(10),
+  IN _numcom          VARCHAR(10),
+  IN _moneda          VARCHAR(20),
+  IN _idcolaborador   INT                     -- id del mecánico que hace el trabajo
+)
+BEGIN
+  DECLARE v_idorden INT            DEFAULT NULL;
+  DECLARE v_idventa INT            DEFAULT NULL;
+  DECLARE v_fechaing DATETIME;
+  DECLARE v_idexpediente_ot INT    DEFAULT NULL;
 
+  -- Si pasaste fechaingreso = NULL, toma la hora de la venta
+  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
+
+  -- 1) Si es 'orden de trabajo', crear expediente_ot
+  IF _tipocom = 'orden de trabajo' THEN
+    INSERT INTO expediente_ot (
+      idcliente,
+      idvehiculo
+    ) VALUES (
+      NULLIF(_idcliente, 0),
+      NULLIF(_idvehiculo, 0)
+    );
+    SET v_idexpediente_ot = LAST_INSERT_ID();
+  END IF;
+
+  -- 2) Si pediste crear una OT (_conOrden = TRUE), insertar en ordenservicios
+  IF _conOrden THEN
+    INSERT INTO ordenservicios (
+      idadmin,
+      idpropietario,
+      idcliente,
+      idvehiculo,
+      kilometraje,
+      observaciones,
+      ingresogrua,
+      fechaingreso,
+      fechasalida,
+      estado
+    ) VALUES (
+      _idadmin,
+      _idpropietario,
+      NULLIF(_idcliente, 0),
+      NULLIF(_idvehiculo, 0),
+      _kilometraje,
+      _observaciones,
+      _ingresogrua,
+      v_fechaing,
+      NULL,
+      'A'
+    );
+    -- Aquí: guardamos el id de la OT en v_idorden y en v_idexpediente_ot
+    SET v_idorden = LAST_INSERT_ID();
+    SET v_idexpediente_ot = v_idorden;  
+    -- (De esta forma, incluso si tipocom = 'boleta', la venta apuntará a esta OT)
+  END IF;
+
+  -- 3) Insertar en ventas, guardando idexpediente_ot (si lo creamos arriba)
+  INSERT INTO ventas (
+    idcliente,
+    idpropietario,
+    idcolaborador,
+    idvehiculo,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda,
+    idexpediente_ot,
+    kilometraje,
+    justificacion,
+    estado
+  ) VALUES (
+    NULLIF(_idcliente, 0),
+    _idpropietario,
+    _idcolaborador,
+    NULLIF(_idvehiculo, 0),
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda,
+    v_idexpediente_ot,       -- ← aquí va la OT que creamos (o NULL si no hubo OT)
+    NULLIF(_kilometraje, 0),
+    NULL,
+    TRUE
+  );
+  SET v_idventa = LAST_INSERT_ID();
+
+  -- 4) Devolver los IDs creados
+  SELECT v_idventa AS idventa,
+         v_idorden AS idorden;
+END $$
+DELIMITER ;
+
+
+/*
 DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
 DELIMITER $$
 
@@ -77,8 +187,8 @@ BEGIN
     ) VALUES (
       _idadmin,
       _idpropietario,
-      _idcliente,
-      _idvehiculo,
+      NULLIF(_idcliente, 0),
+      NULLIF(_idvehiculo, 0),
       _kilometraje,
       _observaciones,
       _ingresogrua,
@@ -125,168 +235,9 @@ BEGIN
          v_idorden AS idorden;
 END$$
 DELIMITER ;
-
-/*DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
-DELIMITER $$
-
-CREATE PROCEDURE spRegisterVentaConOrden (
-  IN _conOrden      BOOLEAN,
-  IN _idadmin       INT,
-  IN _idpropietario INT,
-  IN _idcliente     INT,
-  IN _idvehiculo    INT,
-  IN _kilometraje   DECIMAL(10,2),
-  IN _observaciones VARCHAR(255),
-  IN _ingresogrua   BOOLEAN,
-  IN _fechaingreso  DATETIME,
-  IN _tipocom ENUM('boleta','factura','orden de trabajo'),
-  IN _fechahora     DATETIME,
-  IN _numserie      VARCHAR(10),
-  IN _numcom        VARCHAR(10),
-  IN _moneda        VARCHAR(20),
-  IN _idcolaborador INT
-)
-BEGIN
-  DECLARE v_idorden INT DEFAULT NULL;
-  DECLARE v_idventa INT DEFAULT 0;
-  DECLARE v_fechaing DATETIME;
-  
-
-  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
-
-  -- 1) Inserta orden de servicio si corresponde
-  IF _conOrden THEN
-	INSERT INTO ordenservicios (
-	  idadmin,
-	  idpropietario,
-	  idcliente,
-	  idvehiculo,
-	  kilometraje,
-	  observaciones,
-	  ingresogrua,
-	  fechaingreso,
-	  fechasalida,
-	  estado
-	) VALUES (
-	  _idadmin,
-	  _idpropietario,
-	  _idcliente,
-	  _idvehiculo,
-	  _kilometraje,
-	  _observaciones,
-	  _ingresogrua,
-	  v_fechaing,
-	  NULL,
-	  'A'
-	);
-	SET v_idorden = LAST_INSERT_ID();
-  END IF;
-
-  -- 2) Inserta venta
-  INSERT INTO ventas (
-	idcliente,
-	idpropietario,
-	idcolaborador,
-	idvehiculo,
-	tipocom,
-	fechahora,
-	numserie,
-	numcom,
-	moneda,
-	kilometraje,
-	justificacion,
-	estado
-  ) VALUES (
-	NULLIF(_idcliente,0),       -- convierte 0 en NULL
-	_idpropietario,   -- convierte 0 en NULL
-	_idcolaborador,
-	NULLIF(_idvehiculo,0),
-	_tipocom,
-	_fechahora,
-	_numserie,
-	_numcom,
-	_moneda,
-	NULLIF(_kilometraje,0),
-	NULL,
-	TRUE
-  );
-  SET v_idventa = LAST_INSERT_ID();
-
-  -- 3) Devuelve IDs
-  SELECT v_idventa AS idventa,
-		 v_idorden AS idorden;
-END$$
-
-DELIMITER ;
 */
 
-/*
-SELECT
-  v.idventa,
-  v.tipocom,
-  v.numserie,
-  v.numcom,
-  v.moneda,
-  v.fechahora AS fecha_venta,
-  v.kilometraje AS km_venta,
-  o.idorden,
-  o.fechaingreso,
-  o.kilometraje AS km_orden,
-  o.observaciones,
-  o.ingresogrua,
-  d.iddetorden,
-  s.servicio AS nombreservicio,
-  d.precio,
-  d.estado AS estado_servicio,
-  m.namuser AS mecanico
-FROM ventas v
-LEFT JOIN ordenservicios o ON v.idcliente = o.idcliente AND DATE(v.fechahora) = DATE(o.fechaingreso)
-LEFT JOIN detalleordenservicios d ON o.idorden = d.idorden
-LEFT JOIN servicios s ON d.idservicio = s.idservicio
-LEFT JOIN colaboradores m ON d.idmecanico = m.idcolaborador
-ORDER BY v.idventa DESC, d.iddetorden;
-*/
-/*
--- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
-DROP PROCEDURE IF EXISTS spuRegisterVenta;
-DELIMITER $$
-CREATE PROCEDURE spuRegisterVenta (
-  IN _tipocom VARCHAR(50),
-  IN _fechahora DATETIME, 
-  IN _numserie VARCHAR(30),
-  IN _numcom CHAR(20),
-  IN _moneda CHAR(11),
-  IN _idcliente INT,
-  IN _idcolaborador INT,
-  IN _idvehiculo INT,
-  IN _kilometraje DECIMAL(10,2)
-)
-BEGIN
-  INSERT INTO ventas (
-    idcliente,
-    idcolaborador,
-    idvehiculo,
-    tipocom,
-    fechahora,
-    numserie,
-    numcom,
-    moneda,
-    kilometraje
-  )
-  VALUES (
-    _idcliente,
-    _idcolaborador,
-    NULLIF(_idvehiculo, 0),
-    _tipocom,
-    _fechahora,
-    _numserie,
-    _numcom,
-    _moneda,
-    NULLIF(_kilometraje, 0)
-  );
-  SELECT LAST_INSERT_ID() AS idventa;
-END$$
-*/
+
 -- 2) CALCULAR SALDO RESTANTE
 DROP FUNCTION IF EXISTS calcularSaldoRestante;
 DELIMITER $$
@@ -1001,6 +952,77 @@ BEGIN
   END IF;
 
   SELECT
+    v.idventa             AS id,
+    v.idpropietario       AS idpropietario,
+
+    -- Aquí buscamos el nombre del cliente‐propietario directamente en `clientes`
+    COALESCE(
+      CONCAT(po_p.apellidos,' ',po_p.nombres),
+      po_e.nomcomercial,
+      'Sin propietario'
+    ) AS propietario,
+
+    -- Datos del cliente “vendedor”:
+    COALESCE(
+      CONCAT(p.apellidos,' ',p.nombres),
+      e.nomcomercial,
+      'Cliente anónimo'
+    ) AS cliente,
+
+    v.tipocom,
+    v.numserie,
+    v.numcom,
+    DATE_FORMAT(v.fechahora, '%Y-%m-%d %H:%i') AS fechahora,
+    vt.total_pendiente,
+    CASE
+      WHEN vt.total_pendiente = 0 THEN 'pagado'
+      ELSE 'pendiente'
+    END AS estado_pago
+
+  FROM ventas v
+
+  -- Sólo OT (filtramos por tipocom en la cláusula WHERE)
+  LEFT JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
+
+  -- Cliente “vendedor/final”
+  LEFT JOIN clientes c       ON v.idcliente  = c.idcliente
+  LEFT JOIN personas p       ON c.idpersona  = p.idpersona
+  LEFT JOIN empresas e       ON c.idempresa  = e.idempresa
+
+  -- Aquí está el cambio importante: unir directamente `ventas.idpropietario → clientes`
+  LEFT JOIN clientes po_c    ON v.idpropietario = po_c.idcliente
+  LEFT JOIN personas po_p    ON po_c.idpersona   = po_p.idpersona
+  LEFT JOIN empresas po_e    ON po_c.idempresa   = po_e.idempresa
+
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND v.estado  = TRUE
+    AND v.tipocom = 'orden de trabajo'
+  ORDER BY v.fechahora;
+END$$
+DELIMITER ;
+
+/*DROP PROCEDURE IF EXISTS spListOTPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListOTPorPeriodo(
+  IN _modo   ENUM('semana','mes','dia'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
     v.idventa           AS id,             -- Mantén el id de la venta
     v.idpropietario     AS idpropietario,
     COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial, 'Cliente anónimo') AS cliente,
@@ -1028,7 +1050,7 @@ BEGIN
     AND v.tipocom = 'orden de trabajo'
   ORDER BY v.fechahora;
 END$$
-DELIMITER ;
+DELIMITER ;*/
 
 -- 13) PROCEDIMIENTO PARA DATOS DE VENTA (DIA, SEMANA Y MES)
 -- real
@@ -1056,19 +1078,23 @@ BEGIN
 
   SELECT
     v.idventa AS id,
-    -- propietario: nombre de empresa o persona, o 'Sin propietario'
+
+    -- Propietario: nombre de persona o empresa, o 'Sin propietario' si no existe
     COALESCE(
       CASE
-        WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
-        WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+        WHEN pc.idempresa IS NOT NULL THEN ep.nomcomercial
+        WHEN pc.idpersona IS NOT NULL THEN CONCAT(pp.nombres, ' ', pp.apellidos)
       END,
       'Sin propietario'
     ) AS propietario,
-    -- cliente original
+
+    -- Cliente final: persona o empresa, o 'Cliente anónimo' si no existe
     COALESCE(
-      CONCAT(p.apellidos,' ',p.nombres),
-      e.nomcomercial
+      CONCAT(p.apellidos, ' ', p.nombres),
+      e.nomcomercial,
+      'Cliente anónimo'
     ) AS cliente,
+
     v.tipocom,
     v.numcom,
     vt.total_pendiente,
@@ -1076,17 +1102,21 @@ BEGIN
       WHEN vt.total_pendiente = 0 THEN 'pagado' 
       ELSE 'pendiente' 
     END AS estado_pago
+
   FROM ventas v
-  LEFT JOIN propietarios prop       ON v.idpropietario = prop.idpropietario
-  LEFT JOIN clientes propc          ON prop.idcliente   = propc.idcliente
-  LEFT JOIN empresas epc            ON propc.idempresa  = epc.idempresa
-  LEFT JOIN personas ppc            ON propc.idpersona  = ppc.idpersona
 
-  LEFT JOIN clientes c              ON v.idcliente      = c.idcliente
-  LEFT JOIN personas p              ON c.idpersona      = p.idpersona
-  LEFT JOIN empresas e              ON c.idempresa      = e.idempresa
+  -- Unimos directamente ventas.idpropietario → clientes → personas/empresas
+  LEFT JOIN clientes       pc  ON v.idpropietario = pc.idcliente
+  LEFT JOIN personas       pp  ON pc.idpersona     = pp.idpersona
+  LEFT JOIN empresas       ep  ON pc.idempresa     = ep.idempresa
 
-  LEFT JOIN vista_saldos_por_venta vt ON v.idventa      = vt.idventa
+  -- Unimos el “cliente” real de la venta
+  LEFT JOIN clientes       c   ON v.idcliente      = c.idcliente
+  LEFT JOIN personas       p   ON c.idpersona      = p.idpersona
+  LEFT JOIN empresas       e   ON c.idempresa      = e.idempresa
+
+  LEFT JOIN vista_saldos_por_venta vt ON v.idventa       = vt.idventa
+
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
     AND v.estado = TRUE
     AND v.tipocom IN ('boleta','factura')
@@ -1283,3 +1313,165 @@ BEGIN
 END$$
 */
 
+-- PRIMER INTENTO
+/*DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
+DELIMITER $$
+
+CREATE PROCEDURE spRegisterVentaConOrden (
+  IN _conOrden      BOOLEAN,
+  IN _idadmin       INT,
+  IN _idpropietario INT,
+  IN _idcliente     INT,
+  IN _idvehiculo    INT,
+  IN _kilometraje   DECIMAL(10,2),
+  IN _observaciones VARCHAR(255),
+  IN _ingresogrua   BOOLEAN,
+  IN _fechaingreso  DATETIME,
+  IN _tipocom ENUM('boleta','factura','orden de trabajo'),
+  IN _fechahora     DATETIME,
+  IN _numserie      VARCHAR(10),
+  IN _numcom        VARCHAR(10),
+  IN _moneda        VARCHAR(20),
+  IN _idcolaborador INT
+)
+BEGIN
+  DECLARE v_idorden INT DEFAULT NULL;
+  DECLARE v_idventa INT DEFAULT 0;
+  DECLARE v_fechaing DATETIME;
+  
+
+  SET v_fechaing = COALESCE(_fechaingreso, _fechahora);
+
+  -- 1) Inserta orden de servicio si corresponde
+  IF _conOrden THEN
+	INSERT INTO ordenservicios (
+	  idadmin,
+	  idpropietario,
+	  idcliente,
+	  idvehiculo,
+	  kilometraje,
+	  observaciones,
+	  ingresogrua,
+	  fechaingreso,
+	  fechasalida,
+	  estado
+	) VALUES (
+	  _idadmin,
+	  _idpropietario,
+	  _idcliente,
+	  _idvehiculo,
+	  _kilometraje,
+	  _observaciones,
+	  _ingresogrua,
+	  v_fechaing,
+	  NULL,
+	  'A'
+	);
+	SET v_idorden = LAST_INSERT_ID();
+  END IF;
+
+  -- 2) Inserta venta
+  INSERT INTO ventas (
+	idcliente,
+	idpropietario,
+	idcolaborador,
+	idvehiculo,
+	tipocom,
+	fechahora,
+	numserie,
+	numcom,
+	moneda,
+	kilometraje,
+	justificacion,
+	estado
+  ) VALUES (
+	NULLIF(_idcliente,0),       -- convierte 0 en NULL
+	_idpropietario,   -- convierte 0 en NULL
+	_idcolaborador,
+	NULLIF(_idvehiculo,0),
+	_tipocom,
+	_fechahora,
+	_numserie,
+	_numcom,
+	_moneda,
+	NULLIF(_kilometraje,0),
+	NULL,
+	TRUE
+  );
+  SET v_idventa = LAST_INSERT_ID();
+
+  -- 3) Devuelve IDs
+  SELECT v_idventa AS idventa,
+		 v_idorden AS idorden;
+END$$
+
+DELIMITER ;
+*/
+
+/*
+SELECT
+  v.idventa,
+  v.tipocom,
+  v.numserie,
+  v.numcom,
+  v.moneda,
+  v.fechahora AS fecha_venta,
+  v.kilometraje AS km_venta,
+  o.idorden,
+  o.fechaingreso,
+  o.kilometraje AS km_orden,
+  o.observaciones,
+  o.ingresogrua,
+  d.iddetorden,
+  s.servicio AS nombreservicio,
+  d.precio,
+  d.estado AS estado_servicio,
+  m.namuser AS mecanico
+FROM ventas v
+LEFT JOIN ordenservicios o ON v.idcliente = o.idcliente AND DATE(v.fechahora) = DATE(o.fechaingreso)
+LEFT JOIN detalleordenservicios d ON o.idorden = d.idorden
+LEFT JOIN servicios s ON d.idservicio = s.idservicio
+LEFT JOIN colaboradores m ON d.idmecanico = m.idcolaborador
+ORDER BY v.idventa DESC, d.iddetorden;
+*/
+/*
+-- 1) PROCEDIMIENTO DE REGISTRO DE VENTAS (cabecera)
+DROP PROCEDURE IF EXISTS spuRegisterVenta;
+DELIMITER $$
+CREATE PROCEDURE spuRegisterVenta (
+  IN _tipocom VARCHAR(50),
+  IN _fechahora DATETIME, 
+  IN _numserie VARCHAR(30),
+  IN _numcom CHAR(20),
+  IN _moneda CHAR(11),
+  IN _idcliente INT,
+  IN _idcolaborador INT,
+  IN _idvehiculo INT,
+  IN _kilometraje DECIMAL(10,2)
+)
+BEGIN
+  INSERT INTO ventas (
+    idcliente,
+    idcolaborador,
+    idvehiculo,
+    tipocom,
+    fechahora,
+    numserie,
+    numcom,
+    moneda,
+    kilometraje
+  )
+  VALUES (
+    _idcliente,
+    _idcolaborador,
+    NULLIF(_idvehiculo, 0),
+    _tipocom,
+    _fechahora,
+    _numserie,
+    _numcom,
+    _moneda,
+    NULLIF(_kilometraje, 0)
+  );
+  SELECT LAST_INSERT_ID() AS idventa;
+END$$
+*/
