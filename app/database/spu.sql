@@ -159,12 +159,13 @@ BEGIN
 
   -- 4) Registro el movimiento inicial con el stock real
   INSERT INTO movimientos
-    (idkardex, idtipomov, fecha, cantidad, saldorestante)
+    (idkardex, idtipomov, fecha, cantidad, preciounit,saldorestante)
   VALUES
     (_idkardex,
      _idtipomov,
      CURDATE(),
      _stockInicial,
+     _precio,
      _stockInicial
     );
 
@@ -805,76 +806,73 @@ END$$
 
 DROP PROCEDURE IF EXISTS spUpdateVehiculoConHistorico $$
 CREATE PROCEDURE spUpdateVehiculoConHistorico(
-  IN p_idvehiculo       INT,
-  IN p_idmodelo         INT,
-  IN p_idtcombustible   INT,
-  IN p_placa            CHAR(6),
-  IN p_anio             CHAR(4),
-  IN p_numserie         VARCHAR(50),
-  IN p_color            VARCHAR(20),
-  IN p_vin              CHAR(17),
-  IN p_numchasis        CHAR(17),
-  IN p_idcliente_nuevo  INT
+    IN _idvehiculo       INT,
+    IN _idmodelo         INT,
+    IN _idtcombustible   INT,
+    IN _placa            CHAR(6),
+    IN _anio             CHAR(4),
+    IN _numserie         VARCHAR(50),
+    IN _color            VARCHAR(20),
+    IN _vin              CHAR(17),
+    IN _numchasis        CHAR(17),
+    IN _idcliente_nuevo  INT
 )
 BEGIN
   DECLARE v_idcliente_actual INT;
+  DECLARE v_hoy DATE;
+
+  SET v_hoy = CURDATE();
 
   START TRANSACTION;
 
-    -- 1) Actualizamos el vehículo
+    -- 1) Actualizar los datos "estáticos" del vehículo
     UPDATE vehiculos
-    SET
-      idmodelo       = p_idmodelo,
-      idtcombustible = p_idtcombustible,
-      placa          = p_placa,
-      anio           = NULLIF(p_idanio,   ''),    -- Si p_anio = '', se pone NULL
-      numserie       = NULLIF(p_numserie, ''),    -- Si p_numserie = '', se pone NULL
-      color          = p_color,
-      vin            = NULLIF(p_vin,    ''),      -- Si p_vin = '', se pone NULL
-      numchasis      = NULLIF(p_numchasis, ''),
-      modificado     = NOW()
-    WHERE idvehiculo = p_idvehiculo;
+       SET idmodelo       = _idmodelo,
+           idtcombustible = _idtcombustible,
+           placa          = _placa,
+           anio           = NULLIF(_anio,   ''),    
+           numserie       = NULLIF(_numserie, ''),    
+           color          = _color,
+           vin            = NULLIF(_vin,    ''),      
+           numchasis      = NULLIF(_numchasis, ''),
+           modificado     = NOW()
+     WHERE idvehiculo = _idvehiculo;
 
-    -- 2) Obtenemos el propietario actual (sin fechafinal)
+    -- 2) Obtener el propietario "activo" (fechafinal IS NULL), si existe
     SELECT idcliente
       INTO v_idcliente_actual
-    FROM propietarios
-    WHERE idvehiculo  = p_idvehiculo
-      AND fechafinal IS NULL
-    LIMIT 1;
+      FROM propietarios
+     WHERE idvehiculo  = _idvehiculo
+       AND fechafinal IS NULL
+     LIMIT 1;
 
-    -- 3) Si cambió de propietario, cerramos el anterior e insertamos el nuevo
-    IF v_idcliente_actual IS NULL
-       OR v_idcliente_actual <> p_idcliente_nuevo
-    THEN
-      -- 3a) Cerramos la relación anterior (si existía)
+    -- 3) Si existe un propietario activo distinto o simplemente hay que cerrarlo:
+    IF v_idcliente_actual IS NOT NULL THEN
+      -- 3a) Cerrar vínculo anterior estableciendo fechafinal = hoy
       UPDATE propietarios
-      SET fechafinal = CURDATE()
-      WHERE idvehiculo  = p_idvehiculo
-        AND fechafinal IS NULL;
-
-      -- 3b) Insertamos la nueva relación
-      INSERT INTO propietarios (
-        idcliente, idvehiculo, fechainicio, fechafinal
-      ) VALUES (
-        p_idcliente_nuevo,
-        p_idvehiculo,
-        CURDATE(),
-        NULL
-      );
+         SET fechafinal = v_hoy
+       WHERE idvehiculo  = _idvehiculo
+         AND fechafinal IS NULL;
     END IF;
+
+    -- 4) Insertar siempre un registro NUEVO con el nuevo propietario
+    INSERT INTO propietarios (
+      idcliente,
+      idvehiculo,
+      fechainicio,
+      fechafinal
+    ) VALUES (
+      _idcliente_nuevo,
+      _idvehiculo,
+      v_hoy,
+      NULL
+    );
 
   COMMIT;
 
-  -- 4) Al final devolvemos el idcliente que ahora es propietario activo
-  SELECT
-    p.idcliente AS idcliente_propietario_nuevo
-  FROM propietarios AS p
-  WHERE p.idvehiculo = p_idvehiculo
-    AND p.fechafinal IS NULL
-  LIMIT 1;
+  -- 5) Devolver el idcliente que ahora quedó activo ("el último insertado")
+  SELECT LAST_INSERT_ID() AS idcliente_propietario_nuevo;
 END $$
-
 
 DROP PROCEDURE IF EXISTS spDeleteObservacion $$
 CREATE PROCEDURE spDeleteObservacion(

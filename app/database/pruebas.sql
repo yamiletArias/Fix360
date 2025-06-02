@@ -827,8 +827,22 @@ CALL spUpdatePersona(1, 'Prueba', 'Usuario', 'DNI', '12345678', '', 'Av. Prueba 
 CALL spUpdateEmpresa(1, 'Empresa Prueba', 'Razón Prueba S.A.', '012345678', 'empresa@mail.com');
 
 
+CALL spUpdateVehiculoConHistorico(
+  1,             -- idvehiculo
+  1,             -- idmodelo
+  1,             -- idtcombustible
+  'BLQ141',      -- placa
+  '2000',        -- anio
+  'ABC123DEF456GHI', -- numserie
+  'rojo',        -- color
+  'ABC123DEF456GHI', -- vin
+  'ABC123DEF456GHI', -- numchasis
+  2              -- idcliente_nuevo
+);
+-- select * from propietarios
 
-
+-- select * from productos
+-- select * from movimientos
 
 
 INSERT INTO personas (

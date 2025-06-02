@@ -235,7 +235,7 @@ require_once "../../partials/header.php";
           <button
             type="button"
             class="btn btn-secondary"
-            href="javascript:history.back()">
+            href="listar-producto.php">
             Cancelar
           </button>
           <button type="submit" class="btn btn-success" id="btnRegistrarProducto">

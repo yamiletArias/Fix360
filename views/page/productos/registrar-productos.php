@@ -57,7 +57,7 @@
             </div>
 
             <!-- Subcategoria -->
-            <div class="col-md-3">
+            <div class="col-md-3 mb-3">
               <div class="form-floating input-group">
                 <select class="form-select" name="subcategoria" id="subcategoria" style="color: black;" required>
                   <option value="">Selecciona una opcion</option>
@@ -76,7 +76,7 @@
               </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-3 mb-3">
               <div class="form-floating ">
                 <input type="text" class="form-control input" id="presentacion" name="presentacion" placeholder="presentacion" />
                 <label for="presentacion">Presentación</label>
@@ -99,7 +99,7 @@
 
 
             <div class="col-md-2">
-              <div class="form-floating mb-3">
+              <div class="form-floating">
                 <input type="number" class="form-control input" step="0.1" id="precio" name="precio" placeholder="presio" min="0" />
                 <label for="precio">Precio</label>
               </div>
@@ -112,7 +112,7 @@
               </div>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-2 ">
               <div class="form-floating ">
                 <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin" placeholder="stockmin" min="0" />
                 <label for="stockmin">Stock min.</label>
@@ -126,7 +126,7 @@
               </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-4 ">
               <div class="form-floating mb-3">
                 <input type="file" class="btn btn-outline-dark border input-img" name="img" id="img" accept="image/png, image/jpeg" placeholder="img">
               </div>
@@ -161,11 +161,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <label for="inputMarca" class="form-label">Nombre</label>
-          <input type="text" id="inputMarca" class="form-control" required>
+          <div class="form-floating">
+            <input type="text" id="inputMarca" class="form-control" placeholder="marca"  style="background-color: white;" required>
+            <label for="inputMarca" class="form-label"><strong>Marca</strong></label>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Guardar</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
         </div>
       </form>
     </div>
@@ -180,11 +183,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <label for="inputCategoria" class="form-label">Nombre</label>
-          <input type="text" id="inputCategoria" class="form-control" required>
+          <div class="form-floating">
+            <input type="text" id="inputCategoria" class="form-control" placeholder="categoria"  style="background-color: white;" required>
+            <label for="inputCategoria" class="form-label"><strong>Categoria</strong></label>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Guardar</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
         </div>
       </form>
     </div>
@@ -199,11 +205,15 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <label for="inputSubcategoria" class="form-label">Nombre</label>
-          <input type="text" id="inputSubcategoria" class="form-control" required>
+          <div class="form-floating">
+
+            <input type="text" id="inputSubcategoria" class="form-control" placeholder="subcategoria"  style="background-color: white;" required>
+            <label for="inputSubcategoria" class="form-label"><strong>Subcategoria</strong></label>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Guardar</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
         </div>
       </form>
     </div>
@@ -230,6 +240,40 @@
       });
     });
   </script>
+
+  <script>
+  // …tu código existente (cargas, fetchs, submits, etc.)…
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Modal Marca
+    const modalMarca = document.getElementById("modalMarca");
+    const inputMarca = document.getElementById("inputMarca");
+    if (modalMarca && inputMarca) {
+      modalMarca.addEventListener("shown.bs.modal", () => {
+        inputMarca.focus();
+      });
+    }
+
+    // Modal Categoría
+    const modalCategoria = document.getElementById("modalCategoria");
+    const inputCategoria = document.getElementById("inputCategoria");
+    if (modalCategoria && inputCategoria) {
+      modalCategoria.addEventListener("shown.bs.modal", () => {
+        inputCategoria.focus();
+      });
+    }
+
+    // Modal Subcategoría
+    const modalSubcategoria = document.getElementById("modalSubcategoria");
+    const inputSubcategoria = document.getElementById("inputSubcategoria");
+    if (modalSubcategoria && inputSubcategoria) {
+      modalSubcategoria.addEventListener("shown.bs.modal", () => {
+        inputSubcategoria.focus();
+      });
+    }
+  });
+</script>
+
 
 
   <script>

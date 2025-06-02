@@ -1,5 +1,4 @@
 <?php
-
 header('Content-type: application/json; charset=utf-8');
 require_once "../models/Vehiculo.php";
 require_once "../helpers/helper.php";
@@ -10,62 +9,62 @@ $method   = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     $task = $_GET['task'] ?? '';
 
-    // Obtener todos los vehículos
+    // 1) Obtener todos los vehículos
     if ($task === 'getAll') {
         echo json_encode($vehiculo->getAll());
         exit;
     }
 
-    // Obtener vehículos por cliente
+    // 2) Obtener vehículos por cliente
     if ($task === 'getVehiculoByCliente') {
         $idcliente = intval($_GET['idcliente'] ?? 0);
         echo json_encode($vehiculo->getVehiculoByCliente($idcliente));
         exit;
     }
 
-    // Obtener órdenes por vehículo
+    // 3) Obtener órdenes por vehículo
     if ($task === 'getOrdenesByVehiculo') {
         $idvehiculo = intval($_GET['idvehiculo'] ?? 0);
         echo json_encode($vehiculo->getOrdenesByVehiculo($idvehiculo));
         exit;
     }
 
-    // Obtener ventas por vehículo
+    // 4) Obtener ventas por vehículo
     if ($task === 'getVentasByVehiculo') {
         $idvehiculo = intval($_GET['idvehiculo'] ?? 0);
         echo json_encode($vehiculo->getVentasByVehiculo($idvehiculo));
         exit;
     }
 
-    // Obtener último kilometraje
+    // 5) Obtener último kilometraje
     if ($task === 'getUltimoKilometraje') {
         $idvehiculo = intval($_GET['idvehiculo'] ?? 0);
         echo json_encode($vehiculo->getUltimoKilometraje($idvehiculo));
         exit;
     }
 
-    // Obtener detalle de orden de servicio
+    // 6) Obtener detalle de orden de servicio
     if ($task === 'getDetalleOrdenServicio') {
         $idorden = intval($_GET['idorden'] ?? 0);
         echo json_encode($vehiculo->getDetalleOrdenServicio($idorden));
         exit;
     }
 
-    // Obtener justificación de orden
+    // 7) Obtener justificación de orden
     if ($task === 'getJustificacionByOrden') {
         $idorden = intval($_GET['idorden'] ?? 0);
         echo json_encode($vehiculo->getJustificacionByOrden($idorden));
         exit;
     }
 
-    // Obtener vehículo con propietario activo
+    // 8) Obtener vehículo con propietario activo
     if ($task === 'getVehiculoConPropietario') {
         $idvehiculo = intval($_GET['idvehiculo'] ?? 0);
         echo json_encode($vehiculo->getVehiculoConPropietario($idvehiculo));
         exit;
     }
 
-    // Historial completo: datos generales + propietario
+    // 9) Historial completo: datos generales + propietario
     if ($task === 'getHistorial') {
         $id = intval($_GET['idvehiculo'] ?? 0);
         if ($id <= 0) {
@@ -81,58 +80,14 @@ if ($method === 'GET') {
             exit;
         }
 
-        $general = [
-            'idvehiculo'    => $datos['idvehiculo'],        
-            'placa'         => $datos['placa'],
-            'anio'          => $datos['anio'],
-            'color'         => $datos['color'],
-            'numserie'      => $datos['numserie'],
-            'numchasis'      => $datos['numchasis'],
-            'vin'           => $datos['vin'],
-            'tipo_vehiculo' => $datos['tipo_vehiculo'],  
-            'tcombustible'  => $datos['tcombustible'],   
-            'marca'         => $datos['marca'],
-            'modelo'        => $datos['modelo'],
-        ];
-
-        // Ajuste: usar alias 'id_propietario' provisto por el SP
-        $propietario = [
-            'id_propietario'       => $datos['id_propietario'],
-            'propietario'          => $datos['propietario'],
-            'documento_propietario'=> $datos['documento_propietario'],
-            'telefono_prop'=> $datos['telefono_prop'],
-            'email_prop'=> $datos['email_prop'],
-            'propiedad_desde'      => $datos['propiedad_desde'],   
-            'propiedad_hasta'      => isset($row['propiedad_hasta']) 
-                     ? $row['propiedad_hasta'] 
-                     : null,
-        ];
-
-        echo json_encode([ 'general' => $general, 'propietario' => $propietario ]);
-        exit;
-    }
-if ($task === 'getHistorial') {
-        $id = intval($_GET['idvehiculo'] ?? 0);
-        if ($id <= 0) {
-            http_response_code(400);
-            echo json_encode(['error' => 'ID de vehículo inválido']);
-            exit;
-        }
-
-        $datos = $vehiculo->getDatosGeneralesVehiculo($id);
-        if (!$datos) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Vehículo no encontrado']);
-            exit;
-        }
-
-        // Armamos la parte "general"
+        // Armar la sección "general"
         $general = [
             'idvehiculo'    => $datos['idvehiculo'],
             'placa'         => $datos['placa'],
             'anio'          => $datos['anio'],
             'color'         => $datos['color'],
             'numserie'      => $datos['numserie'],
+            'numchasis'     => $datos['numchasis'],
             'vin'           => $datos['vin'],
             'tipo_vehiculo' => $datos['tipo_vehiculo'],
             'tcombustible'  => $datos['tcombustible'],
@@ -140,15 +95,15 @@ if ($task === 'getHistorial') {
             'modelo'        => $datos['modelo'],
         ];
 
-        // Armamos la parte "propietario", usando null-coalescing para claves opcionales
+        // Armar la sección "propietario"
         $propietario = [
-            'id_propietario'       => $datos['id_propietario'],
+            'id_propietario'       => $datos['idpropietario'],            // si el SP usa alias idpropietario
             'propietario'          => $datos['propietario'],
             'documento_propietario'=> $datos['documento_propietario'],
-            'propiedad_desde'      => $datos['propiedad_desde'] ?? null,
-            'propiedad_hasta'      => $datos['propiedad_hasta'] ?? null,
-            'telefono_prop'        => $datos['telefono_prop'] ?? null,
-            'email_prop'           => $datos['email_prop'] ?? null,
+            'telefono_prop'        => $datos['telefono_prop']    ?? null,
+            'email_prop'           => $datos['email_prop']       ?? null,
+            'propiedad_desde'      => $datos['propiedad_desde']  ?? null,
+            'propiedad_hasta'      => $datos['propiedad_hasta']  ?? null,
         ];
 
         echo json_encode([
@@ -159,27 +114,30 @@ if ($task === 'getHistorial') {
         exit;
     }
 
-
     // Si no coincide ningún task válido
     http_response_code(400);
     echo json_encode(['error' => 'Parámetros GET inválidos']);
     exit;
 }
 
+// ===============================
+// = Manejador de peticiones POST =
+// ===============================
 if ($method === 'POST') {
     $input    = file_get_contents('php://input');
     $dataJSON = json_decode($input, true);
 
     if ($dataJSON === null) {
+        http_response_code(400);
         echo json_encode(['error' => 'JSON inválido']);
         exit;
     }
 
-    // Registro de vehículo
+    // 1) Registro de vehículo
     if (isset($dataJSON['task']) && $dataJSON['task'] === 'registerVehiculo') {
         $registro = [
-            'idmodelo'       => Helper::limpiarCadena($dataJSON['idmodelo'] ?? ''),
-            'idtcombustible' => Helper::limpiarCadena($dataJSON['idtcombustible'] ?? ''),
+            'idmodelo'       => intval(Helper::limpiarCadena($dataJSON['idmodelo'] ?? '0')),
+            'idtcombustible' => intval(Helper::limpiarCadena($dataJSON['idtcombustible'] ?? '0')),
             'placa'          => Helper::limpiarCadena($dataJSON['placa'] ?? ''),
             'anio'           => Helper::limpiarCadena($dataJSON['anio'] ?? ''),
             'numserie'       => Helper::limpiarCadena($dataJSON['numserie'] ?? ''),
@@ -188,16 +146,17 @@ if ($method === 'POST') {
             'numchasis'      => Helper::limpiarCadena($dataJSON['numchasis'] ?? ''),
             'idcliente'      => intval($dataJSON['idcliente'] ?? 0),
         ];
+
         $n = $vehiculo->registerVehiculo($registro);
         if ($n === 0) {
-            echo json_encode(['error' => 'No se pudo registrar el vehículo']);
+            echo json_encode(['status' => 'error', 'message' => 'No se pudo registrar el vehículo']);
         } else {
-            echo json_encode(['success' => 'Vehículo registrado', 'rows' => $n]);
+            echo json_encode(['status' => 'success', 'message' => 'Vehículo registrado', 'rows' => $n]);
         }
         exit;
     }
 
-    // Actualizar vehículo con histórico de propietarios
+    // 2) Actualizar vehículo con historial de propietarios
     if (isset($dataJSON['task']) && $dataJSON['task'] === 'updateVehiculoConHistorico') {
         $params = [
             'idvehiculo'      => intval($dataJSON['idvehiculo'] ?? 0),
@@ -211,18 +170,34 @@ if ($method === 'POST') {
             'numchasis'       => Helper::limpiarCadena($dataJSON['numchasis'] ?? ''),
             'idcliente_nuevo' => intval($dataJSON['idcliente_nuevo'] ?? 0),
         ];
-        $result = $vehiculo->updateVehiculoConHistorico($params);
-        if (empty($result)) {
-            echo json_encode(['status' => false, 'message' => 'No se pudo actualizar vehículo']);
-        } else {
-            echo json_encode(['status' => true, 'message' => 'Vehículo actualizado con histórico', 'data' => $result]);
+
+        try {
+            $result = $vehiculo->updateVehiculoConHistorico($params);
+            if (! is_array($result) || ! array_key_exists('idcliente_propietario_nuevo', $result)) {
+                echo json_encode([
+                    'status'  => 'error',
+                    'message' => 'No se pudo actualizar vehículo (no se devolvió idcliente)'
+                ]);
+            } else {
+                echo json_encode([
+                    'status'  => 'success',
+                    'message' => 'Vehículo actualizado correctamente',
+                    'data'    => $result
+                ]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'status'  => 'error',
+                'message' => 'Error en SP: ' . $e->getMessage()
+            ]);
         }
         exit;
     }
 
-    // Task POST no reconocido
+    // Task inválido en POST
     http_response_code(400);
-    echo json_encode(['error' => 'Task POST no reconocido']);
+    echo json_encode(['status' => 'error', 'message' => 'Parámetros POST inválidos']);
     exit;
 }
 
