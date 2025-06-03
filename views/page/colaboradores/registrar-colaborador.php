@@ -160,8 +160,8 @@ require_once "../../partials/header.php";
           if (data.nombres) {
             nombres.value = data.nombres;
             apellidos.value = `${data.apellidoPaterno} ${data.apellidoMaterno}`;
-            nombres.disabled = true;
-            apellidos.disabled = true;
+            nombres.readOnly = true;
+apellidos.readOnly = true;;
           }
         } catch (e) {
           console.error('Error DNI API:', e);
