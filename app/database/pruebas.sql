@@ -127,7 +127,7 @@ END$$
 
 -- select * from kardex where idproducto = 1;
 -- select * from productos;
-
+/*
 -- CALL buscar_producto('s')
 DELIMITER $$
 
@@ -165,7 +165,7 @@ BEGIN
 END $$
 
 DELIMITER ;
-
+*/
 -- Orden de servicio y venta
 
 -- 1) Orden de servicio (sin fecharecordatorio)
@@ -677,18 +677,6 @@ CREATE PROCEDURE spGraficoContactabilidadPorPeriodo(
     IN p_fecha_hasta   DATE
 )
 BEGIN
-    /*
-      Este SP devuelve, para el rango de fechas [p_fecha_desde, p_fecha_hasta],
-      el conteo de clientes agrupados según p_periodo:
-        - 'ANUAL'   → por mes-año (YYYY-MM)
-        - 'MENSUAL' → por semana dentro del mes
-        - 'SEMANAL' → por día de la semana
-      El resultado incluye:
-        * periodo_label   (p.ej. '2025-01' si es ANUAL, 'Semana 2' si es MENSUAL, o 'Lunes' si es SEMANAL)
-        * contactabilidad (texto de la tabla contactabilidad)
-        * total_clientes  (conteo de clientes en ese bucket)
-    */
-
     IF p_periodo = 'ANUAL' THEN
         -- Agrupar por mes/año (YYYY-MM)
         SELECT
@@ -725,14 +713,6 @@ BEGIN
             ctb.contactabilidad;
 
     ELSEIF p_periodo = 'MENSUAL' THEN
-        /*
-          Para agrupar por “semana” dentro del mes, podemos usar la función WEEK().
-          Sin embargo WEEK() nos da el número de semana en el año. 
-          Si quieres agrupar estrictamente “Semana 1 del mes”, “Semana 2 del mes”, …, 
-          puedes hacer algo como:
-            FLOOR((DAYOFMONTH(fecha) - 1)/7) + 1
-          Esto divide el mes en bloques de 7 días: 1-7 → Semana 1; 8-14 → Semana 2; etc.
-        */
         SELECT
             CONCAT(
                DATE_FORMAT(x.creado_registro, '%Y-%m'), 
@@ -773,13 +753,6 @@ BEGIN
             ctb.contactabilidad;
 
     ELSEIF p_periodo = 'SEMANAL' THEN
-        /*
-          Para agrupar por día de la semana, podemos usar DAYNAME().
-          Esto devolverá 'Monday', 'Tuesday', … en inglés por defecto,
-          o bien la versión en el idioma configurado en tu servidor MySQL.
-          Si quieres forzar en español, puedes hacer:
-             ELT(WEEKDAY(fecha) + 1, 'Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo')
-        */
         SELECT
             ELT(
               WEEKDAY(x.creado_registro) + 1,
