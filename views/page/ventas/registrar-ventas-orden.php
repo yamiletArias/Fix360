@@ -229,49 +229,6 @@ require_once "../../partials/header.php";
             </div>
           </div>
           <!-- FIN sección de servicios -->
-          <!-- 
-          <div id="serviceSection" class="row g-2 mt-3 d-none">
-            <div class="col-md-3">
-              <div class="form-floating">
-                <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
-                  <option selected>Eliga un tipo de servicio</option>
-                </select>
-                <label for="subcategoria">Tipo de Servicio:</label>
-              </div>
-            </div>
-            <div class="col-md-3 ">
-              <div class="input-group ">
-                <div class="form-floating">
-                  <select class="form-select" id="servicio" name="servicio" style="color:black;">
-                    <option selected>Eliga un servicio</option>
-                  </select>
-                  <label for="servicio">Servicio:</label>
-                </div>
-                <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle" data-bs-toggle="modal"
-                  data-bs-target="#ModalServicio">
-                  <i class="fa-solid fa-circle-plus"></i>
-                </button>
-              </div>
-            </div>
-            <div class="col-md-3 ">
-              <div class="form-floating">
-                <select class="form-select" id="mecanico" name="mecanico" style="color:black;">
-                  <option selected>Eliga un mecánico</option>
-                </select>
-                <label for="mecanico">Mecánico:</label>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="input-group">
-                <div class="form-floating">
-                  <input type="number" class="form-control input" step="0.1" placeholder="Precio Servicio"
-                    aria-label="Precio Servicio" min="0.01" id="precioServicio" />
-                  <label for="precioServicio">Precio Servicio</label>
-                </div>
-                <button class="btn btn-sm btn-success" type="button" id="btnAgregarServicio">Agregar</button>
-              </div>
-            </div>
-          </div> -->
         </div>
       </form>
     </div>
@@ -562,7 +519,7 @@ require_once "../../partials/_footer.php";
     gruField.disabled = false;
   });
   // 2) Cargar lista de servicios por subcategoría
-  /* async function cargarServiciosPorSubcategoria(idsubcat) {
+  async function cargarServiciosPorSubcategoria(idsubcat) {
     if (!idsubcat) {
       document.getElementById('servicio').innerHTML = '<option value="">Eliga un servicio</option>';
       return;
@@ -651,7 +608,7 @@ require_once "../../partials/_footer.php";
       alert('Ocurrió un error al registrar el servicio.');
     }
   });
- */
+
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {

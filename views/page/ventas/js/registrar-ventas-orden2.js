@@ -18,7 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnFinalizarVenta = document.getElementById("btnFinalizarVenta");
   const detalleServicios = [];
   const tablaServ = document.querySelector("#tabla-detalle-servicios tbody");
-  const btnAgregarServicio = document.getElementById("btnAgregarServicio");
+  const btnAgregarDetalleServicio = document.getElementById(
+    "btnAgregarDetalleServicio"
+  );
   const selectServicio = document.getElementById("servicio");
   const selectMecanico = document.getElementById("mecanico");
   const inputPrecioServicio = document.getElementById("precioServicio");
@@ -105,50 +107,125 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((items) => {
         items.forEach((item) => {
           const precio = parseFloat(item.precio);
-          const cantidad = parseFloat(item.cantidad);
+          const cantidad = parseInt(item.cantidad, 10);
           const descuento = parseFloat(item.descuento);
           const importe = (precio - descuento) * cantidad;
 
-          // CREAR FILA EN LA TABLA igual que si hubieras pulsado “Agregar”
+          // 1) Creo la fila TR
           const tr = document.createElement("tr");
           tr.dataset.idproducto = item.idproducto;
           tr.innerHTML = `
-            <td>0</td>
-            <td>${item.producto}</td>
-            <td>${precio.toFixed(2)}</td>
-            <td>
-              <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
-                <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
-                <input type="number"
-                      class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                      value="${cantidad}"
-                      min="1"
-                      max="${item.stock}">
-                <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
-              </div>
-            </td>
-            <td>${descuento.toFixed(2)}</td>
-            <td class="importe-cell">${importe.toFixed(2)}</td>
-            <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>`;
+        <td>0</td>
+        <td>${item.producto}</td>
+        <!-- Envolvemos precio en <span class="precio-texto"> -->
+        <td>
+          <span class="precio-texto">${precio.toFixed(2)}</span>
+        </td>
+        <td>
+          <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
+            <button class="btn btn-outline-secondary btn-decrement" type="button">−</button>
+            <input type="number"
+                   class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                   value="${cantidad}"
+                   min="1"
+                   max="${item.stock}">
+            <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+          </div>
+        </td>
+        <!-- Envolvemos descuento en <span class="descuento-texto"> -->
+        <td>
+          <span class="descuento-texto">${descuento.toFixed(2)}</span>
+        </td>
+        <td class="importe-cell">${importe.toFixed(2)}</td>
+        <td>
+          <button class="btn btn-danger btn-sm btn-quitar">X</button>
+        </td>`;
+
+          // 2) Lo agrego al tbody
           tabla.appendChild(tr);
+
+          // 3) Lo agrego también al array detalleVenta (igual que en tu “Agregar” manual)
           detalleVenta.push({
-            idproducto: item.idproducto, // <-- aquí sí debería venir el entero
+            idproducto: item.idproducto,
             producto: item.producto,
             precio: precio,
             cantidad: cantidad,
             descuento: descuento,
             importe: importe.toFixed(2),
           });
-        });
 
-        // Finalmente, renumera y recalcula totales:
+          // — AHORA, asigno los listeners para que funcione igual que en “Agregar producto” —
+
+          // obtengo referencias dentro de la fila recién creada
+          const decBtn = tr.querySelector(".btn-decrement");
+          const incBtn = tr.querySelector(".btn-increment");
+          const qtyInput = tr.querySelector(".cantidad-input");
+          const importeCell = tr.querySelector(".importe-cell");
+          const precioSpan = tr.querySelector(".precio-texto");
+          const descuentoSpan = tr.querySelector(".descuento-texto");
+          const quitarBtn = tr.querySelector(".btn-quitar");
+
+          // función que recalcula esta línea cuando cambie cantidad
+          function actualizarLinea() {
+            // 1) leo cantidad como entero
+            let qty = parseInt(qtyInput.value, 10) || 1;
+            if (qty < 1) qty = 1;
+            qtyInput.value = qty;
+
+            // 2) leo precio y descuento desde los spans
+            const precioValor = parseFloat(precioSpan.textContent) || 0;
+            const descuentoValor = parseFloat(descuentoSpan.textContent) || 0;
+
+            // 3) calculo nuevo importe y lo muestro
+            const netoUnit = precioValor - descuentoValor;
+            const nuevoImporte = netoUnit * qty;
+            importeCell.textContent = nuevoImporte.toFixed(2);
+
+            // 4) actualizo ese producto en el array detalleVenta
+            const idx = detalleVenta.findIndex(
+              (d) => d.idproducto === item.idproducto
+            );
+            if (idx >= 0) {
+              detalleVenta[idx].cantidad = qty;
+              detalleVenta[idx].importe = nuevoImporte.toFixed(2);
+            }
+
+            // 5) renumero filas y recalculo totales generales
+            actualizarNumeros();
+            calcularTotales();
+          }
+
+          // listeners para “−” y “＋”
+          decBtn.addEventListener("click", () => {
+            qtyInput.stepDown();
+            actualizarLinea();
+          });
+          incBtn.addEventListener("click", () => {
+            qtyInput.stepUp();
+            actualizarLinea();
+          });
+          qtyInput.addEventListener("input", actualizarLinea);
+
+          // listener para quitar la fila
+          quitarBtn.addEventListener("click", () => {
+            tr.remove();
+            const idx = detalleVenta.findIndex(
+              (d) => d.idproducto === item.idproducto
+            );
+            if (idx >= 0) detalleVenta.splice(idx, 1);
+            actualizarNumeros();
+            calcularTotales();
+          });
+        }); // fin foreach
+
+        // Finalmente, renumero y recalculo TOTALES generales
         actualizarNumeros();
         calcularTotales();
       })
       .catch(console.error);
   }
 
-  btnAgregarServicio.addEventListener("click", () => {
+  btnAgregarDetalleServicio.addEventListener("click", () => {
     // 1) Lee y valida cada cosa por separado
     const idserv = parseInt(selectServicio.value, 10);
     const idmec = parseInt(selectMecanico.value, 10);
