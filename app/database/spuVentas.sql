@@ -30,6 +30,7 @@ BEGIN
   SELECT new_idempresa   AS idempresa,
          new_idproveedor AS idproveedor;
 END $$
+
 -- REAL
 /*
 DROP PROCEDURE IF EXISTS spRegisterEmpresa $$

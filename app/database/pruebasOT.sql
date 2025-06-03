@@ -96,6 +96,21 @@ WHERE v.estado = TRUE
   AND v.idexpediente_ot IS NOT NULL;-- filtrar para que no aparezca fila vacía de servicio
 */
 
+-- 1) Creamos la vista que une `empresas` con `proveedores`
+DROP VIEW IF EXISTS vista_empresa_proveedor;
+CREATE VIEW vista_empresa_proveedor AS
+SELECT
+  p.idproveedor,
+  e.idempresa,
+  e.nomcomercial,
+  e.razonsocial,
+  e.telefono,
+  e.correo,
+  e.ruc
+FROM empresas e
+JOIN proveedores p ON e.idempresa = p.idempresa;
+
+
 -- PRUEBA (PUESTA EN SPUVENTAS)
 DROP PROCEDURE IF EXISTS spRegisterVentaConOrden;
 DELIMITER $$
