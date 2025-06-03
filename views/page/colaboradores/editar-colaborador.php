@@ -32,7 +32,7 @@ if ($id <= 0) {
           <!-- Tipo y número de documento -->
           <div class="col-md-2">
             <div class="form-floating">
-              <select class="form-select input" id="tipodoc" name="tipodoc" style="color: black;" disabled>
+              <select class="form-select input" id="tipodoc" name="tipodoc" style="color: black;" ReadOnly disabled>
                 <option value="DNI">DNI</option>
                 <option value="Pasaporte">Pasaporte</option>
                 <option value="Carnet">Carnet de extranjería</option>
@@ -50,13 +50,13 @@ if ($id <= 0) {
           <!-- Datos personales -->
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50" placeholder="Apellidos">
+              <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50" placeholder="Apellidos" ReadOnly> 
               <label for="apellidos"><strong>Apellidos</strong></label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50" placeholder="Nombres">
+              <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50" placeholder="Nombres" ReadOnly>
               <label for="nombres"><strong>Nombres</strong></label>
             </div>
           </div>
@@ -86,7 +86,7 @@ if ($id <= 0) {
           <!-- Rol -->
           <div class="col-md-2">
             <div class="form-floating">
-              <select class="form-select input" id="idrol" name="idrol" style="color: black;" required>
+              <select class="form-select input" id="idrol" name="idrol" style="color: black;" required ReadOnly>
                 <option value="">Cargando roles...</option>
               </select>
               <label for="idrol"><strong>Rol</strong></label>

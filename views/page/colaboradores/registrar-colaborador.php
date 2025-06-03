@@ -161,7 +161,7 @@ require_once "../../partials/header.php";
             nombres.value = data.nombres;
             apellidos.value = `${data.apellidoPaterno} ${data.apellidoMaterno}`;
             nombres.readOnly = true;
-apellidos.readOnly = true;;
+            apellidos.readOnly = true;;
           }
         } catch (e) {
           console.error('Error DNI API:', e);
@@ -176,16 +176,19 @@ apellidos.readOnly = true;;
       // Ejemplo: validar correo
       const correo = document.getElementById('correo').value.trim();
       if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-        showToast('Correo invalido', 'ERROR', 1500); return false;
+        showToast('Correo invalido', 'ERROR', 1500);
+        return false;
       }
       // Validar DNI formato
       if (tipodoc.value === 'DNI' && !/^\d{8}$/.test(numdoc.value.trim())) {
-        showToast('El DNI debe de contar con 8 digitos', 'ERROR', 1500); return false;
+        showToast('El DNI debe de contar con 8 digitos', 'ERROR', 1500);
+        return false;
       }
       // Validar celular
       const tel = document.getElementById('telprincipal').value.trim();
       if (!/^[9]\d{8}$/.test(tel)) {
-        showToast('El Telefono debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500); return false;
+        showToast('El Telefono debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500);
+        return false;
       }
       return true;
     }
@@ -196,7 +199,10 @@ apellidos.readOnly = true;;
       if (!validar()) return;
       const fd = new FormData(form);
       fd.append('action', 'create');
-      const resp = await fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", { method: 'POST', body: fd });
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", {
+        method: 'POST',
+        body: fd
+      });
       const result = await resp.json();
       if (result.status) {
         showToast('Colaborador registrado exitosamente.', 'SUCCESS', 1000);
