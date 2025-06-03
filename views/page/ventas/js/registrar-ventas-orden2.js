@@ -26,6 +26,50 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputPrecioServicio = document.getElementById("precioServicio");
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
+  const kmInput = document.getElementById("kilometraje");
+  const btnToggleService = document.getElementById('btnToggleService');
+  const obsField = document.getElementById("observaciones");
+  const gruField = document.getElementById("ingresogrua");
+  btnToggleService.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    // --- NUEVO: limpiar el arreglo y la tabla de servicios antes de mostrarla ---
+    detalleServicios.length = 0;
+    tablaServ.innerHTML = '';
+    actualizarNumerosServicios(); // (si quieres que los índices de la tabla queden “1, 2, …” correctamente)
+
+    // 1) Mostrar la sección de servicios
+    document.getElementById('serviceSection').classList.remove('d-none');
+    document.getElementById('serviceListCard').classList.remove('d-none');
+
+    // 2) Deshabilitar el botón y cambiar su estilo a gris (btn-secondary)
+    this.disabled = true;
+    this.classList.remove('btn-success');
+    this.classList.add('btn-secondary');
+
+    obsField.disabled = false;
+    gruField.disabled = false;
+  });
+
+  // --- NUEVO: variable global para almacenar el último kilometraje y función para traerlo ---
+  let prevKilometraje = null; // ←–– aquí guardamos el último valor traído
+  async function fetchUltimoKilometraje(idvehiculo) {
+    console.log("🔍 fetchUltimoKilometraje(", idvehiculo, ")");
+    try {
+      const url = `${window.FIX360_BASE_URL}app/controllers/vehiculo.controller.php?task=getUltimoKilometraje&idvehiculo=${idvehiculo}`;
+      console.log("→ Fetch URL:", url);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      // Si no viene nada, asumimos cero
+      const ultimo = parseFloat(data.ultimo_kilometraje) || 0;
+      prevKilometraje = ultimo;
+      console.log("SP response:", data);
+      kmInput.value = ultimo > 0 ? ultimo : "";
+    } catch (err) {
+      console.error("Error al cargar último kilometraje:", err);
+    }
+  }
 
   // --- Funciones auxiliares ---
   function calcularTotales() {
@@ -664,8 +708,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // 2) aquí solo lógica de scanner
       fetch(
-        `${
-          window.FIX360_BASE_URL
+        `${window.FIX360_BASE_URL
         }app/controllers/Venta.controller.php?q=${encodeURIComponent(
           codigo
         )}&type=producto`
@@ -731,6 +774,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     numSerieInput.value = generateNumber(prefijoSerie);
     numComInput.value = generateComprobanteNumber(prefijoComprobante);
+
+    // --- NUEVO: si el usuario sale de “orden de trabajo”, ocultar servicios y limpiar ---
+    if (tipo !== "orden de trabajo") {
+      document.getElementById('serviceSection').classList.add('d-none');
+      document.getElementById('serviceListCard').classList.add('d-none');
+      btnToggleService.disabled = false;
+      btnToggleService.classList.remove('btn-secondary');
+      btnToggleService.classList.add('btn-success');
+
+      // Limpiar array y tabla de servicios, por si acaso quedaron elementos
+      detalleServicios.length = 0;
+      tablaServ.innerHTML = '';
+      actualizarNumerosServicios();
+      obsField.disabled = true;
+      gruField.disabled = true;
+    }
   }
   tipoInputs.forEach((i) => i.addEventListener("change", inicializarCampos));
   inicializarCampos();
@@ -755,98 +814,125 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   // --- Guardar Venta ---
   btnFinalizarVenta.addEventListener("click", function (e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    // 0) Capturo hiddenIdCliente (¡muy importante!)
-    const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+  if (detalleVenta.length === 0 && detalleServicios.length === 0) {
+    return showToast("Agrega al menos un producto o servicio.", "WARNING", 2000);
+  }
 
-    if (detalleVenta.length === 0 && detalleServicios.length === 0) {
-      return showToast(
-        "Agrega al menos un producto o servicio.",
-        "WARNING",
-        2000
-      );
+  Swal.fire({
+    title: "¿Deseas guardar la venta?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Aceptar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#28a745",
+    cancelButtonColor: "#d33",
+  }).then((result) => {
+    if (!result.isConfirmed) return;
+
+    // 1) Deshabilito botón y cambio texto
+    btnFinalizarVenta.disabled = true;
+    btnFinalizarVenta.textContent = "Guardando...";
+
+    // 2) Leo el tipo seleccionado y muestro el toast de “Registrando…”
+    const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked').value;
+    if (tipoSeleccionado === "orden de trabajo") {
+      showToast("Registrando Orden de Trabajo…", "INFO", 2000);
+    } else {
+      showToast("Registrando Venta…", "INFO", 2000);
     }
 
-    Swal.fire({
-      title: "¿Deseas guardar la venta?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#28a745",
-      cancelButtonColor: "#d33",
-    }).then((result) => {
-      if (!result.isConfirmed) return;
+    // 3) Armo el payload
+    const data = {
+      tipocom: tipoSeleccionado,
+      fechahora: fechaInput.value.trim(),
+      fechaingreso: null,
+      numserie: numSerieInput.value.trim(),
+      numcom: numComInput.value.trim(),
+      moneda: monedaSelect.value,
+      idpropietario: +document.getElementById("hiddenIdPropietario").value,
+      idcliente: +hiddenIdCliente.value,
+      idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
+      kilometraje: parseFloat(document.getElementById("kilometraje").value) || 0,
+      observaciones: document.getElementById("observaciones").value.trim(),
+      ingresogrua: document.getElementById("ingresogrua").checked ? 1 : 0,
+      productos: detalleVenta,
+      servicios: detalleServicios,
+    };
 
-      // Deshabilito el botón
-      btnFinalizarVenta.disabled = true;
-      btnFinalizarVenta.textContent = "Guardando...";
-
-      // 1) Construyo el objeto de datos
-      const data = {
-        tipocom: document.querySelector('input[name="tipo"]:checked').value,
-        fechahora: fechaInput.value.trim(),
-        fechaingreso: null,
-        numserie: numSerieInput.value.trim(),
-        numcom: numComInput.value.trim(),
-        moneda: monedaSelect.value,
-        idpropietario: +document.getElementById("hiddenIdPropietario").value,
-        idcliente: +hiddenIdCliente.value,
-        idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
-        kilometraje:
-          parseFloat(document.getElementById("kilometraje").value) || 0,
-        observaciones: document.getElementById("observaciones").value.trim(),
-        ingresogrua: document.getElementById("ingresogrua").checked ? 1 : 0,
-        productos: detalleVenta,
-        servicios: detalleServicios,
-      };
-
-      console.log("Payload a enviar:", data);
-
-      // 2) Disparo el fetch
-      fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+    // 4) Llamada al backend
+    fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+      .then(async (res) => {
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch {
+          throw new Error("Respuesta no es JSON válido");
+        }
       })
-        .then(async (res) => {
-          const text = await res.text(); // leo texto bruto
-          console.log("Respuesta HTTP:", res.status, text);
-          try {
-            return JSON.parse(text); // intento parsear JSON
-          } catch {
-            throw new Error("Respuesta no es JSON válido");
-          }
-        })
-        .then((json) => {
-          if (json.status === "success") {
+      .then((json) => {
+        if (json.status === "success") {
+          // --- NUEVO: elijo el mensaje final según tipoSeleccionado ---
+          if (tipoSeleccionado === "orden de trabajo") {
+            // Si es OT, muestro solo el número de orden (o ambos, pero con prefijo OT)
             showToast(
-              "Guardado con éxito. Venta #" +
-                json.idventa +
-                (json.idorden ? ", Orden #" + json.idorden : ""),
+              `Guardado con éxito. Orden de Trabajo`,
               "SUCCESS",
               1500
             );
-            setTimeout(() => (location.href = "listar-ventas.php"), 1500);
           } else {
-            Swal.fire(
-              "Error",
-              json.message || "No se pudo registrar.",
-              "error"
+            // Caso normal: boleta/factura
+            showToast(
+              `Guardado con éxito. Venta #${json.idventa}`,
+              "SUCCESS",
+              1500
             );
           }
-        })
-        .catch((err) => {
-          console.error("Error en fetch:", err);
-          Swal.fire("Error", err.message, "error");
-        })
-        .finally(() => {
-          btnFinalizarVenta.disabled = false;
-          btnFinalizarVenta.textContent = "Guardar";
-        });
-    });
+          setTimeout(() => (location.href = "listar-ventas.php"), 1500);
+        } else {
+          Swal.fire("Error", json.message || "No se pudo registrar.", "error");
+        }
+      })
+      .catch((err) => {
+        console.error("Error en fetch:", err);
+        Swal.fire("Error", err.message, "error");
+      })
+      .finally(() => {
+        btnFinalizarVenta.disabled = false;
+        btnFinalizarVenta.textContent = "Guardar";
+      });
   });
+});
+  // —– NUEVO: cuando cambie vehículo, traemos último kilometraje —–
+  if (vehiculoSelect) {
+    vehiculoSelect.addEventListener("change", function () {
+      const idVeh = this.value;
+      if (idVeh) {
+        fetchUltimoKilometraje(idVeh);
+      } else {
+        // Si no hay vehículo seleccionado, limpiamos el campo de kilometraje
+        kmInput.value = "";
+        prevKilometraje = null;
+      }
+    });
+  }
+
+  // —– NUEVO: validación extra en el campo de kilometraje—–
+  if (kmInput) {
+    kmInput.addEventListener("change", () => {
+      const nuevo = parseFloat(kmInput.value);
+      if (prevKilometraje !== null && nuevo < prevKilometraje) {
+        alert(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`);
+        kmInput.value = prevKilometraje;
+      }
+    });
+  }
 });
 document.addEventListener("click", function (e) {
   /*   if (e.target.classList.contains("btn-increment")) {

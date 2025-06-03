@@ -4,7 +4,7 @@ require_once "../models/Vehiculo.php";
 require_once "../helpers/helper.php";
 
 $vehiculo = new Vehiculo();
-$method   = $_SERVER['REQUEST_METHOD'];
+$method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $task = $_GET['task'] ?? '';
@@ -82,34 +82,34 @@ if ($method === 'GET') {
 
         // Armar la sección "general"
         $general = [
-            'idvehiculo'    => $datos['idvehiculo'],
-            'placa'         => $datos['placa'],
-            'anio'          => $datos['anio'],
-            'color'         => $datos['color'],
-            'numserie'      => $datos['numserie'],
-            'numchasis'     => $datos['numchasis'],
-            'vin'           => $datos['vin'],
-            'modificado'    => $datos['modificado'],
+            'idvehiculo' => $datos['idvehiculo'],
+            'placa' => $datos['placa'],
+            'anio' => $datos['anio'],
+            'color' => $datos['color'],
+            'numserie' => $datos['numserie'],
+            'numchasis' => $datos['numchasis'],
+            'vin' => $datos['vin'],
+            'modificado' => $datos['modificado'],
             'tipo_vehiculo' => $datos['tipo_vehiculo'],
-            'tcombustible'  => $datos['tcombustible'],
-            'marca'         => $datos['marca'],
-            'modelo'        => $datos['modelo'],
+            'tcombustible' => $datos['tcombustible'],
+            'marca' => $datos['marca'],
+            'modelo' => $datos['modelo'],
         ];
 
         // Armar la sección "propietario"
         $propietario = [
-            'id_propietario'       => $datos['id_propietario'],            // si el SP usa alias idpropietario
-            'propietario'          => $datos['propietario'],
-            'documento_propietario'=> $datos['documento_propietario'],
-            'telefono_prop'        => $datos['telefono_prop']    ?? null,
-            'email_prop'           => $datos['email_prop']       ?? null,
-            'propiedad_desde'      => $datos['propiedad_desde']  ?? null,
-            'propiedad_hasta'      => $datos['propiedad_hasta']  ?? null,
+            'id_propietario' => $datos['id_propietario'],            // si el SP usa alias idpropietario
+            'propietario' => $datos['propietario'],
+            'documento_propietario' => $datos['documento_propietario'],
+            'telefono_prop' => $datos['telefono_prop'] ?? null,
+            'email_prop' => $datos['email_prop'] ?? null,
+            'propiedad_desde' => $datos['propiedad_desde'] ?? null,
+            'propiedad_hasta' => $datos['propiedad_hasta'] ?? null,
         ];
 
         echo json_encode([
-            'status'      => 'success',
-            'general'     => $general,
+            'status' => 'success',
+            'general' => $general,
             'propietario' => $propietario
         ]);
         exit;
@@ -125,7 +125,7 @@ if ($method === 'GET') {
 // = Manejador de peticiones POST =
 // ===============================
 if ($method === 'POST') {
-    $input    = file_get_contents('php://input');
+    $input = file_get_contents('php://input');
     $dataJSON = json_decode($input, true);
 
     if ($dataJSON === null) {
@@ -137,15 +137,15 @@ if ($method === 'POST') {
     // 1) Registro de vehículo
     if (isset($dataJSON['task']) && $dataJSON['task'] === 'registerVehiculo') {
         $registro = [
-            'idmodelo'       => intval(Helper::limpiarCadena($dataJSON['idmodelo'] ?? '0')),
+            'idmodelo' => intval(Helper::limpiarCadena($dataJSON['idmodelo'] ?? '0')),
             'idtcombustible' => intval(Helper::limpiarCadena($dataJSON['idtcombustible'] ?? '0')),
-            'placa'          => Helper::limpiarCadena($dataJSON['placa'] ?? ''),
-            'anio'           => Helper::limpiarCadena($dataJSON['anio'] ?? ''),
-            'numserie'       => Helper::limpiarCadena($dataJSON['numserie'] ?? ''),
-            'color'          => Helper::limpiarCadena($dataJSON['color'] ?? ''),
-            'vin'            => Helper::limpiarCadena($dataJSON['vin'] ?? ''),
-            'numchasis'      => Helper::limpiarCadena($dataJSON['numchasis'] ?? ''),
-            'idcliente'      => intval($dataJSON['idcliente'] ?? 0),
+            'placa' => Helper::limpiarCadena($dataJSON['placa'] ?? ''),
+            'anio' => Helper::limpiarCadena($dataJSON['anio'] ?? ''),
+            'numserie' => Helper::limpiarCadena($dataJSON['numserie'] ?? ''),
+            'color' => Helper::limpiarCadena($dataJSON['color'] ?? ''),
+            'vin' => Helper::limpiarCadena($dataJSON['vin'] ?? ''),
+            'numchasis' => Helper::limpiarCadena($dataJSON['numchasis'] ?? ''),
+            'idcliente' => intval($dataJSON['idcliente'] ?? 0),
         ];
 
         $n = $vehiculo->registerVehiculo($registro);
@@ -160,36 +160,36 @@ if ($method === 'POST') {
     // 2) Actualizar vehículo con historial de propietarios
     if (isset($dataJSON['task']) && $dataJSON['task'] === 'updateVehiculoConHistorico') {
         $params = [
-            'idvehiculo'      => intval($dataJSON['idvehiculo'] ?? 0),
-            'idmodelo'        => intval($dataJSON['idmodelo'] ?? 0),
-            'idtcombustible'  => intval($dataJSON['idtcombustible'] ?? 0),
-            'placa'           => Helper::limpiarCadena($dataJSON['placa'] ?? ''),
-            'anio'            => Helper::limpiarCadena($dataJSON['anio'] ?? ''),
-            'numserie'        => Helper::limpiarCadena($dataJSON['numserie'] ?? ''),
-            'color'           => Helper::limpiarCadena($dataJSON['color'] ?? ''),
-            'vin'             => Helper::limpiarCadena($dataJSON['vin'] ?? ''),
-            'numchasis'       => Helper::limpiarCadena($dataJSON['numchasis'] ?? ''),
+            'idvehiculo' => intval($dataJSON['idvehiculo'] ?? 0),
+            'idmodelo' => intval($dataJSON['idmodelo'] ?? 0),
+            'idtcombustible' => intval($dataJSON['idtcombustible'] ?? 0),
+            'placa' => Helper::limpiarCadena($dataJSON['placa'] ?? ''),
+            'anio' => Helper::limpiarCadena($dataJSON['anio'] ?? ''),
+            'numserie' => Helper::limpiarCadena($dataJSON['numserie'] ?? ''),
+            'color' => Helper::limpiarCadena($dataJSON['color'] ?? ''),
+            'vin' => Helper::limpiarCadena($dataJSON['vin'] ?? ''),
+            'numchasis' => Helper::limpiarCadena($dataJSON['numchasis'] ?? ''),
             'idcliente_nuevo' => intval($dataJSON['idcliente_nuevo'] ?? 0),
         ];
 
         try {
             $result = $vehiculo->updateVehiculoConHistorico($params);
-            if (! is_array($result) || ! array_key_exists('idcliente_propietario_nuevo', $result)) {
+            if (!is_array($result) || !array_key_exists('idcliente_propietario_nuevo', $result)) {
                 echo json_encode([
-                    'status'  => 'error',
+                    'status' => 'error',
                     'message' => 'No se pudo actualizar vehículo (no se devolvió idcliente)'
                 ]);
             } else {
                 echo json_encode([
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Vehículo actualizado correctamente',
-                    'data'    => $result
+                    'data' => $result
                 ]);
             }
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Error en SP: ' . $e->getMessage()
             ]);
         }

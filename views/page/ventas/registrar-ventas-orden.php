@@ -503,9 +503,9 @@ require_once "../../partials/_footer.php";
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script>
-  const obsField = document.getElementById("observaciones");
-  const gruField = document.getElementById("ingresogrua");
-  document.getElementById('btnToggleService').addEventListener('click', function (e) {
+ /*  const obsField = document.getElementById("observaciones");
+  const gruField = document.getElementById("ingresogrua"); */
+  /* document.getElementById('btnToggleService').addEventListener('click', function (e) {
     e.preventDefault();
     // 1) Mostrar la sección de servicios
     document.getElementById('serviceSection').classList.remove('d-none');
@@ -517,7 +517,7 @@ require_once "../../partials/_footer.php";
 
     obsField.disabled = false;
     gruField.disabled = false;
-  });
+  }); */
   // 2) Cargar lista de servicios por subcategoría
   async function cargarServiciosPorSubcategoria(idsubcat) {
     if (!idsubcat) {

@@ -66,7 +66,7 @@ class Vehiculo extends Conexion
     public function getOrdenesByVehiculo(int $idvehiculo): array
     {
         try {
-            $sql  = "CALL spGetOrdenesByVehiculo(?)";
+            $sql = "CALL spGetOrdenesByVehiculo(?)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$idvehiculo]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -78,7 +78,7 @@ class Vehiculo extends Conexion
     public function getVentasByVehiculo(int $idvehiculo): array
     {
         try {
-            $sql  = "CALL spGetVentasByVehiculo(?)";
+            $sql = "CALL spGetVentasByVehiculo(?)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$idvehiculo]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -162,33 +162,34 @@ class Vehiculo extends Conexion
      * @param array $params
      * @return array  Arreglo asociativo con ['idcliente_propietario_nuevo' => valor]
      */
-   public function updateVehiculoConHistorico(array $params): array {
-    $cmd = null;
-    try {
-        $sql = "CALL spUpdateVehiculoConHistorico( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
-        $cmd = $this->pdo->prepare($sql);
-        $cmd->execute([
-            $params['idvehiculo'],
-            $params['idmodelo'],
-            $params['idtcombustible'],
-            $params['placa'],
-            $params['anio'],
-            $params['numserie'],
-            $params['color'],
-            $params['vin'],
-            $params['numchasis'],
-            $params['idcliente_nuevo']
-        ]);
-        $row = $cmd->fetch(PDO::FETCH_ASSOC);
-        return $row ?: [];
-    } catch (PDOException $e) {
-        throw new Exception("Error al actualizar vehículo con histórico: " . $e->getMessage());
-    } finally {
-        if ($cmd !== null) {
-            $cmd->closeCursor();
+    public function updateVehiculoConHistorico(array $params): array
+    {
+        $cmd = null;
+        try {
+            $sql = "CALL spUpdateVehiculoConHistorico( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+            $cmd = $this->pdo->prepare($sql);
+            $cmd->execute([
+                $params['idvehiculo'],
+                $params['idmodelo'],
+                $params['idtcombustible'],
+                $params['placa'],
+                $params['anio'],
+                $params['numserie'],
+                $params['color'],
+                $params['vin'],
+                $params['numchasis'],
+                $params['idcliente_nuevo']
+            ]);
+            $row = $cmd->fetch(PDO::FETCH_ASSOC);
+            return $row ?: [];
+        } catch (PDOException $e) {
+            throw new Exception("Error al actualizar vehículo con histórico: " . $e->getMessage());
+        } finally {
+            if ($cmd !== null) {
+                $cmd->closeCursor();
+            }
         }
     }
-}
 
     /**
      * Obtiene datos generales del vehículo y propietario actual

@@ -26,8 +26,7 @@ require_once "../../partials/header.php";
         <div class="row">
           <div class="col-md-4 mb-3">
             <div class="form-floating input-group mb-3">
-              <input type="text" disabled class="form-control input" id="propietario"
-                placeholder="Propietario" />
+              <input type="text" disabled class="form-control input" id="propietario" placeholder="Propietario" />
               <label for="propietario">Propietario</label>
               <!-- En tu formulario principal -->
               <input type="hidden" id="hiddenIdPropietario" name="idpropietario">
@@ -42,13 +41,15 @@ require_once "../../partials/header.php";
               <input type="text" disabled class="form-control input" id="cliente" placeholder="Cliente">
               <input type="hidden" id="hiddenIdCliente" name="idcliente">
               <label for="cliente">Cliente</label>
-              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ModalCliente">…</button>
+              <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
+                data-bs-target="#ModalCliente">…</button>
             </div>
           </div>
 
           <div class="col-md-4 mb-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="observaciones" placeholder="observaciones" maxlength="255">
+              <input type="text" class="form-control input" id="observaciones" placeholder="observaciones"
+                maxlength="255">
               <label for="observaciones">Observaciones</label>
             </div>
           </div>
@@ -57,7 +58,7 @@ require_once "../../partials/header.php";
               <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
                 <option value="" selected>Eliga un vehículo</option>
               </select>
-              <label  for="vehiculo">Vehículo:</label>
+              <label for="vehiculo">Vehículo:</label>
             </div>
           </div>
           <div class="col-md-3 mb-3">
@@ -69,20 +70,21 @@ require_once "../../partials/header.php";
 
           <div class="col-md-3 mb-3">
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="ingresogrua" style="margin-left:10px; transform: scale(1.4);"  >
-              <label class="input form-check-label" for="ingresogrua"  style="transform: scale(1.2);margin-left:80px" >Ingresó por grúa</label>
+              <input class="form-check-input" type="checkbox" role="switch" id="ingresogrua"
+                style="margin-left:10px; transform: scale(1.4);">
+              <label class="input form-check-label" for="ingresogrua"
+                style="transform: scale(1.2);margin-left:80px">Ingresó por grúa</label>
             </div>
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-floating">
-            <input type="datetime-local" class="form-control input" id="fechaIngreso">
+              <input type="datetime-local" class="form-control input" id="fechaIngreso">
               <label for="fechaIngreso">Fecha de ingreso:</label>
             </div>
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-floating">
-              <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;"
-                required>
+              <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
                 <option selected>Eliga un tipo de servicio</option>
 
               </select>
@@ -97,7 +99,8 @@ require_once "../../partials/header.php";
                 </select>
                 <label for="servicio">Servicio:</label>
               </div>
-              <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle" data-bs-toggle="modal" data-bs-target="#ModalServicio">
+              <button class="btn btn-sm btn-success" type="button" id="btnAgregarDetalle" data-bs-toggle="modal"
+                data-bs-target="#ModalServicio">
                 <i class="fa-solid fa-circle-plus"></i>
               </button>
             </div>
@@ -113,7 +116,8 @@ require_once "../../partials/header.php";
           <div class="col-md-3 mb-3">
             <div class="input-group mb-3">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" placeholder="precio" aria-label="Recipient's username" aria-describedby="button-addon2" min="0" id="precio">
+                <input type="number" class="form-control input" step="0.1" placeholder="precio"
+                  aria-label="Recipient's username" aria-describedby="button-addon2" min="0" id="precio">
                 <label for="precio">Precio</label>
               </div>
               <button class="btn btn-sm btn-success" type="button" id="btnAgregar">Agregar</button>
@@ -241,14 +245,12 @@ require_once "../../partials/_footer.php";
               <div class="form-check form-check-inline" style="margin-right:40px;">
                 <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnpersona"
                   onclick="actualizarOpciones(); buscarPropietario();" checked>
-                <label class="form-check-label" for="rbtnpersona"
-                  style="margin-left:5px;">Persona</label>
+                <label class="form-check-label" for="rbtnpersona" style="margin-left:5px;">Persona</label>
               </div>
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="tipoBusqueda" id="rbtnempresa"
                   onclick="actualizarOpciones(); buscarPropietario();">
-                <label class="form-check-label" for="rbtnempresa"
-                  style="margin-left:5px;">Empresa</label>
+                <label class="form-check-label" for="rbtnempresa" style="margin-left:5px;">Empresa</label>
               </div>
             </div>
           </div>
@@ -337,7 +339,8 @@ require_once "../../partials/_footer.php";
         <div class="row mb-3">
           <div class="col">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;" placeholder="Valor buscado" autofocus>
+              <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;"
+                placeholder="Valor buscado" autofocus>
               <label for="vbuscadoCliente">Valor buscado</label>
             </div>
           </div>
@@ -345,9 +348,7 @@ require_once "../../partials/_footer.php";
         <!-- Resultados -->
         <p class="mt-3"><strong>Resultado:</strong></p>
         <div class="table-responsive">
-          <table
-            id="tabla-resultado-cliente"
-            class="table table-striped">
+          <table id="tabla-resultado-cliente" class="table table-striped">
             <thead>
               <tr>
                 <th>#</th>
@@ -365,10 +366,7 @@ require_once "../../partials/_footer.php";
 
       <!-- Footer -->
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
 
     </div>
@@ -387,16 +385,17 @@ require_once "../../partials/_footer.php";
 
       <!-- Cuerpo -->
       <div class="modal-body">
-  <div class="row mb-3">
-    <div class="col">
-      <div class="form-floating">
-        <select id="selectTipoServicioModal" class="form-select input" style="color: black;background-color:white;">
-          <option value="">Cargando...</option>
-        </select>
-        <label for="selectTipoServicioModal">Tipo de Servicio:</label>
-      </div>
-    </div>
-  </div>
+        <div class="row mb-3">
+          <div class="col">
+            <div class="form-floating">
+              <select id="selectTipoServicioModal" class="form-select input"
+                style="color: black;background-color:white;">
+                <option value="">Cargando...</option>
+              </select>
+              <label for="selectTipoServicioModal">Tipo de Servicio:</label>
+            </div>
+          </div>
+        </div>
 
         <!-- Fila para Valor Buscado -->
         <div class="row mb-3">
@@ -430,10 +429,8 @@ require_once "../../partials/_footer.php";
 <!--Hace de que siempre se pida la ultima version del js (por esto no me cargaba lo ultimo q le agregue al js y me quede viendo xq no cargaba el kilometraje cuando ya lo estaba haciendo
 (siempre revisar sources y ver si el archivo que esta ahi tiene el mismo n° de lineas que el que tiene en vscode)) -->
 
-<script
-  src="<?= rtrim(SERVERURL, '/') ?>/views/page/ordenservicios/js/registrar-ordenes.js?v=<?= time() ?>"
-  defer
-></script>
+<script src="<?= rtrim(SERVERURL, '/') ?>/views/page/ordenservicios/js/registrar-ordenes.js?v=<?= time() ?>"
+  defer></script>
 <script>
   let clienteTimer;
 
@@ -461,10 +458,10 @@ require_once "../../partials/_footer.php";
     }
 
     fetch(
-        `http://localhost/fix360/app/controllers/propietario.controller.php?` +
-        `task=buscarPropietario&tipo=${tipo}` +
-        `&metodo=${metodo}&valor=${encodeURIComponent(valor)}`
-      )
+      `http://localhost/fix360/app/controllers/propietario.controller.php?` +
+      `task=buscarPropietario&tipo=${tipo}` +
+      `&metodo=${metodo}&valor=${encodeURIComponent(valor)}`
+    )
       .then(res => res.json())
       .then(data => {
         const tbody = document.querySelector("#tabla-resultado-cliente tbody");
@@ -498,9 +495,6 @@ require_once "../../partials/_footer.php";
     document.querySelector("#ModalCliente .btn-close").click();
   }
 </script>
-
-
-
 
 </body>
 
