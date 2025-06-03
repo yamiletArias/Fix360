@@ -133,6 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $_SESSION['login'] = [
             'status'         => true,
             'idcolaborador'  => $res['idcolaborador'],
+            'idrol'          => $res['idrol'],
             'nombreCompleto' => $res['nombreCompleto'],
             'permisos'       => $res['permisos']
         ];
@@ -140,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'status'         => true,
             'message'        => '¡Bienvenido!',
             'idcolaborador'  => $res['idcolaborador'],
+            'idrol'          => $res['idrol'],
             'nombreCompleto' => $res['nombreCompleto'],
             'permisos'       => $res['permisos']
         ]);

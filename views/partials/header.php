@@ -1,11 +1,13 @@
 <?php
-// header.php (o partials/header.php)
+// Este header se incluye en todas las vistas “privadas”
+// esperando que cada página haga:
+//    <?php require_once __DIR__ . '/partials/header.php'; 
 
 session_start();
 
 // 1) Si no hay sesión activa, lo mando al login
 if (
-  !isset($_SESSION['login']) ||
+  ! isset($_SESSION['login']) ||
   empty($_SESSION['login']['status']) ||
   $_SESSION['login']['status'] !== true
 ) {
@@ -13,43 +15,40 @@ if (
   exit;
 }
 
+// 2) Ya hay sesión: incluir el permiso.php para chequear rol↔vista.
+//    (permiso.php está en C:/xampp/htdocs/fix360/app/models/permiso.php)
+require_once __DIR__ . '/../../app/models/permiso.php';
 
+// 3) Si llegamos hasta aquí, el rol sí tiene permiso para esta vista.
 
-// 2) Si llegó aquí, ya está autenticado:
-//    guardo el idcolaborador en una variable global
-$idadmin = $_SESSION['login']['idcolaborador'];
+// 4) Cargar datos del colaborador para mostrar nombre, rol, etc.
+$idadmin = intval($_SESSION['login']['idcolaborador']);
 require_once dirname(__DIR__, 2) . '/app/models/Colaborador.php';
 $colModel = new Colaborador();
 $usuario  = $colModel->getColaboradorById($idadmin);
 
-// 1. Ajustamos la zona horaria
+// 5) Cálculo de saludo según la hora
 date_default_timezone_set('America/Lima');
-// 2. Sacamos la hora actual
 $hora = (int) date('H');
-// 3. Definimos el saludo según la hora
 if ($hora >= 5 && $hora < 12) {
-    $saludo = "Buenos días";
+  $saludo = "Buenos días";
 } elseif ($hora >= 12 && $hora < 18) {
-    $saludo = "Buenas tardes";
+  $saludo = "Buenas tardes";
 } else {
-    $saludo = "Buenas noches";
+  $saludo = "Buenas noches";
 }
 
-
-// ... luego requieres tus modelos helpers, etc.
+// 6) Cargar recordatorios de hoy
 require_once dirname(__DIR__, 2) . '/app/models/Agenda.php';
 require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
 
-
-
-$agendaModel = new Agenda();
-$hoy = $agendaModel->getRecordatoriosHoy();
-$hoy_count = count($hoy);
-  $maxMostrar     = 4;
-  $totalHoy       = $hoy_count;
-  $hoyParaMostrar = array_slice($hoy, 0, $maxMostrar);
-  $restantes      = $totalHoy - count($hoyParaMostrar);
-  // Máximo a mostrar en el dropdown
+$agendaModel     = new Agenda();
+$hoy             = $agendaModel->getRecordatoriosHoy();
+$hoy_count       = count($hoy);
+$maxMostrar      = 4;
+$totalHoy        = $hoy_count;
+$hoyParaMostrar  = array_slice($hoy, 0, $maxMostrar);
+$restantes       = $totalHoy - count($hoyParaMostrar);
 
 ?>
 
@@ -101,14 +100,18 @@ $hoy_count = count($hoy);
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 
   <style>
-
     .nav-profile .text-wrapper .profile-name {
-  white-space: normal;        /* ya no forza todo en una sola línea */
-  overflow-wrap: break-word;  /* rompe palabras largas si es necesario */
-  word-break: break-word;     /* para navegadores que no soporten overflow-wrap */
-  line-height: 1.2;           /* ajusta el interlineado si quieres más separación */
-  margin-bottom: 0;           /* opcional: quita márgen extra abajo */
-}
+      white-space: normal;
+      /* ya no forza todo en una sola línea */
+      overflow-wrap: break-word;
+      /* rompe palabras largas si es necesario */
+      word-break: break-word;
+      /* para navegadores que no soporten overflow-wrap */
+      line-height: 1.2;
+      /* ajusta el interlineado si quieres más separación */
+      margin-bottom: 0;
+      /* opcional: quita márgen extra abajo */
+    }
 
     html,
     body {
@@ -244,19 +247,18 @@ $hoy_count = count($hoy);
     }
   </style>
 </head>
-
 <body>
-  <!-- VENTAS -->
   <div class="container-scroller">
+    <!-- ===== NAVBAR SUPERIOR ===== -->
     <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
       <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
         <a class="navbar-brand brand-logo" href="../movdiario/listar-movdiario.php">
           <img src="../../../images/logofix360.png" alt="logo" style="width: 200px;" class="logo-dark" />
-          <img src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="logo-light"
-            class="logo-light" />
+          <img src="../../../images/minilogo.jpg" alt="logo-light" class="logo-light" />
         </a>
-        <a class="navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php"><img
-            src="../../../images/minilogo.jpg" alt="logo" /></a>
+        <a class="navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php">
+          <img src="../../../images/minilogo.jpg" alt="logo" />
+        </a>
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
           <span class="icon-menu"></span>
         </button>
@@ -264,206 +266,224 @@ $hoy_count = count($hoy);
       <div class="navbar-menu-wrapper d-flex align-items-center">
         <h2 class="mb-0 font-weight-medium d-none d-lg-flex"><?= NAMEVIEW ?></h2>
         <ul class="navbar-nav navbar-nav-right">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle count-indicator message-dropdown" id="messageDropdown" href="#"
-              data-bs-toggle="dropdown" title="Recordatorios de hoy" aria-expanded="false">
-              <i class="icon-speech"></i>
-              <span class="count"><?= $hoy_count ?></span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0" aria-labelledby="messageDropdown" style="min-width:250px;">
-              <div class="dropdown-header mb-0 px-3 py-2">
-                <strong class="input"><?= $totalHoy ?> recordatorio<?= $totalHoy !== 1 ? 's' : '' ?></strong>
-                <a class="btn btn-sm btn-primary float-end" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php" title="Ver todos los recordatorios">
-                  <i class="fa fa-list-alt"></i>
-                </a>
-              </div>
-              <div class="dropdown-divider"></div>
 
-              <?php if ($totalHoy): ?>
-                <?php foreach ($hoyParaMostrar as $r): ?>
-                  <a class="dropdown-item preview-item" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
-                    <div class="preview-item-content">
-                      <p class="preview-subject mb-1"><?= htmlspecialchars($r['nomcliente']) ?></p>
-                      <p class="small-text text-muted mb-0"><?= htmlspecialchars($r['comentario']) ?></p>
-                    </div>
+          <!-- SI idrol === 1 (Administrador), muestro el dropdown de recordatorios -->
+          <?php if ($idrol === 1): ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle count-indicator message-dropdown"
+                 id="messageDropdown" href="#"
+                 data-bs-toggle="dropdown" title="Recordatorios de hoy" aria-expanded="false">
+                <i class="icon-speech"></i>
+                <span class="count"><?= $hoy_count ?></span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
+                   aria-labelledby="messageDropdown" style="min-width:250px;">
+                <div class="dropdown-header mb-0 px-3 py-2">
+                  <strong class="input"><?= $totalHoy ?> recordatorio<?= ($totalHoy !== 1 ? 's' : '') ?></strong>
+                  <a class="btn btn-sm btn-primary float-end"
+                     href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
+                     title="Ver todos los recordatorios">
+                    <i class="fa fa-list-alt"></i>
                   </a>
-                <?php endforeach; ?>
+                </div>
+                <div class="dropdown-divider"></div>
 
-                <?php if ($restantes > 0): ?>
-                  <a class="dropdown-item text-center small text-dark" href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
-                    y <?= $restantes ?> recordatorio<?= $restantes !== 1 ? 's' : '' ?> más
-                  </a>
+                <?php if ($totalHoy): ?>
+                  <?php foreach ($hoyParaMostrar as $r): ?>
+                    <a class="dropdown-item preview-item"
+                       href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
+                      <div class="preview-item-content">
+                        <p class="preview-subject mb-1"><?= htmlspecialchars($r['nomcliente']) ?></p>
+                        <p class="small-text text-muted mb-0"><?= htmlspecialchars($r['comentario']) ?></p>
+                      </div>
+                    </a>
+                  <?php endforeach; ?>
+
+                  <?php if ($restantes > 0): ?>
+                    <a class="dropdown-item text-center small text-dark"
+                       href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
+                      y <?= $restantes ?> recordatorio<?= ($restantes !== 1 ? 's' : '') ?> más
+                    </a>
+                  <?php endif; ?>
+                <?php else: ?>
+                  <div class="px-3 py-2 text-center text-muted">No hay recordatorios hoy</div>
                 <?php endif; ?>
+              </div>
+            </li>
+          <?php endif; ?>
 
-              <?php else: ?>
-                <div class="px-3 py-2 text-center text-muted">No hay recordatorios hoy</div>
-              <?php endif; ?>
-            </div>
-
-
-          </li>
+          <!-- Dropdown Usuario (visible para todos los roles) -->
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
-            <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown"
-              aria-expanded="false">
+            <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
               <img class="img-xs rounded-circle ms-2"
-                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image" />
-              <span class="font-weight-normal"><?= htmlspecialchars($usuario['nombreCompleto']) ?> </span></a>
+                   src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                   alt="Profile image" />
+              <span class="font-weight-normal"><?= htmlspecialchars($usuario['nombreCompleto']) ?></span>
+            </a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
                 <img class="img-md rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="Profile image"
-                  style="width:50px;" />
+                     src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                     alt="Profile image" style="width:50px;" />
                 <p class="mb-1 mt-3"><?= htmlspecialchars($usuario['nombreCompleto']) ?></p>
-                <p class="font-weight-light text-muted mb-0">
-                  <?= htmlspecialchars($usuario['namuser']) ?>
-                </p>
+                <p class="font-weight-light text-muted mb-0"><?= htmlspecialchars($usuario['namuser']) ?></p>
               </div>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My
-                Profile
-                <span class="badge badge-pill badge-danger">1</span></a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i>
-                Messages</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i>
-                Activity</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i>
-                FAQ</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-user text-primary"></i> My Profile
+                <span class="badge badge-pill badge-danger">1</span>
+              </a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-speech text-primary"></i> Messages</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-energy text-primary"></i> Activity</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon icon-question text-primary"></i> FAQ</a>
               <a class="dropdown-item" href="<?= SERVERURL ?>views/logout.php">
                 <i class="dropdown-item-icon icon-power text-primary"></i> Cerrar Sesión
               </a>
-
-
-
             </div>
           </li>
+
         </ul>
         <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-          data-toggle="offcanvas">
+                data-toggle="offcanvas">
           <span class="icon-menu"></span>
         </button>
       </div>
     </nav>
+
+    <!-- ===== SIDEBAR ===== -->
     <div class="container-fluid page-body-wrapper">
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
+
+          <!-- Logo mini -->
           <li class="nav-item navbar-brand-mini-wrapper">
-            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php"><img
-                style="width: 50px;" src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
-                alt="logo" /></a>
+            <a class="nav-link navbar-brand brand-logo-mini" href="../movdiario/listar-movdiario.php">
+              <img style="width: 50px;" src="../../../images/minilogo.jpg" alt="logo" />
+            </a>
           </li>
+
+          <!-- Perfil de usuario -->
           <li class="nav-item nav-profile">
             <a href="#" class="nav-link">
               <div class="profile-image">
                 <img class="img-xs rounded-circle"
-                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg" alt="profile image" />
+                     src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                     alt="profile image" />
                 <div class="dot-indicator bg-success"></div>
               </div>
               <div class="text-wrapper">
-                <p class="profile-name"> <?= htmlspecialchars($usuario['nombreCompleto']) ?></p>
+                <p class="profile-name"><?= htmlspecialchars($usuario['nombreCompleto']) ?></p>
                 <p class="designation"><?= htmlspecialchars($usuario['rol']) ?></p>
               </div>
             </a>
           </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Inicio</span>
-          </li>
+
+          <!-- --- Secciones comunes, visibles para todos --- -->
+
+          <!-- 1) “Inicio” (Movimiento Diario) siempre está disponible para idrol 1, 3 y 4 -->
+          <li class="nav-item nav-category"><span class="nav-link">Inicio</span></li>
           <li class="nav-item">
             <a class="nav-link" href="<?= SERVERURL ?>views/page/movdiario/listar-movdiario.php">
-              <span class="menu-title">Movimiento Diario </span>
+              <span class="menu-title">Movimiento Diario</span>
               <i class="fa-solid fa-chart-line menu-icon"></i>
             </a>
           </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link ">Inventario</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
-              <span class="menu-title">Ventas</span>
-              <i class="fa-solid fa-tags menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/compras/listar-compras.php">
-              <span class="menu-title">Compras</span>
-              <i class="fa-solid fa-cart-plus menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/productos/listar-producto.php">
-              <span class="menu-title">Productos</span>
-              <i class="fa-solid fa-store menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/kardex/listar-kardex.php">
-              <span class="menu-title">Kardex</span>
-              <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/cotizaciones/listar-cotizacion.php">
-              <span class="menu-title">Cotizaciones</span>
-              <i class="fa-solid fa-list-ol menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
-              <span class="menu-title">Órdenes de Servicio</span>
-              <i class="fa-solid fa-car-tunnel menu-icon"></i>
-            </a>
-          </li>
-          <!--- 
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/promociones/listar-promociones.php">
-              <span class="menu-title">Promociones</span>
-              <i class="fa-solid fa-percent menu-icon"></i>
-            </a>
-          </li>
-          -->
-          <li class="nav-item nav-category">
-            <span class="nav-link">Administracion</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/clientes/listar-cliente.php">
-              <span class="menu-title">Clientes</span>
-              <i class="fa-solid fa-building-user menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/vehiculos/listar-vehiculos.php">
-              <span class="menu-title">Vehiculos</span>
-              <i class="fa-solid fa-car-side menu-icon"></i>
-            </a>
-          </li>
-                    <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/colaboradores/listar-colaborador.php">
-              <span class="menu-title">Colaboradores</span>
-              <i class="fa-solid fa-users menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Contactabilidad</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/contactabilidad/listar-graficos.php">
-              <span class="menu-title">Graficos</span>
-              <i class="fa-solid fa-chart-pie menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item nav-category">
-            <span class="nav-link">Caja</span>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/egresos/listar-egresos.php">
-              <span class="menu-title">Egresos</span>
-              <i class="fa-solid fa-money-bill-transfer menu-icon"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= SERVERURL ?>views/page/arqueocaja/listar-arqueo-caja.php">
-              <span class="menu-title">Arqueo de caja</span>
-              <i class="fa-solid fa-table menu-icon"></i>
-            </a>
-          </li>
+
+          <!-- 2) “Órdenes de Servicio” (rol = 3 o rol = 1) -->
+          <?php if ($idrol === 3 || $idrol === 1): ?>
+            <li class="nav-item nav-category"><span class="nav-link">Órdenes de Servicio</span></li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
+                <span class="menu-title">Órdenes de Servicio</span>
+                <i class="fa-solid fa-car-tunnel menu-icon"></i>
+              </a>
+            </li>
+          <?php endif; ?>
+
+          <!-- 3) “Contactabilidad” (rol = 4 o rol = 1) -->
+          <?php if ($idrol === 4 || $idrol === 1): ?>
+            <li class="nav-item nav-category"><span class="nav-link">Contactabilidad</span></li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/contactabilidad/listar-graficos.php">
+                <span class="menu-title">Gráficos</span>
+                <i class="fa-solid fa-chart-pie menu-icon"></i>
+              </a>
+            </li>
+          <?php endif; ?>
+
+          <!-- 4) Sección “Inventario” (solo rol 1) -->
+          <?php if ($idrol === 1): ?>
+            <li class="nav-item nav-category"><span class="nav-link">Inventario</span></li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
+                <span class="menu-title">Ventas</span>
+                <i class="fa-solid fa-tags menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/compras/listar-compras.php">
+                <span class="menu-title">Compras</span>
+                <i class="fa-solid fa-cart-plus menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/productos/listar-producto.php">
+                <span class="menu-title">Productos</span>
+                <i class="fa-solid fa-store menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/kardex/listar-kardex.php">
+                <span class="menu-title">Kardex</span>
+                <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/cotizaciones/listar-cotizacion.php">
+                <span class="menu-title">Cotizaciones</span>
+                <i class="fa-solid fa-list-ol menu-icon"></i>
+              </a>
+            </li>
+          <?php endif; ?>
+
+          <!-- 5) Sección “Administración” (solo rol 1 y rol 4) -->
+          <?php if ($idrol === 1 ): ?>
+            <li class="nav-item nav-category"><span class="nav-link">Administración</span></li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/clientes/listar-cliente.php">
+                <span class="menu-title">Clientes</span>
+                <i class="fa-solid fa-building-user menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/vehiculos/listar-vehiculos.php">
+                <span class="menu-title">Vehículos</span>
+                <i class="fa-solid fa-car-side menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/colaboradores/listar-colaborador.php">
+                <span class="menu-title">Colaboradores</span>
+                <i class="fa-solid fa-users menu-icon"></i>
+              </a>
+            </li>
+          <?php endif; ?>
+
+          <!-- 6) Sección “Caja” (solo rol 1) -->
+          <?php if ($idrol === 1): ?>
+            <li class="nav-item nav-category"><span class="nav-link">Caja</span></li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/egresos/listar-egresos.php">
+                <span class="menu-title">Egresos</span>
+                <i class="fa-solid fa-money-bill-transfer menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/arqueocaja/listar-arqueo-caja.php">
+                <span class="menu-title">Arqueo de caja</span>
+                <i class="fa-solid fa-table menu-icon"></i>
+              </a>
+            </li>
+          <?php endif; ?>
+
         </ul>
       </nav>
 

@@ -43,6 +43,7 @@ class Colaborador extends Conexion
                 return [
                     'status'         => true,
                     'idcolaborador'  => (int)$row['idcolaborador'],
+                    'idrol'          => (int)$row['idrol'],
                     'nombreCompleto' => $row['nombreCompleto'],
                     'permisos'       => $permisos
                 ];

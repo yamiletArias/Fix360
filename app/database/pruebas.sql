@@ -2,12 +2,18 @@
 USE dbfix360;
 -- select * from personas;
 -- select * from productos;
+-- update contratos set fechainicio = '2025-01-01' 
 -- select * from colaboradores;
+-- select * from contratos
+
 DELIMITER $$
--- call fetchKilometraje(1)
--- select * from kardex;
--- select * from movimientos ;
--- Stored procedure to generate test kardex and movimientos for all products
+
+
+
+
+
+
+
 CREATE PROCEDURE test_movimientos()
 BEGIN
   DECLARE done INT DEFAULT FALSE;

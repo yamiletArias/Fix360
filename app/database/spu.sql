@@ -1505,84 +1505,151 @@ END $$
 
 DROP PROCEDURE IF EXISTS spUpdateColaborador $$
 CREATE PROCEDURE spUpdateColaborador(
-    IN  _idcolaborador INT,
-    IN  _nombres        VARCHAR(50),
-    IN  _apellidos      VARCHAR(50),
-    -- IN  _tipodoc        VARCHAR(30), -- Ya no se usa si no se actualiza
-    -- IN  _numdoc         CHAR(20),    -- Ya no se usa si no se actualiza
-    IN  _numruc         CHAR(11),    -- Necesitas recibirlo si lo vas a actualizar
-    IN  _direccion      VARCHAR(70),
-    IN  _correo         VARCHAR(100),
-    IN  _telprincipal   VARCHAR(20),
-    IN  _telalternativo VARCHAR(20), -- Necesitas recibirlo si lo vas a actualizar
-    IN  _idrol          INT,
-    IN  _fechainicio    DATE,
-    IN  _fechafin       DATE,
-    IN  _namuser        VARCHAR(50),
-    IN  _passuser       VARCHAR(255)
-    -- Ya no necesitas OUT _filas_afi si PHP usa rowCount() del statement execute
+    IN  _idcolaborador   INT,
+    IN  _nombres          VARCHAR(50),
+    IN  _apellidos        VARCHAR(50),
+    IN  _numruc           CHAR(11),
+    IN  _direccion        VARCHAR(70),
+    IN  _correo           VARCHAR(100),
+    IN  _telprincipal     VARCHAR(20),
+    IN  _telalternativo   VARCHAR(20),
+    IN  _idrol            INT,
+    IN  _fechainicio      DATE,
+    IN  _fechafin         DATE,
+    IN  _namuser          VARCHAR(50),
+    IN  _passuser         VARCHAR(255)
 )
-BEGIN
-    -- DECLARE v_total INT DEFAULT 0; -- No es necesario si no se usa como OUT
-    DECLARE _idpersona  INT;
-    DECLARE _idcontrato INT;
+proc_block: BEGIN
+    DECLARE v_idpersona      INT;
+    DECLARE v_idcontrato     INT;
+    DECLARE v_old_idrol      INT;
+    DECLARE v_old_fchInicio  DATE;
+    DECLARE v_old_fchFin     DATE;
+    DECLARE v_new_idcontrato INT;
 
-    -- Obtener IDs necesarios
-    SELECT idcontrato INTO _idcontrato
-        FROM colaboradores
-        WHERE idcolaborador = _idcolaborador;
+    -- 1) Obtener el contrato asociado a este colaborador
+    SELECT c.idcontrato
+      INTO v_idcontrato
+      FROM colaboradores AS c
+     WHERE c.idcolaborador = _idcolaborador;
 
-    IF _idcontrato IS NOT NULL THEN -- Solo proceder si se encontró el contrato
-        SELECT idpersona INTO _idpersona
-            FROM contratos
-            WHERE idcontrato = _idcontrato;
+    IF v_idcontrato IS NULL THEN
+        -- Si no existe contrato, salimos del bloque
+        LEAVE proc_block;
+    END IF;
 
-        IF _idpersona IS NOT NULL THEN -- Solo proceder si se encontró la persona
-            -- 1) Actualizar datos de la persona
-            UPDATE personas
-               SET nombres        = _nombres,
-                   apellidos      = _apellidos,
-                   numruc         = NULLIF(_numruc, ''),
-                   direccion      = NULLIF(_direccion, ''),
-                   correo         = NULLIF(_correo, ''),
-                   telprincipal   = _telprincipal,
-                   telalternativo = NULLIF(_telalternativo, ''),
-                   modificado     = NOW()
-             WHERE idpersona = _idpersona;
-            -- SET v_total = v_total + ROW_COUNT(); -- Opcional
+    -- 2) Obtener el idpersona vinculado al contrato
+    SELECT ct.idpersona
+      INTO v_idpersona
+      FROM contratos AS ct
+     WHERE ct.idcontrato = v_idcontrato;
 
-            -- 2) Actualizar datos del contrato
-            UPDATE contratos
-               SET idrol       = _idrol,
-                   fechainicio = CASE
-                                    WHEN _fechainicio IS NULL OR _fechainicio = '' THEN fechainicio
-                                    ELSE _fechainicio
-                                  END,
-                   fechafin    = _fechafin, -- Asumiendo que _fechafin ya es NULL o una fecha válida desde PHP
-                   modificado  = NOW()
-             WHERE idcontrato = _idcontrato;
-            -- SET v_total = v_total + ROW_COUNT(); -- Opcional
+    IF v_idpersona IS NULL THEN
+        -- Si no existe persona, salimos del bloque
+        LEAVE proc_block;
+    END IF;
 
-            -- 3) Actualizar usuario y/o contraseña en colaboradores
-            -- Solo username si no se provee contraseña
-            IF (_passuser IS NULL OR _passuser = '') AND (_namuser IS NOT NULL AND _namuser <> '') THEN
-                UPDATE colaboradores
-                   SET namuser  = _namuser
-                 WHERE idcolaborador = _idcolaborador;
-                -- SET v_total = v_total + ROW_COUNT(); -- Opcional
-            -- Username y contraseña si se provee contraseña
-            ELSEIF (_passuser IS NOT NULL AND _passuser <> '') AND (_namuser IS NOT NULL AND _namuser <> '') THEN
+    -- 3) Actualizar datos de la persona
+    UPDATE personas
+       SET nombres        = _nombres,
+           apellidos      = _apellidos,
+           numruc         = NULLIF(_numruc, ''),
+           direccion      = NULLIF(_direccion, ''),
+           correo         = NULLIF(_correo, ''),
+           telprincipal   = _telprincipal,
+           telalternativo = NULLIF(_telalternativo, ''),
+           modificado     = NOW()
+     WHERE idpersona = v_idpersona;
+
+    -- 4) Leer datos actuales del contrato (para saber el rol actual)
+    SELECT idrol,
+           fechainicio,
+           fechafin
+      INTO v_old_idrol,
+           v_old_fchInicio,
+           v_old_fchFin
+      FROM contratos
+     WHERE idcontrato = v_idcontrato;
+
+    -- 5) Si el rol cambió, cerramos el contrato viejo y creamos uno nuevo
+    IF v_old_idrol <> _idrol THEN
+        -- 5.1) Cerrar contrato anterior asignando fecha de fin
+        UPDATE contratos
+           SET fechafin = COALESCE(_fechafin, CURRENT_DATE())
+         WHERE idcontrato = v_idcontrato;
+
+        -- 5.2) Insertar nuevo contrato con el nuevo rol
+        INSERT INTO contratos (
+            idpersona,
+            idrol,
+            fechainicio,
+            fechafin,
+            creado
+        ) VALUES (
+            v_idpersona,
+            _idrol,
+            COALESCE(_fechainicio, CURRENT_DATE()),
+            _fechafin,
+            NOW()
+        );
+        SET v_new_idcontrato = LAST_INSERT_ID();
+
+        -- 5.3) Apuntar el colaborador hacia el nuevo contrato
+        UPDATE colaboradores
+           SET idcontrato = v_new_idcontrato
+         WHERE idcolaborador = _idcolaborador;
+
+        -- 5.4) Actualizar usuario/contraseña si vinieron
+        IF (_namuser IS NOT NULL AND _namuser <> '') THEN
+            IF (_passuser IS NOT NULL AND _passuser <> '') THEN
                 UPDATE colaboradores
                    SET namuser  = _namuser,
-                       passuser = SHA2(_passuser, 256)
+                       passuser = SHA2(_passuser,256)
                  WHERE idcolaborador = _idcolaborador;
-                -- SET v_total = v_total + ROW_COUNT(); -- Opcional
+            ELSE
+                UPDATE colaboradores
+                   SET namuser = _namuser
+                 WHERE idcolaborador = _idcolaborador;
             END IF;
-        END IF; -- _idpersona IS NOT NULL
-    END IF; -- _idcontrato IS NOT NULL
-    -- SET _filas_afi = v_total; -- Ya no es necesario si PHP usa su propio rowCount
-END $$
+        ELSEIF (_passuser IS NOT NULL AND _passuser <> '') THEN
+            UPDATE colaboradores
+               SET passuser = SHA2(_passuser,256)
+             WHERE idcolaborador = _idcolaborador;
+        END IF;
 
+    ELSE
+        -- 6) Si el rol NO cambió, solo actualizamos el contrato existente
+        UPDATE contratos
+           SET idrol       = _idrol,
+               fechainicio = CASE
+                                WHEN _fechainicio IS NULL OR _fechainicio = '' THEN fechainicio
+                                ELSE _fechainicio
+                              END,
+               fechafin    = _fechafin,
+               modificado  = NOW()
+         WHERE idcontrato = v_idcontrato;
+
+        -- 6.1) También actualizar usuario/contraseña
+        IF (_namuser IS NOT NULL AND _namuser <> '') THEN
+            IF (_passuser IS NOT NULL AND _passuser <> '') THEN
+                UPDATE colaboradores
+                   SET namuser  = _namuser,
+                       passuser = SHA2(_passuser,256)
+                 WHERE idcolaborador = _idcolaborador;
+            ELSE
+                UPDATE colaboradores
+                   SET namuser = _namuser
+                 WHERE idcolaborador = _idcolaborador;
+            END IF;
+        ELSEIF (_passuser IS NOT NULL AND _passuser <> '') THEN
+            UPDATE colaboradores
+               SET passuser = SHA2(_passuser,256)
+             WHERE idcolaborador = _idcolaborador;
+        END IF;
+    END IF;
+
+    -- Si llegamos aquí, terminamos normalmente
+END proc_block $$
 -- select * from colaboradores;
 DROP PROCEDURE IF EXISTS spGetColaboradorById $$
 CREATE PROCEDURE spGetColaboradorById(
@@ -1865,6 +1932,7 @@ BEGIN
     -- Primer result‑set
     SELECT 
       'SUCCESS'      AS STATUS,
+       _idrol         AS idrol, 
       _idcolaborador AS idcolaborador,
       _fullname      AS nombreCompleto;
 
@@ -1977,6 +2045,134 @@ BEGIN
       v.idventa, v.fechahora, v.tipocom,
       v.numserie, v.numcom, v.moneda,
       v.kilometraje, col.namuser;
+END $$
+
+
+DROP PROCEDURE IF EXISTS spGraficoContactabilidadPorPeriodo $$
+CREATE PROCEDURE spGraficoContactabilidadPorPeriodo(
+    IN p_periodo       ENUM('ANUAL','MENSUAL','SEMANAL'),
+    IN p_fecha_desde   DATE,
+    IN p_fecha_hasta   DATE
+)
+BEGIN
+    IF p_periodo = 'ANUAL' THEN
+        -- Agrupar por mes/año (YYYY-MM)
+        SELECT
+            DATE_FORMAT(x.creado_registro, '%Y-%m') AS periodo_label,
+            ctb.contactabilidad,
+            COUNT(*) AS total_clientes
+        FROM (
+            /* Clientes que son personas */
+            SELECT 
+                cli.idcliente,
+                cli.idcontactabilidad,
+                p.creado AS creado_registro
+            FROM clientes cli
+            JOIN personas p ON cli.idpersona = p.idpersona
+            WHERE p.creado BETWEEN p_fecha_desde AND p_fecha_hasta
+
+            UNION ALL
+
+            /* Clientes que son empresas */
+            SELECT 
+                cli.idcliente,
+                cli.idcontactabilidad,
+                e.creado AS creado_registro
+            FROM clientes cli
+            JOIN empresas e ON cli.idempresa = e.idempresa
+            WHERE e.creado BETWEEN p_fecha_desde AND p_fecha_hasta
+        ) AS X
+        JOIN contactabilidad ctb ON x.idcontactabilidad = ctb.idcontactabilidad
+        GROUP BY
+            DATE_FORMAT(x.creado_registro, '%Y-%m'),
+            ctb.contactabilidad
+        ORDER BY
+            DATE_FORMAT(x.creado_registro, '%Y-%m'),
+            ctb.contactabilidad;
+
+    ELSEIF p_periodo = 'MENSUAL' THEN
+        SELECT
+            CONCAT(
+               DATE_FORMAT(x.creado_registro, '%Y-%m'), 
+               ' - Semana ', 
+               FLOOR((DAYOFMONTH(x.creado_registro)-1)/7) + 1
+            ) AS periodo_label,
+            ctb.contactabilidad,
+            COUNT(*) AS total_clientes
+        FROM (
+            /* Personas */
+            SELECT 
+                cli.idcliente,
+                cli.idcontactabilidad,
+                p.creado AS creado_registro
+            FROM clientes cli
+            JOIN personas p ON cli.idpersona = p.idpersona
+            WHERE p.creado BETWEEN p_fecha_desde AND p_fecha_hasta
+
+            UNION ALL
+
+            /* Empresas */
+            SELECT 
+                cli.idcliente,
+                cli.idcontactabilidad,
+                e.creado AS creado_registro
+            FROM clientes cli
+            JOIN empresas e ON cli.idempresa = e.idempresa
+            WHERE e.creado BETWEEN p_fecha_desde AND p_fecha_hasta
+        ) AS X
+        JOIN contactabilidad ctb ON x.idcontactabilidad = ctb.idcontactabilidad
+        GROUP BY
+            DATE_FORMAT(x.creado_registro, '%Y-%m'),
+            FLOOR((DAYOFMONTH(x.creado_registro)-1)/7) + 1,
+            ctb.contactabilidad
+        ORDER BY
+            DATE_FORMAT(x.creado_registro, '%Y-%m'),
+            FLOOR((DAYOFMONTH(x.creado_registro)-1)/7) + 1,
+            ctb.contactabilidad;
+
+    ELSEIF p_periodo = 'SEMANAL' THEN
+        SELECT
+            ELT(
+              WEEKDAY(x.creado_registro) + 1,
+              'Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'
+            ) AS periodo_label,
+            ctb.contactabilidad,
+            COUNT(*) AS total_clientes
+        FROM (
+            /* Personas */
+            SELECT 
+                cli.idcliente,
+                cli.idcontactabilidad,
+                p.creado AS creado_registro
+            FROM clientes cli
+            JOIN personas p ON cli.idpersona = p.idpersona
+            WHERE p.creado BETWEEN p_fecha_desde AND p_fecha_hasta
+
+            UNION ALL
+
+            /* Empresas */
+            SELECT 
+                cli.idcliente,
+                cli.idcontactabilidad,
+                e.creado AS creado_registro
+            FROM clientes cli
+            JOIN empresas e ON cli.idempresa = e.idempresa
+            WHERE e.creado BETWEEN p_fecha_desde AND p_fecha_hasta
+        ) AS X
+        JOIN contactabilidad ctb ON x.idcontactabilidad = ctb.idcontactabilidad
+        GROUP BY
+            WEEKDAY(x.creado_registro),
+            ctb.contactabilidad
+        ORDER BY
+            WEEKDAY(x.creado_registro),
+            ctb.contactabilidad;
+
+    ELSE
+        -- Si llega un valor distinto para p_periodo, no devolvemos nada (o podrías lanzar un SIGNAL).
+        SELECT 
+            'ERROR: El parámetro p_periodo debe ser ANUAL, MENSUAL o SEMANAL' 
+            AS mensaje;
+    END IF;
 END $$
 
 DELIMITER ;
