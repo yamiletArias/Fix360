@@ -316,6 +316,142 @@ WHERE v.estado = TRUE;*/
 -- VISTA DE VENTAS PDF
 DROP VIEW IF EXISTS vista_detalle_venta_pdf;
 CREATE VIEW vista_detalle_venta_pdf AS
+
+-- 1) PRODUCTOS
+SELECT
+  v.idventa,
+  v.tipocom,
+  v.numcom    AS numcomp,
+
+  -- Propietario (reemplazo JOIN directo sobre clientes)
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  -- Cliente (aquí ya lo tenías correcto)
+  COALESCE(
+    CASE 
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
+
+  v.fechahora AS fecha,
+  v.kilometraje,
+  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+  
+  -- DETALLE DE PRODUCTOS …
+  CONCAT(su.subcategoria,' ',pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa AS precio,
+  dv.descuento,
+  ROUND((dv.precioventa - dv.descuento)*dv.cantidad, 2) AS total_producto,
+
+  NULL AS tiposervicio,
+  NULL AS nombreservicio,
+  NULL AS mecanico,
+  NULL AS precio_servicio,
+  'producto' AS registro_tipo
+
+FROM ventas v
+  -- JOIN directo a clientes para PROPIETARIO
+  LEFT JOIN clientes propc          ON v.idpropietario = propc.idcliente
+  LEFT JOIN empresas epc            ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas ppc            ON propc.idpersona  = ppc.idpersona
+
+  -- JOIN a clientes para CLIENTE
+  LEFT JOIN clientes cte            ON v.idcliente      = cte.idcliente
+  LEFT JOIN personas p              ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas e              ON cte.idempresa    = e.idempresa
+
+  -- JOIN Vehículo, Modelo, Marca, etc.
+  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
+  LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
+  LEFT JOIN tipovehiculos tv  ON m.idtipov        = tv.idtipov
+  LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
+
+  -- Detalle de productos
+  JOIN detalleventa       dv   ON dv.idventa       = v.idventa
+  JOIN productos          pr   ON pr.idproducto    = dv.idproducto
+  JOIN subcategorias      su   ON su.idsubcategoria= pr.idsubcategoria
+
+WHERE v.estado = TRUE
+
+UNION ALL
+
+-- 2) SERVICIOS
+SELECT
+  v.idventa,
+  v.tipocom,
+  v.numcom    AS numcomp,
+
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  COALESCE(
+    CASE 
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
+
+  v.fechahora AS fecha,
+  v.kilometraje,
+  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+
+  NULL AS producto,
+  NULL AS cantidad,
+  NULL AS precio,
+  NULL AS descuento,
+  NULL AS total_producto,
+
+  sc.subcategoria   AS tiposervicio,
+  se.servicio       AS nombreservicio,
+  col.namuser       AS mecanico,
+  dos.precio        AS precio_servicio,
+  'servicio'        AS registro_tipo
+
+FROM ventas v
+  -- JOIN directo a clientes para PROPIETARIO (igual que arriba)
+  LEFT JOIN clientes propc          ON v.idpropietario = propc.idcliente
+  LEFT JOIN empresas epc            ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas ppc            ON propc.idpersona  = ppc.idpersona
+
+  -- JOIN a clientes para CLIENTE
+  LEFT JOIN clientes cte            ON v.idcliente      = cte.idcliente
+  LEFT JOIN personas p              ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas e              ON cte.idempresa    = e.idempresa
+
+  -- JOIN Vehículo, Modelo, Marca, etc.
+  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
+  LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
+  LEFT JOIN tipovehiculos tv  ON m.idtipov        = tv.idtipov
+  LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
+
+  -- JOIN servicios por expediente/de orden de servicios
+  LEFT JOIN ordenservicios       os   ON v.idexpediente_ot = os.idorden
+  LEFT JOIN detalleordenservicios dos  ON dos.idorden       = os.idorden
+  LEFT JOIN servicios            se   ON se.idservicio     = dos.idservicio
+  LEFT JOIN subcategorias        sc   ON sc.idsubcategoria  = se.idsubcategoria
+  LEFT JOIN colaboradores        col  ON col.idcolaborador = dos.idmecanico
+
+WHERE v.estado = TRUE
+  AND dos.idorden IS NOT NULL;
+  
+/*
+DROP VIEW IF EXISTS vista_detalle_venta_pdf;
+CREATE VIEW vista_detalle_venta_pdf AS
 -- 1) Productos
 SELECT
   v.idventa,
@@ -416,7 +552,7 @@ LEFT JOIN servicios se            ON se.idservicio    = dos.idservicio
 LEFT JOIN subcategorias sc        ON sc.idsubcategoria= se.idsubcategoria
 LEFT JOIN colaboradores col       ON col.idcolaborador= dos.idmecanico
 WHERE v.estado = TRUE;
-
+*/
 
 -- ************************* VISTA DE AMORTIZACIÓN *************************
 -- 1) VISTA PARA VER EL TOTAL DE LAS VENTAS (ID)

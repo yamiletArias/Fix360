@@ -31,7 +31,6 @@
         text-align: left;
         font-weight: bold;
         border: 1px solid #555;
-        width: 36.5%;
     }
 
     table.info-table td {
@@ -68,13 +67,13 @@
 
     .label-cell {
         text-align: left;
-        width: 65%;
+        /* El ancho ya se define en <colgroup> */
     }
 
     .value-cell {
         text-align: right;
         font-weight: 500;
-        width: 35%;
+        /* El ancho ya se define en <colgroup> */
     }
 
     .total-row td {
@@ -111,7 +110,6 @@
         position: absolute;
         bottom: 6mm;
         width: 95%;
-        /* o p. ej. 150mm, según tu necesidad */
         left: 0%;
         transform: translateX(-50%);
         border: 1px solid #555;
@@ -122,9 +120,7 @@
 
     .descripcion-box .section {
         font-weight: bold;
-        /* background: #f0f0f0; */
         padding: 5px 1px;
-        /* border-bottom: 1px solid #555; */
         margin-bottom: 6px;
     }
 
@@ -142,6 +138,12 @@
 
     <!-- INFO -->
     <table class="info-table">
+        <colgroup>
+            <col style="width: 19%;" />
+            <col style="width: 35%;" />
+            <col style="width: 25%;" />
+            <col style="width: 25%;" />
+        </colgroup>
         <tr>
             <th>Presentado por</th>
             <td><?= htmlspecialchars($usuario ?? 'Invitado', ENT_QUOTES, 'UTF-8') ?></td>
@@ -161,6 +163,10 @@
         <div class="column-wrap">
             <div class="section">Saldo Inicial</div>
             <table class="content-table">
+                <colgroup>
+                    <col style="width: 65%;" />
+                    <col style="width: 35%;" />
+                </colgroup>
                 <tr>
                     <td class="label-cell">Saldo restante</td>
                     <td class="value-cell">S/ <?= number_format($resumen['total_caja'] ?? 0, 2) ?></td>
@@ -176,6 +182,10 @@
                 <div class="column-wrap">
                     <div class="section">Ingresos</div>
                     <table class="content-table">
+                        <colgroup>
+                            <col style="width: 65%;" />
+                            <col style="width: 35%;" />
+                        </colgroup>
                         <?php if (!empty($ingresos)): ?>
                             <?php foreach ($ingresos as $item): ?>
                                 <tr>
@@ -196,6 +206,10 @@
                 <div class="column-wrap">
                     <div class="section">Egresos</div>
                     <table class="content-table">
+                        <colgroup>
+                            <col style="width: 65%;" />
+                            <col style="width: 35%;" />
+                        </colgroup>
                         <?php if (!empty($egresos)): ?>
                             <?php foreach ($egresos as $item): ?>
                                 <tr>
@@ -220,6 +234,10 @@
         <div class="column-wrap">
             <div class="section">Resumen</div>
             <table class="content-table">
+                <colgroup>
+                    <col style="width: 65%;" />
+                    <col style="width: 35%;" />
+                </colgroup>
                 <?php
                 $resumen_items = [
                     'saldo_anterior' => 'Saldo anterior en efectivo',
