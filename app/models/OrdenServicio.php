@@ -1,6 +1,6 @@
 <?php
 // app/models/OrdenServicio.php
-require_once "../models/Conexion.php";
+require_once __DIR__ . '/Conexion.php';
 
 class OrdenServicio extends Conexion
 {

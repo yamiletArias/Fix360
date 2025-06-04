@@ -4,10 +4,21 @@ require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 require_once "../../../app/models/Observacion.php";
-$obsModel  = new Observacion();
-$idorden   = intval($_GET['idorden'] ?? 0);
-$observes  = $obsModel->getObservacionByOrden($idorden);
+
+// ❶ Incluir e instanciar OrdenServicio
+require_once "../../../app/models/OrdenServicio.php";
+$ordenModel = new OrdenServicio();
+
+$obsModel      = new Observacion();
+$idorden       = intval($_GET['idorden'] ?? 0);
+$observes      = $obsModel->getObservacionByOrden($idorden);
+
+// Ahora sí podemos llamar a getDetalleOrden()
+$detalleOrden  = $ordenModel->getDetalleOrden($idorden);
+$fechaSalida   = $detalleOrden['cabecera']['fecha_salida'] ?? null;
+$tieneSalida   = !empty($fechaSalida);
 ?>
+
 <style>
   img {
     width: 1500px;
@@ -47,9 +58,11 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
                 </select>
                 <label for="componente">Componente:</label>
               </div>
+              <?php if ($idrol === 1): ?>
               <button class="btn btn-sm btn-success" data-bs-toggle="modal" type="button" data-bs-target="#modalComponente">
                 <i class="fa-solid fa-plus"></i>
               </button>
+              <?php endif; ?>
             </div>
           </div>
           <!-- Input foto -->
@@ -83,7 +96,15 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
         </div>
       </div>
       <div class="card-footer text-end mb-4">
+        <?php if (!$tieneSalida): ?>
         <button type="submit" class="btn btn-success btn-sm">Registrar</button>
+        <?php else: ?>
+           <!-- Opcional: podrías mostrar un texto fijo en lugar del botón
+         para que al usuario le quede claro que ya no puede registrar -->
+    <span class="text-muted">
+      No se puede registrar (orden cerrada el <?= $fechaSalida ?>)
+    </span>
+  <?php endif; ?>
       </div>
     </div>
   </form>
@@ -284,12 +305,15 @@ $observes  = $obsModel->getObservacionByOrden($idorden);
                       </div>
                     </div>
                     <div>
+                    <?php if ($idrol === 1 && !$tieneSalida): ?>
                       <button class="btn btn-warning btn-sm me-1 btn-edit">
                         <i class="fa-solid fa-pen-to-square"></i>
                       </button>
+                      
                       <button class="btn btn-danger btn-sm btn-delete">
                         <i class="fa-solid fa-trash"></i>
                       </button>
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>

@@ -18,6 +18,7 @@ require_once "../../partials/header.php";
             <button type="button" data-modo="dia" class="btn btn-primary text-white">Día</button>
             <button type="button" data-modo="semana" class="btn btn-primary text-white">Semana</button>
             <button type="button" data-modo="mes" class="btn btn-primary text-white">Mes</button>
+            <?php if ($idrol !== 3): ?>
             <button id="btnVerEliminados"
               type="button"
               class="btn btn-secondary text-white"
@@ -25,6 +26,7 @@ require_once "../../partials/header.php";
               data-estado="A">
               <i class="fa-solid fa-eye-slash"></i>
             </button>
+            <?php endif; ?>
 
             
 
@@ -77,9 +79,9 @@ require_once "../../partials/header.php";
       </div>
       <div class="modal-body">
         <input type="hidden" id="jIdOrden">
-        <div class="mb-3">
+        <div class="form-floating mb-3">
+          <textarea id="jTexto" class="form-control" rows="3" style="background-color: white;" required></textarea>
           <label for="jTexto" class="form-label">Justificación:</label>
-          <textarea id="jTexto" class="form-control" rows="3" required></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -176,87 +178,108 @@ require_once "../../partials/header.php";
 <?php
 require_once "../../partials/_footer.php";
 ?>
-
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const fechaInput = document.getElementById('Fecha');
-    const tablaBody = document.querySelector('#miTabla tbody');
-    const btnsModo = document.querySelectorAll('button[data-modo]');
-    const btnVerElim = document.getElementById('btnVerEliminados');
-    const API = 'http://localhost/fix360/app/controllers/ordenservicio.controller.php';
+document.addEventListener('DOMContentLoaded', () => {
+  const fechaInput = document.getElementById('Fecha');
+  const tablaBody  = document.querySelector('#miTabla tbody');
+  const btnsModo   = document.querySelectorAll('button[data-modo]');
+  // En lugar de usar document.getElementById directamente,
+  // lo guardamos en una variable que puede ser null.
+  const btnVerElim = document.getElementById('btnVerEliminados');
 
-    // --- Modal Justificación ---
-    const modalJust = new bootstrap.Modal(document.getElementById('modalJustificacion'));
-    const formJust = document.getElementById('formJustificacion');
-    const jIdOrden = document.getElementById('jIdOrden');
-    const jTexto = document.getElementById('jTexto');
+  const API = 'http://localhost/fix360/app/controllers/ordenservicio.controller.php';
 
-    // --- Modal Detalle de Orden ---
-    const modalDet = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
-    const dCliente = document.getElementById('dCliente');
-    const dProp = document.getElementById('dPropietario');
-    const dVeh = document.getElementById('dVehiculo');
-    const dKilo = document.getElementById('dKilometraje');
-    const dIngreso = document.getElementById('dIngreso');
-    const dSalida = document.getElementById('dSalida');
-    const dGrua = document.getElementById('dGrua');
-    const dObs = document.getElementById('dObservaciones');
-    const tablaDet = document.querySelector('#tablaDetalle tbody');
-    const dTotal = document.getElementById('dTotal');
+  // Vars para el modal de Justificación…
+  const modalJust  = new bootstrap.Modal(document.getElementById('modalJustificacion'));
+  const formJust   = document.getElementById('formJustificacion');
+  const jIdOrden   = document.getElementById('jIdOrden');
+  const jTexto     = document.getElementById('jTexto');
+  // Vars para el modal de Detalle…
+  const modalDet   = new bootstrap.Modal(document.getElementById('modalDetalleOrden'));
+  const dCliente   = document.getElementById('dCliente');
+  const dProp      = document.getElementById('dPropietario');
+  const dVeh       = document.getElementById('dVehiculo');
+  const dKilo      = document.getElementById('dKilometraje');
+  const dIngreso   = document.getElementById('dIngreso');
+  const dSalida    = document.getElementById('dSalida');
+  const dGrua      = document.getElementById('dGrua');
+  const dObs       = document.getElementById('dObservaciones');
+  const tablaDet   = document.querySelector('#tablaDetalle tbody');
+  const dTotal     = document.getElementById('dTotal');
 
-    let currentModo = 'dia';
-    let currentEstado = 'A'; // 'A' activas, 'D' eliminadas
+  let currentModo   = 'dia';
+  let currentEstado = 'A'; // 'A' = activas, 'D' = eliminadas
+  // (rol 1 NO tendrá el botón, por lo tanto siempre currentEstado = 'A' para él)
 
-    // --- Helpers ---
-    const pad = v => String(v).padStart(2, '0');
-    const fmt = iso => {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ` +
-        `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    };
-    const isToday = iso => {
-      if (!iso) return false;
-      const d = new Date(iso),
-        t = new Date();
-      return d.getDate() === t.getDate() &&
-        d.getMonth() === t.getMonth() &&
-        d.getFullYear() === t.getFullYear();
-    };
+  // Helper para formatear fechas a dd/mm/yyyy hh:mm
+  const pad = v => String(v).padStart(2, '0');
+  const fmt = iso => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} `
+         + `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+  // Helper para saber si la fecha es hoy (para habilitar/eliminar, etc.)
+  const isToday = iso => {
+    if (!iso) return false;
+    const d = new Date(iso), t = new Date();
+    return d.getDate() === t.getDate()
+        && d.getMonth() === t.getMonth()
+        && d.getFullYear() === t.getFullYear();
+  };
 
-    // --- Pinta la tabla principal ---
-    const pintar = data => {
-      if ($.fn.DataTable.isDataTable('#miTabla')) {
-        $('#miTabla').DataTable().destroy();
-      }
-      tablaBody.innerHTML = '';
-      data.forEach((o, i) => {
-        const btnDetalle = `<button class="btn btn-sm btn-info" title="Detalle" data-id="${o.idorden}" data-action="detalle">
+  // Función que pinta todos los registros en la tabla #miTabla
+  const pintar = data => {
+    // Si ya había un DataTable inicializado, lo destruimos antes de volver a crearlo
+    if ($.fn.DataTable.isDataTable('#miTabla')) {
+      $('#miTabla').DataTable().destroy();
+    }
+    tablaBody.innerHTML = '';
+    data.forEach((o, i) => {
+      // Botones de “detalle”, “ver observaciones”, “salida” o “eliminar”
+      const btnDetalle = `<button class="btn btn-sm btn-info" title="Detalle" 
+                                 data-id="${o.idorden}" data-action="detalle">
                              <i class="fa-solid fa-clipboard-list"></i>
                            </button>`;
-        const btnVer = `<a class="btn btn-sm btn-primary" href="listar-observacion-orden.php?idorden=${o.idorden}">
-                             <i class="fa-solid fa-eye"></i>
-                           </a>`;
-        let btnEliminar = '',
-          btnSalida = '';
-        if (!o.fechasalida) {
-          btnSalida = `<button class="btn btn-sm btn-outline-dark" data-id="${o.idorden}" data-action="salida">
-                       <i class="fa-solid fa-calendar-days"></i>
-                     </button>`;
-          if (isToday(o.fechaingreso)) {
-            btnEliminar = `<button class="btn btn-sm btn-danger" data-id="${o.idorden}" data-action="eliminar">
-                           <i class="fa-solid fa-trash"></i>
-                         </button>`;
-          }
+      const btnVer = `<a class="btn btn-sm btn-primary" 
+                         href="listar-observacion-orden.php?idorden=${o.idorden}">
+                        <i class="fa-solid fa-eye"></i>
+                      </a>`;
+
+      let btnEliminar = '';
+      let btnSalida   = '';
+
+      // Solo muestro “salida” o “eliminar” si la orden NO tiene fechaSalida
+      if (!o.fechasalida) {
+        // Botón “salida” (solo para rol 1, pero aquí no lo rechazamos)
+        btnSalida = `<?php if ($idrol === 1): ?>
+                      <button class="btn btn-sm btn-outline-dark" 
+                              data-id="${o.idorden}" data-action="salida">
+                        <i class="fa-solid fa-calendar-days"></i>
+                      </button>
+                     <?php endif; ?>`;
+
+        // Botón “eliminar” solo si la orden fue creada hoy y rol 1 tiene permiso
+        if (isToday(o.fechaingreso)) {
+          btnEliminar = `<?php if ($idrol === 1): ?>
+                           <button class="btn btn-sm btn-danger" 
+                                   data-id="${o.idorden}" data-action="eliminar">
+                             <i class="fa-solid fa-trash"></i>
+                           </button>
+                         <?php endif; ?>`;
         }
-        tablaBody.insertAdjacentHTML('beforeend', `
+      }
+
+      tablaBody.insertAdjacentHTML('beforeend', `
         <tr>
           <td class="text-center">${i+1}</td>
-          <td>${o.propietario||''}</td>
-          <td>${o.cliente||''}</td>
+          <td>${o.propietario || ''}</td>
+          <td>${o.cliente || ''}</td>
           <td>${fmt(o.fechaingreso)}</td>
-          <td>${o.fechasalida? fmt(o.fechasalida) : '<span class="text-muted">En progreso</span>'}</td>
-          <td>${o.placa||''}</td>
+          <td>${o.fechasalida 
+             ? fmt(o.fechasalida) 
+             : '<span class="text-muted">En progreso</span>'}</td>
+          <td>${o.placa || ''}</td>
           <td>
             <div class="d-flex gap-1 justify-content-center">
               ${btnEliminar}${btnDetalle}${btnVer}${btnSalida}
@@ -264,26 +287,26 @@ require_once "../../partials/_footer.php";
           </td>
         </tr>
       `);
-      });
-      $('#miTabla').DataTable({
-        paging: true,
-        searching: true,
-        info: true,
-        columnDefs: [{
-          orderable: false,
-          targets: -1
-        }],
-        language: {
-          lengthMenu: "Mostrar _MENU_ por página",
-          zeroRecords: "No hay resultados",
-          info: "Mostrando página _PAGE_ de _PAGES_",
-          search: "Buscar:",
-          emptyTable: "No hay datos"
-        }
-      });
-    };
+    });
 
-    // --- Cambia icono y estado del toggle ---
+    // Inicializo DataTable nuevamente
+    $('#miTabla').DataTable({
+      paging: true,
+      searching: true,
+      info: true,
+      columnDefs: [{ orderable: false, targets: -1 }],
+      language: {
+        lengthMenu: "Mostrar _MENU_ por página",
+        zeroRecords: "No hay resultados",
+        info: "Mostrando página _PAGE_ de _PAGES_",
+        search: "Buscar:",
+        emptyTable: "No hay datos"
+      }
+    });
+  };
+
+  // Si está presente el botón “Ver eliminados”, lo configuramos.
+  if (btnVerElim) {
     const actualizarToggleEstado = () => {
       if (currentEstado === 'A') {
         btnVerElim.classList.replace('btn-warning', 'btn-secondary');
@@ -296,81 +319,87 @@ require_once "../../partials/_footer.php";
       }
     };
 
-    // --- Trae datos y pinta ---
-    const cargar = async (modo, fecha) => {
+    // Listener para alternar activas/eliminadas
+    btnVerElim.addEventListener('click', () => {
+      currentEstado = (currentEstado === 'A') ? 'D' : 'A';
+      actualizarToggleEstado();
+      cargar(currentModo, fechaInput.value);
+    });
+
+    // Al inicio, ajusto el estilo del botón (para que muestre “Ver eliminados”)
+    actualizarToggleEstado();
+  }
+
+  // Función que hace fetch al back-end y pinta la tabla
+  const cargar = async (modo, fecha) => {
+    try {
+      // Envía modo (dia/semana/mes), fecha (YYYY-MM-DD) y estado (A/D)
+      const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}&estado=${currentEstado}`);
+      const json = await res.json();
+      if (json.status === 'success') {
+        pintar(json.data);
+      } else {
+        console.error(json.message);
+      }
+    } catch (e) {
+      console.error('Fetch error:', e);
+    }
+  };
+
+  // Delegación: clicks sobre los botones dentro de la tabla principal
+  tablaBody.addEventListener('click', async ev => {
+    const btn = ev.target.closest('button[data-action]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+
+    // Si es “eliminar” → mostrar modal de justificación
+    if (btn.dataset.action === 'eliminar') {
+      jIdOrden.value = id;
+      jTexto.value   = '';
+      modalJust.show();
+      return;
+    }
+
+    // Si es “salida” → confirm + POST para registrar fecha de salida
+    if (btn.dataset.action === 'salida') {
+      if (!confirm('¿Registrar fecha de salida?')) return;
       try {
-        const res = await fetch(`${API}?modo=${modo}&fecha=${fecha}&estado=${currentEstado}`);
-        const json = await res.json();
-        if (json.status === 'success') pintar(json.data);
-        else console.error(json.message);
-      } catch (e) {
-        console.error('Fetch error:', e);
+        const resp = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'setSalida', idorden: id })
+        });
+        const js = await resp.json();
+        if (js.status === 'success') showToast('Salida registrada', 'SUCCESS');
+        else showToast('Error al registrar', 'ERROR');
+      } catch {
+        showToast('Error de red', 'ERROR');
       }
-    };
+      cargar(currentModo, fechaInput.value);
+      return;
+    }
 
-    // --- Delegación de clicks en la tabla ---
-    tablaBody.addEventListener('click', async ev => {
-      const btn = ev.target.closest('button[data-action]');
-      if (!btn) return;
-      const id = btn.dataset.id;
+    // Si es “detalle” → GET para obtener datos de cabecera y servicios
+    if (btn.dataset.action === 'detalle') {
+      try {
+        const resp = await fetch(`${API}?action=getDetalle&idorden=${id}`);
+        const js   = await resp.json();
+        const { cabecera, detalle, total } = js.data;
 
-      // Eliminar
-      if (btn.dataset.action === 'eliminar') {
-        jIdOrden.value = id;
-        jTexto.value = '';
-        modalJust.show();
-        return;
-      }
+        // Lleno campos de cabecera
+        dCliente.value = cabecera.cliente || '';
+        dProp.value    = cabecera.propietario || '';
+        dVeh.value     = cabecera.vehiculo || '';
+        dKilo.value    = cabecera.kilometraje || '';
+        dIngreso.value = cabecera.fecha_ingreso || '';
+        dSalida.value  = cabecera.fecha_salida || '';
+        dGrua.checked  = !!cabecera.ingresogrua;
+        dObs.value     = cabecera.observaciones || '';
 
-      // Registrar salida
-      if (btn.dataset.action === 'salida') {
-        if (!confirm('¿Registrar fecha de salida?')) return;
-        try {
-          const resp = await fetch(API, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              action: 'setSalida',
-              idorden: id
-            })
-          });
-          const js = await resp.json();
-          if (js.status === 'success') showToast('Salida registrada', 'SUCCESS');
-          else showToast('Error al registrar', 'ERROR');
-        } catch {
-          showToast('Error de red', 'ERROR');
-        }
-        cargar(currentModo, fechaInput.value);
-        return;
-      }
-
-      // Detalle
-      if (btn.dataset.action === 'detalle') {
-        try {
-          const resp = await fetch(`${API}?action=getDetalle&idorden=${id}`);
-          const js = await resp.json();
-          const {
-            cabecera,
-            detalle,
-            total
-          } = js.data;
-
-          // Cabecera
-          dCliente.value = cabecera.cliente || '';
-          dProp.value = cabecera.propietario || '';
-          dVeh.value = cabecera.vehiculo || '';
-          dKilo.value = cabecera.kilometraje || '';
-          dIngreso.value = cabecera.fecha_ingreso || '';
-          dSalida.value = cabecera.fecha_salida || '';
-          dGrua.checked = !!cabecera.ingresogrua;
-          dObs.value = cabecera.observaciones || '';
-
-          // Detalle de servicios
-          tablaDet.innerHTML = '';
-          detalle.forEach((r, i) => {
-            tablaDet.insertAdjacentHTML('beforeend', `
+        // Pinto el detalle de servicios
+        tablaDet.innerHTML = '';
+        detalle.forEach((r, i) => {
+          tablaDet.insertAdjacentHTML('beforeend', `
             <tr>
               <td>${i+1}</td>
               <td>${r.servicio}</td>
@@ -378,73 +407,71 @@ require_once "../../partials/_footer.php";
               <td class="text-end">${parseFloat(r.precio).toFixed(2)}</td>
             </tr>
           `);
-          });
-
-          // Total
-          dTotal.textContent = parseFloat(total).toFixed(2);
-
-          modalDet.show();
-        } catch (e) {
-          console.error('Error detalle:', e);
-        }
-      }
-    });
-
-    // --- Envío del formulario de justificación ---
-    formJust.addEventListener('submit', async ev => {
-      ev.preventDefault();
-      const idord = parseInt(jIdOrden.value, 10);
-      const just = jTexto.value.trim();
-      if (!just) return;
-      try {
-        const resp = await fetch(API, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            action: 'eliminar',
-            idorden: idord,
-            justificacion: just
-          })
         });
-        const js = await resp.json();
-        if (js.status === 'success') {
-          showToast('Orden eliminada', 'SUCCESS');
-          cargar(currentModo, fechaInput.value);
-        } else {
-          showToast('Error: ' + js.message, 'ERROR');
-        }
-      } catch {
-        showToast('Error de red', 'ERROR');
-      } finally {
-        modalJust.hide();
-      }
-    });
 
-    // --- Listeners de filtros y toggle ---
-    btnVerElim.addEventListener('click', () => {
-      currentEstado = currentEstado === 'A' ? 'D' : 'A';
-      actualizarToggleEstado();
-      cargar(currentModo, fechaInput.value);
-    });
-    btnsModo.forEach(b => b.addEventListener('click', () => {
+        // Pinto el total
+        dTotal.textContent = parseFloat(total).toFixed(2);
+        modalDet.show();
+
+      } catch (e) {
+        console.error('Error detalle:', e);
+      }
+    }
+  });
+
+  // Envío de formulario “Justificación” (cuando confirman eliminar)
+  formJust.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const idord = parseInt(jIdOrden.value, 10);
+    const just  = jTexto.value.trim();
+    if (!just) return;
+
+    try {
+      const resp = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'eliminar',
+          idorden: idord,
+          justificacion: just
+        })
+      });
+      const js = await resp.json();
+      if (js.status === 'success') {
+        showToast('Orden eliminada', 'SUCCESS');
+        cargar(currentModo, fechaInput.value);
+      } else {
+        showToast('Error: ' + js.message, 'ERROR');
+      }
+    } catch {
+      showToast('Error de red', 'ERROR');
+    } finally {
+      modalJust.hide();
+    }
+  });
+
+  // Botones “Día/Semana/Mes”
+  btnsModo.forEach(b => {
+    b.addEventListener('click', () => {
       currentModo = b.dataset.modo;
       btnsModo.forEach(x => x.classList.toggle('active', x === b));
       cargar(currentModo, fechaInput.value);
-    }));
-    fechaInput.addEventListener('change', () => {
-      currentModo = 'dia';
-      btnsModo.forEach(x => x.classList.remove('active'));
-      cargar(currentModo, fechaInput.value);
     });
+  });
 
-    // --- Inicialización ---
-    fechaInput.value = new Date().toISOString().slice(0, 10);
-    actualizarToggleEstado();
+  // Cuando cambian la fecha manualmente
+  fechaInput.addEventListener('change', () => {
+    currentModo = 'dia';
+    btnsModo.forEach(x => x.classList.remove('active'));
     cargar(currentModo, fechaInput.value);
   });
+
+  // --- Inicialización: por defecto siempre cargo “activas” (currentEstado = 'A') ---
+  fechaInput.value = new Date().toISOString().slice(0, 10);
+  cargar(currentModo, fechaInput.value);
+});
 </script>
+
 
 
 
