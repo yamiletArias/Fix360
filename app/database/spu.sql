@@ -29,6 +29,7 @@ BEGIN
   SET _idpersona = LAST_INSERT_ID();
   INSERT INTO clientes (idpersona, idcontactabilidad)
   VALUES (_idpersona, _idcontactabilidad);
+  SET _idcliente = LAST_INSERT_ID();
 END $$
 
 DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa $$
@@ -63,7 +64,7 @@ BEGIN
   INSERT INTO clientes (idempresa, idcontactabilidad)
   VALUES (_idempresa, _idcontactabilidad);
   -- Insertar en la tabla proveedores solo si no existe
-  
+  SET _idcliente = LAST_INSERT_ID();
 END $$
 
 -- 3) Registrar vehículo y propietario
