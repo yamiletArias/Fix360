@@ -12,7 +12,7 @@ require_once "../../partials/header.php";
         <div class="card-header d-flex justify-content-between align-items-center">
             <!-- Título a la izquierda -->
             <div>
-                <h3 class="mb-0">Complete los datos</h3>
+                <!-- <h3 class="mb-0">Complete los datos</h3> -->
             </div>
             <!-- Botón a la derecha -->
             <div>
@@ -255,10 +255,10 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 
-<!-- <script src="<?= SERVERURL ?>views/page/cotizaciones/js/registrar-cotizacion.js"></script> -->
+<script src="<?= SERVERURL ?>views/page/cotizaciones/js/registrar-cotizacion.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-<script>
+<!-- <script>
     document.addEventListener('DOMContentLoaded', () => {
 
         // — variables del modal de Propietario —
@@ -337,9 +337,9 @@ require_once "../../partials/_footer.php";
         actualizarOpciones();
 
     });
-</script>
+</script> -->
 
-<script>
+<!-- <script>
     document.addEventListener('DOMContentLoaded', function () {
 
         const inputProductElement = document.getElementById("producto");
@@ -709,7 +709,7 @@ require_once "../../partials/_footer.php";
         });
 
     });
-</script>
+</script> -->
 </body>
 
 </html>
