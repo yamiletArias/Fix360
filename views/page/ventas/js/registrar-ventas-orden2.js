@@ -477,7 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const idp = selectedProduct.idproducto;
     const nombre = inputProductElement.value.trim();
     const precio = parseFloat(inputPrecio.value);
-    const cantidad = parseInt(inputCantidad.value, 10); // <-- entero desde el inicio
+    const cantidad = parseInt(inputCantidad.value, 10);
     if (isNaN(cantidad) || cantidad < 1) {
       alert("La cantidad debe ser un número entero mayor o igual a 1.");
       inputCantidad.value = 1;
@@ -489,7 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     const descuento = parseFloat(inputDescuento.value);
 
-    // Validaciones…
+    // Validaciones básicas
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
       alert("Ese producto no existe. Elige uno de la lista.");
       return resetCamposProducto();
@@ -508,11 +508,10 @@ document.addEventListener("DOMContentLoaded", function () {
       inputCantidad.value = 1;
       return;
     }
+
     const stockDisponible = selectedProduct.stock || 0;
     if (cantidad > stockDisponible) {
-      alert(
-        `No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`
-      );
+      alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
       inputCantidad.value = stockDisponible;
       return;
     }
@@ -531,22 +530,19 @@ document.addEventListener("DOMContentLoaded", function () {
       return resetCamposProducto();
     }
 
+    // Cálculo de importe inicial
     const netoUnit = precio - descuento;
     const importe = netoUnit * cantidad;
 
-    // — Creamos la fila con cantidad en step=1 y sin toFixed(2) —
+    // — Creamos la fila, seteando max="${stockDisponible}" —
     const fila = document.createElement("tr");
     fila.dataset.idproducto = idp;
     fila.innerHTML = `
     <td>${tabla.rows.length + 1}</td>
     <td>${nombre}</td>
-
-    <!-- Precio fijo (no editable) -->
     <td>
       <span class="precio-texto">${precio.toFixed(2)}</span>
     </td>
-
-    <!-- Cantidad como entero, step=1 -->
     <td>
       <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
         <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
@@ -554,22 +550,19 @@ document.addEventListener("DOMContentLoaded", function () {
                class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
                value="${cantidad}"
                min="1"
+               max="${stockDisponible}"
                step="1">
         <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
       </div>
     </td>
-
-    <!-- Descuento fijo (no editable) -->
     <td>
       <span class="descuento-texto">${descuento.toFixed(2)}</span>
     </td>
-
     <td class="importe-cell">${importe.toFixed(2)}</td>
-    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
-  `;
+    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>`;
     tabla.appendChild(fila);
 
-    // — Referencias dentro de la fila recién creada —
+    // Referencias internas de esta fila
     const decBtn = fila.querySelector(".btn-decrement");
     const incBtn = fila.querySelector(".btn-increment");
     const qtyInput = fila.querySelector(".cantidad-input");
@@ -577,44 +570,78 @@ document.addEventListener("DOMContentLoaded", function () {
     const precioSpan = fila.querySelector(".precio-texto");
     const descuentoSpan = fila.querySelector(".descuento-texto");
 
-    // — Función que actualiza esta línea cuando cambie cantidad —
     function actualizarLinea() {
-      // Leer cantidad como entero
+      // 1) Leer y normalizar cantidad ≥1
       let qty = parseInt(qtyInput.value, 10) || 1;
       if (qty < 1) qty = 1;
-      qtyInput.value = qty; // <-- quede "1", "2", "3", sin decimales
+      qtyInput.value = qty;
 
-      // Leer precio/desc desde los spans
+      // 2) Verificar contra el atributo "max" (stock disponible)
+      const maxAllowed = parseInt(qtyInput.getAttribute("max"), 10) || Infinity;
+      if (qty > maxAllowed) {
+        // Si excede, mostramos modal y forzamos qty = maxAllowed
+        Swal.fire({
+          icon: "warning",
+          title: "Stock insuficiente",
+          text: `Solo hay ${maxAllowed} unidades disponibles.`,
+          confirmButtonText: "Entendido",
+          allowOutsideClick: false,
+        });
+        qty = maxAllowed;
+        qtyInput.value = qty;
+      }
+
+      // 3) Recalcular importe de la línea
       const precioValor = parseFloat(precioSpan.textContent) || 0;
       const descuentoValor = parseFloat(descuentoSpan.textContent) || 0;
-
       const netoUnit = precioValor - descuentoValor;
       const nuevoImporte = netoUnit * qty;
       importeCell.textContent = nuevoImporte.toFixed(2);
 
-      // Actualizo en el array detalleVenta
+      // 4) Actualizar el array detalleVenta
       const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
       if (idx >= 0) {
         detalleVenta[idx].cantidad = qty;
         detalleVenta[idx].importe = nuevoImporte.toFixed(2);
       }
 
+      // 5) Renumerar filas y recalcular totales generales
       actualizarNumeros();
       calcularTotales();
     }
 
-    // — Listeners para subir/bajar cantidad en pasos de 1 —
+    // Listener para “-” (se deja igual)
     decBtn.addEventListener("click", () => {
       qtyInput.stepDown();
       actualizarLinea();
     });
+
+    // Listener para “+” (modificado):
     incBtn.addEventListener("click", () => {
-      qtyInput.stepUp();
-      actualizarLinea();
+      // 1) Leemos cantidad actual y stock (maxAllowed)
+      const currentQty = parseInt(qtyInput.value, 10) || 0;
+      const maxAllowed = parseInt(qtyInput.getAttribute("max"), 10) || Infinity;
+
+      if (currentQty >= maxAllowed) {
+        // Ya está en el máximo permitido → lanzamos modal
+        Swal.fire({
+          icon: "warning",
+          title: "Stock insuficiente",
+          text: `Solo hay ${maxAllowed} unidades disponibles.`,
+          confirmButtonText: "Entendido",
+          allowOutsideClick: false,
+        });
+      } else {
+        // Estamos por debajo del stock → incrementamos y recalculamos
+        qtyInput.stepUp();
+        actualizarLinea();
+      }
     });
+
+    // Listener para cambios manuales en el input
     qtyInput.addEventListener("input", actualizarLinea);
 
-    // — Botón de eliminar fila —
+    // Botón de quitar fila
     fila.querySelector(".btn-quitar").addEventListener("click", () => {
       fila.remove();
       const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
@@ -623,7 +650,7 @@ document.addEventListener("DOMContentLoaded", function () {
       calcularTotales();
     });
 
-    // — Agrego al array detalleVenta con cantidad entera —
+    // Agregar el objeto al array detalleVenta
     detalleVenta.push({
       idproducto: idp,
       producto: nombre,
@@ -861,56 +888,72 @@ document.addEventListener("DOMContentLoaded", function () {
   inputProductElement.addEventListener("keyup", function (e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      // 1) Limpias la lista y cancelas el debounce
       cerrarListas();
       debouncedMostrarOpcionesProducto.cancel();
 
       const codigo = this.value.trim();
       if (!codigo) return;
 
-      // 2) Solo lógica de scanner
       fetch(
-        `${
-          window.FIX360_BASE_URL
-        }app/controllers/Venta.controller.php?q=${encodeURIComponent(
+        `${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(
           codigo
         )}&type=producto`
       )
         .then((r) => r.json())
         .then((data) => {
-          if (Array.isArray(data) && data.length) {
-            const producto = data[0];
+          if (!Array.isArray(data) || data.length === 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "No se encontraron productos",
+              text: "Verifica el código o el nombre.",
+              confirmButtonText: "Aceptar",
+              allowOutsideClick: false,
+            });
+            return;
+          }
 
-            // Verificar si el producto ya está en la tabla (detalleVenta)
-            const idx = detalleVenta.findIndex(
-              (d) => d.idproducto === producto.idproducto
-            );
+          const producto = data[0];
+          const stockDisponible = parseInt(producto.stock, 10) || 0;
 
-            if (idx >= 0) {
-              // Si ya existe, simplemente sumamos 1 a la cantidad
-              const fila = tabla.rows[idx]; // Obtener la fila en la tabla
-              const qtyInput = fila.querySelector(".cantidad-input");
-              const newQty = parseInt(qtyInput.value, 10) + 1; // Sumar 1 a la cantidad
-              qtyInput.value = newQty;
+          // 1) Busco si ya existe una fila con este producto
+          const selectorFila = `tr[data-idproducto="${producto.idproducto}"]`;
+          const filaExistente = tabla.querySelector(selectorFila);
 
-              // Actualizamos la línea en detalleVenta
-              detalleVenta[idx].cantidad = newQty;
-              detalleVenta[idx].importe = (
-                (producto.precio - detalleVenta[idx].descuento) *
-                newQty
-              ).toFixed(2);
+          if (filaExistente) {
+            // 2) Si ya estaba en el detalle, leo su input de cantidad
+            const qtyInput = filaExistente.querySelector(".cantidad-input");
+            const currentQty = parseInt(qtyInput.value, 10) || 0;
+            const maxAllowed = parseInt(qtyInput.getAttribute("max"), 10) || 0;
 
-              // Actualizamos el importe de la fila
-              fila.querySelector(".importe-cell").textContent =
-                detalleVenta[idx].importe;
-
-              // Recalcular totales
-              calcularTotales();
+            if (currentQty >= maxAllowed) {
+              // YA está en stock máximo → muestro alerta
+              Swal.fire({
+                icon: "warning",
+                title: "Stock insuficiente",
+                text: `Solo hay ${maxAllowed} unidades disponibles.`,
+                confirmButtonText: "Entendido",
+                allowOutsideClick: false,
+              });
             } else {
-              // Si el producto no existe, lo agregamos a la tabla
+              // Subo 1 paso y disparo 'input' para que se ejecute actualizarLinea()
+              qtyInput.stepUp();
+              qtyInput.dispatchEvent(new Event("input"));
+            }
+          } else {
+            // 3) No existía en la tabla: agrego solo si stockDisponible ≥ 1
+            if (stockDisponible < 1) {
+              Swal.fire({
+                icon: "warning",
+                title: "Sin stock",
+                text: "No hay unidades disponibles de este producto.",
+                confirmButtonText: "Aceptar",
+                allowOutsideClick: false,
+              });
+            } else {
+              // Relleno los campos y “simulo” el clic en “Agregar producto”
               inputProductElement.value = producto.subcategoria_producto;
               inputPrecio.value = parseFloat(producto.precio).toFixed(2);
-              inputStock.value = producto.stock;
+              inputStock.value = stockDisponible;
               inputCantidad.value = 1;
               inputDescuento.value = 0;
 
@@ -918,18 +961,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 idproducto: producto.idproducto,
                 subcategoria_producto: producto.subcategoria_producto,
                 precio: parseFloat(producto.precio),
-                stock: producto.stock,
+                stock: stockDisponible,
               };
 
-              // Agregar el producto al detalleVenta
               agregarProductoBtn.click();
             }
-          } else {
-            showToast("No se encontraron productos.", "WARNING", 1500);
           }
         })
+        .catch((err) => {
+          console.error("Error al procesar escaneo:", err);
+          Swal.fire({
+            icon: "error",
+            title: "Error al buscar producto",
+            text: "Intenta nuevamente.",
+            confirmButtonText: "Aceptar",
+            allowOutsideClick: false,
+          });
+        })
         .finally(() => {
-          // Borra y fócate después de agregar
           this.value = "";
           this.focus();
         });
