@@ -105,7 +105,6 @@ require_once "../../partials/header.php";
         htmlCol += `<option value="${c.idcolaborador}">${nombreCompleto}</option>`;
       });
       document.getElementById('idcolaborador').innerHTML = htmlCol;
-
     } else {
       console.error('Error cargando colaboradores:', jsonCol.message);
     }
@@ -124,86 +123,112 @@ require_once "../../partials/header.php";
     }
   }
 
-
   document.addEventListener('DOMContentLoaded', () => {
     loadSelects();
+
     const fechaIngresoInput = document.getElementById('fechaIngreso');
-    const btnCandado = document.getElementById('btnPermitirFechaPasada');
+    const btnCandado       = document.getElementById('btnPermitirFechaPasada');
+    const btnCancelar      = document.getElementById('btnCancelar');
+    const formEgreso       = document.getElementById('form-egreso');
 
     // 1) Inicializar con la fecha y hora actual, y deshabilitado
     const ahora = new Date();
-    // Ajusta al formato YYYY-MM-DDTHH:MM (datetime-local)
-    const pad = n => String(n).padStart(2, '0');
+    const pad  = n => String(n).padStart(2, '0');
     const yyyy = ahora.getFullYear();
-    const mm = pad(ahora.getMonth() + 1);
-    const dd = pad(ahora.getDate());
-    const hh = pad(ahora.getHours());
-    const min = pad(ahora.getMinutes());
-    const fechaFormateada = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-
-    fechaIngresoInput.value =
-      `${ahora.getFullYear()}-${pad(ahora.getMonth()+1)}-${pad(ahora.getDate())}` +
-      `T${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`;
+    const mm   = pad(ahora.getMonth() + 1);
+    const dd   = pad(ahora.getDate());
+    const hh   = pad(ahora.getHours());
+    const min  = pad(ahora.getMinutes());
+    fechaIngresoInput.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
     fechaIngresoInput.disabled = true;
 
     btnCandado.addEventListener('click', () => {
       // Habilitar el input
       fechaIngresoInput.disabled = false;
-      // Cambiar icono para indicar "abierto"
+      // Cambiar icono y estilo
       btnCandado.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
-      btnCandado.class = 'btn-outline-success';
+      btnCandado.classList.remove('btn-outline-warning');
+      btnCandado.classList.add('btn-outline-success');
       btnCandado.title = 'Fecha desbloqueada';
-      // Deshabilitar el propio botón para que no se pueda volver a pulsar
       btnCandado.disabled = true;
     });
 
     // Cancelar → volver al listado
-    document.getElementById('btnCancelar').addEventListener('click', () => {
+    btnCancelar.addEventListener('click', () => {
       window.location.href = 'listar-egresos.php';
     });
 
-    // Submit del form
-    document.getElementById('form-egreso').addEventListener('submit', async e => {
+    // Submit del form con ask() y showToast()
+    formEgreso.addEventListener('submit', async e => {
       e.preventDefault();
 
-      // 1) Mostrar confirmación al usuario
-      const confirmar = confirm("¿Estás seguro de que deseas registrar este egreso?");
-      if (!confirmar) {
-        // Si el usuario presiona “Cancelar”, salimos sin enviar nada
+      // 1) Validaciones previas
+      const idcolaborador  = parseInt(formEgreso.idcolaborador.value, 10);
+      const idformapago    = parseInt(formEgreso.idformapago.value, 10);
+      const concepto       = formEgreso.concepto.value.trim();
+      const monto          = parseFloat(formEgreso.monto.value);
+      const numcomprobante = formEgreso.numcomprobante.value.trim();
+      const fecharegistro  = fechaIngresoInput.value;
+
+      if (!idcolaborador) {
+        showToast('Debe seleccionar un colaborador', 'ERROR', 1500);
+        return;
+      }
+      if (!idformapago) {
+        showToast('Debe seleccionar una forma de entrega', 'ERROR', 1500);
+        return;
+      }
+      if (!concepto) {
+        showToast('Debe seleccionar un concepto', 'ERROR', 1500);
+        return;
+      }
+      if (isNaN(monto) || monto <= 0) {
+        showToast('El monto debe ser mayor que 0', 'ERROR', 1500);
+        return;
+      }
+      if (!fecharegistro) {
+        showToast('La fecha es obligatoria', 'ERROR', 1500);
         return;
       }
 
-      // 2) Si confirma, armamos el objeto data y enviamos igual que antes
-      const form = e.target;
-      const data = {
-        action: 'register',
-        idcolaborador: parseInt(form.idcolaborador.value, 10),
-        idformapago: parseInt(form.idformapago.value, 10),
-        concepto: form.concepto.value.trim(),
-        monto: parseFloat(form.monto.value),
-        numcomprobante: form.numcomprobante.value.trim(),
-        fecharegistro: document.getElementById('fechaIngreso').value
-      };
-
-      // validaciones ligeras
-      if (!data.idcolaborador || !data.idformapago || !data.concepto || data.monto <= 0) {
-        return alert('Completa todos los campos obligatorios correctamente.');
+      // 2) Confirmación con SweetAlert2 (ask)
+      const confirmado = await ask(
+        "¿Estás seguro de que deseas registrar este egreso?",
+        "Egresos"
+      );
+      if (!confirmado) {
+        return;
       }
 
-      // Envío al controller
-      const resp = await fetch(API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      }).then(r => r.json());
+      // 3) Envío al controller
+      const data = {
+        action: 'register',
+        idcolaborador,
+        idformapago,
+        concepto,
+        monto,
+        numcomprobante,
+        fecharegistro
+      };
 
-      if (resp.status === 'success') {
-        alert('Egreso registrado correctamente');
-        window.location.href = 'listar-egresos.php';
-      } else {
-        alert('Error: ' + (resp.message || 'No se pudo registrar.'));
+      try {
+        const resp = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).then(r => r.json());
+
+        if (resp.status === 'success') {
+          showToast('Egreso registrado correctamente', 'SUCCESS', 1500);
+          setTimeout(() => {
+            window.location.href = 'listar-egresos.php';
+          }, 1500);
+        } else {
+          showToast('Error: ' + (resp.message || 'No se pudo registrar.'), 'ERROR', 2000);
+        }
+      } catch (err) {
+        console.error('Error al registrar egreso:', err);
+        showToast('Error de servidor. Intenta nuevamente.', 'ERROR', 2000);
       }
     });
   });

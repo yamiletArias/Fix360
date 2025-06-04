@@ -133,240 +133,235 @@ require_once "../../partials/header.php";
     const filtros          = [btnDia, btnSemana, btnMes];
 
     // Estado actual
-    let currentModo    = 'dia';
-    let showingDeleted = false; // ¿Mostrando eliminados?
+    let currentModo     = 'dia';
+    let showingDeleted  = false; // ¿Mostrando eliminados?
+    let idToDelete      = 0;
 
     function marcarActivo(btn) {
-        filtros.forEach(b => b.classList.toggle('active', b === btn));
+      filtros.forEach(b => b.classList.toggle('active', b === btn));
     }
 
     function renderOpciones(data) {
-        const id         = data.idegreso;
-        const recordDate = data.fecha; // "DD/MM/YYYY"
-        // Calcular hoy en "DD/MM/YYYY"
-        const d    = new Date();
-        const dd   = String(d.getDate()).padStart(2, '0');
-        const mm   = String(d.getMonth() + 1).padStart(2, '0');
-        const yyyy = d.getFullYear();
-        const todayStr = `${dd}/${mm}/${yyyy}`;
+      const id         = data.idegreso;
+      const recordDate = data.fecha; // "DD/MM/YYYY"
+      // Calcular hoy en "DD/MM/YYYY"
+      const d    = new Date();
+      const dd   = String(d.getDate()).padStart(2, '0');
+      const mm   = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      const todayStr = `${dd}/${mm}/${yyyy}`;
 
-        if (!showingDeleted) {
-            // Botón de eliminar solo si la fecha coincide con hoy
-            const isToday = recordDate === todayStr;
-            return `
-                <button
-                  class="btn btn-sm ${isToday ? 'btn-danger' : 'btn-secondary'} btn-eliminar"
-                  data-id="${id}"
-                  title="Eliminar egreso (solo hoy)"
-                  ${isToday ? '' : 'disabled'}
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-            `;
-        } else {
-            // Vista eliminados: botón “ver justificación”
-            return `
-                <button
-                  class="btn btn-primary btn-sm btn-view-just"
-                  data-just="${encodeURIComponent(data.justificacion)}"
-                  title="Ver justificación"
-                >
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-            `;
-        }
+      if (!showingDeleted) {
+        // Botón de eliminar solo si la fecha coincide con hoy
+        const isToday = recordDate === todayStr;
+        return `
+          <button
+            class="btn btn-sm ${isToday ? 'btn-danger' : 'btn-secondary'} btn-eliminar"
+            data-id="${id}"
+            title="Eliminar egreso (solo hoy)"
+            ${isToday ? '' : 'disabled'}
+          >
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        `;
+      } else {
+        // Vista eliminados: botón “ver justificación”
+        return `
+          <button
+            class="btn btn-primary btn-sm btn-view-just"
+            data-just="${encodeURIComponent(data.justificacion)}"
+            title="Ver justificación"
+          >
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        `;
+      }
     }
 
     function cargarTabla(modo, fecha, eliminados = false) {
-        const selector = eliminados ? '#tablaegresoseliminados' : '#tablaegresosdia';
+      const selector = eliminados ? '#tablaegresoseliminados' : '#tablaegresosdia';
 
-        // Destruir DataTable si ya existe
-        if ($.fn.DataTable.isDataTable(selector)) {
-            $(selector).DataTable().destroy();
-            $(`${selector} tbody`).empty();
+      // Destruir DataTable si ya existe
+      if ($.fn.DataTable.isDataTable(selector)) {
+        $(selector).DataTable().destroy();
+        $(`${selector} tbody`).empty();
+      }
+
+      // Inicializar DataTable
+      $(selector).DataTable({
+        ajax: {
+          url: API,
+          data: function(d) {
+            d.modo   = currentModo;
+            d.fecha  = fecha;
+            d.estado = eliminados ? 'D' : 'A';
+          },
+          dataSrc: function(json) {
+            return (json.status === 'success') ? json.data : [];
+          }
+        },
+        columns: [
+          { data: null,
+            render: (d, t, r, m) => m.row + 1
+          },
+          { data: 'fecha',        class: 'text-center' },
+          { data: 'registrador',  class: 'text-start' },
+          { data: 'receptor',     class: 'text-start' },
+          { data: 'concepto',     class: 'text-start' },
+          { data: 'monto',        class: 'text-end',
+            render: $.fn.dataTable.render.number(',', '.', 2)
+          },
+          { data: 'numcomprobante', class: 'text-end',
+            render: data =>
+              data && data.trim() !== '' ? data : 'No registrado'
+          },
+          { data: null, class: 'text-center', orderable: false,
+            render: renderOpciones
+          }
+        ],
+        language: {
+          lengthMenu: "Mostrar _MENU_ por página",
+          zeroRecords: "No hay resultados",
+          info: "Mostrando página _PAGE_ de _PAGES_",
+          infoEmpty: "No hay registros",
+          search: "Buscar:",
+          processing: "Cargando...",
+          emptyTable: "No hay datos"
         }
-
-        // Inicializar DataTable
-        $(selector).DataTable({
-            ajax: {
-                url: API,
-                data: function(d) {
-                    // Agregar parámetros propios (modo, fecha, estado)
-                    d.modo   = currentModo;
-                    d.fecha  = fecha;
-                    d.estado = eliminados ? 'D' : 'A';
-                },
-                dataSrc: function(json) {
-                    return (json.status === 'success') ? json.data : [];
-                }
-            },
-            columns: [
-                {
-                    data: null,
-                    render: (d, t, r, m) => m.row + 1
-                },
-                {
-                    data: 'fecha',
-                    class: 'text-center'
-                },
-                {
-                    data: 'registrador',
-                    class: 'text-start'
-                },
-                {
-                    data: 'receptor',
-                    class: 'text-start'
-                },
-                {
-                    data: 'concepto',
-                    class: 'text-start'
-                },
-                {
-                    data: 'monto',
-                    class: 'text-end',
-                    render: $.fn.dataTable.render.number(',', '.', 2)
-                },
-                {
-                    data: 'numcomprobante',
-                    class: 'text-end',
-                    render: function(data) {
-                        return data && data.trim() !== '' ? data : 'No registrado';
-                    }
-                },
-                {
-                    data: null,
-                    class: 'text-center',
-                    orderable: false,
-                    render: renderOpciones
-                }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_ por página",
-                zeroRecords: "No hay resultados",
-                info: "Mostrando página _PAGE_ de _PAGES_",
-                infoEmpty: "No hay registros",
-                search: "Buscar:",
-                processing: "Cargando...",
-                emptyTable: "No hay datos"
-            }
-        });
+      });
     }
 
     $(document).ready(() => {
-        // Inicializar fecha con hoy y marcar el botón “Día”
-        const hoy = new Date().toISOString().slice(0, 10);
-        fechaInput.value = hoy;
+      // Inicializar fecha con hoy y marcar el botón “Día”
+      const hoy = new Date().toISOString().slice(0, 10);
+      fechaInput.value = hoy;
+      marcarActivo(btnDia);
+      cargarTabla(currentModo, hoy, showingDeleted);
+
+      // Evento para Día / Semana / Mes
+      filtros.forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentModo = btn.dataset.modo;
+          marcarActivo(btn);
+
+          if (showingDeleted) {
+            $('#tableDia').hide();
+            $('#tableEliminados').show();
+          } else {
+            $('#tableEliminados').hide();
+            $('#tableDia').show();
+          }
+          cargarTabla(currentModo, fechaInput.value, showingDeleted);
+        });
+      });
+
+      // Cambiar fecha recarga vista (siempre vuelve a "día")
+      fechaInput.addEventListener('change', () => {
+        currentModo = 'dia';
         marcarActivo(btnDia);
-        cargarTabla(currentModo, hoy, showingDeleted);
 
-        // Evento para Día / Semana / Mes
-        filtros.forEach(btn => {
-            btn.addEventListener('click', () => {
-                currentModo = btn.dataset.modo;
-                marcarActivo(btn);
+        if (showingDeleted) {
+          $('#tableDia').hide();
+          $('#tableEliminados').show();
+        } else {
+          $('#tableEliminados').hide();
+          $('#tableDia').show();
+        }
+        cargarTabla(currentModo, fechaInput.value, showingDeleted);
+      });
 
-                if (showingDeleted) {
-                    $('#tableDia').hide();
-                    $('#tableEliminados').show();
-                } else {
-                    $('#tableEliminados').hide();
-                    $('#tableDia').show();
-                }
-                cargarTabla(currentModo, fechaInput.value, showingDeleted);
-            });
-        });
+      // Toggle Ver / Ocultar eliminados
+      btnVerEliminados.addEventListener('click', () => {
+        showingDeleted = !showingDeleted;
 
-        // Cambiar fecha recarga vista (siempre vuelve a "día")
-        fechaInput.addEventListener('change', () => {
-            currentModo = 'dia';
-            marcarActivo(btnDia);
+        if (showingDeleted) {
+          $('#tableDia').hide();
+          $('#tableEliminados').show();
+          btnVerEliminados.classList.replace('btn-secondary', 'btn-warning');
+          btnVerEliminados.querySelector('i')
+            .classList.replace('fa-eye-slash', 'fa-eye');
+          btnVerEliminados.title = 'Ver activos';
+        } else {
+          $('#tableEliminados').hide();
+          $('#tableDia').show();
+          btnVerEliminados.classList.replace('btn-warning', 'btn-secondary');
+          btnVerEliminados.querySelector('i')
+            .classList.replace('fa-eye', 'fa-eye-slash');
+          btnVerEliminados.title = 'Ver eliminados';
+        }
 
-            if (showingDeleted) {
-                $('#tableDia').hide();
-                $('#tableEliminados').show();
-            } else {
-                $('#tableEliminados').hide();
-                $('#tableDia').show();
-            }
-            cargarTabla(currentModo, fechaInput.value, showingDeleted);
-        });
+        cargarTabla(currentModo, fechaInput.value, showingDeleted);
+      });
 
-        // Toggle Ver / Ocultar eliminados
-        btnVerEliminados.addEventListener('click', () => {
-            showingDeleted = !showingDeleted;
+      // Al hacer clic en "Eliminar" (solo si es hoy)
+      $(document).on('click', '.btn-eliminar', function() {
+        idToDelete = $(this).data('id');
+        $('#justificacion').val('');
+        $('#modalJustificacion').modal('show');
+      });
 
-            if (showingDeleted) {
-                $('#tableDia').hide();
-                $('#tableEliminados').show();
+      // Confirmar eliminación dentro del modal
+      $('#btnEliminarEgreso').click(async () => {
+        const just = $('#justificacion').val().trim();
+        if (!just) {
+          showToast('Escribe una justificación.', 'ERROR', 1500);
+          return;
+        }
 
-                btnVerEliminados.classList.replace('btn-secondary', 'btn-warning');
-                btnVerEliminados.querySelector('i')
-                    .classList.replace('fa-eye-slash', 'fa-eye');
-                btnVerEliminados.title = 'Ver activos';
-            } else {
-                $('#tableEliminados').hide();
-                $('#tableDia').show();
+        // Preguntar confirmación con SweetAlert2
+        const confirmado = await ask(
+          "¿Estás seguro de que deseas eliminar este egreso?",
+          "Egresos"
+        );
+        if (!confirmado) {
+          return; // Usuario canceló
+        }
 
-                btnVerEliminados.classList.replace('btn-warning', 'btn-secondary');
-                btnVerEliminados.querySelector('i')
-                    .classList.replace('fa-eye', 'fa-eye-slash');
-                btnVerEliminados.title = 'Ver eliminados';
-            }
+        // Realizar petición delete
+        try {
+          const res = await fetch(API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'delete',
+              idegreso: idToDelete,
+              justificacion: just
+            })
+          });
+          const resp = await res.json();
+          if (resp.status === 'success') {
+            $('#modalJustificacion').modal('hide');
+            showToast('Egreso eliminado correctamente.', 'SUCCESS', 1500);
+            setTimeout(() => {
+              cargarTabla(currentModo, fechaInput.value, showingDeleted);
+            }, 1600);
+          } else {
+            showToast(resp.message || 'Error al eliminar', 'ERROR', 2000);
+          }
+        } catch (err) {
+          console.error('Error al eliminar egreso:', err);
+          showToast('Error de servidor. Intenta nuevamente.', 'ERROR', 2000);
+        }
+      });
 
-            cargarTabla(currentModo, fechaInput.value, showingDeleted);
-        });
+      // Mostrar justificación de registro eliminado
+      $(document).on('click', '.btn-view-just', function() {
+        const just = decodeURIComponent($(this).data('just'));
+        $('#textoJustificacion').text(just);
+        $('#modalVerJustificacion').modal('show');
+      });
 
-        // Al hacer clic en "Eliminar" (solo si es hoy)
-        let idToDelete = 0;
-        $(document).on('click', '.btn-eliminar', function() {
-            idToDelete = $(this).data('id');
-            $('#justificacion').val('');
-            $('#modalJustificacion').modal('show');
-        });
-        $('#btnEliminarEgreso').click(async () => {
-            const just = $('#justificacion').val().trim();
-            if (!just) return alert('Escribe una justificación.');
-            const res = await fetch(API, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action:       'delete',
-                    idegreso:     idToDelete,
-                    justificacion: just
-                })
-            }).then(r => r.json());
-
-            if (res.status === 'success') {
-                $('#modalJustificacion').modal('hide');
-                cargarTabla(currentModo, fechaInput.value, showingDeleted);
-            } else {
-                alert(res.message || 'Error al eliminar');
-            }
-        });
-
-        // Mostrar justificación de registro eliminado
-        $(document).on('click', '.btn-view-just', function() {
-            const just = decodeURIComponent($(this).data('just'));
-            $('#textoJustificacion').text(just);
-            $('#modalVerJustificacion').modal('show');
-        });
-
-        // Botón Exportar PDF
-        const btnPdf = document.querySelector('button[title="Exportar PDF"]');
-        btnPdf.addEventListener('click', () => {
-            const modo   = currentModo;
-            const fecha  = fechaInput.value;
-            const estado = showingDeleted ? 'D' : 'A';
-
-            const url = `${SERVERURL}app/reports/reporteegresos.php`
-                      + `?modo=${encodeURIComponent(modo)}`
-                      + `&fecha=${encodeURIComponent(fecha)}`
-                      + `&estado=${encodeURIComponent(estado)}`;
-            window.open(url, '_blank');
-        });
+      // Botón Exportar PDF
+      const btnPdf = document.querySelector('button[title="Exportar PDF"]');
+      btnPdf.addEventListener('click', () => {
+        const modo   = currentModo;
+        const fecha  = fechaInput.value;
+        const estado = showingDeleted ? 'D' : 'A';
+        const url = `${SERVERURL}app/reports/reporteegresos.php` +
+          `?modo=${encodeURIComponent(modo)}` +
+          `&fecha=${encodeURIComponent(fecha)}` +
+          `&estado=${encodeURIComponent(estado)}`;
+        window.open(url, '_blank');
+      });
     });
 </script>
-
-
