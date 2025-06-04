@@ -15,14 +15,14 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
 ?>
 
 <style>
-      .input {
-      font-size: 17px;
-      color:black;
-    }
+  .input {
+    font-size: 17px;
+    color: black;
+  }
 
-    .content-wrapper {
+  .content-wrapper {
     background: #01122c !important;
-}
+  }
 </style>
 
 <!DOCTYPE html>
@@ -39,13 +39,7 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
   <link rel="stylesheet" href="./views/assets/vendors/simple-line-icons/css/simple-line-icons.css">
   <link rel="stylesheet" href="./views/assets/vendors/flag-icon-css/css/flag-icons.min.css">
   <link rel="stylesheet" href="./views/assets/vendors/css/vendor.bundle.base.css">
-  <!-- endinject -->
-  <!-- Plugin css for this page -->
-  <!-- End plugin css for this page -->
-  <!-- inject:css -->
-  <!-- endinject -->
-  <!-- Layout styles -->
-  <!-- End layout styles -->
+
 </head>
 
 <body>
@@ -55,20 +49,21 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
         <div class="row flex-grow">
           <div class="col-lg-4 mx-auto">
             <div class="auth-form-light text-left p-5">
-              <h4>Bienvenido</h4>
-              <h6 class="font-weight-light">Ingresa tu datos.</h6>
+              <h3>Bienvenido</h3>
+              <h5 class="font-weight-light">Ingresa tu datos.</h5>
               <form class="pt-3" method="post" id="formLogin" autocomplete="off">
                 <div class="form-group">
-                  <input type="text" class="input form-control form-control-lg "
-                    id="namuser" placeholder="Nombre de usuario" autofocus required>
+                  <input type="text" class="input form-control form-control-lg" style="font-size: 17px;color:black;" id="namuser" placeholder="Nombre de usuario" autofocus required>
                 </div>
                 <div class="form-group">
-                  <input type="password" class="input form-control form-control-lg"
+                  <input type="password" class="input form-control form-control-lg" style="font-size: 17px; color:black;"
                     id="passuser" placeholder="contraseña" required>
                 </div>
                 <div class="mt-3">
-                  <button class="btn d-grid btn-success btn-lg font-weight-medium auth-form-btn text-end"
+                  <div class="text-">
+                    <button class="btn d-grid btn-success btn-lg font-weight-medium auth-form-btn" 
                     type="submit">Iniciar sesión</button>
+                  </div>
 
                 </div>
 
@@ -89,11 +84,14 @@ if (isset($_SESSION['login']) && $_SESSION['login']['status'] == true){
   <!-- Plugin js for this page -->
   <!-- End plugin js for this page -->
   <!-- inject:js -->
+
   <script src="./views/assets/js/off-canvas.js"></script>
   <script src="./views/assets/js/hoverable-collapse.js"></script>
   <script src="./views/assets/js/misc.js"></script>
   <script src="./views/assets/js/settings.js"></script>
   <script src="./views/assets/js/todolist.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="views/assets/js/swalcustom.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -110,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Preparamos el form data
     const fd = new FormData();
-    fd.append("action",    "login");
+    fd.append("action",     "login");
     fd.append("namuser", namuser.value.trim());
     fd.append("passuser", passuser.value);
 
@@ -142,6 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
    * @param {number} delay milisegundos antes de la redirección
    * @param {string|null} url a donde ir
    */
+  // ELIMINAR ESTA FUNCIÓN O RENOMBRARLA
+  /*
   function showToast(msg, type, delay = 2000, url = null) {
     // Aquí puedes reemplazar alert por tu sistema de notificaciones
     alert(`${type}: ${msg}`);
@@ -149,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => window.location.href = url, delay);
     }
   }
+  */
 });
 </script>
 

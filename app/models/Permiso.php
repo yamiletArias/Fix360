@@ -45,7 +45,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (! $row) {
     // Si la vista no está registrada en la tabla, devolvemos 404
-    header('HTTP/1.1 404 Not Found');
+    header('Location: ' . SERVERURL . 'views/pages/samples/error-404.php');
     exit("404: Vista no registrada.");
 }
 
@@ -67,7 +67,7 @@ $ok = $stmt2->fetchColumn();
 
 if (! $ok) {
     // 403 Forbidden si el rol no tiene permiso
-    header('HTTP/1.1 403 Forbidden');
+    header('Location: ' . SERVERURL . 'views/pages/samples/error-500.php');
     exit("403: Acceso denegado.");
 }
 

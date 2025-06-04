@@ -26,12 +26,8 @@ require_once "../../partials/header.php";
               <i class="fa-solid fa-eye-slash"></i>
             </button>
 
-            <!-- Exportar PDF -->
-            <button type="button"
-              class="btn btn-danger text-white"
-              title="Exportar PDF">
-              <i class="fa-solid fa-file-pdf"></i>
-            </button>
+            
+
           </div>
         </div>
         <div class="col-md-6"></div>
