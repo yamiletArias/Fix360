@@ -1,3 +1,4 @@
+// archivo: views/page/clientes/js/registrar-cliente.js
 document.addEventListener("DOMContentLoaded", function () {
   const rucInput = document.getElementById('ruc');
   const numdocInput = document.getElementById('numdoc');
@@ -186,22 +187,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ------------- 5) Función para registrar el cliente -------------
   async function registrarCliente(datos, tipo) {
+    const confirmacion = await ask("¿Estás seguro de registrar este cliente?", "Registro de Cliente");
+    if (!confirmacion) {
+      showToast('Registro cancelado.', 'WARNING', 1500);
+      return;
+    }
+
+    const url = 'http://localhost/fix360/app/controllers/Cliente.controller.php';
+    const clienteData = { tipo, ...datos };
+
     try {
-      const confirmacion = await ask("¿Estás seguro de registrar este cliente?", "Registro de Cliente");
-      if (!confirmacion) {
-        showToast('Registro cancelado.', 'WARNING', 1500);
-        return false;
-      }
-
-      const url = 'http://localhost/fix360/app/controllers/Cliente.controller.php';
-      const clienteData = { tipo, ...datos };
-
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(clienteData)
       });
-      
       const resData = await response.json();
 
       if (resData.rows > 0) {
@@ -217,108 +217,81 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Cierra el modal de "Registrar Cliente"
         const modalRegistrarCliente = bootstrap.Modal.getInstance(document.getElementById('modalRegistrarCliente'));
-        if (modalRegistrarCliente) {
-          modalRegistrarCliente.hide();
-        }
-
-        // Limpiar formularios
-        limpiarFormularios();
+        modalRegistrarCliente.hide();
 
         // Muestra un mensaje exitoso
         showToast('Cliente asignado como Propietario.', 'SUCCESS', 1500);
-        
-        return true;
       } else {
         showToast('Hubo un error al registrar al cliente. Intenta nuevamente.', 'ERROR', 1500);
-        return false;
       }
     } catch (error) {
       console.error('Error al registrar el cliente:', error);
       showToast('Error al realizar la solicitud. Intenta nuevamente.', 'ERROR', 1500);
-      return false;
     }
   }
 
-  // ------------- Función para limpiar formularios -------------
-  function limpiarFormularios() {
-    // Limpiar formulario de persona
-    if (formPersona) {
-      const inputsPersona = formPersona.querySelectorAll('input, select');
-      inputsPersona.forEach(input => {
-        if (input.type !== 'radio') {
-          input.value = '';
-          input.disabled = false;
-        }
-      });
-      // Restablecer el tipo de documento por defecto
-      if (tipodocInput) tipodocInput.value = 'DNI';
-    }
-
-    // Limpiar formulario de empresa
-    if (formEmpresa) {
-      const inputsEmpresa = formEmpresa.querySelectorAll('input, select');
-      inputsEmpresa.forEach(input => {
-        input.value = '';
-        input.disabled = false;
-      });
-    }
-
-    // Restablecer la selección a "Persona"
-    const radioPersona = document.querySelector('input[name="tipo"][value="persona"]');
-    if (radioPersona) {
-      radioPersona.checked = true;
-      mostrarFormulario('persona');
-    }
-  }
-
-  // ------------- 6) Listener del botón "Aceptar" (CORREGIDO) -------------
+  // ------------- 6) Listener del botón “Aceptar” -------------
   if (btnRegistrar) {
     btnRegistrar.addEventListener("click", async (e) => {
-        e.preventDefault(); // Evita que el formulario se envíe de forma tradicional
-        const formularioVisible = (formPersona.style.display === 'block') ? formPersona : formEmpresa;
-        if (!validarFormulario(formularioVisible)) return;
+      e.preventDefault(); // Evita el comportamiento por defecto (submit)
+      const formularioVisible = (formPersona.style.display === 'block') ? formPersona : formEmpresa;
+      if (!validarFormulario(formularioVisible)) return;
 
-        let datosCliente = {};
-        if (formularioVisible.id === "formPersona") {
-            datosCliente = {
-                nombres: nombresInput.value.trim(),
-                apellidos: apellidosInput.value.trim(),
-                tipodoc: tipodocInput.value.trim(),
-                numdoc: numdocInput.value.trim(),
-                numruc: document.querySelector('#numruc')?.value.trim(),
-                direccion: document.querySelector('#direccion')?.value.trim(),
-                correo: document.querySelector('#correo')?.value.trim(),
-                telprincipal: document.querySelector('#telprincipal')?.value.trim(),
-                telalternativo: document.querySelector('#telalternativo')?.value.trim(),
-                idcontactabilidad: document.querySelector('#cpersona')?.value.trim()
-            };
-            await registrarCliente(datosCliente, 'persona');
-        } else {
-            datosCliente = {
-                ruc: document.querySelector('#ruc')?.value.trim(),
-                nomcomercial: document.querySelector('#nomcomercial')?.value.trim(),
-                razonsocial: document.querySelector('#razonsocial')?.value.trim(),
-                telefono: document.querySelector('#telempresa')?.value.trim(),
-                correo: document.querySelector('#correoemp')?.value.trim(),
-                idcontactabilidad: document.querySelector('#cempresa')?.value.trim()
-            };
-            await registrarCliente(datosCliente, 'empresa');
-        }
-    });
-}
-
-  // ------------- Prevenir submit en los formularios -------------
-  if (formPersona) {
-    formPersona.addEventListener('submit', function(e) {
-      e.preventDefault();
-      return false;
+      let datosCliente = {};
+      if (formularioVisible.id === "formPersona") {
+        datosCliente = {
+          nombres: nombresInput.value.trim(),
+          apellidos: apellidosInput.value.trim(),
+          tipodoc: tipodocInput.value.trim(),
+          numdoc: numdocInput.value.trim(),
+          numruc: document.querySelector('#numruc')?.value.trim(),
+          direccion: document.querySelector('#direccion')?.value.trim(),
+          correo: document.querySelector('#correo')?.value.trim(),
+          telprincipal: document.querySelector('#telprincipal')?.value.trim(),
+          telalternativo: document.querySelector('#telalternativo')?.value.trim(),
+          idcontactabilidad: document.querySelector('#cpersona')?.value.trim()
+        };
+        await registrarCliente(datosCliente, 'persona');
+      } else {
+        datosCliente = {
+          ruc: document.querySelector('#ruc')?.value.trim(),
+          nomcomercial: document.querySelector('#nomcomercial')?.value.trim(),
+          razonsocial: document.querySelector('#razonsocial')?.value.trim(),
+          telefono: document.querySelector('#telempresa')?.value.trim(),
+          correo: document.querySelector('#correoemp')?.value.trim(),
+          idcontactabilidad: document.querySelector('#cempresa')?.value.trim()
+        };
+        await registrarCliente(datosCliente, 'empresa');
+      }
     });
   }
 
-  if (formEmpresa) {
-    formEmpresa.addEventListener('submit', function(e) {
-      e.preventDefault();
-      return false;
-    });
-  }
+  // ------------- 7) Cargar opciones de Contactabilidad -------------
+  fetch("http://localhost/fix360/app/controllers/Contactabilidad.controller.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "operation=getContactabilidad",
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (!Array.isArray(data)) {
+        console.error("Error: La respuesta del servidor no es un array", data);
+        return;
+      }
+      const selectPersona = document.getElementById("cpersona");
+      const selectEmpresa = document.getElementById("cempresa");
+      if (selectPersona) selectPersona.innerHTML = "<option value=''>Seleccione una opción</option>";
+      if (selectEmpresa) selectEmpresa.innerHTML = "<option value=''>Seleccione una opción</option>";
+      data.forEach(item => {
+        const option1 = document.createElement("option");
+        const option2 = document.createElement("option");
+        option1.value = item.idcontactabilidad;
+        option1.textContent = item.contactabilidad;
+        option2.value = item.idcontactabilidad;
+        option2.textContent = item.contactabilidad;
+        if (selectPersona) selectPersona.appendChild(option1);
+        if (selectEmpresa) selectEmpresa.appendChild(option2);
+      });
+    })
+    .catch(error => console.error("Error:", error));
 });
