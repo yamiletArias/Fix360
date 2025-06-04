@@ -205,6 +205,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
     }
 
 
+
     .border {
       border-radius: 4px;
     }
@@ -280,11 +281,14 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
           <!-- SI idrol === 1 (Administrador), muestro el dropdown de recordatorios -->
           <?php if ($idrol === 1): ?>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle count-indicator message-dropdown"
+              <a class="nav-link dropdown-toggle show count-indicator message-dropdown show"
                 id="messageDropdown" href="#"
                 data-bs-toggle="dropdown" title="Recordatorios de hoy" aria-expanded="false">
                 <i class="icon-speech"></i>
-                <span class="count"><?= $hoy_count ?></span>
+                <span class="count"  style="margin-left: 0px;
+    margin-bottom: 20px;
+    margin-right: 50px;position:absolute;
+"><?= $hoy_count ?></span>
               </a>
               <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
                 aria-labelledby="messageDropdown" style="min-width:250px;">
@@ -330,7 +334,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
                 alt="Profile image" />
               <span class="font-weight-normal"><?= htmlspecialchars($usuario['nombreCompleto']) ?></span>
             </a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+            <div class="dropdown-menu dropdown-menu-end navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
                 <img class="img-md rounded-circle"
                   src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
