@@ -5,8 +5,168 @@ USE dbfix360;
 -- update contratos set fechainicio = '2025-01-01' 
 -- select * from colaboradores;
 -- select * from contratos
+-- select * from detalleventa
+-- select * from ventas
+SELECT * FROM ventas WHERE idvehiculo=1 AND estado=0 AND DATE(fechahora) BETWEEN '2025-06-01' AND '2025-06-30';
+CALL spHistorialVentasPorVehiculo('mes', '2025-06-04', 1, FALSE);
+
+-- 
+CALL spHistorialVentasPorVehiculo('mes', '2025-06-04', 1, FALSE);
+CALL spHistorialOrdenesPorVehiculo('mes','2025-06-04','D', 1);
+
+
+
 
 DELIMITER $$
+
+
+DROP VIEW IF EXISTS vista_detalle_venta;
+CREATE VIEW vista_detalle_venta AS
+
+-- ==============================
+--  1) REGISTROS DE PRODUCTOS
+-- ==============================
+SELECT
+  v.idventa,
+  v.fechahora,
+
+  -- Propietario (empresa o persona, o “Sin propietario” si no hay)
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres, ' ', ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  -- Cliente (persona o empresa, o “Sin cliente” si no hay)
+  COALESCE(
+    CONCAT(p.apellidos, ' ', p.nombres),
+    e.nomcomercial,
+    'Sin cliente'
+  ) AS cliente,
+
+  v.kilometraje,
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+
+  -- ==============================
+  --  Campos de PRODUCTO (pueden quedar NULL si no hay detalle)
+  -- ==============================
+  CONCAT(su.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa AS precio,
+  dv.descuento,
+  ROUND( (dv.precioventa - dv.descuento) * dv.cantidad, 2 ) AS total_producto,
+
+  -- ==============================
+  --  Campos de SERVICIO (siempre NULL en esta sección)
+  -- ==============================
+  NULL AS tiposervicio,
+  NULL AS nombreservicio,
+  NULL AS mecanico,
+  NULL AS precio_servicio,
+
+  'producto' AS registro_tipo
+
+FROM ventas v
+  -- izquierda para no “perder” la venta aunque no haya propietario o cliente
+  LEFT JOIN clientes      propc ON v.idpropietario = propc.idcliente
+  LEFT JOIN empresas      epc   ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas      ppc   ON propc.idpersona  = ppc.idpersona
+
+  LEFT JOIN clientes      cte   ON v.idcliente      = cte.idcliente
+  LEFT JOIN personas      p     ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas      e     ON cte.idempresa    = e.idempresa
+
+  LEFT JOIN vehiculos     vh    ON v.idvehiculo     = vh.idvehiculo
+  LEFT JOIN modelos       m     ON vh.idmodelo      = m.idmodelo
+  LEFT JOIN tipovehiculos tv    ON m.idtipov        = tv.idtipov
+  LEFT JOIN marcas        ma    ON m.idmarca        = ma.idmarca
+
+  -- Siempre LEFT JOIN para que la venta no “caiga” si no hay detalle de producto
+  LEFT JOIN detalleventa  dv    ON v.idventa        = dv.idventa
+  LEFT JOIN productos     pr    ON dv.idproducto    = pr.idproducto
+  LEFT JOIN subcategorias su    ON pr.idsubcategoria = su.idsubcategoria
+
+WHERE
+  v.estado = 1
+  /* NO uso aquí “AND dv.idventa IS NOT NULL” */
+  
+
+UNION ALL
+
+
+-- ==============================
+--  2) REGISTROS DE SERVICIOS
+-- ==============================
+SELECT
+  v.idventa,
+  v.fechahora,
+
+  -- Propietario (empresa o persona, o “Sin propietario” si no hay)
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres, ' ', ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  -- Cliente (persona o empresa, o “Sin cliente” si no hay)
+  COALESCE(
+    CONCAT(p.apellidos, ' ', p.nombres),
+    e.nomcomercial,
+    'Sin cliente'
+  ) AS cliente,
+
+  v.kilometraje,
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+
+  -- ==============================
+  --  Campos de PRODUCTO (siempre NULL en esta sección)
+  -- ==============================
+  NULL AS producto,
+  NULL AS cantidad,
+  NULL AS precio,
+  NULL AS descuento,
+  NULL AS total_producto,
+
+  -- ==============================
+  --  Campos de SERVICIO
+  -- ==============================
+  sc.subcategoria  AS tiposervicio,
+  se.servicio      AS nombreservicio,
+  col.namuser      AS mecanico,
+  dos.precio       AS precio_servicio,
+
+  'servicio' AS registro_tipo
+
+FROM ventas v
+  LEFT JOIN clientes            propc ON v.idpropietario      = propc.idcliente
+  LEFT JOIN empresas            epc   ON propc.idempresa       = epc.idempresa
+  LEFT JOIN personas            ppc   ON propc.idpersona       = ppc.idpersona
+
+  LEFT JOIN clientes            cte   ON v.idcliente           = cte.idcliente
+  LEFT JOIN personas            p     ON cte.idpersona         = p.idpersona
+  LEFT JOIN empresas            e     ON cte.idempresa         = e.idempresa
+
+  LEFT JOIN vehiculos           vh    ON v.idvehiculo          = vh.idvehiculo
+  LEFT JOIN modelos             m     ON vh.idmodelo           = m.idmodelo
+  LEFT JOIN tipovehiculos       tv    ON m.idtipov             = tv.idtipov
+  LEFT JOIN marcas              ma    ON m.idmarca             = ma.idmarca
+
+  -- Siempre LEFT JOIN para no “perder” la venta aunque no haya orden ni detalle
+  LEFT JOIN ordenservicios          os   ON v.idexpediente_ot    = os.idorden
+  LEFT JOIN detalleordenservicios   dos  ON os.idorden           = dos.idorden
+  LEFT JOIN servicios               se   ON dos.idservicio       = se.idservicio
+  LEFT JOIN subcategorias           sc   ON se.idsubcategoria     = sc.idsubcategoria
+  LEFT JOIN colaboradores           col  ON dos.idmecanico       = col.idcolaborador
+
+WHERE
+  v.estado = TRUE
+  /* NO uso aquí “AND dos.idorden IS NOT NULL” */
+;
+
 
 
 
@@ -968,3 +1128,5 @@ VALUES
 --  Ejemplo: Agrupación SEMANAL (días de la semana) Marzo 2025
 -- CALL sp_grafico_contactabilidad_periodo('SEMANAL', '2025-03-01', '2025-03-31');
 
+-- select * from detalleventa
+-- select * from ventas

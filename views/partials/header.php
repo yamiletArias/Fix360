@@ -120,11 +120,17 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
       /*overflow: hidden; */
     }
 
-    .swal2-modal .swal2-icon,
-    .swal2-modal .swal2-success-ring {
-      margin-top: 0;
-      margin-bottom: 0px;
-    }
+/* Este bloque restituye el margen vertical predeterminado de SweetAlert2 */
+.swal2-modal .swal2-icon {
+  margin-bottom: 0.0rem !important;
+  margin: 1.25rem auto !important;
+}
+.swal2-modal .swal2-success-ring {
+  margin: 1.25rem auto !important;
+}
+
+
+
 
 
     .container-main {
@@ -159,14 +165,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
 
     }
 
-    .swal2-container {
-      z-index: 9999 !important;
-    }
 
-    /* El propio cuadro blanco de SweetAlert2 */
-    .swal2-modal {
-      z-index: 10000 !important;
-    }
 
 
     .input {

@@ -1749,12 +1749,12 @@ BEGIN
     LEFT JOIN personas p      ON p.idpersona = c.idpersona
     LEFT JOIN empresas e      ON e.idempresa = c.idempresa;
 END $$
-
+DELIMITER $$
 DROP PROCEDURE IF EXISTS spHistorialOrdenesPorVehiculo $$
 CREATE PROCEDURE spHistorialOrdenesPorVehiculo(
   IN _modo        ENUM('mes','semestral','anual'),
   IN _fecha       DATE,
-  IN _estado      CHAR(1),           -- 'A' activas, 'D' desactivadas
+  IN _estado      CHAR(1),
   IN _idvehiculo  INT
 )
 BEGIN
@@ -1766,15 +1766,12 @@ BEGIN
     SET end_date   = LAST_DAY(_fecha);
 
   ELSEIF _modo = 'semestral' THEN
-    -- Últimos 6 meses desde la fecha
     SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
     SET end_date   = _fecha;
 
   ELSEIF _modo = 'anual' THEN
-    -- Todo el año calendario de la fecha
     SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
     SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
-
   END IF;
 
   SELECT
@@ -1782,36 +1779,53 @@ BEGIN
     o.fechaingreso,
     o.fechasalida,
     v.placa,
+
+    -- LEFT JOIN con clientes “propietario”:
     CASE
       WHEN cp.idpersona IS NOT NULL
         THEN CONCAT(pp.nombres, ' ', pp.apellidos)
-      ELSE ce.nomcomercial
+      WHEN cp.idempresa IS NOT NULL
+        THEN ce.nomcomercial
+      ELSE
+        '(Sin propietario registrado)'
     END AS propietario,
+
+    -- LEFT JOIN con clientes “cliente”:
     CASE
       WHEN cc.idpersona IS NOT NULL
         THEN CONCAT(pc.nombres, ' ', pc.apellidos)
-      ELSE cce.nomcomercial
+      WHEN cc.idempresa IS NOT NULL
+        THEN cce.nomcomercial
+      ELSE
+        'Cliente Anonimo'
     END AS cliente
+
   FROM ordenservicios o
-    JOIN vehiculos v      ON o.idvehiculo    = v.idvehiculo
-    JOIN clientes cp      ON o.idpropietario = cp.idcliente
-    LEFT JOIN personas pp ON cp.idpersona    = pp.idpersona
-    LEFT JOIN empresas ce ON cp.idempresa    = ce.idempresa
-    JOIN clientes cc      ON o.idcliente     = cc.idcliente
-    LEFT JOIN personas pc ON cc.idpersona    = pc.idpersona
-    LEFT JOIN empresas cce ON cc.idempresa   = cce.idempresa
+    JOIN vehiculos v   ON o.idvehiculo    = v.idvehiculo
+
+    -- Aquí cambiamos a LEFT JOIN:
+    LEFT JOIN clientes cp      ON o.idpropietario = cp.idcliente
+    LEFT JOIN personas pp      ON cp.idpersona    = pp.idpersona
+    LEFT JOIN empresas ce      ON cp.idempresa    = ce.idempresa
+
+    LEFT JOIN clientes cc      ON o.idcliente    = cc.idcliente
+    LEFT JOIN personas pc      ON cc.idpersona    = pc.idpersona
+    LEFT JOIN empresas cce     ON cc.idempresa    = cce.idempresa
+
   WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
     AND o.estado = _estado
     AND o.idvehiculo = _idvehiculo
   ORDER BY o.fechaingreso;
+
 END$$
 
+DELIMITER $$
 DROP PROCEDURE IF EXISTS spHistorialVentasPorVehiculo $$
 CREATE PROCEDURE spHistorialVentasPorVehiculo(
   IN _modo        ENUM('mes','semestral','anual'),
   IN _fecha       DATE,
   IN _idvehiculo  INT,
-  IN _estado      BOOLEAN              -- TRUE = activas, FALSE = eliminadas
+  IN _estado      BOOLEAN
 )
 BEGIN
   DECLARE start_date DATE;
@@ -1820,11 +1834,9 @@ BEGIN
   IF _modo = 'mes' THEN
     SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
     SET end_date   = LAST_DAY(_fecha);
-
   ELSEIF _modo = 'semestral' THEN
     SET start_date = DATE_SUB(_fecha, INTERVAL 6 MONTH);
     SET end_date   = _fecha;
-
   ELSEIF _modo = 'anual' THEN
     SET start_date = DATE_FORMAT(_fecha, '%Y-01-01');
     SET end_date   = DATE_FORMAT(_fecha, '%Y-12-31');
@@ -1832,24 +1844,33 @@ BEGIN
 
   SELECT
     v.idventa                     AS id,
-    COALESCE(CONCAT(pp.nombres,' ',pp.apellidos), pe.nomcomercial)
-                                  AS propietario,
-    CONCAT(v.numserie,'‑',v.numcom) AS comprobante,
+    COALESCE(CONCAT(pp.nombres,' ',pp.apellidos), pe.nomcomercial) AS propietario,
+    CONCAT(v.numserie,'-',v.numcom) AS comprobante,
     v.kilometraje                 AS kilometraje,
     v.tipocom                     AS tipo_comprobante,
     vt.total_pendiente            AS total_pendiente,
-    CASE WHEN vt.total_pendiente=0 THEN 'pagado' ELSE 'pendiente' END AS estado_pago
+    CASE 
+      WHEN vt.total_pendiente IS NOT NULL AND vt.total_pendiente = 0 
+        THEN 'pagado' 
+      WHEN vt.total_pendiente IS NOT NULL AND vt.total_pendiente > 0 
+        THEN 'pendiente'
+      ELSE 'sin registro de saldo' 
+    END AS estado_pago
   FROM ventas v
     JOIN propietarios prop        ON v.idpropietario = prop.idpropietario
     JOIN clientes c               ON prop.idcliente = c.idcliente
     LEFT JOIN personas pp         ON c.idpersona    = pp.idpersona
     LEFT JOIN empresas pe         ON c.idempresa    = pe.idempresa
-    JOIN vista_saldos_por_venta vt ON v.idventa      = vt.idventa
+
+    -- <-- CAMBIO AQUÍ: usamos LEFT JOIN para no descartar las ventas eliminadas
+    LEFT JOIN vista_saldos_por_venta vt ON v.idventa = vt.idventa
+
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
     AND v.estado = _estado
     AND v.idvehiculo = _idvehiculo
   ORDER BY v.fechahora;
-END$$
+
+END $$
 
 DROP PROCEDURE IF EXISTS spLoginColaborador $$
 CREATE PROCEDURE spLoginColaborador(

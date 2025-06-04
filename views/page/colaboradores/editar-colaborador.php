@@ -187,8 +187,8 @@ if ($id <= 0) {
             const idrol = document.getElementById('idrol').value;
             const namuser = document.getElementById('namuser').value.trim();
 
-            if (!nombres || !apellidos || !direccion || !correo || !telprincipal || !idrol || !namuser) {
-                return showToast("Todos los campos con (*) son obligatorios.", "WARNING");
+            if (!nombres || !apellidos || !direccion ||  !telprincipal || !idrol || !namuser) {
+                return showToast("Rellene los campos obligatorios", "WARNING");
             }
 
             const confirmar = await ask("¿Está seguro de que desea actualizar este colaborador?", "Colaboradores");

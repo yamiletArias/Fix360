@@ -216,7 +216,7 @@ require_once "../../partials/_footer.php";
 </div>
 
 <script>
- document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // 1) Precargar marcas, tipos y combustibles
     cargarSelectsIniciales()
       .then(() => {
@@ -241,8 +241,8 @@ require_once "../../partials/_footer.php";
     try {
       // Marcas
       const resMarcas = await fetch(`${SERVERURL}app/controllers/Marca.controller.php?task=getAllMarcaVehiculo`);
-      const marcas    = await resMarcas.json();
-      const selMarca  = document.getElementById("marcav");
+      const marcas = await resMarcas.json();
+      const selMarca = document.getElementById("marcav");
       marcas.forEach(item =>
         selMarca.insertAdjacentHTML("beforeend",
           `<option value="${item.idmarca}">${item.nombre}</option>`
@@ -251,8 +251,8 @@ require_once "../../partials/_footer.php";
 
       // Tipos
       const resTipos = await fetch(`${SERVERURL}app/controllers/Tipov.controller.php?task=getAllTipoVehiculo`);
-      const tipos    = await resTipos.json();
-      const selTipo  = document.getElementById("tipov");
+      const tipos = await resTipos.json();
+      const selTipo = document.getElementById("tipov");
       tipos.forEach(item =>
         selTipo.insertAdjacentHTML("beforeend",
           `<option value="${item.idtipov}">${item.tipov}</option>`
@@ -261,7 +261,7 @@ require_once "../../partials/_footer.php";
 
       // Combustibles
       const resComb = await fetch(`${SERVERURL}app/controllers/Tcombustible.controller.php?task=getAllTcombustible`);
-      const combs   = await resComb.json();
+      const combs = await resComb.json();
       const selComb = document.getElementById("ftcombustible");
       combs.forEach(item =>
         selComb.insertAdjacentHTML("beforeend",
@@ -283,8 +283,8 @@ require_once "../../partials/_footer.php";
   // ----------------------------
   async function recargarModelos() {
     const idMarca = document.getElementById("marcav").value;
-    const idTipo  = document.getElementById("tipov").value;
-    const selMod  = document.getElementById("modelo");
+    const idTipo = document.getElementById("tipov").value;
+    const selMod = document.getElementById("modelo");
     selMod.innerHTML = '<option value="">Seleccione una opcion</option>';
     if (!idMarca || !idTipo) return;
 
@@ -308,7 +308,7 @@ require_once "../../partials/_footer.php";
   // ----------------------------
   async function cargarDatosVehiculo(idvehiculo) {
     try {
-      const res  = await fetch(
+      const res = await fetch(
         `${SERVERURL}app/controllers/Vehiculo.controller.php?task=getVehiculoConPropietario&idvehiculo=${idvehiculo}`
       );
       const data = await res.json();
@@ -316,20 +316,20 @@ require_once "../../partials/_footer.php";
       if (!data.idvehiculo) return console.warn("Vehículo no encontrado:", idvehiculo);
 
       // Text inputs
-      document.getElementById("fplaca").value    = data.placa      || "";
-      document.getElementById("fanio").value     = data.anio       || "";
-      document.getElementById("fnumserie").value = data.numserie   || "";
-      document.getElementById("fcolor").value    = data.color      || "";
-      document.getElementById("vin").value       = data.vin        || "";
-      document.getElementById("numchasis").value = data.numchasis  || "";
+      document.getElementById("fplaca").value = data.placa || "";
+      document.getElementById("fanio").value = data.anio || "";
+      document.getElementById("fnumserie").value = data.numserie || "";
+      document.getElementById("fcolor").value = data.color || "";
+      document.getElementById("vin").value = data.vin || "";
+      document.getElementById("numchasis").value = data.numchasis || "";
 
       // Propietario
       document.getElementById("hiddenIdPropietario").value = data.idcliente_propietario || "";
-      document.getElementById("propietario").value         = data.propietario          || "";
+      document.getElementById("propietario").value = data.propietario || "";
 
       // Marca, tipo y combustible (estos selects ya están llenos)
-      document.getElementById("marcav").value        = data.idmarca;
-      document.getElementById("tipov").value         = data.idtipov;
+      document.getElementById("marcav").value = data.idmarca;
+      document.getElementById("tipov").value = data.idtipov;
       document.getElementById("ftcombustible").value = data.idtcombustible;
 
       // Finalmente, recarga modelos y selecciona el correcto
@@ -337,7 +337,7 @@ require_once "../../partials/_footer.php";
       document.getElementById("modelo").value = data.idmodelo;
 
     } catch (err) {
-       
+
       console.error("Error al cargar datos del vehículo:", err);
     }
   }
@@ -377,8 +377,8 @@ require_once "../../partials/_footer.php";
         const btn = e.target.closest(".btn-confirmar");
         if (!btn) return;
 
-        const id = btn.dataset.id;                             // idcliente seleccionado
-        const nombre = btn.closest("tr").cells[1].textContent;  // nombre (columna 2)
+        const id = btn.dataset.id; // idcliente seleccionado
+        const nombre = btn.closest("tr").cells[1].textContent; // nombre (columna 2)
 
         document.getElementById("hiddenIdPropietario").value = id;
         document.getElementById("propietario").value = nombre;
@@ -401,17 +401,17 @@ require_once "../../partials/_footer.php";
   function actualizarOpciones() {
     const select = document.getElementById("selectMetodo");
     const isPersona = document.getElementById("rbtnpersona").checked;
-    select.innerHTML = isPersona
-      ? `<option value="dni">DNI</option>
-         <option value="nombre">Apellidos y nombres</option>`
-      : `<option value="ruc">RUC</option>
+    select.innerHTML = isPersona ?
+      `<option value="dni">DNI</option>
+         <option value="nombre">Apellidos y nombres</option>` :
+      `<option value="ruc">RUC</option>
          <option value="razonsocial">Razón Social</option>`;
   }
 
   async function buscarPropietario() {
-    const tipo = document.getElementById("rbtnpersona").checked
-      ? "persona"
-      : "empresa";
+    const tipo = document.getElementById("rbtnpersona").checked ?
+      "persona" :
+      "empresa";
     const metodo = document.getElementById("selectMetodo").value;
     const valor = document.getElementById("vbuscado").value.trim();
 
@@ -486,20 +486,44 @@ require_once "../../partials/_footer.php";
   async function onGuardarVehiculo(e) {
     e.preventDefault();
 
-    // Leer idvehiculo de la URL
+    // REFERENCIA AL FORMULARIO
+    const form = document.getElementById("FormVehiculo");
+
+    // 1) Validar que todos los campos “required” estén correctos.
+    //    Usamos la API HTML5: checkValidity + reportValidity
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    // 2) Confirmación con SweetAlert (ask) antes de enviar
+    //    ask(texto, módulo). Devuelve true si el usuario pulsa “Aceptar”
+    const confirmacion = await ask(
+      "¿Está seguro que desea actualizar este vehículo?",
+      "Vehículos"
+    );
+    if (!confirmacion) {
+      // Si el usuario pulsa "Cancelar" o expira el timer, no hacemos nada más.
+      return;
+    }
+
+    // 3) Leer idvehiculo de la URL (otra vez para asegurarnos)
     const params = new URLSearchParams(window.location.search);
     const idvehiculo = parseInt(params.get("id"), 10);
     if (isNaN(idvehiculo) || idvehiculo <= 0) {
       return alert("ID de vehículo inválido.");
     }
 
-    // Validar que haya propietario seleccionado
-    const idProp = parseInt(document.getElementById("hiddenIdPropietario").value, 10);
+    // 4) Validar que haya propietario seleccionado (hiddenIdPropietario > 0)
+    const idProp = parseInt(
+      document.getElementById("hiddenIdPropietario").value,
+      10
+    );
     if (isNaN(idProp) || idProp <= 0) {
       return alert("Debe seleccionar un propietario.");
     }
 
-    // Armar payload:
+    // 5) Armar payload para el fetch
     const payload = {
       task: "updateVehiculoConHistorico",
       idvehiculo: idvehiculo,
@@ -510,37 +534,43 @@ require_once "../../partials/_footer.php";
       anio: document.getElementById("fanio").value.trim(),
       numserie: document.getElementById("fnumserie").value.trim(),
       color: document.getElementById("fcolor").value.trim(),
-      idtcombustible: parseInt(document.getElementById("ftcombustible").value, 10),
+      idtcombustible: parseInt(
+        document.getElementById("ftcombustible").value,
+        10
+      ),
       vin: document.getElementById("vin").value.trim(),
       numchasis: document.getElementById("numchasis").value.trim(),
       idcliente_nuevo: idProp
     };
 
-    // Enviar a controller
+    // 6) Enviar a controller vía fetch
     try {
-      const res = await fetch(`${SERVERURL}app/controllers/vehiculo.controller.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      const res = await fetch(
+        `${SERVERURL}app/controllers/vehiculo.controller.php`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }
+      );
       const js = await res.json();
 
-     if (js.status === 'success') {
-  showToast("Vehículo actualizado correctamente", "SUCCESS", 1500);
-  setTimeout(() => {
-    window.location.href = "listar-vehiculos.php";
-  }, 1500);
-} else {
-  const msg = js.message || "Error al actualizar el vehículo";
-  showToast(msg, "ERROR", 2000);
-}
-
+      // 7) Mostrar toast según el estado de la respuesta
+      if (js.status === "success") {
+        showToast("Vehículo actualizado correctamente", "SUCCESS", 1500);
+        setTimeout(() => {
+          window.location.href = "listar-vehiculos.php";
+        }, 1500);
+      } else {
+        const msg = js.message || "Error al actualizar el vehículo";
+        showToast(msg, "ERROR", 2000);
+      }
     } catch (err) {
       console.error("Error en fetch al actualizar vehículo:", err);
       showToast("Error de red o servidor", "ERROR", 2000);
     }
   }
-
 </script>
 </body>
+
 </html>

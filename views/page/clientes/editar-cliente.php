@@ -297,63 +297,74 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 5) Al hacer click en "Aceptar", armar y enviar el body JSON en lugar de FormData
   btnRegistrar.addEventListener("click", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const esPersona = formPersona.style.display === 'block';
-    const formActual = esPersona ? formPersona : formEmpresa;
+  const esPersona = formPersona.style.display === 'block';
+  const formActual = esPersona ? formPersona : formEmpresa;
 
-    if (!validarFormulario(formActual)) return;
+  // 1) Validar campos obligatorios
+  if (!validarFormulario(formActual)) return;
 
-    let payload = {};
+  // 2) Pedir confirmación antes de enviar
+  const textoPregunta = "¿Está seguro que desea editar los datos del cliente?";
+  // Suponemos que ya has definido la función `ask` (SweetAlert) tal como la tenías:
+  // async function ask(pregunta = ``, modulo = `Permisos`) { … }
+  const confirmar = await ask(textoPregunta, "Clientes");
+  if (!confirmar) {
+    // Si el usuario pulsa "Cancelar" o expira el timer, no hacemos nada
+    return;
+  }
 
-    if (esPersona) {
-      // Configurar para actualizar persona
-      payload.operation     = "updatePersona";
-      payload.idpersona     = parseInt(formPersona.dataset.idpersona, 10);
-      payload.nombres       = document.getElementById("nombres").value.trim();
-      payload.apellidos     = document.getElementById("apellidos").value.trim();
-      payload.tipodoc       = document.getElementById("tipodoc").value;
-      payload.numdoc        = document.getElementById("numdoc").value.trim();
-      payload.numruc        = document.getElementById("numruc").value.trim();
-      payload.direccion     = document.getElementById("direccion").value.trim();
-      payload.correo        = document.getElementById("correo").value.trim();
-      payload.telprincipal  = document.getElementById("telprincipal").value.trim();
-      payload.telalternativo= document.getElementById("telalternativo").value.trim();
-    } else {
-      // Configurar para actualizar empresa
-      payload.operation    = "updateEmpresa";
-      payload.idempresa    = parseInt(formEmpresa.dataset.idempresa, 10);
-      payload.nomcomercial = document.getElementById("nomcomercial").value.trim();
-      payload.razonsocial  = document.getElementById("razonsocial").value.trim();
-      payload.telefono     = document.getElementById("telempresa").value.trim();
-      payload.correo       = document.getElementById("correoemp").value.trim();
+  // 3) Armar el payload (igual que antes)
+  let payload = {};
+
+  if (esPersona) {
+    payload.operation      = "updatePersona";
+    payload.idpersona      = parseInt(formPersona.dataset.idpersona, 10);
+    payload.nombres        = document.getElementById("nombres").value.trim();
+    payload.apellidos      = document.getElementById("apellidos").value.trim();
+    payload.tipodoc        = document.getElementById("tipodoc").value;
+    payload.numdoc         = document.getElementById("numdoc").value.trim();
+    payload.numruc         = document.getElementById("numruc").value.trim();
+    payload.direccion      = document.getElementById("direccion").value.trim();
+    payload.correo         = document.getElementById("correo").value.trim();
+    payload.telprincipal   = document.getElementById("telprincipal").value.trim();
+    payload.telalternativo = document.getElementById("telalternativo").value.trim();
+  } else {
+    payload.operation     = "updateEmpresa";
+    payload.idempresa     = parseInt(formEmpresa.dataset.idempresa, 10);
+    payload.nomcomercial  = document.getElementById("nomcomercial").value.trim();
+    payload.razonsocial   = document.getElementById("razonsocial").value.trim();
+    payload.telefono      = document.getElementById("telempresa").value.trim();
+    payload.correo        = document.getElementById("correoemp").value.trim();
+  }
+
+  // 4) Hacer el fetch solo si el usuario confirmó
+  try {
+    const respuesta = await fetch(`${SERVERURL}app/controllers/Cliente.controller.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    const json = await respuesta.json();
+
+    // 5) Mostrar toast de éxito o error según la respuesta
+    showToast(json.message, json.status ? 'SUCCESS' : 'ERROR', 1500);
+
+    if (json.status) {
+      // Si todo va bien, redirige a listar-cliente.php después de 1 segundo
+      setTimeout(() => {
+        window.location.href = "listar-cliente.php";
+      }, 1000);
     }
+  } catch (error) {
+    console.error("Error al actualizar cliente:", error);
+    showToast("Error inesperado al actualizar", "ERROR", 1500);
+  }
+});
 
-    try {
-      const respuesta = await fetch(`${SERVERURL}app/controllers/Cliente.controller.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const json = await respuesta.json();
-
-      // Mostrar toast (suponiendo que exista la función showToast)
-      showToast(json.message, json.status ? 'SUCCESS' : 'ERROR', 1500);
-
-      if (json.status) {
-        // Si todo va bien, redirige a listar-cliente.php al cabo de 1 segundo
-        setTimeout(() => {
-          window.location.href = "listar-cliente.php";
-        }, 1000);
-      }
-    } catch (error) {
-      console.error("Error al actualizar cliente:", error);
-      showToast("Error inesperado al actualizar", "ERROR", 1500);
-    }
-  });
 
 });
 
