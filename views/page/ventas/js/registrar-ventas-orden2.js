@@ -27,25 +27,168 @@ document.addEventListener("DOMContentLoaded", function () {
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
   const kmInput = document.getElementById("kilometraje");
-  const btnToggleService = document.getElementById('btnToggleService');
+  const btnToggleService = document.getElementById("btnToggleService");
   const obsField = document.getElementById("observaciones");
   const gruField = document.getElementById("ingresogrua");
-  btnToggleService.addEventListener('click', function (e) {
+  const hiddenIdPropietario = document.getElementById("hiddenIdPropietario");
+  const inputClienteVisible = document.getElementById("inputClienteVisible");
+
+  // 2) Cargar lista de servicios por subcategoría
+  async function cargarServiciosPorSubcategoria(idsubcat) {
+    if (!idsubcat) {
+      document.getElementById("servicio").innerHTML =
+        '<option value="">Eliga un servicio</option>';
+      return;
+    }
+    try {
+      const resp = await fetch(
+        `${FIX360_BASE_URL}app/controllers/Servicio.Controller.php?task=getServicioBySubcategoria&idsubcategoria=${idsubcat}`
+      );
+      const data = await resp.json();
+      let html = '<option value="">Eliga un servicio</option>';
+      data.forEach((item) => {
+        html += `<option value="${item.idservicio}">${item.servicio}</option>`;
+      });
+      document.getElementById("servicio").innerHTML = html;
+    } catch (err) {
+      console.error("Error al cargar servicios:", err);
+      showToast("Error al cargar servicios.", "ERROR", 1500);
+    }
+  }
+
+  document
+    .getElementById("subcategoria")
+    .addEventListener("change", function () {
+      const idsubcat = this.value;
+      cargarServiciosPorSubcategoria(idsubcat);
+    });
+
+  // 3) Abrir modal para registrar un servicio nuevo
+  document
+    .getElementById("btnAgregarServicio")
+    .addEventListener("click", function () {
+      const selectSub = document.getElementById("subcategoria");
+      const idsubcat = selectSub.value;
+      const textoSub = selectSub.options[selectSub.selectedIndex]?.text || "";
+
+      if (!idsubcat) {
+        showToast(
+          "Primero debe seleccionar un Tipo de Servicio (subcategoría).",
+          "WARNING",
+          1500
+        );
+        return;
+      }
+      document.getElementById("modalSubcategoriaId").value = idsubcat;
+      document.getElementById("modalSubcategoriaNombre").value = textoSub;
+      document.getElementById("modalServicioNombre").value = "";
+      new bootstrap.Modal(document.getElementById("ModalServicio")).show();
+    });
+
+  // 4) Registrar servicio desde el modal
+  document
+    .getElementById("btnRegistrarServicioModal")
+    .addEventListener("click", async function () {
+      const idsubcategoria = document.getElementById(
+        "modalSubcategoriaId"
+      ).value;
+      const servicioNombre = document
+        .getElementById("modalServicioNombre")
+        .value.trim();
+
+      if (!servicioNombre) {
+        showToast("Debe ingresar el nombre del servicio.", "WARNING", 1500);
+        return;
+      }
+
+      const payload = {
+        task: "registerServicio",
+        idsubcategoria: idsubcategoria,
+        servicio: servicioNombre,
+      };
+
+      try {
+        const resp = await fetch(
+          `${FIX360_BASE_URL}app/controllers/Servicio.Controller.php`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+        const json = await resp.json();
+        if (json.error) {
+          showToast("Error: " + json.error, "ERROR", 2000);
+          return;
+        }
+
+        // Si tuvo éxito:
+        const nuevoId = json.idservicio;
+        const nuevoNom = json.servicio;
+
+        // Cerrar modal
+        const modalEl = document.getElementById("ModalServicio");
+        bootstrap.Modal.getInstance(modalEl).hide();
+
+        // Agregar nueva opción al <select id="servicio"> y seleccionarla
+        const selectServ = document.getElementById("servicio");
+        const opt = document.createElement("option");
+        opt.value = nuevoId;
+        opt.textContent = nuevoNom;
+        opt.selected = true;
+        selectServ.appendChild(opt);
+
+        showToast("Servicio registrado correctamente.", "SUCCESS", 1500);
+      } catch (err) {
+        console.error("Error al registrar servicio:", err);
+        showToast("Ocurrió un error al registrar el servicio.", "ERROR", 1500);
+      }
+    });
+
+  // --- Funcionalidades para fecha predeterminada ---
+  document.addEventListener("DOMContentLoaded", () => {
+    setFechaDefault();
+  });
+
+  function setFechaDefault() {
+    const input = document.getElementById("fechaIngreso");
+    if (!input) {
+      console.warn("No encontré #fechaIngreso");
+      return;
+    }
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const yyyy = now.getFullYear(),
+      MM = pad(now.getMonth() + 1),
+      dd = pad(now.getDate()),
+      hh = pad(now.getHours()),
+      mm = pad(now.getMinutes());
+    input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+    // opcional: rango
+    const twoDaysAgo = new Date(now);
+    twoDaysAgo.setDate(now.getDate() - 2);
+    input.min = `${twoDaysAgo.getFullYear()}-${pad(
+      twoDaysAgo.getMonth() + 1
+    )}-${pad(twoDaysAgo.getDate())}T00:00`;
+    input.max = `${yyyy}-${MM}-${dd}T23:59`;
+  }
+
+  btnToggleService.addEventListener("click", function (e) {
     e.preventDefault();
 
     // --- NUEVO: limpiar el arreglo y la tabla de servicios antes de mostrarla ---
     detalleServicios.length = 0;
-    tablaServ.innerHTML = '';
+    tablaServ.innerHTML = "";
     actualizarNumerosServicios(); // (si quieres que los índices de la tabla queden “1, 2, …” correctamente)
 
     // 1) Mostrar la sección de servicios
-    document.getElementById('serviceSection').classList.remove('d-none');
-    document.getElementById('serviceListCard').classList.remove('d-none');
+    document.getElementById("serviceSection").classList.remove("d-none");
+    document.getElementById("serviceListCard").classList.remove("d-none");
 
     // 2) Deshabilitar el botón y cambiar su estilo a gris (btn-secondary)
     this.disabled = true;
-    this.classList.remove('btn-success');
-    this.classList.add('btn-secondary');
+    this.classList.remove("btn-success");
+    this.classList.add("btn-secondary");
 
     obsField.disabled = false;
     gruField.disabled = false;
@@ -135,13 +278,10 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((r) => r.json())
       .then((data) => {
         // 1) Cliente (para vehículos)
-        hiddenIdCliente.value = data.idcliente;
-        // 2) Propietario (para FK)
-        hiddenIdPropietario.value = data.idcliente;
-        // 3) Nombre del propietario en el input
-        inputProp.value = data.cliente;
-        // 4) Disparamos carga de vehículos sobre hiddenIdCliente
-        hiddenIdCliente.dispatchEvent(new Event("change"));
+        hiddenIdPropietario.value = data.idcliente; // clienteCot → propietario
+        hiddenIdCliente.value = 0; // clienteVenta = NULL
+        inputProp.value = data.cliente; // muestro el nombre en “Propietario”
+        hiddenIdPropietario.dispatchEvent(new Event("change"));
       })
       .catch(console.error);
 
@@ -268,6 +408,23 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(console.error);
   }
+  hiddenIdCliente.addEventListener("change", function () {
+    const idcli = parseInt(this.value, 10);
+    if (!idcli) {
+      inputProp.value = "";
+      hiddenIdPropietario.value = 0;
+      return;
+    }
+    fetch(
+      `${API_BASE}cliente.controller.php?action=getDetalles&idcliente=${idcli}`
+    )
+      .then((r) => r.json())
+      .then((clienteData) => {
+        inputClienteVisible.value = clienteData.razonSocial;
+        hiddenIdPropietario.value = 0; // para que en el SP “propietario” quede NULL
+      })
+      .catch(console.error);
+  });
 
   btnAgregarDetalleServicio.addEventListener("click", () => {
     // 1) Lee y valida cada cosa por separado
@@ -577,7 +734,13 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((data) => {
         if (!Array.isArray(data) || data.length === 0) {
-          showToast("No se encontraron productos.", "WARNING", 1500);
+          Swal.fire({
+            icon: "warning",
+            title: "No se encontraron productos",
+            text: "Por favor, verifica el término de búsqueda.",
+            confirmButtonText: "Aceptar",
+            allowOutsideClick: false,
+          });
           return;
         }
 
@@ -691,24 +854,24 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!esSoloDigitos) {
       // Mientras escribes a mano (letras/espacios) usamos el debounce
       debouncedMostrarOpcionesProducto(this);
-    }
-    // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
+    } // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
   });
 
   // 2) Listener de ‘keyup’: sólo para scanner (ENTER):
   inputProductElement.addEventListener("keyup", function (e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      // 1) limpias la lista y cancelas el debounce
+      // 1) Limpias la lista y cancelas el debounce
       cerrarListas();
       debouncedMostrarOpcionesProducto.cancel();
 
       const codigo = this.value.trim();
       if (!codigo) return;
 
-      // 2) aquí solo lógica de scanner
+      // 2) Solo lógica de scanner
       fetch(
-        `${window.FIX360_BASE_URL
+        `${
+          window.FIX360_BASE_URL
         }app/controllers/Venta.controller.php?q=${encodeURIComponent(
           codigo
         )}&type=producto`
@@ -717,26 +880,56 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((data) => {
           if (Array.isArray(data) && data.length) {
             const producto = data[0];
-            // rellenas los campos
-            inputProductElement.value = producto.subcategoria_producto;
-            inputPrecio.value = parseFloat(producto.precio).toFixed(2);
-            inputStock.value = producto.stock;
-            inputCantidad.value = 1;
-            inputDescuento.value = 0;
-            selectedProduct = {
-              idproducto: producto.idproducto,
-              subcategoria_producto: producto.subcategoria_producto,
-              precio: parseFloat(producto.precio),
-              stock: producto.stock,
-            };
-            // y disparas tu “agregar”
-            agregarProductoBtn.click();
+
+            // Verificar si el producto ya está en la tabla (detalleVenta)
+            const idx = detalleVenta.findIndex(
+              (d) => d.idproducto === producto.idproducto
+            );
+
+            if (idx >= 0) {
+              // Si ya existe, simplemente sumamos 1 a la cantidad
+              const fila = tabla.rows[idx]; // Obtener la fila en la tabla
+              const qtyInput = fila.querySelector(".cantidad-input");
+              const newQty = parseInt(qtyInput.value, 10) + 1; // Sumar 1 a la cantidad
+              qtyInput.value = newQty;
+
+              // Actualizamos la línea en detalleVenta
+              detalleVenta[idx].cantidad = newQty;
+              detalleVenta[idx].importe = (
+                (producto.precio - detalleVenta[idx].descuento) *
+                newQty
+              ).toFixed(2);
+
+              // Actualizamos el importe de la fila
+              fila.querySelector(".importe-cell").textContent =
+                detalleVenta[idx].importe;
+
+              // Recalcular totales
+              calcularTotales();
+            } else {
+              // Si el producto no existe, lo agregamos a la tabla
+              inputProductElement.value = producto.subcategoria_producto;
+              inputPrecio.value = parseFloat(producto.precio).toFixed(2);
+              inputStock.value = producto.stock;
+              inputCantidad.value = 1;
+              inputDescuento.value = 0;
+
+              selectedProduct = {
+                idproducto: producto.idproducto,
+                subcategoria_producto: producto.subcategoria_producto,
+                precio: parseFloat(producto.precio),
+                stock: producto.stock,
+              };
+
+              // Agregar el producto al detalleVenta
+              agregarProductoBtn.click();
+            }
           } else {
             showToast("No se encontraron productos.", "WARNING", 1500);
           }
         })
         .finally(() => {
-          // borra y fócate **después** de agregar
+          // Borra y fócate después de agregar
           this.value = "";
           this.focus();
         });
@@ -774,22 +967,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     numSerieInput.value = generateNumber(prefijoSerie);
     numComInput.value = generateComprobanteNumber(prefijoComprobante);
-
-    // --- NUEVO: si el usuario sale de “orden de trabajo”, ocultar servicios y limpiar ---
-    if (tipo !== "orden de trabajo") {
-      document.getElementById('serviceSection').classList.add('d-none');
-      document.getElementById('serviceListCard').classList.add('d-none');
-      btnToggleService.disabled = false;
-      btnToggleService.classList.remove('btn-secondary');
-      btnToggleService.classList.add('btn-success');
-
-      // Limpiar array y tabla de servicios, por si acaso quedaron elementos
-      detalleServicios.length = 0;
-      tablaServ.innerHTML = '';
-      actualizarNumerosServicios();
-      obsField.disabled = true;
-      gruField.disabled = true;
-    }
   }
   tipoInputs.forEach((i) => i.addEventListener("change", inicializarCampos));
   inicializarCampos();
@@ -814,101 +991,112 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   // --- Guardar Venta ---
   btnFinalizarVenta.addEventListener("click", function (e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-  if (detalleVenta.length === 0 && detalleServicios.length === 0) {
-    return showToast("Agrega al menos un producto o servicio.", "WARNING", 2000);
-  }
-
-  Swal.fire({
-    title: "¿Deseas guardar la venta?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Aceptar",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#28a745",
-    cancelButtonColor: "#d33",
-  }).then((result) => {
-    if (!result.isConfirmed) return;
-
-    // 1) Deshabilito botón y cambio texto
-    btnFinalizarVenta.disabled = true;
-    btnFinalizarVenta.textContent = "Guardando...";
-
-    // 2) Leo el tipo seleccionado y muestro el toast de “Registrando…”
-    const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked').value;
-    if (tipoSeleccionado === "orden de trabajo") {
-      showToast("Registrando Orden de Trabajo…", "INFO", 2000);
-    } else {
-      showToast("Registrando Venta…", "INFO", 2000);
+    const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+    if (detalleVenta.length === 0 && detalleServicios.length === 0) {
+      return showToast(
+        "Agrega al menos un producto o servicio.",
+        "WARNING",
+        2000
+      );
     }
 
-    // 3) Armo el payload
-    const data = {
-      tipocom: tipoSeleccionado,
-      fechahora: fechaInput.value.trim(),
-      fechaingreso: null,
-      numserie: numSerieInput.value.trim(),
-      numcom: numComInput.value.trim(),
-      moneda: monedaSelect.value,
-      idpropietario: +document.getElementById("hiddenIdPropietario").value,
-      idcliente: +hiddenIdCliente.value,
-      idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
-      kilometraje: parseFloat(document.getElementById("kilometraje").value) || 0,
-      observaciones: document.getElementById("observaciones").value.trim(),
-      ingresogrua: document.getElementById("ingresogrua").checked ? 1 : 0,
-      productos: detalleVenta,
-      servicios: detalleServicios,
-    };
+    Swal.fire({
+      title: "¿Deseas guardar la venta?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#28a745",
+      cancelButtonColor: "#d33",
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    // 4) Llamada al backend
-    fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then(async (res) => {
-        const text = await res.text();
-        try {
-          return JSON.parse(text);
-        } catch {
-          throw new Error("Respuesta no es JSON válido");
-        }
+      // 1) Deshabilito botón y cambio texto
+      btnFinalizarVenta.disabled = true;
+      btnFinalizarVenta.textContent = "Guardando...";
+
+      // 2) Leo el tipo seleccionado y muestro el toast de “Registrando…”
+      const tipoSeleccionado = document.querySelector(
+        'input[name="tipo"]:checked'
+      ).value;
+      if (tipoSeleccionado === "orden de trabajo") {
+        showToast("Registrando Orden de Trabajo…", "INFO", 2000);
+      } else {
+        showToast("Registrando Venta…", "INFO", 2000);
+      }
+
+      // 3) Armo el payload
+      const data = {
+        tipocom: tipoSeleccionado,
+        fechahora: fechaInput.value.trim(),
+        fechaingreso: null,
+        numserie: numSerieInput.value.trim(),
+        numcom: numComInput.value.trim(),
+        moneda: monedaSelect.value,
+        idpropietario: document.getElementById("hiddenIdPropietario").value,
+        idcliente: document.getElementById("hiddenIdCliente").value,
+        idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
+        kilometraje:
+          parseFloat(document.getElementById("kilometraje").value) || 0,
+        observaciones: document.getElementById("observaciones").value.trim(),
+        ingresogrua: document.getElementById("ingresogrua").checked ? 1 : 0,
+        productos: detalleVenta,
+        servicios: detalleServicios,
+      };
+
+      // 4) Llamada al backend
+      fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       })
-      .then((json) => {
-        if (json.status === "success") {
-          // --- NUEVO: elijo el mensaje final según tipoSeleccionado ---
-          if (tipoSeleccionado === "orden de trabajo") {
-            // Si es OT, muestro solo el número de orden (o ambos, pero con prefijo OT)
-            showToast(
-              `Guardado con éxito. Orden de Trabajo`,
-              "SUCCESS",
-              1500
-            );
+        .then(async (res) => {
+          const text = await res.text();
+          try {
+            return JSON.parse(text);
+          } catch {
+            throw new Error("Respuesta no es JSON válido");
+          }
+        })
+        .then((json) => {
+          if (json.status === "success") {
+            // --- NUEVO: elijo el mensaje final según tipoSeleccionado ---
+            if (tipoSeleccionado === "orden de trabajo") {
+              // Si es OT, muestro solo el número de orden (o ambos, pero con prefijo OT)
+              showToast(
+                `Guardado con éxito. Orden de Trabajo`,
+                "SUCCESS",
+                1500
+              );
+            } else {
+              // Caso normal: boleta/factura
+              showToast(
+                `Guardado con éxito. Venta #${json.idventa}`,
+                "SUCCESS",
+                1500
+              );
+            }
+            setTimeout(() => (location.href = "listar-ventas.php"), 1500);
           } else {
-            // Caso normal: boleta/factura
-            showToast(
-              `Guardado con éxito. Venta #${json.idventa}`,
-              "SUCCESS",
-              1500
+            Swal.fire(
+              "Error",
+              json.message || "No se pudo registrar.",
+              "error"
             );
           }
-          setTimeout(() => (location.href = "listar-ventas.php"), 1500);
-        } else {
-          Swal.fire("Error", json.message || "No se pudo registrar.", "error");
-        }
-      })
-      .catch((err) => {
-        console.error("Error en fetch:", err);
-        Swal.fire("Error", err.message, "error");
-      })
-      .finally(() => {
-        btnFinalizarVenta.disabled = false;
-        btnFinalizarVenta.textContent = "Guardar";
-      });
+        })
+        .catch((err) => {
+          console.error("Error en fetch:", err);
+          Swal.fire("Error", err.message, "error");
+        })
+        .finally(() => {
+          btnFinalizarVenta.disabled = false;
+          btnFinalizarVenta.textContent = "Guardar";
+        });
+    });
   });
-});
   // —– NUEVO: cuando cambie vehículo, traemos último kilometraje —–
   if (vehiculoSelect) {
     vehiculoSelect.addEventListener("change", function () {
@@ -928,26 +1116,15 @@ document.addEventListener("DOMContentLoaded", function () {
     kmInput.addEventListener("change", () => {
       const nuevo = parseFloat(kmInput.value);
       if (prevKilometraje !== null && nuevo < prevKilometraje) {
-        alert(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`);
+        alert(
+          `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`
+        );
         kmInput.value = prevKilometraje;
       }
     });
   }
 });
 document.addEventListener("click", function (e) {
-  /*   if (e.target.classList.contains("btn-increment")) {
-    const input = e.target.parentElement.querySelector(".cantidad-input");
-    input.value = parseInt(input.value || "0") + 1;
-    input.dispatchEvent(new Event("input"));
-  }
-
-  if (e.target.classList.contains("btn-decrement")) {
-    const input = e.target.parentElement.querySelector(".cantidad-input");
-    const newVal = parseInt(input.value || "1") - 1;
-    input.value = newVal > 0 ? newVal : 1;
-    input.dispatchEvent(new Event("input"));
-  } */
-
   const inputFecha = document.getElementById("fechaIngreso");
   const btnPermitir = document.getElementById("btnPermitirFechaPasada");
 

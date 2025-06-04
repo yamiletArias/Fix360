@@ -1,3 +1,67 @@
+ALTER TABLE cotizaciones
+  ADD COLUMN vencida BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE cotizaciones
+  ADD COLUMN fecha_expiracion DATE
+    GENERATED ALWAYS AS (DATE(fechahora) + INTERVAL vigenciadias DAY) VIRTUAL;
+
+DELIMITER $$
+CREATE EVENT IF NOT EXISTS ev_MarcarCotizacionesVencidas
+  ON SCHEDULE EVERY 1 DAY
+  STARTS CONCAT(CURDATE(), ' 00:00:00')
+  DO
+BEGIN
+  UPDATE cotizaciones
+  SET vencida = TRUE
+  WHERE vencida = FALSE
+    AND estado = TRUE
+    AND fecha_expiracion <= CURRENT_DATE();
+END $$
+DELIMITER ;
+SHOW EVENTS WHERE Name = 'ev_MarcarCotizacionesVencidas';
+
+DROP PROCEDURE IF EXISTS spListCotizacionesPorPeriodo;
+DELIMITER $$
+CREATE PROCEDURE spListCotizacionesPorPeriodo(
+  IN _modo   ENUM('dia','semana','mes'),
+  IN _fecha  DATE
+)
+BEGIN
+  DECLARE start_date DATE;
+  DECLARE end_date   DATE;
+
+  IF _modo = 'semana' THEN
+    SET start_date = DATE_SUB(_fecha, INTERVAL WEEKDAY(_fecha) DAY);
+    SET end_date   = DATE_ADD(start_date, INTERVAL 6 DAY);
+  ELSEIF _modo = 'mes' THEN
+    SET start_date = DATE_FORMAT(_fecha, '%Y-%m-01');
+    SET end_date   = LAST_DAY(_fecha);
+  ELSE
+    SET start_date = _fecha;
+    SET end_date   = _fecha;
+  END IF;
+
+  SELECT
+    v.idcotizacion AS id,
+    v.cliente,
+    SUM(v.precio) AS total,
+    v.vigencia,
+    CASE
+      WHEN c.vencida THEN 'expirada'
+      ELSE 'vigente'
+    END AS estado_vigencia,
+    DATE(v.fechahora) AS fecha
+  FROM vs_cotizaciones v
+  JOIN cotizaciones c ON c.idcotizacion = v.idcotizacion
+  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
+    AND c.estado = TRUE
+    AND c.vencida = FALSE              -- 🚨 Esta línea es la clave
+  GROUP BY v.idcotizacion, v.cliente, v.vigencia, DATE(v.fechahora), c.vencida
+  ORDER BY DATE(v.fechahora);
+END $$
+DELIMITER ;
+
+
 /* SOLO PRUEBA
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS

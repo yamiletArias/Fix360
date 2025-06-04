@@ -502,22 +502,7 @@ require_once "../../partials/_footer.php";
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-<script>
- /*  const obsField = document.getElementById("observaciones");
-  const gruField = document.getElementById("ingresogrua"); */
-  /* document.getElementById('btnToggleService').addEventListener('click', function (e) {
-    e.preventDefault();
-    // 1) Mostrar la sección de servicios
-    document.getElementById('serviceSection').classList.remove('d-none');
-    document.getElementById('serviceListCard').classList.remove('d-none')
-    // 2) Deshabilitar el botón y cambiar su estilo a gris (btn-secondary)
-    this.disabled = true;
-    this.classList.remove('btn-success');
-    this.classList.add('btn-secondary');
-
-    obsField.disabled = false;
-    gruField.disabled = false;
-  }); */
+<!-- <script>
   // 2) Cargar lista de servicios por subcategoría
   async function cargarServiciosPorSubcategoria(idsubcat) {
     if (!idsubcat) {
@@ -608,7 +593,6 @@ require_once "../../partials/_footer.php";
       alert('Ocurrió un error al registrar el servicio.');
     }
   });
-
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -646,7 +630,6 @@ require_once "../../partials/_footer.php";
       dd = pad(now.getDate()),
       hh = pad(now.getHours()),
       mm = pad(now.getMinutes());
-
     input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
     // opcional: rango
     const twoDaysAgo = new Date(now);
@@ -654,7 +637,7 @@ require_once "../../partials/_footer.php";
     input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth() + 1)}-${pad(twoDaysAgo.getDate())}T00:00`;
     input.max = `${yyyy}-${MM}-${dd}T23:59`;
   }
-</script>
+</script> -->
 </body>
 
 </html>
