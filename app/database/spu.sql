@@ -189,7 +189,7 @@ END$$
 DROP PROCEDURE IF EXISTS spGetAllCategoria $$
 CREATE PROCEDURE spGetAllCategoria()
 BEGIN
-  SELECT * FROM categorias;
+  SELECT * FROM categorias WHERE idcategoria != 1;
 END$$
 
 -- 8) Obtener todas las marcas de producto

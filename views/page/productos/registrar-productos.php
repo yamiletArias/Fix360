@@ -162,7 +162,7 @@
         </div>
         <div class="modal-body">
           <div class="form-floating">
-            <input type="text" id="inputMarca" class="form-control" placeholder="marca"  style="background-color: white;" required>
+            <input type="text" id="inputMarca" class="form-control input" placeholder="marca"  style="background-color: white;" required>
             <label for="inputMarca" class="form-label"><strong>Marca</strong></label>
           </div>
         </div>
@@ -184,7 +184,7 @@
         </div>
         <div class="modal-body">
           <div class="form-floating">
-            <input type="text" id="inputCategoria" class="form-control" placeholder="categoria"  style="background-color: white;" required>
+            <input type="text" id="inputCategoria" class="form-control input" placeholder="categoria"  style="background-color: white;" required>
             <label for="inputCategoria" class="form-label"><strong>Categoria</strong></label>
           </div>
         </div>
@@ -207,7 +207,7 @@
         <div class="modal-body">
           <div class="form-floating">
 
-            <input type="text" id="inputSubcategoria" class="form-control" placeholder="subcategoria"  style="background-color: white;" required>
+            <input type="text" id="inputSubcategoria" class="form-control input" placeholder="subcategoria"  style="background-color: white;" required>
             <label for="inputSubcategoria" class="form-label"><strong>Subcategoria</strong></label>
           </div>
         </div>
@@ -276,42 +276,81 @@
 
 
 
-  <script>
-    document.getElementById("btnRegistrarProducto").addEventListener("click", function(e) {
-      e.preventDefault();
+<script>
+  document.getElementById("btnRegistrarProducto").addEventListener("click", async function(e) {
+    e.preventDefault();
 
-      const confirmacion = window.confirm("¿Estás seguro de que deseas registrar el producto?");
-      if (!confirmacion) {
-        return; // Si el usuario cancela, no hace nada
+    // 1) Validaciones previas: asegurarnos que los campos obligatorios no estén vacíos
+    const marcaSelect       = document.getElementById("marca");
+    const categoriaSelect   = document.getElementById("categoria");
+    const subcategoriaSelect= document.getElementById("subcategoria");
+    const descripcionInput  = document.getElementById("descripcion");
+    const precioInput       = document.getElementById("precio");
+    const stockInput        = document.getElementById("stockInicial");
+
+    if (!marcaSelect.value) {
+      showToast('Debe seleccionar una marca', 'ERROR', 1500);
+      return;
+    }
+    if (!categoriaSelect.value) {
+      showToast('Debe seleccionar una categoría', 'ERROR', 1500);
+      return;
+    }
+    if (!subcategoriaSelect.value) {
+      showToast('Debe seleccionar una subcategoría', 'ERROR', 1500);
+      return;
+    }
+    if (!descripcionInput.value.trim()) {
+      showToast('La descripción no puede estar vacía', 'ERROR', 1500);
+      return;
+    }
+    if (!precioInput.value || Number(precioInput.value) < 0) {
+      showToast('Ingrese un precio válido', 'ERROR', 1500);
+      return;
+    }
+    if (!stockInput.value || Number(stockInput.value) < 0) {
+      showToast('Ingrese un stock inicial válido', 'ERROR', 1500);
+      return;
+    }
+
+    // 2) Preguntar con SweetAlert2 si desea continuar
+    const confirmado = await ask(
+      "¿Está seguro de registrar este producto?",
+      "Productos"
+    );
+    if (!confirmado) {
+      return; // El usuario canceló
+    }
+
+    // 3) Preparar el envío por AJAX
+    const form = document.getElementById("formProducto");
+    const formData = new FormData(form);
+
+    try {
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/producto.controller.php", {
+        method: "POST",
+        body: formData
+      });
+      const result = await resp.json();
+
+      if (result.rows > 0) {
+        // 4a) Éxito: mostrar toast y redirigir
+        showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
+        setTimeout(() => {
+          window.location.href = 'listar-producto.php';
+        }, 1500);
+      } else {
+        // 4b) Error lógico (por ejemplo, el código de barras ya existe)
+        showToast(result.message || 'Error al registrar el producto.', 'ERROR', 2000);
       }
-
-      const form = document.getElementById("formProducto");
-      const formData = new FormData(form);
-
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
-
-      fetch("http://localhost/fix360/app/controllers/producto.controller.php", {
-          method: "POST",
-          body: formData
-        })
-        .then(response => response.json())
-        .then(resp => {
-          if (resp.rows > 0) {
-            showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
-            setTimeout(() => {
-              window.location.href = 'listar-producto.php';
-            }, 1500);
-          } else {
-            console.log("Error en el registro");
-          }
-        })
-        .catch(err => {
-          console.log("Error en la solicitud", err);
-        });
-    });
-  </script>
+    } catch (err) {
+      // 4c) Error de red o servidor
+      console.error("Error en la solicitud:", err);
+      showToast('Error de servidor. Intenta nuevamente.', 'ERROR', 2000);
+    }
+  });
+</script>
+  
 
 
   <script>

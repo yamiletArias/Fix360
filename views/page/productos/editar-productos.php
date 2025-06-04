@@ -232,12 +232,12 @@ require_once "../../partials/header.php";
 
       <div class="card-footer">
         <div style="display: flex; justify-content: flex-end; gap: 20px">
-          <button
+          <a
             type="button"
             class="btn btn-secondary"
             href="listar-producto.php">
             Cancelar
-          </button>
+</a>
           <button type="submit" class="btn btn-success" id="btnRegistrarProducto">
             Aceptar
           </button>
@@ -387,25 +387,33 @@ require_once "../../partials/_footer.php";
       null;
 
     if (!descripcion) {
-      alert("La descripción es obligatoria.");
+      showToast("La descripción es obligatoria.", "ERROR", 1500);
       return;
     }
     if (isNaN(cantidad) || cantidad <= 0) {
-      alert("La cantidad debe ser mayor que 0.");
+      showToast("La cantidad debe ser un número mayor que 0.", "ERROR", 1500);
       return;
     }
     if (isNaN(precio) || precio < 0) {
-      alert("El precio no puede ser negativo.");
+      showToast("El precio no puede ser negativo.", "ERROR", 1500);
       return;
     }
     if (isNaN(stockmin) || stockmin < 0) {
-      alert("El stock mínimo no puede ser negativo.");
+      showToast("El stock mínimo no puede ser negativo.", "ERROR", 1500);
       return;
     }
     if (stockmax !== null && stockmax < stockmin) {
-      alert("El stock máximo debe ser mayor o igual al mínimo.");
+      showToast("El stock máximo debe ser mayor o igual al mínimo.", "ERROR", 1500);
       return;
     }
+    const confirmado =  ask(
+        "¿Está seguro de que desea actualizar este producto?",
+        "Productos"
+      );
+      if (!confirmado) {
+        return; // Usuario canceló
+      }
+      
 
     // Construimos FormData (incluye archivo si se seleccionó)
     const form = document.getElementById("formProducto");
@@ -423,15 +431,17 @@ require_once "../../partials/_footer.php";
       .then(response => response.json())
       .then(resp => {
         if (resp.status === "success") {
-          alert("Producto actualizado correctamente.");
-          window.location.href = "listar-Producto.php";
+         showToast("Producto actualizado correctamente.", "SUCCESS", 1500);
+          setTimeout(() => {
+            window.location.href = "listar-producto.php";
+          }, 1500);
         } else {
-          alert("Error: " + (resp.message || "No se pudo actualizar."));
+          showToast(resp.message || "No se pudo actualizar el producto.", "ERROR", 2000);
         }
       })
       .catch(err => {
-        console.error("Error en la solicitud:", err);
-        alert("Ocurrió un error al comunicar con el servidor.");
+       console.error("Error en la solicitud:", err);
+        showToast("Error de servidor. Intenta nuevamente.", "ERROR", 2000);
       });
   });
 </script>
