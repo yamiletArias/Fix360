@@ -1508,11 +1508,9 @@ CREATE PROCEDURE spUpdateColaborador(
     IN  _idcolaborador   INT,
     IN  _nombres          VARCHAR(50),
     IN  _apellidos        VARCHAR(50),
-    IN  _numruc           CHAR(11),
     IN  _direccion        VARCHAR(70),
     IN  _correo           VARCHAR(100),
     IN  _telprincipal     VARCHAR(20),
-    IN  _telalternativo   VARCHAR(20),
     IN  _idrol            INT,
     IN  _fechainicio      DATE,
     IN  _fechafin         DATE,
@@ -1553,11 +1551,9 @@ proc_block: BEGIN
     UPDATE personas
        SET nombres        = _nombres,
            apellidos      = _apellidos,
-           numruc         = NULLIF(_numruc, ''),
            direccion      = NULLIF(_direccion, ''),
            correo         = NULLIF(_correo, ''),
            telprincipal   = _telprincipal,
-           telalternativo = NULLIF(_telalternativo, ''),
            modificado     = NOW()
      WHERE idpersona = v_idpersona;
 
@@ -1737,7 +1733,7 @@ BEGIN
     );
   COMMIT;
 END$$
-
+-- select * from personas
 DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo $$
 CREATE PROCEDURE spGetDatosGeneralesVehiculo(
     IN in_idvehiculo INT

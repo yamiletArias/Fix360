@@ -159,6 +159,15 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
 
     }
 
+    .swal2-container {
+      z-index: 9999 !important;
+    }
+
+    /* El propio cuadro blanco de SweetAlert2 */
+    .swal2-modal {
+      z-index: 10000 !important;
+    }
+
 
     .input {
       font-size: 17px;
@@ -247,6 +256,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
     }
   </style>
 </head>
+
 <body>
   <div class="container-scroller">
     <!-- ===== NAVBAR SUPERIOR ===== -->
@@ -271,18 +281,18 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
           <?php if ($idrol === 1): ?>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle count-indicator message-dropdown"
-                 id="messageDropdown" href="#"
-                 data-bs-toggle="dropdown" title="Recordatorios de hoy" aria-expanded="false">
+                id="messageDropdown" href="#"
+                data-bs-toggle="dropdown" title="Recordatorios de hoy" aria-expanded="false">
                 <i class="icon-speech"></i>
                 <span class="count"><?= $hoy_count ?></span>
               </a>
               <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
-                   aria-labelledby="messageDropdown" style="min-width:250px;">
+                aria-labelledby="messageDropdown" style="min-width:250px;">
                 <div class="dropdown-header mb-0 px-3 py-2">
                   <strong class="input"><?= $totalHoy ?> recordatorio<?= ($totalHoy !== 1 ? 's' : '') ?></strong>
                   <a class="btn btn-sm btn-primary float-end"
-                     href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
-                     title="Ver todos los recordatorios">
+                    href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php"
+                    title="Ver todos los recordatorios">
                     <i class="fa fa-list-alt"></i>
                   </a>
                 </div>
@@ -291,7 +301,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
                 <?php if ($totalHoy): ?>
                   <?php foreach ($hoyParaMostrar as $r): ?>
                     <a class="dropdown-item preview-item"
-                       href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
+                      href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
                       <div class="preview-item-content">
                         <p class="preview-subject mb-1"><?= htmlspecialchars($r['nomcliente']) ?></p>
                         <p class="small-text text-muted mb-0"><?= htmlspecialchars($r['comentario']) ?></p>
@@ -301,7 +311,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
 
                   <?php if ($restantes > 0): ?>
                     <a class="dropdown-item text-center small text-dark"
-                       href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
+                      href="<?= SERVERURL ?>views/page/agendas/listar-agendas.php">
                       y <?= $restantes ?> recordatorio<?= ($restantes !== 1 ? 's' : '') ?> más
                     </a>
                   <?php endif; ?>
@@ -316,15 +326,15 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
           <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
             <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
               <img class="img-xs rounded-circle ms-2"
-                   src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
-                   alt="Profile image" />
+                src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                alt="Profile image" />
               <span class="font-weight-normal"><?= htmlspecialchars($usuario['nombreCompleto']) ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
               <div class="dropdown-header text-center">
                 <img class="img-md rounded-circle"
-                     src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
-                     alt="Profile image" style="width:50px;" />
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                  alt="Profile image" style="width:50px;" />
                 <p class="mb-1 mt-3"><?= htmlspecialchars($usuario['nombreCompleto']) ?></p>
                 <p class="font-weight-light text-muted mb-0"><?= htmlspecialchars($usuario['namuser']) ?></p>
               </div>
@@ -342,7 +352,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
 
         </ul>
         <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-                data-toggle="offcanvas">
+          data-toggle="offcanvas">
           <span class="icon-menu"></span>
         </button>
       </div>
@@ -365,8 +375,8 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
             <a href="#" class="nav-link">
               <div class="profile-image">
                 <img class="img-xs rounded-circle"
-                     src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
-                     alt="profile image" />
+                  src="../../../images/473424986_122094668432737167_5148454371714842654_n.jpg"
+                  alt="profile image" />
                 <div class="dot-indicator bg-success"></div>
               </div>
               <div class="text-wrapper">
@@ -389,56 +399,56 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
 
           <!-- 4) Sección “Inventario” (solo rol 1) -->
           <?php if ($idrol === 3 || $idrol === 1): ?>
-          <?php if ($idrol === 3 || $idrol === 1): ?>
-            <li class="nav-item nav-category"><span class="nav-link">Inventario</span></li>
+            <?php if ($idrol === 3 || $idrol === 1): ?>
+              <li class="nav-item nav-category"><span class="nav-link">Inventario</span></li>
             <?php endif; ?>
-            <?php if ( $idrol === 1): ?>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
-                <span class="menu-title">Ventas</span>
-                <i class="fa-solid fa-tags menu-icon"></i>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/compras/listar-compras.php">
-                <span class="menu-title">Compras</span>
-                <i class="fa-solid fa-cart-plus menu-icon"></i>
-              </a>
-            </li>
+            <?php if ($idrol === 1): ?>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
+                  <span class="menu-title">Ventas</span>
+                  <i class="fa-solid fa-tags menu-icon"></i>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= SERVERURL ?>views/page/compras/listar-compras.php">
+                  <span class="menu-title">Compras</span>
+                  <i class="fa-solid fa-cart-plus menu-icon"></i>
+                </a>
+              </li>
             <?php endif; ?>
-                      <!-- 2) “Órdenes de Servicio” (rol = 3 o rol = 1) -->
-          <?php if ($idrol === 3 || $idrol === 1): ?>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
-                <span class="menu-title">Órdenes de Servicio</span>
-                <i class="fa-solid fa-car-tunnel menu-icon"></i>
-              </a>
-            </li>
-          <?php endif; ?>
-          <?php if ($idrol === 1): ?>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/productos/listar-producto.php">
-                <span class="menu-title">Productos</span>
-                <i class="fa-solid fa-store menu-icon"></i>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/kardex/listar-kardex.php">
-                <span class="menu-title">Kardex</span>
-                <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/cotizaciones/listar-cotizacion.php">
-                <span class="menu-title">Cotizaciones</span>
-                <i class="fa-solid fa-list-ol menu-icon"></i>
-              </a>
-            </li>
+            <!-- 2) “Órdenes de Servicio” (rol = 3 o rol = 1) -->
+            <?php if ($idrol === 3 || $idrol === 1): ?>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
+                  <span class="menu-title">Órdenes de Servicio</span>
+                  <i class="fa-solid fa-car-tunnel menu-icon"></i>
+                </a>
+              </li>
+            <?php endif; ?>
+            <?php if ($idrol === 1): ?>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= SERVERURL ?>views/page/productos/listar-producto.php">
+                  <span class="menu-title">Productos</span>
+                  <i class="fa-solid fa-store menu-icon"></i>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= SERVERURL ?>views/page/kardex/listar-kardex.php">
+                  <span class="menu-title">Kardex</span>
+                  <i class="fa-solid fa-arrows-turn-to-dots menu-icon"></i>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= SERVERURL ?>views/page/cotizaciones/listar-cotizacion.php">
+                  <span class="menu-title">Cotizaciones</span>
+                  <i class="fa-solid fa-list-ol menu-icon"></i>
+                </a>
+              </li>
             <?php endif; ?>
           <?php endif; ?>
 
           <!-- 5) Sección “Administración” (solo rol 1 y rol 4) -->
-          <?php if ($idrol === 1 ): ?>
+          <?php if ($idrol === 1): ?>
             <li class="nav-item nav-category"><span class="nav-link">Administración</span></li>
             <li class="nav-item">
               <a class="nav-link" href="<?= SERVERURL ?>views/page/clientes/listar-cliente.php">
@@ -459,7 +469,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
               </a>
             </li>
           <?php endif; ?>
-                    <!-- 3) “Contactabilidad” (rol = 4 o rol = 1) -->
+          <!-- 3) “Contactabilidad” (rol = 4 o rol = 1) -->
           <?php if ($idrol === 4 || $idrol === 1): ?>
             <li class="nav-item nav-category"><span class="nav-link">Contactabilidad</span></li>
             <li class="nav-item">

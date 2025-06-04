@@ -94,8 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         'idcolaborador' => intval(Helper::limpiarCadena($_POST['idcolaborador'] ?? '')),
         'nombres'      => Helper::limpiarCadena($_POST['nombres']      ?? ''),
         'apellidos'    => Helper::limpiarCadena($_POST['apellidos']    ?? ''),
-        'tipodoc'      => Helper::limpiarCadena($_POST['tipodoc']      ?? ''),
-        'numdoc'       => Helper::limpiarCadena($_POST['numdoc']       ?? ''),
         'direccion'    => Helper::limpiarCadena($_POST['direccion']    ?? ''),
         'correo'       => Helper::limpiarCadena($_POST['correo']       ?? ''),
         'telprincipal' => Helper::limpiarCadena($_POST['telprincipal'] ?? ''),

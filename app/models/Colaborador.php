@@ -149,15 +149,13 @@ class Colaborador extends Conexion
     {
         $numRows = 0;
         try {
-            $query = "CALL spUpdateColaborador(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            $query = "CALL spUpdateColaborador(?,?,?,?,?,?,?,?,?,?,?)";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute(
                 array(
                     $params['idcolaborador'],
                     $params['nombres'],
                     $params['apellidos'],
-                    $params['tipodoc'],
-                    $params['numdoc'],
                     $params['direccion'],
                     $params['correo'],
                     $params['telprincipal'],

@@ -145,11 +145,14 @@ require_once "../../partials/header.php";
       });
 
     // Elements
-    const tipodoc = document.getElementById('tipodoc');
-    const numdoc = document.getElementById('numdoc');
-    const nombres = document.getElementById('nombres');
-    const apellidos = document.getElementById('apellidos');
-    const form = document.getElementById('formColaborador');
+    const tipodoc      = document.getElementById('tipodoc');
+    const numdoc       = document.getElementById('numdoc');
+    const nombres      = document.getElementById('nombres');
+    const apellidos    = document.getElementById('apellidos');
+    const form         = document.getElementById('formColaborador');
+    const idrol        = document.getElementById('idrol');
+    const namuser      = document.getElementById('namuser');
+    const passuser     = document.getElementById('passuser');
 
     // API DNI lookup on blur
     numdoc.addEventListener('blur', async () => {
@@ -161,7 +164,7 @@ require_once "../../partials/header.php";
             nombres.value = data.nombres;
             apellidos.value = `${data.apellidoPaterno} ${data.apellidoMaterno}`;
             nombres.readOnly = true;
-            apellidos.readOnly = true;;
+            apellidos.readOnly = true;
           }
         } catch (e) {
           console.error('Error DNI API:', e);
@@ -173,21 +176,21 @@ require_once "../../partials/header.php";
 
     // Validation helper
     function validar() {
-      // Ejemplo: validar correo
+      // Validar correo
       const correo = document.getElementById('correo').value.trim();
       if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-        showToast('Correo invalido', 'ERROR', 1500);
+        showToast('Correo inválido', 'ERROR', 1500);
         return false;
       }
       // Validar DNI formato
       if (tipodoc.value === 'DNI' && !/^\d{8}$/.test(numdoc.value.trim())) {
-        showToast('El DNI debe de contar con 8 digitos', 'ERROR', 1500);
+        showToast('El DNI debe tener 8 dígitos', 'ERROR', 1500);
         return false;
       }
       // Validar celular
       const tel = document.getElementById('telprincipal').value.trim();
       if (!/^[9]\d{8}$/.test(tel)) {
-        showToast('El Telefono debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500);
+        showToast('El teléfono debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500);
         return false;
       }
       return true;
@@ -196,20 +199,61 @@ require_once "../../partials/header.php";
     // Registrar
     document.getElementById('btnRegistrar').addEventListener('click', async e => {
       e.preventDefault();
+
+      // 1) Validar que se haya seleccionado rol, y que username/contraseña no estén vacíos (antes de preguntar)
+      if (idrol.value.trim() === "") {
+        showToast('Debe seleccionar un rol', 'ERROR', 1500);
+        return;
+      }
+      if (namuser.value.trim() === "") {
+        showToast('Ingrese un username', 'ERROR', 1500);
+        return;
+      }
+      if (passuser.value.trim() === "") {
+        showToast('Ingrese una contraseña', 'ERROR', 1500);
+        return;
+      }
+
+      // 2) Preguntar confirmación antes de continuar
+      const confirmado = await ask(
+        "¿Está seguro de registrar este colaborador?", 
+        "Colaboradores"
+      );
+      if (!confirmado) {
+        // Si el usuario cancela, no hacemos nada más
+        return;
+      }
+
+      // 3) Validar campos restantes
       if (!validar()) return;
+
+      // 4) Preparar FormData y enviar petición
       const fd = new FormData(form);
       fd.append('action', 'create');
-      const resp = await fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", {
-        method: 'POST',
-        body: fd
-      });
-      const result = await resp.json();
-      if (result.status) {
-        showToast('Colaborador registrado exitosamente.', 'SUCCESS', 1000);
-        setTimeout(() => window.location.href = 'listar-colaborador.php', 1500);
-      } else {
-        Swal.fire('Error', result.message, 'error');
+
+      try {
+        const resp = await fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", {
+          method: 'POST',
+          body: fd
+        });
+        const result = await resp.json();
+
+        if (result.status) {
+          // 5a) Si todo salió bien, mostrar toast de éxito y luego redirigir
+          showToast('Colaborador registrado exitosamente.', 'SUCCESS', 1000);
+          setTimeout(() => {
+            window.location.href = 'listar-colaborador.php';
+          }, 1500);
+        } else {
+          // 5b) Si hay error, mostrar toast de error
+          showToast(result.message || 'Ocurrió un error inesperado.', 'ERROR', 2000);
+        }
+      } catch (err) {
+        // 5c) Si falla la petición (problema de red o servidor), mostrar toast
+        console.error('Fetch error:', err);
+        showToast('Error de servidor. Intenta nuevamente.', 'ERROR', 2000);
       }
     });
   });
 </script>
+
