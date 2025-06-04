@@ -15,10 +15,10 @@ BEGIN
   SET vencida = TRUE
   WHERE vencida = FALSE
     AND estado = TRUE
-    AND (fecha_expiracion < CURRENT_DATE());
+    AND fecha_expiracion <= CURRENT_DATE();
 END $$
 DELIMITER ;
-
+SHOW EVENTS WHERE Name = 'ev_MarcarCotizacionesVencidas';
 
 DROP PROCEDURE IF EXISTS spListCotizacionesPorPeriodo;
 DELIMITER $$
@@ -54,7 +54,8 @@ BEGIN
   FROM vs_cotizaciones v
   JOIN cotizaciones c ON c.idcotizacion = v.idcotizacion
   WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
-    AND c.estado = TRUE                -- sólo activas (no eliminadas)
+    AND c.estado = TRUE
+    AND c.vencida = FALSE              -- 🚨 Esta línea es la clave
   GROUP BY v.idcotizacion, v.cliente, v.vigencia, DATE(v.fechahora), c.vencida
   ORDER BY DATE(v.fechahora);
 END $$

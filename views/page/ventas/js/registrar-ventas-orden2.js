@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnToggleService = document.getElementById("btnToggleService");
   const obsField = document.getElementById("observaciones");
   const gruField = document.getElementById("ingresogrua");
+  const hiddenIdPropietario = document.getElementById("hiddenIdPropietario");
+  const inputClienteVisible = document.getElementById("inputClienteVisible");
 
   // 2) Cargar lista de servicios por subcategoría
   async function cargarServiciosPorSubcategoria(idsubcat) {
@@ -50,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("servicio").innerHTML = html;
     } catch (err) {
       console.error("Error al cargar servicios:", err);
+      showToast("Error al cargar servicios.", "ERROR", 1500);
     }
   }
 
@@ -69,7 +72,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const textoSub = selectSub.options[selectSub.selectedIndex]?.text || "";
 
       if (!idsubcat) {
-        alert("Primero debe seleccionar un Tipo de Servicio (subcategoría).");
+        showToast(
+          "Primero debe seleccionar un Tipo de Servicio (subcategoría).",
+          "WARNING",
+          1500
+        );
         return;
       }
       document.getElementById("modalSubcategoriaId").value = idsubcat;
@@ -90,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .value.trim();
 
       if (!servicioNombre) {
-        alert("Debe ingresar el nombre del servicio.");
+        showToast("Debe ingresar el nombre del servicio.", "WARNING", 1500);
         return;
       }
 
@@ -111,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         const json = await resp.json();
         if (json.error) {
-          alert("Error: " + json.error);
+          showToast("Error: " + json.error, "ERROR", 2000);
           return;
         }
 
@@ -131,10 +138,10 @@ document.addEventListener("DOMContentLoaded", function () {
         opt.selected = true;
         selectServ.appendChild(opt);
 
-        alert("Servicio registrado correctamente.");
+        showToast("Servicio registrado correctamente.", "SUCCESS", 1500);
       } catch (err) {
         console.error("Error al registrar servicio:", err);
-        alert("Ocurrió un error al registrar el servicio.");
+        showToast("Ocurrió un error al registrar el servicio.", "ERROR", 1500);
       }
     });
 
@@ -271,13 +278,10 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((r) => r.json())
       .then((data) => {
         // 1) Cliente (para vehículos)
-        hiddenIdCliente.value = data.idcliente;
-        // 2) Propietario (para FK)
-        hiddenIdPropietario.value = data.idcliente;
-        // 3) Nombre del propietario en el input
-        inputProp.value = data.cliente;
-        // 4) Disparamos carga de vehículos sobre hiddenIdCliente
-        hiddenIdCliente.dispatchEvent(new Event("change"));
+        hiddenIdPropietario.value = data.idcliente; // clienteCot → propietario
+        hiddenIdCliente.value = 0; // clienteVenta = NULL
+        inputProp.value = data.cliente; // muestro el nombre en “Propietario”
+        hiddenIdPropietario.dispatchEvent(new Event("change"));
       })
       .catch(console.error);
 
@@ -404,6 +408,23 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(console.error);
   }
+  hiddenIdCliente.addEventListener("change", function () {
+    const idcli = parseInt(this.value, 10);
+    if (!idcli) {
+      inputProp.value = "";
+      hiddenIdPropietario.value = 0;
+      return;
+    }
+    fetch(
+      `${API_BASE}cliente.controller.php?action=getDetalles&idcliente=${idcli}`
+    )
+      .then((r) => r.json())
+      .then((clienteData) => {
+        inputClienteVisible.value = clienteData.razonSocial;
+        hiddenIdPropietario.value = 0; // para que en el SP “propietario” quede NULL
+      })
+      .catch(console.error);
+  });
 
   btnAgregarDetalleServicio.addEventListener("click", () => {
     // 1) Lee y valida cada cosa por separado
@@ -713,7 +734,13 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((data) => {
         if (!Array.isArray(data) || data.length === 0) {
-          showToast("No se encontraron productos.", "WARNING", 1500);
+          Swal.fire({
+            icon: "warning",
+            title: "No se encontraron productos",
+            text: "Por favor, verifica el término de búsqueda.",
+            confirmButtonText: "Aceptar",
+            allowOutsideClick: false,
+          });
           return;
         }
 
@@ -827,8 +854,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!esSoloDigitos) {
       // Mientras escribes a mano (letras/espacios) usamos el debounce
       debouncedMostrarOpcionesProducto(this);
-    }
-    // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
+    } // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
   });
 
   // 2) Listener de ‘keyup’: sólo para scanner (ENTER):
@@ -1009,8 +1035,8 @@ document.addEventListener("DOMContentLoaded", function () {
         numserie: numSerieInput.value.trim(),
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
-        idpropietario: +document.getElementById("hiddenIdPropietario").value,
-        idcliente: +hiddenIdCliente.value,
+        idpropietario: document.getElementById("hiddenIdPropietario").value,
+        idcliente: document.getElementById("hiddenIdCliente").value,
         idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
         kilometraje:
           parseFloat(document.getElementById("kilometraje").value) || 0,
