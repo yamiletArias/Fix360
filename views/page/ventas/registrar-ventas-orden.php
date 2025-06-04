@@ -696,7 +696,7 @@ require_once "../../partials/_footer.php";
 <!-- Formulario Venta -->
 <script src="<?= SERVERURL ?>views/page/ventas/js/registrar-ventas-orden2.js"></script>
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
-<script src="<?= SERVERURL ?>views/page/clientes/js/registrar-cliente.js"></script>
+<script src="<?= SERVERURL ?>views/page/clientes/js/registrar-cliente2.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 </body>
