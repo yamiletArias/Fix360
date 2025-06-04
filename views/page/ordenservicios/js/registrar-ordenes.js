@@ -10,7 +10,7 @@ function fetchHandler() {
 // --------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOMContentLoaded fired");
- const modalServ = document.getElementById('ModalServicio');
+  const modalServ = document.getElementById('ModalServicio');
   if (modalServ) {
     modalServ.addEventListener('shown.bs.modal', cargarTiposServicioModal);
   }
@@ -39,15 +39,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-   const kmInput = document.getElementById("kilometraje");
+  const kmInput = document.getElementById("kilometraje");
   if (kmInput) {
     kmInput.addEventListener("change", () => {
-  const nuevo = parseFloat(kmInput.value);
-  if (prevKilometraje !== null && nuevo < prevKilometraje) {
-    alert(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`);
-    kmInput.value = prevKilometraje;
-  }
-});
+      const nuevo = parseFloat(kmInput.value);
+      if (prevKilometraje !== null && nuevo < prevKilometraje) {
+        alert(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`);
+        kmInput.value = prevKilometraje;
+      }
+    });
 
   }
 
@@ -123,7 +123,7 @@ async function fetchUltimoKilometraje(idvehiculo) {
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
     const ultimo = data.ultimo_kilometraje ?? 0;
-    prevKilometraje = parseFloat(ultimo); 
+    prevKilometraje = parseFloat(ultimo);
     console.log("SP response:", data);
     document.getElementById("kilometraje").value = data.ultimo_kilometraje ?? "";
   } catch (err) {
@@ -136,24 +136,13 @@ async function fetchUltimoKilometraje(idvehiculo) {
  * Actualiza los métodos de búsqueda en modal propietario.
  */
 function actualizarOpciones() {
-  const esPersona = document.getElementById("rbtnpersona").checked;
   const select = document.getElementById("selectMetodo");
-  select.innerHTML = ""; // Limpiar las opciones anteriores
-
-  if (esPersona) {
-    // Si buscamos personas, el método puede ser DNI o Nombre
-    select.insertAdjacentHTML(
-      "beforeend",
-      `<option value="dni">DNI</option><option value="nombre">Apellidos y nombres</option>`
-    );
-  } else {
-    // Si buscamos empresas, el método puede ser RUC o Razón Social
-    select.insertAdjacentHTML(
-      "beforeend",
-      `<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>`
-    );
-  }
+  const isPersona = document.getElementById("rbtnpersona").checked;
+  select.innerHTML = isPersona
+    ? `<option value="dni">DNI</option><option value="nombre">Apellidos y nombres</option>`
+    : `<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>`;
 }
+
 async function cargarTiposServicioModal() {
   const sel = document.getElementById('selectTipoServicioModal');
   sel.innerHTML = '<option value="">Seleccione un tipo de servicio</option>';
@@ -178,63 +167,30 @@ function buscarPropietario() {
   const tipo = document.getElementById("rbtnpersona").checked ? "persona" : "empresa";
   const metodo = document.getElementById("selectMetodo").value;
   const valor = document.getElementById("vbuscado").value.trim();
-  const tbody = document.querySelector("#tabla-resultado tbody");
-
-  // Si el campo de búsqueda está vacío, limpiamos la tabla y salimos
   if (!valor) {
-    tbody.innerHTML = "";
+    document.querySelector("#tabla-resultado tbody").innerHTML = "";
     return;
   }
-
-  // Hacemos la consulta al backend
   fetch(
     `${SERVERURL}app/controllers/Propietario.controller.php?tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`
   )
     .then(r => r.json())
     .then(data => {
-      // CASO 1: No hay resultados (data es null, no array o array vacío)
-      if (!Array.isArray(data) || data.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="4" class="text-center">
-              No se encontraron propietarios.
-              <button id="btnRegistrarPropietario" class="btn btn-sm btn-primary ms-2">
-                Registrar Propietario
-              </button>
-            </td>
-          </tr>
-        `;
-        // Asociamos el click del botón “Registrar Propietario” para redirigir al formulario:
-        document
-          .getElementById("btnRegistrarPropietario")
-          .addEventListener("click", () => {
-            // Ajusta la ruta si tu PHP está en otro lugar. Este ejemplo asume:
-            //   views/page/clientes/registrar-cliente.php
-            window.location.href = "views/page/clientes/registrar-cliente.php";
-          });
-        return;
-      }
-
-      // CASO 2: Sí hay resultados, los pintamos uno por uno
-      tbody.innerHTML = data
-        .map((item, i) => `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${item.nombre}</td>
-            <td>${item.documento}</td>
-            <td>
-              <button class="btn btn-success btn-sm btn-confirmar"
-                      data-id="${item.idcliente}"
-                      data-bs-dismiss="modal">
-                <i class="fa-solid fa-circle-check"></i>
-              </button>
-            </td>
-          </tr>
-        `).join("");
+      const tbody = document.querySelector("#tabla-resultado tbody");
+      tbody.innerHTML = data.map((item, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${item.nombre}</td>
+          <td>${item.documento}</td>
+          <td>
+            <button class="btn btn-success btn-sm btn-confirmar" data-id="${item.idcliente}" data-bs-dismiss="modal">
+              <i class="fa-solid fa-circle-check"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
     })
-    .catch(err => {
-      console.error("Error en fetch buscarPropietario():", err);
-    });
+    .catch(console.error);
 }
 
 /**
@@ -256,7 +212,7 @@ function buscarCliente() {
       const tbody = document.querySelector("#tabla-resultado-cliente tbody");
       tbody.innerHTML = data.map((item, i) => `
         <tr>
-          <td>${i+1}</td>
+          <td>${i + 1}</td>
           <td>${item.nombre}</td>
           <td>${item.documento}</td>
           <td>
@@ -275,14 +231,14 @@ function buscarCliente() {
  */
 function setFechaDefault() {
   const input = document.getElementById('fechaIngreso');
-  const now = new Date(); const pad = n => String(n).padStart(2,'0');
-  const yyyy = now.getFullYear(), MM = pad(now.getMonth()+1), dd = pad(now.getDate());
+  const now = new Date(); const pad = n => String(n).padStart(2, '0');
+  const yyyy = now.getFullYear(), MM = pad(now.getMonth() + 1), dd = pad(now.getDate());
   const hh = pad(now.getHours()), mm = pad(now.getMinutes());
   input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
 
   const twoDaysAgo = new Date(now);
-  twoDaysAgo.setDate(now.getDate()-2);
-  input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth()+1)}-${pad(twoDaysAgo.getDate())}T00:00`;
+  twoDaysAgo.setDate(now.getDate() - 2);
+  input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth() + 1)}-${pad(twoDaysAgo.getDate())}T00:00`;
   input.max = `${yyyy}-${MM}-${dd}T23:59`;
 }
 
@@ -337,27 +293,27 @@ function cargarServicio() {
  */
 function cargarVehiculos() {
   const idProp = document.getElementById('hiddenIdPropietario').value;
-  const sel    = document.getElementById('vehiculo');
+  const sel = document.getElementById('vehiculo');
   sel.innerHTML = '<option value="">Seleccione una opción</option>';
   if (!idProp) return;
 
   fetch(
     `${SERVERURL}app/controllers/vehiculo.controller.php?task=getVehiculoByCliente&idcliente=${idProp}`
   )
-  .then(r => r.json())
-  .then(data => {
-    data.forEach(item => {
-      sel.insertAdjacentHTML('beforeend',
-        `<option value="${item.idvehiculo}">${item.vehiculo}</option>`
-      );
-    });
-    // ——> auto-carga del primero, opcional:
-    if (sel.options.length > 1) {
-      sel.selectedIndex = 1;
-      sel.dispatchEvent(new Event('change'));
-    }
-  })
-  .catch(console.error);
+    .then(r => r.json())
+    .then(data => {
+      data.forEach(item => {
+        sel.insertAdjacentHTML('beforeend',
+          `<option value="${item.idvehiculo}">${item.vehiculo}</option>`
+        );
+      });
+      // ——> auto-carga del primero, opcional:
+      if (sel.options.length > 1) {
+        sel.selectedIndex = 1;
+        sel.dispatchEvent(new Event('change'));
+      }
+    })
+    .catch(console.error);
 }
 
 /**
@@ -365,14 +321,14 @@ function cargarVehiculos() {
  */
 function onAgregarDetalle() {
   const serv = document.getElementById('servicio');
-  const mec  = document.getElementById('mecanico');
+  const mec = document.getElementById('mecanico');
   const precio = parseFloat(document.getElementById('precio').value);
   const idServ = +serv.value;
 
-   if (isNaN(precio) || precio <= 0) {
+  if (isNaN(precio) || precio <= 0) {
     return alert('El precio debe ser un número mayor a cero');
   }
-  
+
 
   if (!idServ || !+mec.value) return alert('Selecciona servicio y mecánico');
   if (detalleArr.some(d => d.idservicio === idServ)) return alert('Este servicio ya está en la lista');
@@ -418,12 +374,12 @@ function recalcular() {
 function onAceptarOrden(e) {
   e.preventDefault();
 
-    const kmInput = document.getElementById('kilometraje');
+  const kmInput = document.getElementById('kilometraje');
   const nuevo = parseFloat(kmInput.value);
   if (prevKilometraje !== null && nuevo < prevKilometraje) {
     return alert(`No puedes enviar un kilometraje menor que ${prevKilometraje}.`);
   }
-  
+
   if (!window.confirm('¿Estás seguro de que quieres registrar esta orden de servicio?')) return;
   if (detalleArr.length === 0) return alert('Agrega al menos un servicio');
 
@@ -442,7 +398,7 @@ function onAceptarOrden(e) {
 
   fetch(`${SERVERURL}app/controllers/OrdenServicio.controller.php`, {
     method: 'POST',
-    headers: { 'Content-Type':'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
     .then(r => r.json())
@@ -456,6 +412,6 @@ function onAceptarOrden(e) {
     })
     .catch(err => {
       console.error('Fetch error:', err);
-      showToast('Error de red o servidor','ERROR',2000);
+      showToast('Error de red o servidor', 'ERROR', 2000);
     });
 }

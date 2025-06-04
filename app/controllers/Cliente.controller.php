@@ -9,10 +9,10 @@ require_once "../models/Empresa.php";
 require_once "../models/Cliente.php";
 require_once "../helpers/helper.php";
 
-$pdo           = Conexion::getConexion();
-$personaModel  = new Persona();
-$empresaModel  = new Empresa();
-$clienteModel  = new Cliente();
+$pdo = Conexion::getConexion();
+$personaModel = new Persona();
+$empresaModel = new Empresa();
+$clienteModel = new Cliente();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 1) Detalle único (editar)
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         echo json_encode([
-            'status'      => true,
+            'status' => true,
             'propietario' => $row['propietario']
         ]);
         exit;
@@ -79,12 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // Default GET
     echo json_encode(['status' => false, 'message' => 'Parámetros GET inválidos']);
+
+    
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Leemos JSON
-    $input    = file_get_contents('php://input');
+    $input = file_get_contents('php://input');
     $dataJSON = json_decode($input, true);
 
     // Si viene "operation", revisamos si es actualización o eliminación
@@ -99,16 +101,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
                 $paramsPersona = [
-                  "idpersona"      => $idpersona,
-                  "nombres"        => Helper::limpiarCadena($dataJSON['nombres']      ?? ""),
-                  "apellidos"      => Helper::limpiarCadena($dataJSON['apellidos']    ?? ""),
-                  "tipodoc"        => Helper::limpiarCadena($dataJSON['tipodoc']      ?? ""),
-                  "numdoc"         => Helper::limpiarCadena($dataJSON['numdoc']       ?? ""),
-                  "numruc"         => Helper::limpiarCadena($dataJSON['numruc']       ?? ""),
-                  "direccion"      => Helper::limpiarCadena($dataJSON['direccion']    ?? ""),
-                  "correo"         => Helper::limpiarCadena($dataJSON['correo']       ?? ""),
-                  "telprincipal"   => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
-                  "telalternativo" => Helper::limpiarCadena($dataJSON['telalternativo'] ?? "")
+                    "idpersona" => $idpersona,
+                    "nombres" => Helper::limpiarCadena($dataJSON['nombres'] ?? ""),
+                    "apellidos" => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
+                    "tipodoc" => Helper::limpiarCadena($dataJSON['tipodoc'] ?? ""),
+                    "numdoc" => Helper::limpiarCadena($dataJSON['numdoc'] ?? ""),
+                    "numruc" => Helper::limpiarCadena($dataJSON['numruc'] ?? ""),
+                    "direccion" => Helper::limpiarCadena($dataJSON['direccion'] ?? ""),
+                    "correo" => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
+                    "telprincipal" => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
+                    "telalternativo" => Helper::limpiarCadena($dataJSON['telalternativo'] ?? "")
                 ];
                 // Invocamos spUpdatePersona a través del modelo Persona
                 $result = $personaModel->update($paramsPersona);
@@ -124,11 +126,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
                 $paramsEmpresa = [
-                  "idempresa"    => $idempresa,
-                  "nomcomercial" => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
-                  "razonsocial"  => Helper::limpiarCadena($dataJSON['razonsocial']  ?? ""),
-                  "telefono"     => Helper::limpiarCadena($dataJSON['telefono']     ?? ""),
-                  "correo"       => Helper::limpiarCadena($dataJSON['correo']       ?? "")
+                    "idempresa" => $idempresa,
+                    "nomcomercial" => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
+                    "razonsocial" => Helper::limpiarCadena($dataJSON['razonsocial'] ?? ""),
+                    "telefono" => Helper::limpiarCadena($dataJSON['telefono'] ?? ""),
+                    "correo" => Helper::limpiarCadena($dataJSON['correo'] ?? "")
                 ];
                 // Invocamos spUpdateEmpresa a través del modelo Empresa
                 $result = $empresaModel->update($paramsEmpresa);
@@ -169,35 +171,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? '');
 
     if ($tipo === "persona") {
-        // Registro de cliente como persona
+        // 1) Reconstruimos $registro con exactamente las mismas claves que pide el modelo
         $registro = [
-            "nombres"           => Helper::limpiarCadena($dataJSON['nombres'] ?? ""),
-            "apellidos"         => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
-            "tipodoc"           => Helper::limpiarCadena($dataJSON['tipodoc'] ?? ""),
-            "numdoc"            => Helper::limpiarCadena($dataJSON['numdoc'] ?? ""),
-            "numruc"            => Helper::limpiarCadena($dataJSON['numruc'] ?? ""),
-            "direccion"         => Helper::limpiarCadena($dataJSON['direccion'] ?? ""),
-            "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
-            "telprincipal"      => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
-            "telalternativo"    => Helper::limpiarCadena($dataJSON['telalternativo'] ?? ""),
+            "nombres" => Helper::limpiarCadena($dataJSON['nombres'] ?? ""),
+            "apellidos" => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
+            "tipodoc" => Helper::limpiarCadena($dataJSON['tipodoc'] ?? ""),
+            "numdoc" => Helper::limpiarCadena($dataJSON['numdoc'] ?? ""),
+            "numruc" => Helper::limpiarCadena($dataJSON['numruc'] ?? ""),
+            "direccion" => Helper::limpiarCadena($dataJSON['direccion'] ?? ""),
+            "correo" => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
+            "telprincipal" => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
+            "telalternativo" => Helper::limpiarCadena($dataJSON['telalternativo'] ?? ""),
             "idcontactabilidad" => intval($dataJSON["idcontactabilidad"] ?? 0)
         ];
+
+        // 2) Llamamos al modelo
         $n = $clienteModel->registerClientePersona($registro);
-        echo json_encode(["rows" => $n]);
+
+        // 3) Obtenemos el último ID generado
+        $idcliente = (int) $pdo->lastInsertId();
+
+        // 4) Armamos el nombre completo para “propietario”
+        $propietario = trim(
+            ($dataJSON['nombres'] ?? "") . " " .
+            ($dataJSON['apellidos'] ?? "")
+        );
+
+        // 5) Devolvemos JSON con rows, idcliente y propietario
+        echo json_encode([
+            "rows" => $n,
+            "idcliente" => $idcliente,
+            "propietario" => $propietario
+        ]);
         exit;
+
     } elseif ($tipo === "empresa") {
-        // Registro de cliente como empresa
+        // 1) Reconstruimos $registro con las claves que pide el modelo
         $registro = [
-            "ruc"               => Helper::limpiarCadena($dataJSON['ruc'] ?? ""),
-            "nomcomercial"      => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
-            "razonsocial"       => Helper::limpiarCadena($dataJSON['razonsocial'] ?? ""),
-            "telefono"          => Helper::limpiarCadena($dataJSON['telefono'] ?? ""),
-            "correo"            => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
+            "ruc" => Helper::limpiarCadena($dataJSON['ruc'] ?? ""),
+            "nomcomercial" => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
+            "razonsocial" => Helper::limpiarCadena($dataJSON['razonsocial'] ?? ""),
+            "telefono" => Helper::limpiarCadena($dataJSON['telefono'] ?? ""),
+            "correo" => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
             "idcontactabilidad" => intval($dataJSON["idcontactabilidad"] ?? 0)
         ];
+
+        // 2) Llamamos al modelo
         $n = $clienteModel->registerClienteEmpresa($registro);
-        echo json_encode(["rows" => $n]);
+
+        // 3) Obtenemos el último ID generado
+        $idcliente = (int) $pdo->lastInsertId();
+
+        // 4) Para empresa, devolvemos la RAZÓN SOCIAL como propietario
+        $propietario = trim($dataJSON['razonsocial'] ?? "");
+
+        // 5) Devolvemos JSON
+        echo json_encode([
+            "rows" => $n,
+            "idcliente" => $idcliente,
+            "propietario" => $propietario
+        ]);
         exit;
+
     } else {
         echo json_encode(["status" => false, "message" => "Tipo de cliente no válido"]);
         exit;
