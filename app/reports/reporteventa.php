@@ -39,14 +39,23 @@ if (empty($rows)) {
 // Cabecera: toma datos de la primera fila
 $first = $rows[0];
 $info = [
-    'idventa'           => $idventa,
-    'fechahora'         => $first['fecha'] ?? date('Y-m-d H:i:s'),
-    'cliente'           => $first['cliente'] ?? 'Sin cliente',
-    'vehiculo'          => $first['vehiculo'] ?? 'Sin vehículo',
-    'kilometraje'       => $first['kilometraje'] ?? 'Sin kilometraje',
-    'tipo_comprobante'  => $first['tipocom'] ?? 'Boleta',
-    'numero_comprobante'=> $first['numcomp'] ?? 'Sin número',
-    'propietario'       => $first['propietario'] ?? 'Sin propietario'
+    'idventa' => $idventa,
+    'fechahora' => $first['fecha'] ?? date('Y-m-d H:i:s'),
+    // Normalizamos: si la vista arrojó 'Sin propietario', dejamos valor por defecto
+    'propietario' => (empty($first['propietario']) || $first['propietario'] === 'Sin propietario')
+        ? 'Sin propietario'
+        : $first['propietario'],
+    'cliente' => (empty($first['cliente']) || $first['cliente'] === 'Cliente anónimo')
+        ? 'Sin cliente'
+        : $first['cliente'],
+    'vehiculo' => (empty($first['vehiculo']) || $first['vehiculo'] === 'Sin vehículo')
+        ? 'Sin vehículo'
+        : $first['vehiculo'],
+    'kilometraje' => (empty($first['kilometraje']) || $first['kilometraje'] === 'Sin kilometraje')
+        ? 'Sin kilometraje'
+        : $first['kilometraje'],
+    'tipo_comprobante' => $first['tipocom'] ?? 'Boleta',
+    'numero_comprobante' => $first['numcomp'] ?? 'Sin número'
 ];
 
 // 2) Detalle de productos y 3) Servicios
@@ -57,30 +66,30 @@ foreach ($rows as $row) {
     // AHORA: solo productos si registro_tipo = 'producto'
     if ($row['registro_tipo'] === 'producto') {
         $productos[] = [
-          'producto'       => $row['producto'],
-          'cantidad'       => $row['cantidad'],
-          'precio'         => $row['precio'],
-          'descuento'      => $row['descuento'],
-          'total_producto' => $row['total_producto'],
+            'producto' => $row['producto'],
+            'cantidad' => $row['cantidad'],
+            'precio' => $row['precio'],
+            'descuento' => $row['descuento'],
+            'total_producto' => $row['total_producto'],
         ];
     }
     // Servicios sólo si registro_tipo = 'servicio'
     elseif ($row['registro_tipo'] === 'servicio') {
         $servicios[] = [
-          'tiposervicio'    => $row['tiposervicio'],
-          'nombreservicio'  => $row['nombreservicio'],
-          'mecanico'        => $row['mecanico'],
-          'precio_servicio' => $row['precio_servicio'],
+            'tiposervicio' => $row['tiposervicio'],
+            'nombreservicio' => $row['nombreservicio'],
+            'mecanico' => $row['mecanico'],
+            'precio_servicio' => $row['precio_servicio'],
         ];
     }
 }
 
 // Variables adicionales
-$tipoComprobante   = $info['tipo_comprobante'];
+$tipoComprobante = $info['tipo_comprobante'];
 $numeroComprobante = $info['numero_comprobante'];
-$propietario       = $info['propietario'];
-$cliente           = $info['cliente'];
-$fechaVenta        = date('d/m/Y H:i', strtotime($info['fechahora']));
+$propietario = $info['propietario'];
+$cliente = $info['cliente'];
+$fechaVenta = date('d/m/Y H:i', strtotime($info['fechahora']));
 
 // 4) Capturar plantilla
 ob_start();
