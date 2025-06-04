@@ -14,8 +14,16 @@ CALL spHistorialVentasPorVehiculo('mes', '2025-06-04', 1, FALSE);
 CALL spHistorialVentasPorVehiculo('mes', '2025-06-04', 1, FALSE);
 CALL spHistorialOrdenesPorVehiculo('mes','2025-06-04','D', 1);
 
+SELECT *
+FROM ordenservicios o
+LEFT JOIN vehiculos v ON o.idvehiculo = v.idvehiculo
+WHERE 
+  o.idvehiculo = 1
+  AND o.estado = 'A'
+  AND DATE(o.fechaingreso) BETWEEN '2025-06-01' AND '2025-06-30';
 
 
+-- select * from ordenservicios
 
 DELIMITER $$
 

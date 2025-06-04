@@ -1749,7 +1749,7 @@ BEGIN
     LEFT JOIN personas p      ON p.idpersona = c.idpersona
     LEFT JOIN empresas e      ON e.idempresa = c.idempresa;
 END $$
-DELIMITER $$
+
 DROP PROCEDURE IF EXISTS spHistorialOrdenesPorVehiculo $$
 CREATE PROCEDURE spHistorialOrdenesPorVehiculo(
   IN _modo        ENUM('mes','semestral','anual'),
@@ -1780,7 +1780,6 @@ BEGIN
     o.fechasalida,
     v.placa,
 
-    -- LEFT JOIN con clientes “propietario”:
     CASE
       WHEN cp.idpersona IS NOT NULL
         THEN CONCAT(pp.nombres, ' ', pp.apellidos)
@@ -1790,7 +1789,6 @@ BEGIN
         '(Sin propietario registrado)'
     END AS propietario,
 
-    -- LEFT JOIN con clientes “cliente”:
     CASE
       WHEN cc.idpersona IS NOT NULL
         THEN CONCAT(pc.nombres, ' ', pc.apellidos)
@@ -1801,23 +1799,22 @@ BEGIN
     END AS cliente
 
   FROM ordenservicios o
-    JOIN vehiculos v   ON o.idvehiculo    = v.idvehiculo
+    JOIN vehiculos v      ON o.idvehiculo    = v.idvehiculo
 
-    -- Aquí cambiamos a LEFT JOIN:
-    LEFT JOIN clientes cp      ON o.idpropietario = cp.idcliente
-    LEFT JOIN personas pp      ON cp.idpersona    = pp.idpersona
-    LEFT JOIN empresas ce      ON cp.idempresa    = ce.idempresa
+    LEFT JOIN clientes cp ON o.idpropietario = cp.idcliente
+    LEFT JOIN personas pp ON cp.idpersona    = pp.idpersona
+    LEFT JOIN empresas ce ON cp.idempresa    = ce.idempresa
 
-    LEFT JOIN clientes cc      ON o.idcliente    = cc.idcliente
-    LEFT JOIN personas pc      ON cc.idpersona    = pc.idpersona
-    LEFT JOIN empresas cce     ON cc.idempresa    = cce.idempresa
+    LEFT JOIN clientes cc ON o.idcliente     = cc.idcliente
+    LEFT JOIN personas pc ON cc.idpersona    = pc.idpersona
+    LEFT JOIN empresas cce ON cc.idempresa   = cce.idempresa
 
   WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
     AND o.estado = _estado
     AND o.idvehiculo = _idvehiculo
   ORDER BY o.fechaingreso;
-
 END$$
+
 
 DELIMITER $$
 DROP PROCEDURE IF EXISTS spHistorialVentasPorVehiculo $$
