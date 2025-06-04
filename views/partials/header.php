@@ -285,10 +285,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
                 id="messageDropdown" href="#"
                 data-bs-toggle="dropdown" title="Recordatorios de hoy" aria-expanded="false">
                 <i class="icon-speech"></i>
-                <span class="count"  style="margin-left: 0px;
-    margin-bottom: 20px;
-    margin-right: 50px;position:absolute;
-"><?= $hoy_count ?></span>
+                <span class="count" style="margin-left: 0px;margin-bottom: 20px;margin-right: 50px;position:absolute;"><?= $hoy_count ?></span>
               </a>
               <div class="dropdown-menu dropdown-menu-end navbar-dropdown preview-list p-0"
                 aria-labelledby="messageDropdown" style="min-width:250px;">
