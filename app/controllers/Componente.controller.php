@@ -32,12 +32,17 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
       ];
       $n = $componente->add($registro);
 
-      if ($n === 0) {
-        echo json_encode(["error" => "No se pudo registrar el componente"]);
-        error_log("JSON Recibido: " . $input);
-      } else {
-        echo json_encode(["success" => "Componente registrado", "rows" => $n]);
-      }
+      // componente.controller.php → método add()
+if ($n['idcomponente'] === 0) {
+    echo json_encode(["error" => "No se pudo registrar el componente"]);
+} else {
+    echo json_encode([
+      "success"      => "Componente registrado",
+      "idcomponente" => $n['idcomponente'],
+      "componente"   => $n['componente']
+    ]);
+}
+
       break;
     default:
       # code...

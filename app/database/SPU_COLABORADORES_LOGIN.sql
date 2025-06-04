@@ -8,6 +8,7 @@ USE dbfix360;
 -- CALL spRegisterColaborador('ejemplo1','ejemplo1',1)
 -- select * from colaboradores where idcontrato = 1;
 -- select * from egresos;
+-- select * from componentes
 /*
 DROP PROCEDURE IF EXISTS spRegisterColaborador;
 DELIMITER $$

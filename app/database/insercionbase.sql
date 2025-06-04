@@ -101,7 +101,8 @@ INSERT INTO vistas (nombre,ruta) VALUES
 ('vehiculoscliente','vehiculo-cliente.php'),
 ('historialvehiculos','historial-vehiculos-prueba.php'),
 ('registrarvehiculos','registrar-vehiculos.php'),
-('observacionvehiculos','observacion-vehiculos.php');
+('observacionvehiculos','observacion-vehiculos.php'),
+('editarvehiculo','editar-vehiculos.php');
 -- select * from vistas
 -- select * from roles
 INSERT INTO rolvistas (idrol,idvista) VALUES
@@ -142,7 +143,8 @@ INSERT INTO rolvistas (idrol,idvista) VALUES
 (1,35),
 (1,36),
 (1,37),
-(1,38);
+(1,38),
+(1,39);
 -- select * from roles
 -- select * from vistas
 -- PERMISOS PARA LOS MECANICOS
@@ -156,7 +158,7 @@ INSERT INTO rolvistas (idrol,idvista) VALUES
 (4,1),
 (4,14);
 
-
+-- select * from ordenservicios
 
 
 	

@@ -21,19 +21,23 @@ class Componente extends Conexion{
     return $result;
   }
 
-  public function add($params= []): int{
-    $numRows = 0;
+  public function add($params= []): array{
+    $response = ['idcomponente' => 0, 'componente' => ''];
     try {
       $query = "CALL spRegisterComponente(?)";
       $stmt = $this->pdo->prepare($query);
       $stmt->execute([
         $params["componente"]
       ]);
-      $numRows = $stmt->rowCount();
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($row && isset($row['idcomponente'])) {
+        $response['idcomponente'] = (int)$row['idcomponente'];
+        $response['componente']   = $params["componente"];
+      }
     } catch (PDOException $e) {
       error_log("Error DB: " . $e->getMessage());
-      return $numRows;
+      return $response;
     }
-    return $numRows;
+    return $response;
   }
 }

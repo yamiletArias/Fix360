@@ -462,7 +462,7 @@ DROP PROCEDURE IF EXISTS spListOrdenesPorPeriodo $$
 CREATE PROCEDURE spListOrdenesPorPeriodo(
   IN _modo    ENUM('semana','mes','dia'),
   IN _fecha   DATE,
-  IN _estado  CHAR(1)          -- 'A' para activas, 'D' para desactivadas
+  IN _estado  CHAR(1)
 )
 BEGIN
   DECLARE start_date DATE;
@@ -484,37 +484,37 @@ BEGIN
     o.fechaingreso,
     o.fechasalida,
     v.placa,
-    -- propietario
+
+    -- Propietario (sigue siendo INNER JOIN, porque siempre debería haber uno)
     CASE
       WHEN cli_prop.idpersona IS NOT NULL
         THEN CONCAT(cli_prop_pe.nombres, ' ', cli_prop_pe.apellidos)
       ELSE cli_prop_em.nomcomercial
     END AS propietario,
-    -- cliente que hace la orden
+
+    -- Cliente (ahora con LEFT JOIN para no descartar si o.idcliente es NULL)
     CASE
+      WHEN cli_c.idcliente IS NULL
+        THEN 'Cliente anonimo'
       WHEN cli_c.idpersona IS NOT NULL
         THEN CONCAT(cli_c_pe.nombres, ' ', cli_c_pe.apellidos)
       ELSE cli_c_em.nomcomercial
     END AS cliente
+
   FROM ordenservicios o
-    JOIN vehiculos v
-      ON o.idvehiculo = v.idvehiculo
-    JOIN clientes cli_prop
-      ON o.idpropietario = cli_prop.idcliente
-    LEFT JOIN personas cli_prop_pe
-      ON cli_prop.idpersona = cli_prop_pe.idpersona
-    LEFT JOIN empresas cli_prop_em
-      ON cli_prop.idempresa = cli_prop_em.idempresa
-    JOIN clientes cli_c
-      ON o.idcliente = cli_c.idcliente
-    LEFT JOIN personas cli_c_pe
-      ON cli_c.idpersona = cli_c_pe.idpersona
-    LEFT JOIN empresas cli_c_em
-      ON cli_c.idempresa = cli_c_em.idempresa
+    JOIN vehiculos v            ON o.idvehiculo   = v.idvehiculo
+    JOIN clientes cli_prop      ON o.idpropietario = cli_prop.idcliente
+    LEFT JOIN personas cli_prop_pe ON cli_prop.idpersona = cli_prop_pe.idpersona
+    LEFT JOIN empresas cli_prop_em  ON cli_prop.idempresa = cli_prop_em.idempresa
+
+    LEFT JOIN clientes cli_c       ON o.idcliente    = cli_c.idcliente      -- cambiado a LEFT JOIN
+    LEFT JOIN personas cli_c_pe   ON cli_c.idpersona = cli_c_pe.idpersona
+    LEFT JOIN empresas cli_c_em    ON cli_c.idempresa = cli_c_em.idempresa
+
   WHERE DATE(o.fechaingreso) BETWEEN start_date AND end_date
-    AND o.estado = _estado           -- filtro por estado
+    AND o.estado = _estado
   ORDER BY o.fechaingreso;
-END$$
+END $$
 
 
 DROP PROCEDURE IF EXISTS spInsertFechaSalida $$
@@ -565,6 +565,7 @@ IN _componente VARCHAR(50)
 )
 BEGIN
 INSERT INTO componentes (componente) VALUES (_componente);
+SELECT LAST_INSERT_ID() AS idcomponente;
 END $$
 
 DROP PROCEDURE IF EXISTS spRegisterRecordatorio $$
@@ -767,30 +768,6 @@ BEGIN
   ORDER BY o.fechaingreso;
 END$$
 
--- call spGetDetalleOrdenServicio(2)
-DROP PROCEDURE IF EXISTS spGetDetalleOrdenServicio $$
-CREATE PROCEDURE spGetDetalleOrdenServicio(
-  IN _idorden INT
-)
-BEGIN
-  SELECT
-    dos.iddetorden                           AS iddetorden,
-    dos.idservicio,
-    s.servicio,
-    
-    dos.idmecanico,
-    CONCAT(pe_me.nombres, ' ', pe_me.apellidos) AS mecanico,
-    
-    dos.precio
-  FROM detalleordenservicios dos
-    JOIN servicios     s     ON dos.idservicio = s.idservicio
-    JOIN colaboradores col   ON dos.idmecanico = col.idcolaborador
-    JOIN contratos     ctr   ON col.idcontrato = ctr.idcontrato
-    JOIN personas      pe_me ON ctr.idpersona = pe_me.idpersona
-  WHERE dos.idorden = _idorden
-  ORDER BY dos.iddetorden;
-END$$
-
 DROP PROCEDURE IF EXISTS spGetJustificacionByOrden $$
 CREATE PROCEDURE spGetJustificacionByOrden(
   IN _idorden INT
@@ -823,9 +800,7 @@ BEGIN
 
   START TRANSACTION;
 
-    /*-----------------------------------------------
-      1) Actualizar siempre los datos “estáticos” del vehículo
-    ------------------------------------------------*/
+
     UPDATE vehiculos
        SET idmodelo       = _idmodelo,
            idtcombustible = _idtcombustible,
@@ -838,9 +813,7 @@ BEGIN
            modificado     = NOW()
      WHERE idvehiculo = _idvehiculo;
 
-    /*-----------------------------------------------
-      2) Obtener el propietario “activo” (fechafinal IS NULL), si existe
-    ------------------------------------------------*/
+
     SELECT idcliente
       INTO v_idcliente_actual
       FROM propietarios
@@ -848,15 +821,10 @@ BEGIN
        AND fechafinal IS NULL
      LIMIT 1;
 
-    /*----------------------------------------------------
-      3) Si el nuevo cliente es distinto al que ya estaba activo,
-         entonces sí cierro/insertó la tabla propietarios.
-    ----------------------------------------------------*/
+
     IF _idcliente_nuevo <> v_idcliente_actual THEN
 
-      /*-------------------------
-        3a) Cerrar vínculo anterior
-      -------------------------*/
+
       IF v_idcliente_actual IS NOT NULL THEN
         UPDATE propietarios
            SET fechafinal = v_hoy
@@ -864,19 +832,14 @@ BEGIN
            AND fechafinal IS NULL;
       END IF;
 
-      /*---------------------------------------------
-        4) Verificar si ya existe registro con inicio = hoy
-         (uso DATE(fechainicio) = v_hoy por si es DATETIME)
-      ---------------------------------------------*/
+
       SELECT COUNT(*) 
         INTO v_existe_para_hoy
       FROM propietarios
       WHERE idvehiculo = _idvehiculo
         AND DATE(fechainicio) = v_hoy;
 
-      /*------------------------------------------------------
-        5) Si NO existe entrada para hoy, hago INSERT; si existe, UPDATE
-      ------------------------------------------------------*/
+
       IF v_existe_para_hoy = 0 THEN
         INSERT INTO propietarios (
           idcliente,
@@ -900,10 +863,7 @@ BEGIN
 
   COMMIT;
 
-  /*--------------------------------------
-    6) Devolver el idcliente que quedó activo 
-       (puede ser NULL si no hubo cambio de dueño)
-  --------------------------------------*/
+
   SELECT 
     (SELECT idcliente 
        FROM propietarios 
@@ -958,81 +918,87 @@ CREATE PROCEDURE spGetDetalleOrdenServicio(
 )
 BEGIN
 
-  -- 1) Cabecera de la orden
+  -- 1) Cabecera de la orden (sin filtrar por o.estado = 'A', para que vea también las eliminadas)
   SELECT
     o.idorden,
     DATE_FORMAT(o.fechaingreso, '%d/%m/%Y %H:%i') AS fecha_ingreso,
-    CASE WHEN o.fechasalida IS NULL 
-         THEN NULL 
-         ELSE DATE_FORMAT(o.fechasalida, '%d/%m/%Y %H:%i') 
+    CASE 
+      WHEN o.fechasalida IS NULL THEN NULL 
+      ELSE DATE_FORMAT(o.fechasalida, '%d/%m/%Y %H:%i') 
     END AS fecha_salida,
     o.ingresogrua,
     o.kilometraje,
     o.observaciones,
 
-    -- Propietario
+    -- Propietario (siempre existe, se deja como JOIN a cprop)
     COALESCE(
       CONCAT(pp.apellidos, ' ', pp.nombres),
       pe.nomcomercial
     ) AS propietario,
 
-    -- Cliente
+    -- Cliente (si no tiene, mostramos 'Cliente anónimo')
     COALESCE(
       CONCAT(cp.apellidos, ' ', cp.nombres),
-      ce.nomcomercial
+      ce.nomcomercial,
+      'Cliente anónimo'
     ) AS cliente,
 
     -- Vehículo
     CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo
 
   FROM ordenservicios o
-    JOIN clientes cprop ON o.idpropietario = cprop.idcliente
-    LEFT JOIN personas pp    ON cprop.idpersona = pp.idpersona
-    LEFT JOIN empresas pe    ON cprop.idempresa = pe.idempresa
+    JOIN clientes cprop       ON o.idpropietario = cprop.idcliente
+    LEFT JOIN personas pp     ON cprop.idpersona = pp.idpersona
+    LEFT JOIN empresas pe     ON cprop.idempresa = pe.idempresa
 
-    JOIN clientes ccli  ON o.idcliente = ccli.idcliente
-    LEFT JOIN personas cp    ON ccli.idpersona = cp.idpersona
-    LEFT JOIN empresas ce    ON ccli.idempresa = ce.idempresa
+    LEFT JOIN clientes ccli   ON o.idcliente    = ccli.idcliente
+    LEFT JOIN personas cp     ON ccli.idpersona = cp.idpersona
+    LEFT JOIN empresas ce     ON ccli.idempresa = ce.idempresa
 
-    JOIN vehiculos vh   ON o.idvehiculo = vh.idvehiculo
-    JOIN modelos m      ON vh.idmodelo   = m.idmodelo
-    JOIN tipovehiculos tv ON m.idtipov   = tv.idtipov
-    JOIN marcas ma      ON m.idmarca     = ma.idmarca
+    JOIN vehiculos vh         ON o.idvehiculo   = vh.idvehiculo
+    JOIN modelos m            ON vh.idmodelo    = m.idmodelo
+    JOIN tipovehiculos tv     ON m.idtipov      = tv.idtipov
+    JOIN marcas ma            ON m.idmarca      = ma.idmarca
 
-  WHERE o.idorden = _idorden
-    AND o.estado = 'A';
+  WHERE o.idorden = _idorden;
+    -- <- ya no se filtra por o.estado = 'A'
 
-  -- 2) Detalle de servicios y mecánicos
+  -- 2) Detalle de servicios y mecánicos (sin filtrar por dos.estado = 'A')
   SELECT
     dos.iddetorden,
-    -- Nombre del mecánico (persona o username si no hay persona)
+
+    -- Nombre del mecánico (si no hay persona, se muestra namuser; si tampoco existe, texto genérico)
     COALESCE(
       CONCAT(mp.apellidos, ' ', mp.nombres),
-      col.namuser
+      col.namuser,
+      '(Sin mecánico)'
     ) AS mecanico,
+
     s.servicio,
     dos.precio
 
   FROM detalleordenservicios dos
-    JOIN ordenservicios o ON dos.idorden = o.idorden
-    JOIN colaboradores col ON dos.idmecanico = col.idcolaborador
-    LEFT JOIN contratos ct ON col.idcontrato = ct.idcontrato
-    LEFT JOIN personas mp  ON ct.idpersona = mp.idpersona
+    JOIN ordenservicios o     ON dos.idorden     = o.idorden
+    LEFT JOIN colaboradores col ON dos.idmecanico = col.idcolaborador
+    LEFT JOIN contratos ct     ON col.idcontrato  = ct.idcontrato
+    LEFT JOIN personas mp      ON ct.idpersona    = mp.idpersona
 
-    JOIN servicios s      ON dos.idservicio = s.idservicio
+    JOIN servicios s          ON dos.idservicio  = s.idservicio
 
   WHERE dos.idorden = _idorden
-    AND dos.estado = 'A'
+    -- <- opcionalmente podrías filtrar por estado, p. ej. AND dos.estado = 'A'
   ORDER BY dos.iddetorden;
 
-  -- 3) Total de la orden
+  -- 3) Total de la orden (suma de precios, sin filtrar por estado)
   SELECT
-    ROUND(SUM(dos.precio),2) AS total_orden
+    ROUND(COALESCE(SUM(dos.precio), 0), 2) AS total_orden
   FROM detalleordenservicios dos
-  WHERE dos.idorden = _idorden
-    AND dos.estado = 'A';
+  WHERE dos.idorden = _idorden;
+    -- <- si quieres solo sumas de líneas activas, agregas AND dos.estado = 'A'
 
-END$$
+END $$
+
+
 
 DROP PROCEDURE IF EXISTS spListEgresosPorPeriodo $$
 CREATE PROCEDURE spListEgresosPorPeriodo(
