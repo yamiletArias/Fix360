@@ -387,31 +387,12 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
             </a>
           </li>
 
-          <!-- 2) “Órdenes de Servicio” (rol = 3 o rol = 1) -->
-          <?php if ($idrol === 3 || $idrol === 1): ?>
-            <li class="nav-item nav-category"><span class="nav-link">Órdenes de Servicio</span></li>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
-                <span class="menu-title">Órdenes de Servicio</span>
-                <i class="fa-solid fa-car-tunnel menu-icon"></i>
-              </a>
-            </li>
-          <?php endif; ?>
-
-          <!-- 3) “Contactabilidad” (rol = 4 o rol = 1) -->
-          <?php if ($idrol === 4 || $idrol === 1): ?>
-            <li class="nav-item nav-category"><span class="nav-link">Contactabilidad</span></li>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= SERVERURL ?>views/page/contactabilidad/listar-graficos.php">
-                <span class="menu-title">Gráficos</span>
-                <i class="fa-solid fa-chart-pie menu-icon"></i>
-              </a>
-            </li>
-          <?php endif; ?>
-
           <!-- 4) Sección “Inventario” (solo rol 1) -->
-          <?php if ($idrol === 1): ?>
+          <?php if ($idrol === 3 || $idrol === 1): ?>
+          <?php if ($idrol === 3 || $idrol === 1): ?>
             <li class="nav-item nav-category"><span class="nav-link">Inventario</span></li>
+            <?php endif; ?>
+            <?php if ( $idrol === 1): ?>
             <li class="nav-item">
               <a class="nav-link" href="<?= SERVERURL ?>views/page/ventas/listar-ventas.php">
                 <span class="menu-title">Ventas</span>
@@ -424,6 +405,17 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
                 <i class="fa-solid fa-cart-plus menu-icon"></i>
               </a>
             </li>
+            <?php endif; ?>
+                      <!-- 2) “Órdenes de Servicio” (rol = 3 o rol = 1) -->
+          <?php if ($idrol === 3 || $idrol === 1): ?>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
+                <span class="menu-title">Órdenes de Servicio</span>
+                <i class="fa-solid fa-car-tunnel menu-icon"></i>
+              </a>
+            </li>
+          <?php endif; ?>
+          <?php if ($idrol === 1): ?>
             <li class="nav-item">
               <a class="nav-link" href="<?= SERVERURL ?>views/page/productos/listar-producto.php">
                 <span class="menu-title">Productos</span>
@@ -442,6 +434,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
                 <i class="fa-solid fa-list-ol menu-icon"></i>
               </a>
             </li>
+            <?php endif; ?>
           <?php endif; ?>
 
           <!-- 5) Sección “Administración” (solo rol 1 y rol 4) -->
@@ -466,6 +459,17 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
               </a>
             </li>
           <?php endif; ?>
+                    <!-- 3) “Contactabilidad” (rol = 4 o rol = 1) -->
+          <?php if ($idrol === 4 || $idrol === 1): ?>
+            <li class="nav-item nav-category"><span class="nav-link">Contactabilidad</span></li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= SERVERURL ?>views/page/contactabilidad/listar-graficos.php">
+                <span class="menu-title">Gráficos</span>
+                <i class="fa-solid fa-chart-pie menu-icon"></i>
+              </a>
+            </li>
+          <?php endif; ?>
+
 
           <!-- 6) Sección “Caja” (solo rol 1) -->
           <?php if ($idrol === 1): ?>
