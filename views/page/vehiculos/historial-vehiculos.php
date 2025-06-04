@@ -173,9 +173,10 @@ require_once "../../partials/header.php";
   document.addEventListener('DOMContentLoaded', () => {
     const idVeh = <?php echo $idvehiculo; ?>;
     const baseUrl = '<?= SERVERURL ?>app/controllers/vehiculo.controller.php';
+    const urlDetVenta = '<?= SERVERURL ?>app/controllers/Detventa.controller.php';
     let tabla;
 
-    // 1) Columnas para Órdenes de Servicio (ya funcionan correctamente)
+    // 1) Columnas para Órdenes de Servicio
     const columnasOrden = [
       { data: 'idorden',      title: '#' },
       { data: 'Administrador', title: 'Registró' },
@@ -190,11 +191,9 @@ require_once "../../partials/header.php";
         title: 'Opciones',
         orderable: false,
         render: row => {
-          // Botón para “Ver detalle” de Orden
           let btn = `<button class="btn btn-sm btn-primary ver-detalle" data-id="${row.idorden}">
                        <i class="fa fa-list"></i>
                      </button>`;
-          // Si la orden está deshabilitada ('D'), mostramos botón de justificación
           if (row.estado === 'D') {
             btn += ` <button class="btn btn-sm btn-warning ver-just" data-id="${row.idorden}">
                        <i class="fa fa-comment-dots"></i>
@@ -205,26 +204,24 @@ require_once "../../partials/header.php";
       }
     ];
 
-    // 2) Columnas para Ventas (listado de productos). 
-    //    Incluimos un botón “Ver detalle” para abrir el modal de venta.
+    // 2) Columnas para Ventas (listado de productos)
     const columnasVenta = [
-      { data: 'idventa',    title: '#' },
-      { data: 'fechahora',  title: 'Fecha' },
-      { data: 'propietario', title: 'Propietario' },
-      { data: 'cliente',    title: 'Cliente' },
-      { data: 'kilometraje', title: 'Kilometraje' },
-      { data: 'vehiculo',   title: 'Vehículo' },
-      { data: 'producto',   title: 'Producto' },
-      { data: 'cantidad',   title: 'Cantidad' },
-      { data: 'precio',     title: 'Precio' },
-      { data: 'descuento',  title: 'Descuento' },
-      { data: 'total_producto', title: 'Total' },
+      { data: 'idventa',         title: '#' },
+      { data: 'fechahora',       title: 'Fecha' },
+      { data: 'propietario',     title: 'Propietario' },
+      { data: 'cliente',         title: 'Cliente' },
+      { data: 'kilometraje',     title: 'Kilometraje' },
+      { data: 'vehiculo',        title: 'Vehículo' },
+      { data: 'producto',        title: 'Producto' },
+      { data: 'cantidad',        title: 'Cantidad' },
+      { data: 'precio',          title: 'Precio' },
+      { data: 'descuento',       title: 'Descuento' },
+      { data: 'total_producto',  title: 'Total' },
       {
         data: null,
         title: 'Opciones',
         orderable: false,
         render: row => {
-          // Botón para “Ver detalle” de la Venta
           return `<button class="btn btn-sm btn-info ver-detalle-venta" data-id="${row.idventa}">
                     <i class="fa fa-list"></i>
                   </button>`;
@@ -233,27 +230,23 @@ require_once "../../partials/header.php";
     ];
 
     /**
-     * Función que carga la DataTable según el tipo seleccionado:
-     * - 'orden': muestra las órdenes de servicio tal como ya funcionaba antes.
-     * - 'venta': muestra el listado de productos asociados a cada venta,
-     *            y agrega el botón para abrir el modal de detalle de venta.
+     * Función para cargar la DataTable según el tipo:
+     * - 'orden': lista de órdenes de servicio.
+     * - 'venta': lista de productos de cada venta.
      */
     function cargar(tipo) {
-      // 1) Si ya existe una tabla inicializada, la destruyo
       if (tabla) {
         tabla.clear();
         tabla.destroy();
         $('#tablaHistorial tbody').empty();
       }
 
-      // 2) Reconstruir los encabezados (<thead><tr>…) según columnas correspondientes
       $('#headRow').empty();
       const cols = (tipo === 'orden') ? columnasOrden : columnasVenta;
       cols.forEach(col => {
         $('#headRow').append(`<th>${col.title}</th>`);
       });
 
-      // 3) Inicializar DataTable con la configuración AJAX / dataSrc adecuada
       if (tipo === 'orden') {
         tabla = $('#tablaHistorial').DataTable({
           ajax: {
@@ -262,12 +255,11 @@ require_once "../../partials/header.php";
               task: 'getOrdenesByVehiculo',
               idvehiculo: idVeh
             },
-            dataSrc: ''   // Aquí se asume que el endpoint getOrdenesByVehiculo devuelve un array plano
+            dataSrc: ''
           },
           columns: columnasOrden
         });
-      }
-      else if (tipo === 'venta') {
+      } else if (tipo === 'venta') {
         tabla = $('#tablaHistorial').DataTable({
           ajax: {
             url: baseUrl,
@@ -275,24 +267,19 @@ require_once "../../partials/header.php";
               task: 'getVentasByVehiculo',
               idvehiculo: idVeh
             },
-            dataSrc: 'data.productos' 
-            /* 
-              Aquí indicamos que, del JSON devuelto por getVentasByVehiculo, 
-              DataTables debe tomar el array que está en response.data.productos 
-              como las filas para poblar la tabla.
-             */
+            dataSrc: 'data.productos'
           },
           columns: columnasVenta
         });
       }
     }
 
-    // 4) When the user switches the radio (“Órdenes de Servicio” / “Ventas”)
+    // Cambio de radio (“Órdenes” / “Ventas”)
     $('input[name="tipo"]').on('change', e => {
       cargar(e.target.value);
     });
 
-    // 5) Delegación de eventos para los botones “ver-detalle” de Órdenes
+    // Eventos para botones de Órdenes de Servicio
     $('#tablaHistorial tbody')
       .on('click', 'button.ver-detalle', function() {
         const id = $(this).data('id');
@@ -301,7 +288,6 @@ require_once "../../partials/header.php";
             idorden: id
           })
           .done(rows => {
-            // Llenar la tabla de detalle de orden (id="tblDetalle")
             const $tbd = $('#tblDetalle tbody').empty();
             rows.forEach((r, i) => {
               $tbd.append(`
@@ -327,36 +313,26 @@ require_once "../../partials/header.php";
           });
       });
 
-    // 6) Delegación de eventos para el botón “ver-detalle-venta” (Ventas)
+    // Evento para “Ver detalle” de venta: usa el controller detventa.php
     $('#tablaHistorial tbody').on('click', 'button.ver-detalle-venta', function() {
       const idVenta = $(this).data('id');
 
-      // Hacemos la llamada para obtener detalle completo de la venta
-      $.getJSON(baseUrl, {
-          task: 'getVentasByVehiculo',
+      $.getJSON(urlDetVenta, {
           idventa: idVenta
         })
         .done(response => {
-          // response tiene la forma:
-          // { "status":"success", "data": { "productos":[…], "servicios":[…] } }
-
-          // 6.1) Tomamos el array de productos y el array de servicios
           const productos = response.data.productos || [];
           const servicios = response.data.servicios || [];
 
-          // 6.2) Si no hay productos ni servicios, simplemente vaciamos todo y mostramos mensaje opcional
-          //       (aquí asumiremos que al menos existe un producto o servicio)
-          //       Para llenar los campos generales, tomamos el primer objeto de “productos” (o de “servicios” si no hay productos)
-          let primeraFila = productos.length ? productos[0] : servicios[0] || {};
-
-          // 6.3) Llenar datos generales en el modal de venta
+          // Llenar datos generales con la primera fila disponible
+          const primeraFila = productos.length ? productos[0] : (servicios[0] || {});
           $('#dvPropietario').text(primeraFila.propietario ?? '—');
           $('#dvCliente').text(primeraFila.cliente ?? '—');
           $('#dvFechaHora').text(primeraFila.fechahora ?? '—');
           $('#dvKilometraje').text(primeraFila.kilometraje ?? '—');
           $('#dvVehiculo').text(primeraFila.vehiculo ?? '—');
 
-          // 6.4) Llenar tabla de productos (id="tblProd")
+          // Llenar tabla de productos (tblProd)
           const $tbodyProd = $('#tblProd tbody').empty();
           productos.forEach((p, idx) => {
             $tbodyProd.append(`
@@ -371,7 +347,7 @@ require_once "../../partials/header.php";
             `);
           });
 
-          // 6.5) Llenar tabla de servicios (id="tblServ")
+          // Llenar tabla de servicios (tblServ)
           const $tbodyServ = $('#tblServ tbody').empty();
           servicios.forEach((s, idx) => {
             $tbodyServ.append(`
@@ -385,7 +361,6 @@ require_once "../../partials/header.php";
             `);
           });
 
-          // 6.6) Finalmente, mostrar el modal
           new bootstrap.Modal($('#modalDetalleVenta')).show();
         })
         .fail((xhr, status, error) => {
@@ -394,9 +369,9 @@ require_once "../../partials/header.php";
         });
     });
 
-
-    // 7) Carga inicial: mostrará Órdenes de Servicio
+    // Carga inicial: mostrar Órdenes de Servicio
     cargar('orden');
   });
 </script>
+
 
