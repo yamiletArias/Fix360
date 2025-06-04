@@ -391,7 +391,7 @@ require_once "../../partials/header.php";
       </div>
       <!-- Pie del Modal -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -455,7 +455,7 @@ require_once "../../partials/header.php";
 
       <!-- Footer -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
 
     </div>
@@ -468,24 +468,24 @@ require_once "../../partials/header.php";
       <form id="formNuevoServicio">
         <div class="modal-header">
           <h5 class="modal-title" id="ModalServicioLabel">Registrar Nuevo Servicio</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          <button type="button" class=" btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
           <!-- Subcategoría seleccionada (sólo lectura) -->
           <div class="form-floating mb-3">
-            <input type="text" id="modalSubcategoriaNombre" class="form-control" readonly>
+            <input type="text" id="modalSubcategoriaNombre" class="form-control input"  readonly>
             <label for="modalSubcategoriaNombre">Tipo de Servicio</label>
           </div>
           <input type="hidden" id="modalSubcategoriaId">
           <!-- Nombre del servicio nuevo -->
           <div class="form-floating mb-3">
-            <input type="text" id="modalServicioNombre" class="form-control" placeholder="Nombre del servicio" required>
-            <label for="modalServicioNombre">Servicio</label>
+            <input type="text" id="modalServicioNombre" class="form-control input" placeholder="Nombre del servicio"  style="background-color: white;" required>
+            <label for="modalServicioNombre"><strong> Servicio</strong></label>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" id="btnRegistrarServicioModal" class="btn btn-primary">Registrar Servicio</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btnRegistrarServicioModal" class="btn btn-sm btn-primary">Registrar</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
       </form>
     </div>

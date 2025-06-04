@@ -293,10 +293,6 @@
         showToast("La placa no puede estar vacía.", "ERROR", 1500);
         return;
       }
-      if (!fanio.value.trim()) {
-        showToast("El año no puede estar vacío.", "ERROR", 1500);
-        return;
-      }
       
       if (!fcolor.value.trim()) {
         showToast("El color no puede estar vacío.", "ERROR", 1500);
