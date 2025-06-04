@@ -8,7 +8,7 @@ const SERVERURL = "http://localhost/Fix360/";
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Stellar Admin</title>
+    <title>Permiso Denegado</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="<?= SERVERURL ?>views/assets/vendors/simple-line-icons/css/simple-line-icons.css">

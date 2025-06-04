@@ -37,14 +37,7 @@ if ($idcliente) {
         <h3>Vehículos a nombre de: <strong><?= htmlspecialchars($nombreCliente) ?></strong></h3>
       </div>
     </div>
-    <div class="col-md-2">
-      <div class="text-end">
-        <button title="Registrar vehiculo" type="button" onclick="window.location.href='registrar-vehiculos.php'"
-          class="btn btn-success ">
-          Registrar
-        </button>
-      </div>
-    </div>
+
   </div>
 
   <div class="table-responsive">

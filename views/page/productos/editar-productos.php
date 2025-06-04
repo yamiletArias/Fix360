@@ -39,7 +39,7 @@ require_once "../../partials/header.php";
     <div class="card border" style="margin-top:50px;">
       <div class="card-body">
         <div class="row">
-<div class="col-md-3">
+          <div class="col-md-3">
             <div class="form-floating mb-3">
               <input type="text" class="form-control input" id="codigobarra" name="codigobarra" placeholder="Código de barras" autocomplete="off" autofocus />
               <label for="codigobarra">Código de Barras</label>
@@ -237,7 +237,7 @@ require_once "../../partials/header.php";
             class="btn btn-secondary"
             href="listar-producto.php">
             Cancelar
-</a>
+          </a>
           <button type="submit" class="btn btn-success" id="btnRegistrarProducto">
             Aceptar
           </button>
@@ -245,9 +245,9 @@ require_once "../../partials/header.php";
       </div><!-- /card-footer -->
     </div><!-- /card -->
   </form>
-</div><!-- /container-main -->
-</div><!-- /container-main -->
-</div><!-- /container-main -->
+</div>
+</div>
+</div>
 
 <?php
 require_once "../../partials/_footer.php";
@@ -370,12 +370,10 @@ require_once "../../partials/_footer.php";
   });
 
   // --- Envío del formulario (AJAX) ---
-  document.getElementById("formProducto").addEventListener("submit", function(e) {
+  document.getElementById("formProducto").addEventListener("submit", async function(e) {
     e.preventDefault();
 
-    if (!confirm("¿Está seguro de que desea actualizar este producto?")) {
-      return;
-    }
+
     // Validaciones básicas
     const descripcion = document.getElementById("descripcion").value.trim();
     const codigobarra = document.getElementById("codigobarra").value.trim();
@@ -406,14 +404,14 @@ require_once "../../partials/_footer.php";
       showToast("El stock máximo debe ser mayor o igual al mínimo.", "ERROR", 1500);
       return;
     }
-    const confirmado =  ask(
-        "¿Está seguro de que desea actualizar este producto?",
-        "Productos"
-      );
-      if (!confirmado) {
-        return; // Usuario canceló
-      }
-      
+const confirmado = await ask( // Agregar await aquí
+  "¿Está seguro de que desea actualizar este producto?",
+  "Productos"
+);
+if (!confirmado) {
+  return; // Usuario canceló
+}
+
 
     // Construimos FormData (incluye archivo si se seleccionó)
     const form = document.getElementById("formProducto");
@@ -431,7 +429,7 @@ require_once "../../partials/_footer.php";
       .then(response => response.json())
       .then(resp => {
         if (resp.status === "success") {
-         showToast("Producto actualizado correctamente.", "SUCCESS", 1500);
+          showToast("Producto actualizado correctamente.", "SUCCESS", 1500);
           setTimeout(() => {
             window.location.href = "listar-producto.php";
           }, 1500);
@@ -440,7 +438,7 @@ require_once "../../partials/_footer.php";
         }
       })
       .catch(err => {
-       console.error("Error en la solicitud:", err);
+        console.error("Error en la solicitud:", err);
         showToast("Error de servidor. Intenta nuevamente.", "ERROR", 2000);
       });
   });

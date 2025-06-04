@@ -84,12 +84,12 @@ require_once "../../partials/header.php";
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <h4 class="modal-title">Confirmar Eliminación</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>¿Por qué deseas eliminar este egreso?</p>
-                <textarea id="justificacion" class="form-control input" rows="3" placeholder="Escribe tu justificación..."></textarea>
+                <h5>¿Por qué deseas eliminar este egreso?</h5>
+                <textarea id="justificacion" class="form-control input" style="background-color: white;" rows="3" placeholder="Escribe tu justificación..."></textarea>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
