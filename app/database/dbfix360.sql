@@ -379,6 +379,28 @@ CONSTRAINT uq_compra UNIQUE (idproveedor, tipocom, numserie, numcom)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS cotizaciones;
+
+CREATE TABLE cotizaciones (
+	idcotizacion 		INT 				PRIMARY KEY AUTO_INCREMENT,
+	idcolaborador 		INT 				NOT NULL,
+	idcliente 			INT 				NULL,
+	fechahora 			TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP,
+	vigenciadias 		INT 				NOT NULL,
+	moneda 				VARCHAR(20)			NOT NULL,
+	justificacion 		VARCHAR(255),
+	estado 				BOOLEAN 			DEFAULT TRUE,
+	creado  			TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP,  
+	modificado  		TIMESTAMP 			DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	vencida 			BOOLEAN 			NOT NULL DEFAULT FALSE,
+	fecha_expiracion 	DATE 				GENERATED ALWAYS AS (DATE(fechahora) + INTERVAL vigenciadias DAY) VIRTUAL,
+	
+	CONSTRAINT fk_idcolaborador_2 FOREIGN KEY (idcolaborador) REFERENCES colaboradores (idcolaborador),
+	CONSTRAINT fk_idcliente_1 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente)
+) ENGINE = INNODB;
+
+
+/*
+DROP TABLE IF EXISTS cotizaciones;
 CREATE TABLE cotizaciones(
 	
 idcotizacion 		INT 			PRIMARY KEY AUTO_INCREMENT,
@@ -395,6 +417,7 @@ CONSTRAINT fk_idcolaborador_2 FOREIGN KEY (idcolaborador) REFERENCES colaborador
 CONSTRAINT fk_idcliente_1 FOREIGN KEY (idcliente) REFERENCES clientes (idcliente)
 	
 )ENGINE = INNODB;
+*/
 
 DROP TABLE IF EXISTS productos;
 CREATE TABLE productos(

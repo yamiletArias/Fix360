@@ -136,13 +136,24 @@ async function fetchUltimoKilometraje(idvehiculo) {
  * Actualiza los métodos de búsqueda en modal propietario.
  */
 function actualizarOpciones() {
+  const esPersona = document.getElementById("rbtnpersona").checked;
   const select = document.getElementById("selectMetodo");
-  const isPersona = document.getElementById("rbtnpersona").checked;
-  select.innerHTML = isPersona
-    ? `<option value="dni">DNI</option><option value="nombre">Apellidos y nombres</option>`
-    : `<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>`;
-}
+  select.innerHTML = ""; // Limpiar las opciones anteriores
 
+  if (esPersona) {
+    // Si buscamos personas, el método puede ser DNI o Nombre
+    select.insertAdjacentHTML(
+      "beforeend",
+      `<option value="dni">DNI</option><option value="nombre">Apellidos y nombres</option>`
+    );
+  } else {
+    // Si buscamos empresas, el método puede ser RUC o Razón Social
+    select.insertAdjacentHTML(
+      "beforeend",
+      `<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>`
+    );
+  }
+}
 async function cargarTiposServicioModal() {
   const sel = document.getElementById('selectTipoServicioModal');
   sel.innerHTML = '<option value="">Seleccione un tipo de servicio</option>';
@@ -167,30 +178,63 @@ function buscarPropietario() {
   const tipo = document.getElementById("rbtnpersona").checked ? "persona" : "empresa";
   const metodo = document.getElementById("selectMetodo").value;
   const valor = document.getElementById("vbuscado").value.trim();
+  const tbody = document.querySelector("#tabla-resultado tbody");
+
+  // Si el campo de búsqueda está vacío, limpiamos la tabla y salimos
   if (!valor) {
-    document.querySelector("#tabla-resultado tbody").innerHTML = "";
+    tbody.innerHTML = "";
     return;
   }
+
+  // Hacemos la consulta al backend
   fetch(
     `${SERVERURL}app/controllers/Propietario.controller.php?tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(valor)}`
   )
     .then(r => r.json())
     .then(data => {
-      const tbody = document.querySelector("#tabla-resultado tbody");
-      tbody.innerHTML = data.map((item, i) => `
-        <tr>
-          <td>${i+1}</td>
-          <td>${item.nombre}</td>
-          <td>${item.documento}</td>
-          <td>
-            <button class="btn btn-success btn-sm btn-confirmar" data-id="${item.idcliente}" data-bs-dismiss="modal">
-              <i class="fa-solid fa-circle-check"></i>
-            </button>
-          </td>
-        </tr>
-      `).join('');
+      // CASO 1: No hay resultados (data es null, no array o array vacío)
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="text-center">
+              No se encontraron propietarios.
+              <button id="btnRegistrarPropietario" class="btn btn-sm btn-primary ms-2">
+                Registrar Propietario
+              </button>
+            </td>
+          </tr>
+        `;
+        // Asociamos el click del botón “Registrar Propietario” para redirigir al formulario:
+        document
+          .getElementById("btnRegistrarPropietario")
+          .addEventListener("click", () => {
+            // Ajusta la ruta si tu PHP está en otro lugar. Este ejemplo asume:
+            //   views/page/clientes/registrar-cliente.php
+            window.location.href = "views/page/clientes/registrar-cliente.php";
+          });
+        return;
+      }
+
+      // CASO 2: Sí hay resultados, los pintamos uno por uno
+      tbody.innerHTML = data
+        .map((item, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${item.nombre}</td>
+            <td>${item.documento}</td>
+            <td>
+              <button class="btn btn-success btn-sm btn-confirmar"
+                      data-id="${item.idcliente}"
+                      data-bs-dismiss="modal">
+                <i class="fa-solid fa-circle-check"></i>
+              </button>
+            </td>
+          </tr>
+        `).join("");
     })
-    .catch(console.error);
+    .catch(err => {
+      console.error("Error en fetch buscarPropietario():", err);
+    });
 }
 
 /**

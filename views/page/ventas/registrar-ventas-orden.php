@@ -502,6 +502,10 @@ require_once "../../partials/_footer.php";
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
+</body>
+
+</html>
+
 <!-- <script>
   // 2) Cargar lista de servicios por subcategoría
   async function cargarServiciosPorSubcategoria(idsubcat) {
@@ -638,6 +642,3 @@ require_once "../../partials/_footer.php";
     input.max = `${yyyy}-${MM}-${dd}T23:59`;
   }
 </script> -->
-</body>
-
-</html>
