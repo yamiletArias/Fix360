@@ -159,6 +159,7 @@ INSERT INTO rolvistas (idrol,idvista) VALUES
 (4,14);
 
 -- select * from ordenservicios
+-- select * from colaboradores
 
 
 	

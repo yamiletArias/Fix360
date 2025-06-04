@@ -17,6 +17,7 @@ CREATE PROCEDURE spRegisterClientePersona (
 )
 BEGIN
   DECLARE _idpersona INT;
+  DECLARE _idcliente INT;
   INSERT INTO personas (
     nombres, apellidos, tipodoc, numdoc,
     numruc, direccion, correo,
@@ -29,7 +30,9 @@ BEGIN
   SET _idpersona = LAST_INSERT_ID();
   INSERT INTO clientes (idpersona, idcontactabilidad)
   VALUES (_idpersona, _idcontactabilidad);
+  
   SET _idcliente = LAST_INSERT_ID();
+  
 END $$
 
 DROP PROCEDURE IF EXISTS spRegisterClienteEmpresa $$
@@ -43,6 +46,7 @@ CREATE PROCEDURE spRegisterClienteEmpresa (
 )
 BEGIN
   DECLARE _idempresa INT;
+  DECLARE _idcliente INT;
   -- Insertar en la tabla empresas
   INSERT INTO empresas (
     ruc,
@@ -64,7 +68,9 @@ BEGIN
   INSERT INTO clientes (idempresa, idcontactabilidad)
   VALUES (_idempresa, _idcontactabilidad);
   -- Insertar en la tabla proveedores solo si no existe
+  
   SET _idcliente = LAST_INSERT_ID();
+  
 END $$
 
 -- 3) Registrar vehículo y propietario
