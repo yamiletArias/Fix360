@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Default GET
     echo json_encode(['status' => false, 'message' => 'Parámetros GET inválidos']);
 
-    
+
     exit;
 }
 
@@ -171,7 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipo = Helper::limpiarCadena($dataJSON['tipo'] ?? '');
 
     if ($tipo === "persona") {
-        // 1) Reconstruimos $registro con exactamente las mismas claves que pide el modelo
         $registro = [
             "nombres" => Helper::limpiarCadena($dataJSON['nombres'] ?? ""),
             "apellidos" => Helper::limpiarCadena($dataJSON['apellidos'] ?? ""),
@@ -182,53 +181,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "correo" => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
             "telprincipal" => Helper::limpiarCadena($dataJSON['telprincipal'] ?? ""),
             "telalternativo" => Helper::limpiarCadena($dataJSON['telalternativo'] ?? ""),
-            "idcontactabilidad" => intval($dataJSON["idcontactabilidad"] ?? 0)
+            "idcontactabilidad" => intval($dataJSON['idcontactabilidad'] ?? 0)
         ];
 
-        // 2) Llamamos al modelo
-        $n = $clienteModel->registerClientePersona($registro);
+        // Llamamos al modelo, que ahora devuelve un array con rows e idcliente
+        $res = $clienteModel->registerClientePersona($registro);
+        // $res['rows']     → número de filas  
+        // $res['idcliente'] → el ID recién creado
 
-        // 3) Obtenemos el último ID generado
-        $idcliente = (int) $pdo->lastInsertId();
-
-        // 4) Armamos el nombre completo para “propietario”
+        // Armamos el nombre completo para “propietario”
         $propietario = trim(
             ($dataJSON['nombres'] ?? "") . " " .
             ($dataJSON['apellidos'] ?? "")
         );
 
-        // 5) Devolvemos JSON con rows, idcliente y propietario
         echo json_encode([
-            "rows" => $n,
-            "idcliente" => $idcliente,
+            "rows" => $res['rows'],
+            "idcliente" => $res['idcliente'],
             "propietario" => $propietario
         ]);
         exit;
 
     } elseif ($tipo === "empresa") {
-        // 1) Reconstruimos $registro con las claves que pide el modelo
         $registro = [
             "ruc" => Helper::limpiarCadena($dataJSON['ruc'] ?? ""),
             "nomcomercial" => Helper::limpiarCadena($dataJSON['nomcomercial'] ?? ""),
             "razonsocial" => Helper::limpiarCadena($dataJSON['razonsocial'] ?? ""),
             "telefono" => Helper::limpiarCadena($dataJSON['telefono'] ?? ""),
             "correo" => Helper::limpiarCadena($dataJSON['correo'] ?? ""),
-            "idcontactabilidad" => intval($dataJSON["idcontactabilidad"] ?? 0)
+            "idcontactabilidad" => intval($dataJSON['idcontactabilidad'] ?? 0)
         ];
 
-        // 2) Llamamos al modelo
-        $n = $clienteModel->registerClienteEmpresa($registro);
-
-        // 3) Obtenemos el último ID generado
-        $idcliente = (int) $pdo->lastInsertId();
-
-        // 4) Para empresa, devolvemos la RAZÓN SOCIAL como propietario
+        $res = $clienteModel->registerClienteEmpresa($registro);
         $propietario = trim($dataJSON['razonsocial'] ?? "");
 
-        // 5) Devolvemos JSON
         echo json_encode([
-            "rows" => $n,
-            "idcliente" => $idcliente,
+            "rows" => $res['rows'],
+            "idcliente" => $res['idcliente'],
             "propietario" => $propietario
         ]);
         exit;

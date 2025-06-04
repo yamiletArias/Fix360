@@ -1,65 +1,86 @@
 <?php
 require_once "../models/Conexion.php";
 
-class Cliente extends Conexion {
+class Cliente extends Conexion
+{
 
   private $pdo;
 
-  public function __CONSTRUCT() {
+  public function __CONSTRUCT()
+  {
     $this->pdo = parent::getConexion();
   }
- 
-  public function registerClientePersona($params = []): int {
-    $numRows = 0;
+
+  public function registerClientePersona($params = []): array
+  {
     try {
+      // Preparo el SP
       $query = "CALL spRegisterClientePersona(?,?,?,?,?,?,?,?,?,?)";
       $stmt = $this->pdo->prepare($query);
-      $stmt->execute(array(
+      $stmt->execute([
         $params["nombres"],
         $params["apellidos"],
         $params["tipodoc"],
         $params["numdoc"],
-        $params["numruc"],
-        $params["direccion"],
-        $params["correo"],
-        $params["telprincipal"],
-        $params["telalternativo"],
+        $params["numruc"] ?? null,
+        $params["direccion"] ?? null,
+        $params["correo"] ?? null,
+        $params["telprincipal"] ?? null,
+        $params["telalternativo"] ?? null,
         $params["idcontactabilidad"]
-      ));
+      ]);
 
-      $numRows = $stmt->rowCount();
+      // rowCount() del CALL (normalmente 0 en un SP, pero lo devolvemos igual)
+      $rowsAffected = $stmt->rowCount();
 
+      // Este lastInsertId() va a ser el idCliente recién insertado dentro del SP
+      $idcliente = (int) $this->pdo->lastInsertId();
+
+      return [
+        "rows" => $rowsAffected,
+        "idcliente" => $idcliente
+      ];
     } catch (PDOException $e) {
-      error_log("Error DB: " . $e->getMessage());
-      return $numRows;
-    } 
-    return $numRows;
+      error_log("Error DB registerClientePersona: " . $e->getMessage());
+      return [
+        "rows" => 0,
+        "idcliente" => 0
+      ];
+    }
   }
 
-  public function registerClienteEmpresa($params = []): int {
-    $numRows = 0;
+  public function registerClienteEmpresa($params = []): array
+  {
     try {
       $query = "CALL spRegisterClienteEmpresa(?,?,?,?,?,?)";
       $stmt = $this->pdo->prepare($query);
-      $stmt->execute(array(
+      $stmt->execute([
         $params["ruc"],
         $params["nomcomercial"],
         $params["razonsocial"],
-        $params["telefono"],
-        $params["correo"],
+        $params["telefono"] ?? null,
+        $params["correo"] ?? null,
         $params["idcontactabilidad"]
-      ));
+      ]);
 
-      $numRows = $stmt->rowCount();
+      $rowsAffected = $stmt->rowCount();
+      $idcliente = (int) $this->pdo->lastInsertId();
 
+      return [
+        "rows" => $rowsAffected,
+        "idcliente" => $idcliente
+      ];
     } catch (PDOException $e) {
-      error_log("Error DB: " . $e->getMessage());
-      return $numRows;
-    } 
-    return $numRows;
+      error_log("Error DB registerClienteEmpresa: " . $e->getMessage());
+      return [
+        "rows" => 0,
+        "idcliente" => 0
+      ];
+    }
   }
 
-  public function getAllClientesPersona(): array{
+  public function getAllClientesPersona(): array
+  {
     $result = [];
 
     try {
@@ -74,7 +95,8 @@ class Cliente extends Conexion {
     return $result;
   }
 
-  public function getAllClientesEmpresa(): array{
+  public function getAllClientesEmpresa(): array
+  {
 
     $result = [];
 
@@ -90,7 +112,8 @@ class Cliente extends Conexion {
     return $result;
   }
 
-  public function getClienteById($idcliente): array{
+  public function getClienteById($idcliente): array
+  {
 
     $result = [];
 
@@ -108,7 +131,8 @@ class Cliente extends Conexion {
     return $result;
   }
 
-  public function getPersonaById($idpersona):array{
+  public function getPersonaById($idpersona): array
+  {
 
     $result = [];
 
@@ -118,14 +142,15 @@ class Cliente extends Conexion {
       $cmd->execute(
         array($idpersona)
       );
-     $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+      $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
     }
     return $result;
   }
 
-  public function getEmpresaById($idempresa):array{
+  public function getEmpresaById($idempresa): array
+  {
 
     $result = [];
 
@@ -135,16 +160,16 @@ class Cliente extends Conexion {
       $cmd->execute(
         array($idempresa)
       );
-     $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
+      $result = $cmd->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
       die($e->getMessage());
     }
     return $result;
   }
 
-  
 
 
 
-  
+
+
 }
