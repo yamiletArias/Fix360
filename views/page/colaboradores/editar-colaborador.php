@@ -187,7 +187,7 @@ if ($id <= 0) {
             const idrol = document.getElementById('idrol').value;
             const namuser = document.getElementById('namuser').value.trim();
 
-            if (!nombres || !apellidos || !direccion ||  !telprincipal || !idrol || !namuser) {
+            if (!nombres || !apellidos  ||  !telprincipal || !idrol || !namuser) {
                 return showToast("Rellene los campos obligatorios", "WARNING");
             }
 
