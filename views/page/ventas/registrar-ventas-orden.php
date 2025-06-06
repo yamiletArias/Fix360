@@ -392,9 +392,9 @@ require_once "../../partials/header.php";
       <!-- Pie del Modal -->
       <div class="modal-footer">
         <!-- Botón para registrar directamente si no existe el propietario -->
-        <button type="button" class="btn btn-sm btn-primary" id="btnRegistrarNuevo">
+        <!-- <button type="button" class="btn btn-sm btn-primary" id="btnRegistrarNuevo">
           Registrar Nuevo
-        </button>
+        </button> -->
 
         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
           Cerrar
