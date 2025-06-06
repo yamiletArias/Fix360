@@ -2,7 +2,7 @@ USE dbfix360;
 DELIMITER $$
 
 -- TRAER EL KILOMETRAJE
-DROP PROCEDURE spGetUltimoKilometraje $$
+DROP PROCEDURE IF EXISTS spGetUltimoKilometraje $$
 CREATE PROCEDURE spGetUltimoKilometraje(
   IN  p_idvehiculo INT
 )

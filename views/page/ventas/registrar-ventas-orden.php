@@ -404,19 +404,18 @@ require_once "../../partials/header.php";
   </div>
 </div>
 <!-- Modal Simplificado: Registrar Cliente -->
-<div class="modal fade" id="modalRegistrarCliente" tabindex="-1" aria-labelledby="modalRegistrarClienteLabel"
+<!-- <div class="modal fade" id="modalRegistrarCliente" tabindex="-1" aria-labelledby="modalRegistrarClienteLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <!-- Cabecera -->
       <div class="modal-header">
         <h5 class="modal-title" id="modalRegistrarClienteLabel">Registrar Cliente</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <!-- Cuerpo del Modal -->
+
       <div class="modal-body">
-        <!-- Radios para elegir Persona / Empresa -->
+
         <div class="mb-3 d-flex align-items-center">
           <label>
             <input class="form-check-input text-start" type="radio" name="tipo" value="persona"
@@ -430,7 +429,6 @@ require_once "../../partials/header.php";
           </label>
         </div>
 
-        <!-- Formulario Persona - NOTA: Removido el atributo 'action' y 'method' -->
         <div id="formPersona" style="display: block;">
           <div>
             <div class="row">
@@ -521,7 +519,6 @@ require_once "../../partials/header.php";
           </div>
         </div>
 
-        <!-- Formulario Empresa (oculto por defecto) - NOTA: Removido el atributo 'action' y 'method' -->
         <div id="formEmpresa" style="display: none;">
           <div>
             <div class="row">
@@ -573,14 +570,13 @@ require_once "../../partials/header.php";
         </div>
       </div>
 
-      <!-- Footer del Modal -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" id="btnRegistrar" class="btn btn-success">Aceptar</button>
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <div class="modal fade" id="ModalCliente" tabindex="-1" aria-labelledby="ModalClienteLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -684,14 +680,14 @@ require_once "../../partials/_footer.php";
 <script>
   window.FIX360_BASE_URL = "<?= SERVERURL ?>";
   document.getElementById('btnRegistrarNuevo').addEventListener('click', function () {
-  // Cierra el modal de "Seleccionar Propietario"
-  const miModal = bootstrap.Modal.getInstance(document.getElementById('miModal'));
-  miModal.hide();
-  
-  // Abre el modal de "Registrar Cliente"
-  const modalRegistrarCliente = new bootstrap.Modal(document.getElementById('modalRegistrarCliente'));
-  modalRegistrarCliente.show();
-});
+    // Cierra el modal de "Seleccionar Propietario"
+    const miModal = bootstrap.Modal.getInstance(document.getElementById('miModal'));
+    miModal.hide();
+
+    // Abre el modal de "Registrar Cliente"
+    const modalRegistrarCliente = new bootstrap.Modal(document.getElementById('modalRegistrarCliente'));
+    modalRegistrarCliente.show();
+  });
 </script>
 <!-- Formulario Venta -->
 <script src="<?= SERVERURL ?>views/page/ventas/js/registrar-ventas-orden2.js"></script>

@@ -455,22 +455,25 @@ class Venta extends Conexion
         $placeholders = implode(',', array_fill(0, count($idsOT), '?'));
 
         // 1.1) Consultar cuántos propietarios distintos hay entre esas ventas (OT)
+        // 1.1) Obtener directamente todos los idpropietario para esas OT y luego filtrar en PHP
         $sqlProp = "
-        SELECT 
-            COUNT(DISTINCT idpropietario) AS cnt,
-            MIN(idpropietario)              AS idprop
-        FROM ventas
-        WHERE idventa IN ($placeholders)
-          AND tipocom = 'orden de trabajo'
-          AND estado = TRUE
-    ";
+            SELECT idpropietario
+            FROM ventas
+            WHERE idventa IN ($placeholders)
+            AND tipocom = 'orden de trabajo'
+            AND estado = 1
+        ";
         $stmtProp = $this->pdo->prepare($sqlProp);
         $stmtProp->execute($idsOT);
-        $rowProp = $stmtProp->fetch(PDO::FETCH_ASSOC);
-        if ((int) $rowProp['cnt'] !== 1) {
+        $propRows = $stmtProp->fetchAll(PDO::FETCH_COLUMN, 0); // Array de idpropietario
+
+        // Elimina duplicados:
+        $propUnicos = array_unique($propRows);
+        if (count($propUnicos) !== 1) {
             throw new Exception("Todas las OT deben pertenecer al mismo propietario.");
         }
-        $idprop = (int) $rowProp['idprop']; // El único propietario común
+        // Ahora sí sabemos que es un único propietario:
+        $idprop = (int) array_values($propUnicos)[0];
 
         // 1.2) Obtener idvehiculo y kilometraje MÁXIMO entre esas OT
         //     (para heredar el vehículo y el último kilometraje)
