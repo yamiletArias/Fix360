@@ -1,30 +1,3 @@
-// 0) Guarda referencias al original
-const nativeAlert = window.alert;
-const nativeConfirm = window.confirm;
-
-// 1) Define showToast (si no lo tienes aún)
-function showToast(message, type = "INFO", duration = 3000) {
-  Swal.fire({
-    toast: true,
-    position: "top-end",
-    icon: type.toLowerCase(),
-    title: message,
-    showConfirmButton: false,
-    timer: duration,
-    timerProgressBar: true,
-  });
-}
-
-// 2) Sobrescribe alert()
-window.alert = function (msg) {
-  showToast(msg, "ERROR", 2000);
-};
-
-// 3) (Opcional) Sobrescribe confirm() usando el original
-window.confirm = function (msg) {
-  return nativeConfirm(msg);
-};
-
 document.addEventListener("DOMContentLoaded", function () {
   // Variables y elementos
   const hiddenIdCliente = document.getElementById("hiddenIdCliente");
@@ -459,12 +432,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const idmec = parseInt(selectMecanico.value, 10);
     const precioServ = parseFloat(inputPrecioServicio.value);
 
-    if (!idserv) return alert("Por favor selecciona un servicio válido.");
-    if (!idmec) return alert("Por favor selecciona un mecánico válido.");
-    if (isNaN(precioServ) || precioServ <= 0)
-      return alert("El precio debe ser un número mayor a cero.");
+    if (!idserv) {
+      showToast("Por favor selecciona un servicio válido.", "ERROR", 2000);
+      return;
+    }
+    if (!idmec) {
+      showToast("Por favor selecciona un mecánico válido.", "ERROR", 2000);
+      return;
+    }
+    if (isNaN(precioServ) || precioServ <= 0) {
+      showToast("El precio debe ser un número mayor a cero.", "ERROR", 2000);
+      return;
+    }
     if (detalleServicios.some((s) => s.idservicio === idserv)) {
-      return alert("Ese servicio ya fue agregado.");
+      showToast("Ese servicio ya fue agregado.", "ERROR", 2000);
+      return;
     }
 
     // 2) Si todo OK, crear la fila
@@ -506,54 +488,42 @@ document.addEventListener("DOMContentLoaded", function () {
     const precio = parseFloat(inputPrecio.value);
     const cantidad = parseInt(inputCantidad.value, 10);
     if (isNaN(cantidad) || cantidad < 1) {
-      alert("La cantidad debe ser un número entero mayor o igual a 1.");
+      showToast("La cantidad debe ser un número entero mayor o igual a 1.", "WARNING", 2000);
       inputCantidad.value = 1;
       inputCantidad.focus();
       return;
     }
-    if (inputDescuento.value.trim() === "") {
-      inputDescuento.value = "0";
-    }
-    const descuento = parseFloat(inputDescuento.value);
-
-    // Validaciones básicas
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
-      alert("Ese producto no existe. Elige uno de la lista.");
+      showToast("Ese producto no existe. Elige uno de la lista.", "ERROR", 2000);
       return resetCamposProducto();
     }
     if (!nombre || isNaN(precio) || isNaN(cantidad)) {
-      return alert("Completa todos los campos correctamente.");
+      showToast("Completa todos los campos correctamente.", "ERROR", 2000);
+      return;
     }
     if (isNaN(precio) || precio < 1) {
-      alert("El precio debe ser un número mayor o igual a 1.");
+      showToast("El precio debe ser un número mayor o igual a 1.", "ERROR", 2000);
       inputPrecio.value = selectedProduct.precio.toFixed(2);
       inputPrecio.focus();
       return;
     }
     if (cantidad < 1) {
-      alert("La cantidad debe ser mayor que cero.");
+      showToast("La cantidad debe ser mayor que cero.", "WARNING", 2000);
       inputCantidad.value = 1;
       return;
     }
-
     const stockDisponible = selectedProduct.stock || 0;
     if (cantidad > stockDisponible) {
-      alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
+      showToast(
+        `No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`,
+        "ERROR",
+        2000
+      );
       inputCantidad.value = stockDisponible;
       return;
     }
-    if (descuento > precio) {
-      alert("El descuento unitario no puede ser mayor que el precio unitario.");
-      inputDescuento.value = "";
-      return;
-    }
-    if (descuento < 0) {
-      alert("El descuento no puede ser negativo.");
-      inputDescuento.value = 0;
-      return;
-    }
     if (detalleVenta.some((d) => d.idproducto === idp)) {
-      alert("Este producto ya ha sido agregado.");
+      showToast("Este producto ya ha sido agregado.", "ERROR", 2000);
       return resetCamposProducto();
     }
 
@@ -1192,8 +1162,10 @@ document.addEventListener("DOMContentLoaded", function () {
     kmInput.addEventListener("change", () => {
       const nuevo = parseFloat(kmInput.value);
       if (prevKilometraje !== null && nuevo < prevKilometraje) {
-        alert(
-          `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`
+        showToast(
+          `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`,
+          "ERROR",
+          2000
         );
         kmInput.value = prevKilometraje;
       }
