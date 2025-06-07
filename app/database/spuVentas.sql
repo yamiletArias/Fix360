@@ -199,13 +199,14 @@ CREATE PROCEDURE spuInsertDetalleVenta (
   IN _cantidad           INT,
   IN _numserie_detalle   VARCHAR(50),
   IN _precioventa        DECIMAL(7,2),
-  IN _descuento          DECIMAL(5,2)
+  IN _descuento          DECIMAL(5,2),
+  IN _registrarMvto      BOOLEAN  -- <--- nuevo flag
 )
 BEGIN
   DECLARE _idkardex   INT;
   DECLARE _idtipomov  INT;
   DECLARE _saldoNuevo INT;
-
+  
   INSERT INTO detalleventa (
     idproducto,
     idventa,
@@ -224,42 +225,30 @@ BEGIN
     _precioventa,
     _descuento
   );
+  -- 2) Actualizar precio en productos
+  UPDATE productos SET precio = _precioventa
+    WHERE idproducto = _idproducto;
 
-  UPDATE productos
-    SET precio = _precioventa
-  WHERE idproducto = _idproducto;
-
-  SELECT idkardex
-    INTO _idkardex
-  FROM kardex
-  WHERE idproducto = _idproducto
-  LIMIT 1;
-
-  SELECT idtipomov
-    INTO _idtipomov
-  FROM tipomovimientos
-  WHERE flujo = 'salida'
-    AND tipomov = 'venta'
-  LIMIT 1;
-
-  SET _saldoNuevo = calcularSaldoRestante(_idkardex, _cantidad);
-
-  INSERT INTO movimientos (
-    idkardex,
-    idtipomov,
-    fecha,
-    cantidad,
-    preciounit,
-    saldorestante
-  ) VALUES (
-    _idkardex,
-    _idtipomov,
-    CURDATE(),
-    _cantidad,
-    _precioventa,
-    _saldoNuevo
-  );
+	IF _registrarMvto THEN
+    -- 3) Obtener idkardex y tipo de movimiento
+    SELECT idkardex INTO _idkardex FROM kardex WHERE idproducto = _idproducto LIMIT 1;
+    SELECT idtipomov INTO _idtipomov
+      FROM tipomovimientos
+      WHERE flujo = 'salida' AND tipomov = 'venta'
+      LIMIT 1;
+	
+    -- 4) Calcular saldo y registrar movimiento
+    SET _saldoNuevo = calcularSaldoRestante(_idkardex, _cantidad);
+    INSERT INTO movimientos (
+      idkardex, idtipomov, fecha,
+      cantidad, preciounit, saldorestante
+    ) VALUES (
+      _idkardex, _idtipomov, CURDATE(),
+      _cantidad, _precioventa, _saldoNuevo
+    );
 END $$
+
+
 
 -- 5) PROCEDIMIENTO PARA OBTENER MONEDAS DE VENTAS
 DROP PROCEDURE IF EXISTS spuGetMonedasVentas $$

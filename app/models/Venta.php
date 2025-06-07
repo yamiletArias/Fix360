@@ -344,22 +344,22 @@ class Venta extends Conexion
 
             // 1) Llamo al SP unificado
             $sql = "CALL spRegisterVentaConOrden(
-            ?,  -- conOrden (BOOLEAN)
-            ?,  -- idadmin
-            ?,  -- idpropietario
-            ?,  -- idcliente
-            ?,  -- idvehiculo
-            ?,  -- kilometraje
-            ?,  -- observaciones
-            ?,  -- ingresogrua
-            ?,  -- p_fechaingreso (puede venir NULL)
-            ?,  -- tipocom
-            ?,  -- fechahora
-            ?,  -- numserie
-            ?,  -- numcom
-            ?,  -- moneda
-            ?   -- idcolaborador
-        )";
+                ?,  -- conOrden (BOOLEAN)
+                ?,  -- idadmin
+                ?,  -- idpropietario
+                ?,  -- idcliente
+                ?,  -- idvehiculo
+                ?,  -- kilometraje
+                ?,  -- observaciones
+                ?,  -- ingresogrua
+                ?,  -- p_fechaingreso (puede venir NULL)
+                ?,  -- tipocom
+                ?,  -- fechahora
+                ?,  -- numserie
+                ?,  -- numcom
+                ?,  -- moneda
+                ?   -- idcolaborador
+            )";
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
@@ -399,7 +399,7 @@ class Venta extends Conexion
             $idorden = isset($result['idorden']) ? (int) $result['idorden'] : null;
 
             // 3) Detalle de productos
-            $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
+            $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?,?)");
             foreach ($params['productos'] as $prod) {
                 $stmtProd->execute([
                     $idventa,
@@ -407,7 +407,8 @@ class Venta extends Conexion
                     $prod['cantidad'],
                     $prod['numserie'] ?? null,
                     $prod['precio'],
-                    $prod['descuento']
+                    $prod['descuento'],
+                    true
                 ]);
             }
 
@@ -478,14 +479,14 @@ class Venta extends Conexion
         // 1.2) Obtener idvehiculo y kilometraje MÁXIMO entre esas OT
         //     (para heredar el vehículo y el último kilometraje)
         $sqlKm = "
-        SELECT idvehiculo, kilometraje
-        FROM ventas
-        WHERE idventa IN ($placeholders)
-          AND tipocom = 'orden de trabajo'
-          AND estado = TRUE
-        ORDER BY kilometraje DESC
-        LIMIT 1
-    ";
+            SELECT idvehiculo, kilometraje
+            FROM ventas
+            WHERE idventa IN ($placeholders)
+            AND tipocom = 'orden de trabajo'
+            AND estado = TRUE
+            ORDER BY kilometraje DESC
+            LIMIT 1
+        ";
         $stmtKm = $this->pdo->prepare($sqlKm);
         $stmtKm->execute($idsOT);
         $kmRow = $stmtKm->fetch(PDO::FETCH_ASSOC);
@@ -495,10 +496,10 @@ class Venta extends Conexion
 
         // 2) Recoger amortizaciones previas de esas OT (si las hay)
         $sqlAm = "
-        SELECT numtransaccion, amortizacion, idformapago
-        FROM amortizaciones
-        WHERE idventa IN ($placeholders)
-    ";
+            SELECT numtransaccion, amortizacion, idformapago
+            FROM amortizaciones
+            WHERE idventa IN ($placeholders)
+        ";
         $stmtAm = $this->pdo->prepare($sqlAm);
         $stmtAm->execute($idsOT);
         $amortPrevias = $stmtAm->fetchAll(PDO::FETCH_ASSOC);
@@ -515,22 +516,22 @@ class Venta extends Conexion
             //      para que el SP cree primero un registro en ordenservicios y luego la venta.
             $sp = $this->pdo->prepare(
                 "CALL spRegisterVentaConOrden(
-        TRUE,             -- 1) conOrden = TRUE para crear la orden
-        :idadmin,         -- 2) idadmin (debe ser un colaborador válido)
-        :idpropietario,   -- 3) idpropietario
-        :idcliente,       -- 4) idcliente (en tu caso puede ser 0 o NULL si no hay cliente)
-        :idvehiculo,      -- 5) idvehiculo heredado
-        :kilometraje,     -- 6) kilometraje heredado
-        :observaciones,   -- 7) observaciones (puede ser cadena vacía si no hay)
-        :ingresogrua,     -- 8) ingresogrua (1/0 o TRUE/FALSE)
-        :fechaingreso,    -- 9) fechaingreso (DATETIME o NULL)
-        :tipocom,         -- 10) “orden de trabajo”
-        :fechahora,       -- 11) fecha/hora actual
-        :numserie,        -- 12) número de serie que pasaste
-        :numcom,          -- 13) número de comprobante que pasaste
-        :moneda,          -- 14) “SOLES” (o la moneda que uses)
-        :idcolaborador    -- 15) idcolaborador (de la sesión)
-    )"
+                            TRUE,             -- 1) conOrden = TRUE para crear la orden
+                            :idadmin,         -- 2) idadmin (debe ser un colaborador válido)
+                            :idpropietario,   -- 3) idpropietario
+                            :idcliente,       -- 4) idcliente (en tu caso puede ser 0 o NULL si no hay cliente)
+                            :idvehiculo,      -- 5) idvehiculo heredado
+                            :kilometraje,     -- 6) kilometraje heredado
+                            :observaciones,   -- 7) observaciones (puede ser cadena vacía si no hay)
+                            :ingresogrua,     -- 8) ingresogrua (1/0 o TRUE/FALSE)
+                            :fechaingreso,    -- 9) fechaingreso (DATETIME o NULL)
+                            :tipocom,         -- 10) “orden de trabajo”
+                            :fechahora,       -- 11) fecha/hora actual
+                            :numserie,        -- 12) número de serie que pasaste
+                            :numcom,          -- 13) número de comprobante que pasaste
+                            :moneda,          -- 14) “SOLES” (o la moneda que uses)
+                            :idcolaborador    -- 15) idcolaborador (de la sesión)
+                        )"
             );
 
             $idcolab = $_SESSION['login']['idcolaborador'] ?? null;
@@ -587,7 +588,7 @@ class Venta extends Conexion
             }
 
             // 4.3) Insertar productos fusionados en detalleventa usando el nuevo idventa
-            $stmtP = $this->pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?)");
+            $stmtP = $this->pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?,?)");
             foreach ($det['productos'] as $p) {
                 $stmtP->execute([
                     $newVentaId,        // idventa = la nueva venta combinada
@@ -595,7 +596,8 @@ class Venta extends Conexion
                     $p['cantidad'],     // cantidad total
                     $numserie,          // numserie de referencia
                     $p['precio'],       // precio unitario
-                    $p['descuento']     // descuento unitario
+                    $p['descuento'],     // descuento unitario
+                    false
                 ]);
             }
 
@@ -624,31 +626,31 @@ class Venta extends Conexion
 
             // 4.6) Marcar como “C” (cerradas) las OT originales en ordenservicios
             $sqlOrd2 = "
-            SELECT idexpediente_ot AS idorden
-            FROM ventas
-            WHERE idventa IN ($placeholders)
-              AND tipocom = 'orden de trabajo'
-              AND idexpediente_ot IS NOT NULL
-        ";
+                SELECT idexpediente_ot AS idorden
+                FROM ventas
+                WHERE idventa IN ($placeholders)
+                AND tipocom = 'orden de trabajo'
+                AND idexpediente_ot IS NOT NULL
+            ";
             $stmtOrd2 = $this->pdo->prepare($sqlOrd2);
             $stmtOrd2->execute($idsOT);
             $ordenes = array_column($stmtOrd2->fetchAll(PDO::FETCH_ASSOC), 'idorden');
             if (!empty($ordenes)) {
                 $inOrdenes = implode(',', array_fill(0, count($ordenes), '?'));
                 $upd = $this->pdo->prepare("
-                UPDATE ordenservicios
-                SET estado = 'C'
-                WHERE idorden IN ($inOrdenes)
-            ");
+                    UPDATE ordenservicios
+                    SET estado = 'C'
+                    WHERE idorden IN ($inOrdenes)
+                ");
                 $upd->execute($ordenes);
             }
 
             // 4.7) Desactivar las ventas antiguas (OT) en la tabla ventas
             $updV = $this->pdo->prepare("
-            UPDATE ventas
-            SET estado = FALSE
-            WHERE idventa IN ($placeholders)
-        ");
+                UPDATE ventas
+                SET estado = FALSE
+                WHERE idventa IN ($placeholders)
+            ");
             $updV->execute($idsOT);
 
             // 5) Confirmar toda la transacción
@@ -679,12 +681,12 @@ class Venta extends Conexion
 
         // ─── PASO A: OBTENER LOS idorden (PK en ordenservicios) DE CADA idventa de OT ───
         $sqlOrd = "
-        SELECT idexpediente_ot AS idorden
-        FROM ventas
-        WHERE idventa IN ($inVentas)
-          AND tipocom = 'orden de trabajo'
-          AND idexpediente_ot IS NOT NULL
-    ";
+            SELECT idexpediente_ot AS idorden
+            FROM ventas
+            WHERE idventa IN ($inVentas)
+            AND tipocom = 'orden de trabajo'
+            AND idexpediente_ot IS NOT NULL
+        ";
         $stmtOrd = $pdo->prepare($sqlOrd);
         $stmtOrd->execute($idsOT);
         $ordenes = array_column($stmtOrd->fetchAll(PDO::FETCH_ASSOC), 'idorden');
@@ -695,14 +697,14 @@ class Venta extends Conexion
         } else {
             $inOrdenes = implode(',', array_fill(0, count($ordenes), '?'));
             $sqlS = "
-          SELECT 
-            dos.idorden,
-            dos.idservicio,
-            dos.idmecanico,
-            dos.precio
-          FROM detalleordenservicios AS dos
-          WHERE dos.idorden IN ($inOrdenes)
-        ";
+                SELECT 
+                    dos.idorden,
+                    dos.idservicio,
+                    dos.idmecanico,
+                    dos.precio
+                FROM detalleordenservicios AS dos
+                WHERE dos.idorden IN ($inOrdenes)
+                ";
             $stmtS = $pdo->prepare($sqlS);
             $stmtS->execute($ordenes);
             $servicios = $stmtS->fetchAll(PDO::FETCH_ASSOC);
@@ -710,14 +712,14 @@ class Venta extends Conexion
 
         // ─── PASO C: TOMAR TODOS LOS PRODUCTOS ASOCIADOS A CADA idventa ───
         $sqlP = "
-      SELECT 
-        dv.idproducto,
-        dv.cantidad,
-        dv.precioventa AS precio,
-        dv.descuento
-      FROM detalleventa AS dv
-      WHERE dv.idventa IN ($inVentas)
-    ";
+            SELECT 
+                dv.idproducto,
+                dv.cantidad,
+                dv.precioventa AS precio,
+                dv.descuento
+            FROM detalleventa AS dv
+            WHERE dv.idventa IN ($inVentas)
+            ";
         $stmtP = $pdo->prepare($sqlP);
         $stmtP->execute($idsOT);
         $productosRaw = $stmtP->fetchAll(PDO::FETCH_ASSOC);
