@@ -790,6 +790,19 @@ BEGIN
   ORDER BY C.fechacompra;
 END $$
 
+DROP PROCEDURE IF EXISTS ev_MarcarCotizacionesVencidas $$
+CREATE EVENT IF NOT EXISTS ev_MarcarCotizacionesVencidas
+  ON SCHEDULE EVERY 1 DAY
+  STARTS CONCAT(CURDATE(), ' 00:00:00')
+  DO
+BEGIN
+  UPDATE cotizaciones
+  SET vencida = TRUE
+  WHERE vencida = FALSE
+    AND estado = TRUE
+    AND fecha_expiracion <= CURRENT_DATE();
+END $$
+
 -- 18) PROCEDIMIENTO PARA LISTAR COTIZACIONES POR PERIODO
 DROP PROCEDURE IF EXISTS spListCotizacionesPorPeriodo $$
 CREATE PROCEDURE spListCotizacionesPorPeriodo(
