@@ -246,6 +246,7 @@ BEGIN
       _idkardex, _idtipomov, CURDATE(),
       _cantidad, _precioventa, _saldoNuevo
     );
+    END IF;
 END $$
 
 
