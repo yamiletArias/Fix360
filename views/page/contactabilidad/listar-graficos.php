@@ -1,5 +1,5 @@
 <?php
-CONST NAMEVIEW = "Graficos de Contactabilidad";
+const NAMEVIEW = "Graficos de Contactabilidad";
 
 require_once "../../../app/helpers/helper.php";
 require_once "../../../app/config/app.php";
@@ -66,23 +66,14 @@ require_once "../../partials/_footer.php";
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // -------------------------------------------------------
-  // 1) Referencias a elementos HTML
-  // -------------------------------------------------------
   const selectPeriodo = document.getElementById('selectPeriodo');
-  const inputDesde    = document.getElementById('inputDesde');
-  const inputHasta    = document.getElementById('inputHasta');
+  const inputDesde = document.getElementById('inputDesde');
+  const inputHasta = document.getElementById('inputHasta');
   const btnActualizar = document.getElementById('btnActualizar');
-
-  // Canvas context
   const ctxContactabilidad = document.getElementById('myChart');
-
-  // Tabla de resumen
   const tablaResumen = document.getElementById('tablaResumen');
 
-  // -------------------------------------------------------
-  // 2) Instancia inicial de Chart.js (vacía)
-  // -------------------------------------------------------
+
   let chartContactabilidad = new Chart(ctxContactabilidad, {
     type: 'bar',
     data: {
@@ -116,25 +107,19 @@ require_once "../../partials/_footer.php";
     }
   });
 
-  // -------------------------------------------------------
-  // 3) Función auxiliar: formatea "YYYY-MM" a nombre de mes en español
-  // -------------------------------------------------------
   function nombreMes(esLabel) {
     const [anno, mes] = esLabel.split("-");
     const mesesArr = [
-      'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-      'Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
     return mesesArr[parseInt(mes, 10) - 1] + ' ' + anno;
   }
 
-  // -------------------------------------------------------
-  // 4) Función que llama al Controller y actualiza el gráfico y la tabla
-  // -------------------------------------------------------
   async function actualizarGraficos() {
-    const periodo    = selectPeriodo.value;
-    const desde      = inputDesde.value;
-    const hasta      = inputHasta.value;
+    const periodo = selectPeriodo.value;
+    const desde = inputDesde.value;
+    const hasta = inputHasta.value;
 
     if (!desde || !hasta) {
       alert('Por favor, seleccione las fechas "Desde" y "Hasta".');
@@ -147,7 +132,7 @@ require_once "../../partials/_footer.php";
 
     const formData = new URLSearchParams();
     formData.append('operation', 'getGraficoContactabilidad');
-    formData.append('periodo',    periodo);
+    formData.append('periodo', periodo);
     formData.append('fecha_desde', desde);
     formData.append('fecha_hasta', hasta);
 
@@ -167,31 +152,26 @@ require_once "../../partials/_footer.php";
         return;
       }
 
-      // 1) Listados únicos de 'periodo_label' y de 'contactabilidad'
       const periodosSet = new Set();
-      const canalesSet  = new Set();
+      const canalesSet = new Set();
       datos.forEach(row => {
         periodosSet.add(row.periodo_label);
         canalesSet.add(row.contactabilidad);
       });
       const periodos = Array.from(periodosSet).sort();
-      const canales  = Array.from(canalesSet).sort();
+      const canales = Array.from(canalesSet).sort();
 
-      // 2) “Matriz de conteos”
       const conteosPorCanal = {};
       canales.forEach(canal => {
         conteosPorCanal[canal] = new Array(periodos.length).fill(0);
       });
       datos.forEach(row => {
         const idxPeriodo = periodos.indexOf(row.periodo_label);
-        const canal      = row.contactabilidad;
-        const total      = parseInt(row.total_clientes, 10) || 0;
+        const canal = row.contactabilidad;
+        const total = parseInt(row.total_clientes, 10) || 0;
         conteosPorCanal[canal][idxPeriodo] = total;
       });
 
-      // -------------------------------------------------------
-      // 3) Actualizar gráfico de barras (chartContactabilidad)
-      // -------------------------------------------------------
       chartContactabilidad.data.labels = periodos;
       chartContactabilidad.data.datasets = canales.map((canal, i) => {
         return {
@@ -218,9 +198,6 @@ require_once "../../partials/_footer.php";
       });
       chartContactabilidad.update();
 
-      // -------------------------------------------------------
-      // 4) Construir la tabla de resumen, incluyendo “Total” por fila
-      // -------------------------------------------------------
       tablaResumen.querySelector('thead').innerHTML = '';
       tablaResumen.querySelector('tbody').innerHTML = '';
 
@@ -242,11 +219,9 @@ require_once "../../partials/_footer.php";
 
       tablaResumen.querySelector('thead').appendChild(theadTr);
 
-      // b) Crear filas: una por cada periodo
       periodos.forEach((periodoLabel, idx) => {
         const tr = document.createElement('tr');
 
-        // Columna Período
         const tdPer = document.createElement('td');
         if (/^\d{4}-\d{2}$/.test(periodoLabel)) {
           tdPer.textContent = nombreMes(periodoLabel);
@@ -255,24 +230,19 @@ require_once "../../partials/_footer.php";
         }
         tr.appendChild(tdPer);
 
-        // Columnas por cada canal y cálculo del máximo
-        let maxEnEstaFila = 0;
+        let sumaEnEstaFila = 0;
         canales.forEach(canal => {
           const valor = conteosPorCanal[canal][idx];
           const td = document.createElement('td');
           td.textContent = valor;
           tr.appendChild(td);
-
-          if (valor > maxEnEstaFila) {
-            maxEnEstaFila = valor;
-          }
+          sumaEnEstaFila += valor;
         });
 
-        // Celda “Total” con el valor máximo
-        const tdMax = document.createElement('td');
-        tdMax.textContent = maxEnEstaFila;
-        tdMax.style.fontWeight = 'bold';
-        tr.appendChild(tdMax);
+        const tdTotal = document.createElement('td');
+        tdTotal.textContent = sumaEnEstaFila;
+        tdTotal.style.fontWeight = 'bold';
+        tr.appendChild(tdTotal);
 
         tablaResumen.querySelector('tbody').appendChild(tr);
       });
@@ -283,14 +253,11 @@ require_once "../../partials/_footer.php";
     }
   }
 
-  // -------------------------------------------------------
-  // 5) Inicializar fechas por defecto y primera carga
-  // -------------------------------------------------------
   window.addEventListener('DOMContentLoaded', () => {
     const hoy = new Date();
     const yyyy = hoy.getFullYear();
-    const mm   = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd   = String(hoy.getDate()).padStart(2, '0');
+    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoy.getDate()).padStart(2, '0');
 
     inputDesde.value = `${yyyy}-${mm}-01`;
     inputHasta.value = `${yyyy}-${mm}-${dd}`;
@@ -298,9 +265,6 @@ require_once "../../partials/_footer.php";
     actualizarGraficos();
   });
 
-  // -------------------------------------------------------
-  // 6) Evento click en el botón “Mostrar”
-  // -------------------------------------------------------
   btnActualizar.addEventListener('click', () => {
     actualizarGraficos();
   });

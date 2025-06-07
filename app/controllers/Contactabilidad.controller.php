@@ -21,8 +21,8 @@ try {
 
                 case 'getGraficoContactabilidad':
                     if (
-                        !isset($_POST['periodo'])    || 
-                        !isset($_POST['fecha_desde']) || 
+                        !isset($_POST['periodo'])    ||
+                        !isset($_POST['fecha_desde']) ||
                         !isset($_POST['fecha_hasta'])
                     ) {
                         echo json_encode(["error" => "Faltan parámetros (periodo, fecha_desde, fecha_hasta)"]);
@@ -33,17 +33,17 @@ try {
                     $fechaDesde = trim($_POST['fecha_desde']);
                     $fechaHasta = trim($_POST['fecha_hasta']);
 
-                    $validPeriods = ['ANUAL','MENSUAL','SEMANAL'];
+                    $validPeriods = ['ANUAL', 'MENSUAL', 'SEMANAL'];
                     if (!in_array($periodo, $validPeriods)) {
                         echo json_encode(["error" => "Periodo no válido. Debe ser ANUAL, MENSUAL o SEMANAL."]);
                         exit;
                     }
 
                     $dataGrafico = $contactabilidadModel->getGraficoContactabilidad([
-  'periodo'    => $periodo,
-  'fechaDesde' => $fechaDesde,
-  'fechaHasta' => $fechaHasta
-]);
+                        'periodo'    => $periodo,
+                        'fechaDesde' => $fechaDesde,
+                        'fechaHasta' => $fechaHasta
+                    ]);
 
                     echo json_encode($dataGrafico);
                     break;
@@ -62,4 +62,3 @@ try {
     http_response_code(500);
     echo json_encode(["error" => $e->getMessage()]);
 }
-?>
