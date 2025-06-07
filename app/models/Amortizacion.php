@@ -15,7 +15,7 @@ class Amortizacion extends Conexion
      * Crea una amortización para venta o compra
      * @param string $tipo 'venta' o 'compra'
      */
-    public function create($tipo, $id, $idformapago, $monto, $numTrans = null)
+    public function create($tipo, $id, $idformapago, $monto, $numTrans = null): array
     {
         // obtener info previa
         $info = $this->obtenerInfo($tipo, $id);

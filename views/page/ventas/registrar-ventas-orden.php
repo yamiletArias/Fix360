@@ -695,9 +695,6 @@ require_once "../../partials/_footer.php";
 <script src="<?= SERVERURL ?>views/page/clientes/js/registrar-cliente2.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
-<!-- CONTENEDOR DE TOASTS -->
-<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 2000;"></div>
-
 </body>
 
 </html>

@@ -1,35 +1,5 @@
-// CONTENEDOR para los toasts (si no lo pusiste en el HTML, inyectalo)
-if (!document.getElementById('toast-container')) {
-  const cont = document.createElement('div');
-  cont.id = 'toast-container';
-  cont.className = 'position-fixed top-0 end-0 p-3';
-  cont.style.zIndex = 2000;
-  document.body.appendChild(cont);
-}
-
-// 1) showToast con Bootstrap
-function showToast(message, type = "info", duration = 3000) {
-  const toastEl = document.createElement("div");
-  toastEl.className = `toast align-items-center text-bg-${type} border-0 mb-2`;
-  toastEl.setAttribute("role", "alert");
-  toastEl.setAttribute("aria-live", "assertive");
-  toastEl.setAttribute("aria-atomic", "true");
-  toastEl.innerHTML = `
-    <div class="d-flex">
-      <div class="toast-body">${message}</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" 
-              data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>`;
-
-  document.getElementById("toast-container").appendChild(toastEl);
-  const bsToast = new bootstrap.Toast(toastEl, { delay: duration });
-  bsToast.show();
-  toastEl.addEventListener("hidden.bs.toast", () => toastEl.remove());
-}
-
-// 2) Override alert()
-window.alert = function(msg) {
-  showToast(msg, "danger", 3000);
+window.alert = function (msg, type = "WARNING", duration = 2000) {
+  showToast(msg, type, duration);
 };
 document.addEventListener("DOMContentLoaded", function () {
   // Variables y elementos
@@ -544,8 +514,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const stockDisponible = selectedProduct.stock || 0;
     if (cantidad > stockDisponible) {
+      // 1) Muestro el toast de stock insuficiente
       alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
-      inputCantidad.value = stockDisponible;
+
+      // 2) Limpio TODOS los campos de producto
+      resetCamposProducto();
+
+      // 3) Corto la ejecución para no agregar nada
       return;
     }
     if (descuento > precio) {
@@ -899,7 +874,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Listeners para el autocompletado de productos usando debounce
-  // Creamos una versión debounced de mostrarOpcionesProducto:
   const debouncedMostrarOpcionesProducto = debounce(
     mostrarOpcionesProducto,
     500
