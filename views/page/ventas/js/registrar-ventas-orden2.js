@@ -1,3 +1,36 @@
+// CONTENEDOR para los toasts (si no lo pusiste en el HTML, inyectalo)
+if (!document.getElementById('toast-container')) {
+  const cont = document.createElement('div');
+  cont.id = 'toast-container';
+  cont.className = 'position-fixed top-0 end-0 p-3';
+  cont.style.zIndex = 2000;
+  document.body.appendChild(cont);
+}
+
+// 1) showToast con Bootstrap
+function showToast(message, type = "info", duration = 3000) {
+  const toastEl = document.createElement("div");
+  toastEl.className = `toast align-items-center text-bg-${type} border-0 mb-2`;
+  toastEl.setAttribute("role", "alert");
+  toastEl.setAttribute("aria-live", "assertive");
+  toastEl.setAttribute("aria-atomic", "true");
+  toastEl.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+              data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>`;
+
+  document.getElementById("toast-container").appendChild(toastEl);
+  const bsToast = new bootstrap.Toast(toastEl, { delay: duration });
+  bsToast.show();
+  toastEl.addEventListener("hidden.bs.toast", () => toastEl.remove());
+}
+
+// 2) Override alert()
+window.alert = function(msg) {
+  showToast(msg, "danger", 3000);
+};
 document.addEventListener("DOMContentLoaded", function () {
   // Variables y elementos
   const hiddenIdCliente = document.getElementById("hiddenIdCliente");
@@ -432,21 +465,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const idmec = parseInt(selectMecanico.value, 10);
     const precioServ = parseFloat(inputPrecioServicio.value);
 
-    if (!idserv) {
-      showToast("Por favor selecciona un servicio válido.", "ERROR", 2000);
-      return;
-    }
-    if (!idmec) {
-      showToast("Por favor selecciona un mecánico válido.", "ERROR", 2000);
-      return;
-    }
-    if (isNaN(precioServ) || precioServ <= 0) {
-      showToast("El precio debe ser un número mayor a cero.", "ERROR", 2000);
-      return;
-    }
+    if (!idserv) return alert("Por favor selecciona un servicio válido.");
+    if (!idmec) return alert("Por favor selecciona un mecánico válido.");
+    if (isNaN(precioServ) || precioServ <= 0)
+      return alert("El precio debe ser un número mayor a cero.");
     if (detalleServicios.some((s) => s.idservicio === idserv)) {
-      showToast("Ese servicio ya fue agregado.", "ERROR", 2000);
-      return;
+      return alert("Ese servicio ya fue agregado.");
     }
 
     // 2) Si todo OK, crear la fila
@@ -488,42 +512,54 @@ document.addEventListener("DOMContentLoaded", function () {
     const precio = parseFloat(inputPrecio.value);
     const cantidad = parseInt(inputCantidad.value, 10);
     if (isNaN(cantidad) || cantidad < 1) {
-      showToast("La cantidad debe ser un número entero mayor o igual a 1.", "WARNING", 2000);
+      alert("La cantidad debe ser un número entero mayor o igual a 1.");
       inputCantidad.value = 1;
       inputCantidad.focus();
       return;
     }
+    if (inputDescuento.value.trim() === "") {
+      inputDescuento.value = "0";
+    }
+    const descuento = parseFloat(inputDescuento.value);
+
+    // Validaciones básicas
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
-      showToast("Ese producto no existe. Elige uno de la lista.", "ERROR", 2000);
+      alert("Ese producto no existe. Elige uno de la lista.");
       return resetCamposProducto();
     }
     if (!nombre || isNaN(precio) || isNaN(cantidad)) {
-      showToast("Completa todos los campos correctamente.", "ERROR", 2000);
-      return;
+      return alert("Completa todos los campos correctamente.");
     }
     if (isNaN(precio) || precio < 1) {
-      showToast("El precio debe ser un número mayor o igual a 1.", "ERROR", 2000);
+      alert("El precio debe ser un número mayor o igual a 1.");
       inputPrecio.value = selectedProduct.precio.toFixed(2);
       inputPrecio.focus();
       return;
     }
     if (cantidad < 1) {
-      showToast("La cantidad debe ser mayor que cero.", "WARNING", 2000);
+      alert("La cantidad debe ser mayor que cero.");
       inputCantidad.value = 1;
       return;
     }
+
     const stockDisponible = selectedProduct.stock || 0;
     if (cantidad > stockDisponible) {
-      showToast(
-        `No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`,
-        "ERROR",
-        2000
-      );
+      alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
       inputCantidad.value = stockDisponible;
       return;
     }
+    if (descuento > precio) {
+      alert("El descuento unitario no puede ser mayor que el precio unitario.");
+      inputDescuento.value = "";
+      return;
+    }
+    if (descuento < 0) {
+      alert("El descuento no puede ser negativo.");
+      inputDescuento.value = 0;
+      return;
+    }
     if (detalleVenta.some((d) => d.idproducto === idp)) {
-      showToast("Este producto ya ha sido agregado.", "ERROR", 2000);
+      alert("Este producto ya ha sido agregado.");
       return resetCamposProducto();
     }
 
@@ -1162,10 +1198,8 @@ document.addEventListener("DOMContentLoaded", function () {
     kmInput.addEventListener("change", () => {
       const nuevo = parseFloat(kmInput.value);
       if (prevKilometraje !== null && nuevo < prevKilometraje) {
-        showToast(
-          `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`,
-          "ERROR",
-          2000
+        alert(
+          `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`
         );
         kmInput.value = prevKilometraje;
       }
