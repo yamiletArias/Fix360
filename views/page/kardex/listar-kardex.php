@@ -374,8 +374,7 @@ require_once "../../partials/header.php";
 
     document.getElementById('btnPdfKardex').addEventListener('click', () => {
       if (!selectedProduct.idproducto) {
-        alert('Selecciona primero un producto.');
-        return;
+        return showToast("Seleccione primero un producto", "WARNING");
       }
       const idp = selectedProduct.idproducto;
       const fecha = fechaInput.value;
