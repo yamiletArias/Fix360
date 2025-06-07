@@ -1,3 +1,30 @@
+// 0) Guarda referencias al original
+const nativeAlert = window.alert;
+const nativeConfirm = window.confirm;
+
+// 1) Define showToast (si no lo tienes aún)
+function showToast(message, type = "INFO", duration = 3000) {
+  Swal.fire({
+    toast: true,
+    position: "top-end",
+    icon: type.toLowerCase(),
+    title: message,
+    showConfirmButton: false,
+    timer: duration,
+    timerProgressBar: true,
+  });
+}
+
+// 2) Sobrescribe alert()
+window.alert = function (msg) {
+  showToast(msg, "ERROR", 2000);
+};
+
+// 3) (Opcional) Sobrescribe confirm() usando el original
+window.confirm = function (msg) {
+  return nativeConfirm(msg);
+};
+
 document.addEventListener("DOMContentLoaded", function () {
   // Variables y elementos
   const hiddenIdCliente = document.getElementById("hiddenIdCliente");

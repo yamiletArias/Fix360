@@ -340,57 +340,76 @@ require_once "../../partials/_footer.php";
                 } else {
                     serviciosValidos.forEach((s, i) => {
                         $servBody.append(`
-      <tr>
-        <td>${i + 1}</td>
-        <td>${s.tiposervicio ?? '-'}</td>
-        <td>${s.nombreservicio ?? '-'}</td>
-        <td>${s.mecanico ?? '-'}</td>
-        <td>${s.precio_servicio !== null
-                                ? parseFloat(s.precio_servicio).toFixed(2) + ' $'
-                                : '-'
-                            }</td>
-      </tr>`);
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${s.tiposervicio ?? '-'}</td>
+                            <td>${s.nombreservicio ?? '-'}</td>
+                            <td>${s.mecanico ?? '-'}</td>
+                            <td>${s.precio_servicio !== null
+                                                    ? parseFloat(s.precio_servicio).toFixed(2) + ' $'
+                                                    : '-'
+                                                }</td>
+                        </tr>`);
                     });
                 }
 
                 // — Amortizaciones —
-                fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idventa=${idventa}`)
+                fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idventa=${idventa}`)
                     .then(r => r.json())
                     .then(jsonA => {
-                        if (jsonA.status === 'success' && jsonA.data.length) {
-                            const cont = $(`
+                        if (jsonA.status !== 'success') return;
+                        const amort = jsonA.data;                   // lista de amortizaciones
+                        const totalVenta = jsonA.total_original; // total de la venta
+                        const amortizado = jsonA.total_pagado;   // suma de lo amortizado
+                        const saldoPendiente = jsonA.total_pendiente;// lo que falta pagar
+
+                        // primero limpiamos cualquier sección previa
+                        $("#miModal .amortizaciones-container").remove();
+
+                        // construimos la tabla resumida
+                        let html = `
                             <div class="amortizaciones-container mt-4">
                                 <h6>Amortizaciones</h6>
                                 <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Transacción</th>
-                                            <th>Nº Transacción</th>
-                                            <th>Monto</th>
-                                            <th>F. Pago</th>
-                                            <th>Saldo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        `);
-                            jsonA.data.forEach((a, i) => {
-                                cont.find('tbody').append(`
+                                <thead>
+                                    <tr>
+                                    <th>#</th>
+                                    <th>Fecha</th>
+                                    <th>Nº Transacción</th>
+                                    <th>Monto</th>
+                                    <th>Forma de Pago</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            `;
+                        amort.forEach((a, i) => {
+                            const dt = new Date(a.creado);
+                            const fecha = dt.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                            const hora = dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+                            html += `
                                 <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${new Date(a.creado).toLocaleString()}</td>
-                                    <td>${a.numtransaccion}</td>
-                                    <td>${parseFloat(a.amortizacion).toFixed(2)} $</td>
-                                    <td>${a.formapago}</td>
-                                    <td>${parseFloat(a.saldo).toFixed(2)} $</td>
-                                </tr>`);
-                            });
-                            $("#miModal .modal-body").append(cont);
-                        }
+                                <td>${i + 1}</td>
+                                <td>${fecha} ${hora}</td>
+                                <td>${a.numtransaccion}</td>
+                                <td>S/ ${parseFloat(a.amortizacion).toFixed(2)}</td>
+                                <td>${a.formapago}</td>
+                                </tr>
+                            `;
+                        });
+                        html += `
+                                </tbody>
+                                </table>
+                                <div class="text-end pe-3 mt-3">
+                                <p><strong>Total Venta</strong> S/ ${totalVenta.toFixed(2)}</p>
+                                <p><strong>Amortizado</strong>   S/ ${amortizado.toFixed(2)}</p>
+                                <p><strong>Saldo Pendiente</strong> S/ ${saldoPendiente.toFixed(2)}</p>
+                                </div>
+                            </div>
+                            `;
+
+                        $("#miModal .modal-body").append(html);
                     })
-                    .catch(() => console.error("Error amortizaciones"));
+                    .catch(err => console.error("Error al cargar amortizaciones:", err));
 
             })
             .catch(() => {
@@ -943,7 +962,7 @@ require_once "../../partials/_footer.php";
 
 <!-- Modal de Detalle de Venta -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 950px;">
+    <div class="modal-dialog" style="max-width: 970px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de la Venta</h5>
