@@ -193,6 +193,7 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-md" style="margin-top: 20px;">
@@ -205,30 +206,42 @@ require_once "../../partials/header.php";
         <form id="form-nuevo-producto">
           <div class="row g-3">
             <div class="col-12">
-              <div class="form-floating">
+              <div class="form-floating d-flex align-items-center">
                 <select class="form-select" id="marca" name="idmarca" required
                   style="background-color: white; color: black;">
                   <option>Seleccione una opción</option>
                 </select>
-                <label for="marca">Marca:</label>
+                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
+                  data-bs-target="#modalMarca">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+                <label for="marca" class="mb-0 ms-2">Marca:</label>
               </div>
             </div>
             <div class="col-12">
-              <div class="form-floating">
+              <div class="form-floating d-flex align-items-center">
                 <select class="form-select" id="categoria" name="categoria" required
                   style="background-color: white; color: black;">
                   <option>Seleccione una opción</option>
                 </select>
-                <label for="categoria">Categoría:</label>
+                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
+                  data-bs-target="#modalCategoria">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+                <label for="categoria" class="mb-0 ms-2">Categoría:</label>
               </div>
             </div>
             <div class="col-12">
-              <div class="form-floating">
-                <select class="form-select" name="subcategoria" id="subcategoria" required
+              <div class="form-floating d-flex align-items-center">
+                <select class="form-select" id="subcategoria" name="subcategoria" required
                   style="background-color: white; color: black;">
                   <option value="">Seleccione una opción</option>
                 </select>
-                <label for="subcategoria">Subcategoría:</label>
+                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
+                  data-bs-target="#modalSubcategoria">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+                <label for="subcategoria" class="mb-0 ms-2">Subcategoría:</label>
               </div>
             </div>
             <div class="col-12">
@@ -267,29 +280,29 @@ require_once "../../partials/header.php";
               </div>
             </div>
             <div class="col-6">
-              <div class="form-floating ">
-                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial"
+              <div class="form-floating">
+                <input type="number" step="0.1" class="form-control" id="stockInicial" name="stockInicial"
                   placeholder="stockInicial" min="0" />
                 <label for="stockInicial">Stock Actual</label>
               </div>
             </div>
             <div class="col-6">
-              <div class="form-floating ">
-                <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin"
+              <div class="form-floating">
+                <input type="number" step="0.1" class="form-control" id="stockmin" name="stockmin"
                   placeholder="stockmin" min="0" />
                 <label for="stockmin">Stock min.</label>
               </div>
             </div>
             <div class="col-6">
-              <div class="form-floating ">
-                <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax"
+              <div class="form-floating">
+                <input type="number" step="0.1" class="form-control" id="stockmax" name="stockmax"
                   placeholder="stockmax" min="0" />
                 <label for="stockmax">Stock max.</label>
               </div>
             </div>
             <div class="col-12">
               <label for="img" class="form-label" style="color: black;">Imagen del producto:</label>
-              <input type="file" class="form-control" name="img" id="img" accept="image/png, image/jpeg"
+              <input type="file" class="form-control" id="img" name="img" accept="image/png, image/jpeg"
                 style="background-color: white; color: black;" />
             </div>
           </div>
@@ -302,6 +315,76 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+
+<!-- Modal para agregar Marca -->
+<div class="modal fade" id="modalMarca" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAddMarca" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Marca</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-floating">
+          <input type="text" id="inputMarca" class="form-control input" placeholder="marca"
+            style="background-color: white;" required>
+          <label for="inputMarca"><strong>Marca</strong></label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para agregar Categoría -->
+<div class="modal fade" id="modalCategoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAddCategoria" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Categoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-floating">
+          <input type="text" id="inputCategoria" class="form-control input" placeholder="categoria"
+            style="background-color: white;" required>
+          <label for="inputCategoria"><strong>Categoría</strong></label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para agregar Subcategoría -->
+<div class="modal fade" id="modalSubcategoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAddSubcategoria" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Subcategoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-floating">
+          <input type="text" id="inputSubcategoria" class="form-control input" placeholder="subcategoria"
+            style="background-color: white;" required>
+          <label for="inputSubcategoria"><strong>Subcategoría</strong></label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Modal de registrar nueva empresa / proveedor (estilo igual al primer modal) -->
 <div class="modal fade" id="modalNuevoProveedor" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-md" style="margin-top: 60px;">
@@ -359,6 +442,7 @@ require_once "../../partials/header.php";
     </div>
   </div>
 </div>
+
 </div>
 </div>
 <?php
@@ -534,54 +618,131 @@ require_once "../../partials/_footer.php";
   });
 </script>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", () => {
+    // --- 1) Llenar selects inicialmente ---
     const marcaSelect = document.getElementById("marca");
     const categoriaSelect = document.getElementById("categoria");
     const subcategoriaSelect = document.getElementById("subcategoria");
 
-    fetch("http://localhost/fix360/app/controllers/marca.controller.php?task=getAllMarcaProducto")
-      .then(response => response.json())
-      .then(data => {
+    // Carga marcas
+    fetch("<?= SERVERURL ?>app/controllers/marca.controller.php?task=getAllMarcaProducto")
+      .then(r => r.json()).then(data => {
         data.forEach(item => {
-          const option = document.createElement("option");
-          option.value = item.idmarca;
-          option.textContent = item.nombre;
-          marcaSelect.appendChild(option);
+          marcaSelect.appendChild(new Option(item.nombre, item.idmarca));
         });
-      })
-      .catch(error => console.error("Error al cargar las marcas:", error));
-    fetch("http://localhost/fix360/app/controllers/categoria.controller.php?task=getAll")
-      .then(response => response.json())
-      .then(data => {
-        data.forEach(item => {
-          const option = document.createElement("option");
-          option.value = item.idcategoria;
-          option.textContent = item.categoria;
-          categoriaSelect.appendChild(option);
-        });
-      })
-      .catch(error => console.error("Error al cargar categorias:", error));
+      });
 
+    // Carga categorías
+    fetch("<?= SERVERURL ?>app/controllers/categoria.controller.php?task=getAll")
+      .then(r => r.json()).then(data => {
+        data.forEach(item => {
+          categoriaSelect.appendChild(new Option(item.categoria, item.idcategoria));
+        });
+      });
+
+    // Al cambiar categoría, recarga subcategorías
     function cargarSubcategorias() {
-      const categoria = categoriaSelect.value;
-      subcategoriaSelect.innerHTML = '<option value="">Seleccione una opcion</option>';
-      if (categoria) {
-        fetch(`http://localhost/fix360/app/controllers/subcategoria.controller.php?task=getSubcategoriaByCategoria&idcategoria=${encodeURIComponent(categoria)}`)
-          .then(response => response.json())
-          .then(data => {
-            data.forEach(item => {
-              const option = document.createElement("option");
-              option.value = item.idsubcategoria;
-              option.textContent = item.subcategoria;
-              subcategoriaSelect.appendChild(option);
-            });
-          })
-          .catch(error => console.error("Error al cargar subcategorias:", error));
-      }
+      const idcat = categoriaSelect.value;
+      subcategoriaSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+      if (!idcat) return;
+      fetch(`<?= SERVERURL ?>app/controllers/subcategoria.controller.php?task=getSubcategoriaByCategoria&idcategoria=${encodeURIComponent(idcat)}`)
+        .then(r => r.json()).then(data => {
+          data.forEach(item => {
+            subcategoriaSelect.appendChild(new Option(item.subcategoria, item.idsubcategoria));
+          });
+        });
     }
     categoriaSelect.addEventListener("change", cargarSubcategorias);
+
+    // --- 2) Configurar modal principal de producto ---
+    const mainModalEl = document.getElementById("miModal");
+    const mainModal = bootstrap.Modal.getInstance(mainModalEl) || new bootstrap.Modal(mainModalEl);
+
+    // Helper para cerrar solo un sub-modal
+    function hideSubModal(id) {
+      const md = bootstrap.Modal.getInstance(document.getElementById(id));
+      if (md) md.hide();
+    }
+
+    // --- 3) Alta Marca ---
+    document.getElementById("formAddMarca").addEventListener("submit", async e => {
+      e.preventDefault();
+      const nombre = document.getElementById("inputMarca").value.trim();
+      if (!nombre) return showToast("Ingrese nombre de marca.", "ERROR", 1500);
+
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/marca.controller.php?task=registerMarcaProducto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        marcaSelect.appendChild(new Option(nombre, data.idmarca, true, true));
+        hideSubModal("modalMarca");
+        mainModal.show();
+        document.getElementById("inputMarca").value = "";
+        showToast("Marca agregada.", "SUCCESS", 1500);
+      } else {
+        showToast("Error al crear marca.", "ERROR", 1500);
+      }
+    });
+
+    // --- 4) Alta Categoría ---
+    document.getElementById("formAddCategoria").addEventListener("submit", async e => {
+      e.preventDefault();
+      const cat = document.getElementById("inputCategoria").value.trim();
+      if (!cat) return showToast("Ingrese categoría.", "ERROR", 1500);
+
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/categoria.controller.php?task=add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoria: cat })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        categoriaSelect.appendChild(new Option(cat, data.idcategoria, true, true));
+        // Limpia subcategorías para recarga si cambias de categoría
+        subcategoriaSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+        hideSubModal("modalCategoria");
+        mainModal.show();
+        document.getElementById("inputCategoria").value = "";
+        showToast("Categoría agregada.", "SUCCESS", 1500);
+      } else {
+        showToast("Error al crear categoría.", "ERROR", 1500);
+      }
+    });
+
+    // --- 5) Alta Subcategoría ---
+    document.getElementById("formAddSubcategoria").addEventListener("submit", async e => {
+      e.preventDefault();
+      const subcat = document.getElementById("inputSubcategoria").value.trim();
+      const catId = categoriaSelect.value;
+      if (!catId) return showToast("Primero selecciona categoría.", "WARNING", 1500);
+      if (!subcat) return showToast("Ingrese subcategoría.", "ERROR", 1500);
+
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/subcategoria.controller.php?task=add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idcategoria: catId, subcategoria: subcat })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        subcategoriaSelect.appendChild(new Option(subcat, data.idsubcategoria, true, true));
+        hideSubModal("modalSubcategoria");
+        mainModal.show();
+        document.getElementById("inputSubcategoria").value = "";
+        showToast("Subcategoría agregada.", "SUCCESS", 1500);
+      } else {
+        showToast("Error al crear subcategoría.", "ERROR", 1500);
+      }
+    });
   });
 </script>
+
+</body>
+
+</html>
+
 <!-- <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos
@@ -1070,6 +1231,3 @@ require_once "../../partials/_footer.php";
     });
   });
 </script> -->
-</body>
-
-</html>

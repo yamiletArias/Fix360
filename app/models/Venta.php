@@ -338,49 +338,70 @@ class Venta extends Conexion
 
     public function registerVentasConOrden(array $params): array
     {
+        // 1) VALIDACIÓN PREVIA
+        // Determinar si se considera orden de trabajo:
+        // - Si vienen servicios en el arreglo → conOrden = true
+        // - O bien si tipocom == 'orden de trabajo'
+        $conOrden = !empty($params['servicios']);
+        $tipocom = $params['tipocom'] ?? '';
+        $esOrdenTrabajo = $conOrden || (strcasecmp($tipocom, 'orden de trabajo') === 0);
+
+        if ($esOrdenTrabajo) {
+            // Validar idvehiculo
+            if (empty($params['idvehiculo'])) {
+                throw new Exception("Orden de Trabajo: debe especificarse un vehículo.");
+            }
+            // Validar kilometraje
+            $kilometraje = isset($params['kilometraje']) ? floatval($params['kilometraje']) : 0;
+            if ($kilometraje <= 0) {
+                throw new Exception("Orden de Trabajo: el kilometraje debe ser mayor que cero.");
+            }
+        }
+
         try {
             $pdo = $this->pdo;
             $pdo->beginTransaction();
 
-            // 1) Llamo al SP unificado
+            // 2) Llamo al SP unificado
             $sql = "CALL spRegisterVentaConOrden(
-                ?,  -- conOrden (BOOLEAN)
-                ?,  -- idadmin
-                ?,  -- idpropietario
-                ?,  -- idcliente
-                ?,  -- idvehiculo
-                ?,  -- kilometraje
-                ?,  -- observaciones
-                ?,  -- ingresogrua
-                ?,  -- p_fechaingreso (puede venir NULL)
-                ?,  -- tipocom
-                ?,  -- fechahora
-                ?,  -- numserie
-                ?,  -- numcom
-                ?,  -- moneda
-                ?   -- idcolaborador
-            )";
+            ?,  -- conOrden (BOOLEAN)
+            ?,  -- idadmin
+            ?,  -- idpropietario
+            ?,  -- idcliente
+            ?,  -- idvehiculo
+            ?,  -- kilometraje
+            ?,  -- observaciones
+            ?,  -- ingresogrua
+            ?,  -- p_fechaingreso (puede venir NULL)
+            ?,  -- tipocom
+            ?,  -- fechahora
+            ?,  -- numserie
+            ?,  -- numcom
+            ?,  -- moneda
+            ?   -- idcolaborador
+        )";
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                $params['conOrden'],
-                $params['idcolaborador'],        // _idadmin
-                $params['idpropietario'],       // si no creas orden, el mismo cliente
-                $params['idcliente'],
-                $params['idvehiculo'],
-                $params['kilometraje'],
-                $params['observaciones'],
-                $params['ingresogrua'],
-                $params['fechaingreso'] ?? null,
-                $params['tipocom'],
-                $params['fechahora'],
-                $params['numserie'],
-                $params['numcom'],
-                $params['moneda'],
-                $params['idcolaborador']
+                // Nota: el orden de parámetros aquí coincide con la definición del SP
+                $params['conOrden'],                    // _conOrden
+                $params['idcolaborador'],               // _idadmin
+                $params['idpropietario'],               // _idpropietario
+                $params['idcliente'],                   // _idcliente
+                $params['idvehiculo'],                  // _idvehiculo
+                $params['kilometraje'],                 // _kilometraje
+                $params['observaciones'],               // _observaciones
+                $params['ingresogrua'],                 // _ingresogrua
+                $params['fechaingreso'] ?? null,        // _fechaingreso
+                $params['tipocom'],                     // _tipocom
+                $params['fechahora'],                   // _fechahora
+                $params['numserie'],                    // _numserie
+                $params['numcom'],                      // _numcom
+                $params['moneda'],                      // _moneda
+                $params['idcolaborador']                // _idcolaborador (repetido según SP)
             ]);
 
-            // 2) Capturo el primer conjunto de resultados (idventa, idorden)
+            // 3) Capturo el primer conjunto de resultados (idventa, idorden)
             $result = [];
             do {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -392,31 +413,31 @@ class Venta extends Conexion
             $stmt->closeCursor();
 
             if (empty($result['idventa'])) {
-                throw new Exception("No se obtuvo idventa");
+                throw new Exception("No se obtuvo idventa tras invocar spRegisterVentaConOrden");
             }
 
             $idventa = (int) $result['idventa'];
             $idorden = isset($result['idorden']) ? (int) $result['idorden'] : null;
 
-            // 3) Detalle de productos
-            $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?,?)");
-            foreach ($params['productos'] as $prod) {
-                $stmtProd->execute([
-                    $idventa,
-                    $prod['idproducto'],
-                    $prod['cantidad'],
-                    $prod['numserie'] ?? null,
-                    $prod['precio'],
-                    $prod['descuento'],
-                    true
-                ]);
+            // 4) Detalle de productos
+            if (!empty($params['productos'])) {
+                $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?,?)");
+                foreach ($params['productos'] as $prod) {
+                    $stmtProd->execute([
+                        $idventa,
+                        $prod['idproducto'],
+                        $prod['cantidad'],
+                        $prod['numserie'] ?? null,
+                        $prod['precio'],
+                        $prod['descuento'],
+                        true
+                    ]);
+                }
             }
 
-            // 4) Detalle de servicios (si conOrden = true y tienes un array 'servicios')
-            if ($params['conOrden'] && !empty($params['servicios'])) {
-                // 1) Guarda un log para verificar qué servicios llegan
+            // 5) Detalle de servicios (solo si realmente hay orden y viene arreglo 'servicios')
+            if ($conOrden && !empty($params['servicios'])) {
                 error_log(">>> VA A INSERTAR SERVICIOS PARA LA ORDEN #{$idorden}: " . print_r($params['servicios'], true));
-
                 $stmtServ = $pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
                 foreach ($params['servicios'] as $srv) {
                     $stmtServ->execute([
@@ -432,6 +453,7 @@ class Venta extends Conexion
             return ['idventa' => $idventa, 'idorden' => $idorden];
         } catch (Exception $e) {
             $pdo->rollBack();
+            // Re-lanzar la excepción para que el controlador la capture y devuelva JSON con error
             throw $e;
         }
     }

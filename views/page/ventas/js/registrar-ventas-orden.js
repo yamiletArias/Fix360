@@ -1,3 +1,6 @@
+window.alert = function (msg, type = "WARNING", duration = 2000) {
+  showToast(msg, type, duration);
+};
 document.addEventListener("DOMContentLoaded", function () {
   // Variables y elementos
   const hiddenIdCliente = document.getElementById("hiddenIdCliente");
@@ -18,26 +21,264 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnFinalizarVenta = document.getElementById("btnFinalizarVenta");
   const detalleServicios = [];
   const tablaServ = document.querySelector("#tabla-detalle-servicios tbody");
-  const btnAgregarServicio = document.getElementById("btnAgregarServicio");
+  const btnAgregarDetalleServicio = document.getElementById(
+    "btnAgregarDetalleServicio"
+  );
   const selectServicio = document.getElementById("servicio");
   const selectMecanico = document.getElementById("mecanico");
   const inputPrecioServicio = document.getElementById("precioServicio");
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
+  const kmInput = document.getElementById("kilometraje");
+  const btnToggleService = document.getElementById("btnToggleService");
+  const obsField = document.getElementById("observaciones");
+  const gruField = document.getElementById("ingresogrua");
+  const hiddenIdPropietario = document.getElementById("hiddenIdPropietario");
+  const inputClienteVisible = document.getElementById("inputClienteVisible");
 
-  /*   function setFechaDefault() {
-      const input = document.getElementById('fechaIngreso');
-      const now = new Date(); const pad = n => String(n).padStart(2,'0');
-      const yyyy = now.getFullYear(), MM = pad(now.getMonth()+1), dd = pad(now.getDate());
-      const hh = pad(now.getHours()), mm = pad(now.getMinutes());
-      input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-  
-      const twoDaysAgo = new Date(now);
-      twoDaysAgo.setDate(now.getDate()-2);
-      input.min = `${twoDaysAgo.getFullYear()}-${pad(twoDaysAgo.getMonth()+1)}-${pad(twoDaysAgo.getDate())}T00:00`;
-      input.max = `${yyyy}-${MM}-${dd}T23:59`;
+  btnToggleService.disabled = true;
+  btnToggleService.classList.remove("btn-success");
+  btnToggleService.classList.add("btn-secondary");
+
+  // 2) Cargar lista de servicios por subcategoría
+  async function cargarServiciosPorSubcategoria(idsubcat) {
+    if (!idsubcat) {
+      document.getElementById("servicio").innerHTML =
+        '<option value="">Eliga un servicio</option>';
+      return;
     }
-    setFechaDefault(); */
+    try {
+      const resp = await fetch(
+        `${FIX360_BASE_URL}app/controllers/Servicio.Controller.php?task=getServicioBySubcategoria&idsubcategoria=${idsubcat}`
+      );
+      const data = await resp.json();
+      let html = '<option value="">Eliga un servicio</option>';
+      data.forEach((item) => {
+        html += `<option value="${item.idservicio}">${item.servicio}</option>`;
+      });
+      document.getElementById("servicio").innerHTML = html;
+    } catch (err) {
+      console.error("Error al cargar servicios:", err);
+      showToast("Error al cargar servicios.", "ERROR", 1500);
+    }
+  }
+
+  document
+    .getElementById("subcategoria")
+    .addEventListener("change", function () {
+      const idsubcat = this.value;
+      cargarServiciosPorSubcategoria(idsubcat);
+    });
+
+  // 3) Abrir modal para registrar un servicio nuevo
+  document
+    .getElementById("btnAgregarServicio")
+    .addEventListener("click", function () {
+      const selectSub = document.getElementById("subcategoria");
+      const idsubcat = selectSub.value;
+      const textoSub = selectSub.options[selectSub.selectedIndex]?.text || "";
+
+      if (!idsubcat) {
+        showToast(
+          "Primero debe seleccionar un Tipo de Servicio (subcategoría).",
+          "WARNING",
+          1500
+        );
+        return;
+      }
+      document.getElementById("modalSubcategoriaId").value = idsubcat;
+      document.getElementById("modalSubcategoriaNombre").value = textoSub;
+      document.getElementById("modalServicioNombre").value = "";
+      new bootstrap.Modal(document.getElementById("ModalServicio")).show();
+    });
+
+  // 4) Registrar servicio desde el modal
+  document
+    .getElementById("btnRegistrarServicioModal")
+    .addEventListener("click", async function () {
+      const idsubcategoria = document.getElementById(
+        "modalSubcategoriaId"
+      ).value;
+      const servicioNombre = document
+        .getElementById("modalServicioNombre")
+        .value.trim();
+
+      if (!servicioNombre) {
+        showToast("Debe ingresar el nombre del servicio.", "WARNING", 1500);
+        return;
+      }
+
+      const payload = {
+        task: "registerServicio",
+        idsubcategoria: idsubcategoria,
+        servicio: servicioNombre,
+      };
+
+      try {
+        const resp = await fetch(
+          `${FIX360_BASE_URL}app/controllers/Servicio.Controller.php`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+        const json = await resp.json();
+        if (json.error) {
+          showToast("Error: " + json.error, "ERROR", 2000);
+          return;
+        }
+
+        // Si tuvo éxito:
+        const nuevoId = json.idservicio;
+        const nuevoNom = json.servicio;
+
+        // Cerrar modal
+        const modalEl = document.getElementById("ModalServicio");
+        bootstrap.Modal.getInstance(modalEl).hide();
+
+        // Agregar nueva opción al <select id="servicio"> y seleccionarla
+        const selectServ = document.getElementById("servicio");
+        const opt = document.createElement("option");
+        opt.value = nuevoId;
+        opt.textContent = nuevoNom;
+        opt.selected = true;
+        selectServ.appendChild(opt);
+
+        showToast("Servicio registrado correctamente.", "SUCCESS", 1500);
+      } catch (err) {
+        console.error("Error al registrar servicio:", err);
+        showToast("Ocurrió un error al registrar el servicio.", "ERROR", 1500);
+      }
+    });
+
+  // --- Funcionalidades para fecha predeterminada ---
+  document.addEventListener("DOMContentLoaded", () => {
+    setFechaDefault();
+  });
+
+  function setFechaDefault() {
+    const input = document.getElementById("fechaIngreso");
+    if (!input) {
+      console.warn("No encontré #fechaIngreso");
+      return;
+    }
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const yyyy = now.getFullYear(),
+      MM = pad(now.getMonth() + 1),
+      dd = pad(now.getDate()),
+      hh = pad(now.getHours()),
+      mm = pad(now.getMinutes());
+    input.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+    // opcional: rango
+    const twoDaysAgo = new Date(now);
+    twoDaysAgo.setDate(now.getDate() - 2);
+    input.min = `${twoDaysAgo.getFullYear()}-${pad(
+      twoDaysAgo.getMonth() + 1
+    )}-${pad(twoDaysAgo.getDate())}T00:00`;
+    input.max = `${yyyy}-${MM}-${dd}T23:59`;
+  }
+
+  btnToggleService.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    // 1) Validar tipo de comprobante: si no es “orden de trabajo”, forzar o advertir
+    const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked').value;
+    if (tipoSeleccionado !== "orden de trabajo") {
+      // Puedes mostrar un toast o alerta
+      showToast("Para agregar servicios debes seleccionar tipo 'Orden de Trabajo'.", "WARNING", 2000);
+      return;
+    }
+
+    // 2) Validar que haya vehículo seleccionado
+    const idVehiculo = vehiculoSelect.value;
+    if (!idVehiculo) {
+      showToast("Debes seleccionar un vehículo antes de agregar servicios.", "WARNING", 2000);
+      // Opcional: abrir dropdown de vehículo o enfocar el select:
+      vehiculoSelect.focus();
+      return;
+    }
+
+    // 3) Validar kilometraje ingresado y coherente con prevKilometraje
+    const kmVal = parseFloat(kmInput.value);
+    if (isNaN(kmVal) || kmInput.value.trim() === "") {
+      showToast("Debes ingresar el kilometraje antes de agregar servicios.", "WARNING", 2000);
+      kmInput.focus();
+      return;
+    }
+    if (prevKilometraje !== null && kmVal < prevKilometraje) {
+      showToast(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`, "ERROR", 2000);
+      kmInput.value = prevKilometraje;
+      kmInput.focus();
+      return;
+    }
+
+    // Si todo OK, procede a mostrar la sección de servicios
+    // --- NUEVO: limpiar el arreglo y la tabla de servicios antes de mostrarla ---
+    detalleServicios.length = 0;
+    tablaServ.innerHTML = "";
+    actualizarNumerosServicios();
+
+    document.getElementById("serviceSection").classList.remove("d-none");
+    document.getElementById("serviceListCard").classList.remove("d-none");
+
+    // Deshabilitar el botón y ajustar estilo
+    this.disabled = true;
+    this.classList.remove("btn-success");
+    this.classList.add("btn-secondary");
+
+    obsField.disabled = false;
+    gruField.disabled = false;
+  });
+
+  // --- NUEVO: variable global para almacenar el último kilometraje y función para traerlo ---
+  let prevKilometraje = null; // ←–– aquí guardamos el último valor traído
+  async function fetchUltimoKilometraje(idvehiculo) {
+    try {
+      const url = `${window.FIX360_BASE_URL}app/controllers/vehiculo.controller.php?task=getUltimoKilometraje&idvehiculo=${idvehiculo}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const ultimo = parseFloat(data.ultimo_kilometraje) || 0;
+      prevKilometraje = ultimo;
+      kmInput.value = ultimo > 0 ? ultimo : "";
+    } catch (err) {
+      console.error("Error al cargar último kilometraje:", err);
+    }
+  }
+  if (vehiculoSelect) {
+    vehiculoSelect.addEventListener("change", function () {
+      const idVeh = this.value;
+      if (idVeh) {
+        fetchUltimoKilometraje(idVeh);
+        // Habilitamos el botón de Agregar servicio
+        btnToggleService.disabled = false;
+        btnToggleService.classList.remove("btn-secondary");
+        btnToggleService.classList.add("btn-success");
+      } else {
+        kmInput.value = "";
+        prevKilometraje = null;
+        // Volvemos a deshabilitarlo si no hay vehículo
+        btnToggleService.disabled = true;
+        btnToggleService.classList.remove("btn-success");
+        btnToggleService.classList.add("btn-secondary");
+      }
+    });
+  }
+
+  // 4) Validación extra en kilometraje
+  if (kmInput) {
+    kmInput.addEventListener("change", () => {
+      const nuevo = parseFloat(kmInput.value);
+      if (prevKilometraje !== null && nuevo < prevKilometraje) {
+        alert(
+          `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`
+        );
+        kmInput.value = prevKilometraje;
+      }
+    });
+  }
+
   // --- Funciones auxiliares ---
   function calcularTotales() {
     let totalImporte = 0;
@@ -45,21 +286,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 1) Productos
     tabla.querySelectorAll("tr").forEach((fila) => {
-      // Lee precio desde input
-      const precioInput = fila.querySelector(".precio-input");
-      const precio = precioInput
-        ? parseFloat(precioInput.value) || 0
-        : 0;
+      // ----------- LECTURA DESDE <span class="precio-texto"> -----------
+      const precioSpan = fila.querySelector(".precio-texto");
+      const precio = precioSpan ? parseFloat(precioSpan.textContent) || 0 : 0;
 
-      // Lee cantidad desde input
-      const cantidad = parseFloat(
-        fila.querySelector(".cantidad-input").value
-      ) || 0;
+      // Cantidad (sigue siendo input)
+      const cantidad =
+        parseFloat(fila.querySelector(".cantidad-input").value) || 0;
 
-      // Lee descuento desde input
-      const descuentoInput = fila.querySelector(".descuento-input");
-      const descuento = descuentoInput
-        ? parseFloat(descuentoInput.value) || 0
+      // ----------- LECTURA DESDE <span class="descuento-texto"> -----------
+      const descuentoSpan = fila.querySelector(".descuento-texto");
+      const descuento = descuentoSpan
+        ? parseFloat(descuentoSpan.textContent) || 0
         : 0;
 
       const importeLinea = (precio - descuento) * cantidad;
@@ -67,8 +305,11 @@ document.addEventListener("DOMContentLoaded", function () {
       totalDescuento += descuento * cantidad;
     });
 
-    // 2) Servicios (igual que antes)
-    const totalServicios = detalleServicios.reduce((sum, s) => sum + s.precio, 0);
+    // 2) Servicios
+    const totalServicios = detalleServicios.reduce(
+      (sum, s) => sum + s.precio,
+      0
+    );
     totalImporte += totalServicios;
 
     // 3) IGV y neto
@@ -102,13 +343,10 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((r) => r.json())
       .then((data) => {
         // 1) Cliente (para vehículos)
-        hiddenIdCliente.value = data.idcliente;
-        // 2) Propietario (para FK)
-        hiddenIdPropietario.value = data.idcliente;
-        // 3) Nombre del propietario en el input
-        inputProp.value = data.cliente;
-        // 4) Disparamos carga de vehículos sobre hiddenIdCliente
-        hiddenIdCliente.dispatchEvent(new Event("change"));
+        hiddenIdPropietario.value = data.idcliente; // clienteCot → propietario
+        hiddenIdCliente.value = 0; // clienteVenta = NULL
+        inputProp.value = data.cliente; // muestro el nombre en “Propietario”
+        hiddenIdPropietario.dispatchEvent(new Event("change"));
       })
       .catch(console.error);
 
@@ -118,50 +356,147 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((items) => {
         items.forEach((item) => {
           const precio = parseFloat(item.precio);
-          const cantidad = parseFloat(item.cantidad);
+          const cantidad = parseInt(item.cantidad, 10);
           const descuento = parseFloat(item.descuento);
           const importe = (precio - descuento) * cantidad;
 
-          // CREAR FILA EN LA TABLA igual que si hubieras pulsado “Agregar”
+          // 1) Creo la fila TR
           const tr = document.createElement("tr");
           tr.dataset.idproducto = item.idproducto;
           tr.innerHTML = `
-            <td>0</td>
-            <td>${item.producto}</td>
-            <td>${precio.toFixed(2)}</td>
-            <td>
-              <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
-                <button class="btn btn-outline-secondary btn-decrement" type="button">–</button>
-                <input type="number"
-                      class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                      value="${cantidad}"
-                      min="1"
-                      max="${item.stock}">
-                <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
-              </div>
-            </td>
-            <td>${descuento.toFixed(2)}</td>
-            <td class="importe-cell">${importe.toFixed(2)}</td>
-            <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>`;
+        <td>0</td>
+        <td>${item.producto}</td>
+        <!-- Envolvemos precio en <span class="precio-texto"> -->
+        <td>
+          <span class="precio-texto">${precio.toFixed(2)}</span>
+        </td>
+        <td>
+          <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
+            <button class="btn btn-outline-secondary btn-decrement" type="button">−</button>
+            <input type="number"
+                   class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                   value="${cantidad}"
+                   min="1"
+                   max="${item.stock}">
+            <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+          </div>
+        </td>
+        <!-- Envolvemos descuento en <span class="descuento-texto"> -->
+        <td>
+          <span class="descuento-texto">${descuento.toFixed(2)}</span>
+        </td>
+        <td class="importe-cell">${importe.toFixed(2)}</td>
+        <td>
+          <button class="btn btn-danger btn-sm btn-quitar">X</button>
+        </td>`;
+
+          // 2) Lo agrego al tbody
           tabla.appendChild(tr);
+
+          // 3) Lo agrego también al array detalleVenta (igual que en tu “Agregar” manual)
           detalleVenta.push({
             idproducto: item.idproducto,
             producto: item.producto,
-            precio,
-            cantidad,
-            descuento,
+            precio: precio,
+            cantidad: cantidad,
+            descuento: descuento,
             importe: importe.toFixed(2),
           });
-        });
 
-        // Finalmente, renumera y recalcula totales:
+          // — AHORA, asigno los listeners para que funcione igual que en “Agregar producto” —
+
+          // obtengo referencias dentro de la fila recién creada
+          const decBtn = tr.querySelector(".btn-decrement");
+          const incBtn = tr.querySelector(".btn-increment");
+          const qtyInput = tr.querySelector(".cantidad-input");
+          const importeCell = tr.querySelector(".importe-cell");
+          const precioSpan = tr.querySelector(".precio-texto");
+          const descuentoSpan = tr.querySelector(".descuento-texto");
+          const quitarBtn = tr.querySelector(".btn-quitar");
+
+          // función que recalcula esta línea cuando cambie cantidad
+          function actualizarLinea() {
+            // 1) leo cantidad como entero
+            let qty = parseInt(qtyInput.value, 10) || 1;
+            if (qty < 1) qty = 1;
+            qtyInput.value = qty;
+
+            // 2) leo precio y descuento desde los spans
+            const precioValor = parseFloat(precioSpan.textContent) || 0;
+            const descuentoValor = parseFloat(descuentoSpan.textContent) || 0;
+
+            // 3) calculo nuevo importe y lo muestro
+            const netoUnit = precioValor - descuentoValor;
+            const nuevoImporte = netoUnit * qty;
+            importeCell.textContent = nuevoImporte.toFixed(2);
+
+            // 4) actualizo ese producto en el array detalleVenta
+            const idx = detalleVenta.findIndex(
+              (d) => d.idproducto === item.idproducto
+            );
+            if (idx >= 0) {
+              detalleVenta[idx].cantidad = qty;
+              detalleVenta[idx].importe = nuevoImporte.toFixed(2);
+            }
+
+            // 5) renumero filas y recalculo totales generales
+            actualizarNumeros();
+            calcularTotales();
+          }
+
+          // listeners para “−” y “＋”
+          decBtn.addEventListener("click", () => {
+            qtyInput.stepDown();
+            actualizarLinea();
+          });
+          incBtn.addEventListener("click", () => {
+            qtyInput.stepUp();
+            actualizarLinea();
+          });
+          qtyInput.addEventListener("input", actualizarLinea);
+
+          // listener para quitar la fila
+          quitarBtn.addEventListener("click", () => {
+            tr.remove();
+            const idx = detalleVenta.findIndex(
+              (d) => d.idproducto === item.idproducto
+            );
+            if (idx >= 0) detalleVenta.splice(idx, 1);
+            actualizarNumeros();
+            calcularTotales();
+          });
+        }); // fin foreach
+
+        // Finalmente, renumero y recalculo TOTALES generales
         actualizarNumeros();
         calcularTotales();
       })
       .catch(console.error);
   }
+  hiddenIdCliente.addEventListener("change", function () {
+    const idcli = parseInt(this.value, 10);
+    if (!idcli) {
+      inputProp.value = "";
+      hiddenIdPropietario.value = 0;
+    } else {
+      fetch(
+        `${API_BASE}cliente.controller.php?action=getDetalles&idcliente=${idcli}`
+      )
+        .then((r) => r.json())
+        .then((clienteData) => {
+          inputClienteVisible.value = clienteData.razonSocial;
+          hiddenIdPropietario.value = 0;
+        })
+        .catch(console.error);
+    }
 
-  btnAgregarServicio.addEventListener("click", () => {
+    // Mantener btnToggleService deshabilitado hasta escoger vehículo
+    btnToggleService.disabled = true;
+    btnToggleService.classList.remove("btn-success");
+    btnToggleService.classList.add("btn-secondary");
+  });
+
+  btnAgregarDetalleServicio.addEventListener("click", () => {
     // 1) Lee y valida cada cosa por separado
     const idserv = parseInt(selectServicio.value, 10);
     const idmec = parseInt(selectMecanico.value, 10);
@@ -173,6 +508,15 @@ document.addEventListener("DOMContentLoaded", function () {
       return alert("El precio debe ser un número mayor a cero.");
     if (detalleServicios.some((s) => s.idservicio === idserv)) {
       return alert("Ese servicio ya fue agregado.");
+    }
+    const idVeh = vehiculoSelect.value;
+    if (!idVeh) {
+      return alert("Debe existir un vehículo seleccionado para agregar servicios.");
+    }
+    // (Opcional) validar kilometraje de nuevo:
+    const kmVal = parseFloat(kmInput.value);
+    if (isNaN(kmVal) || kmInput.value.trim() === "") {
+      return alert("Debe existir un kilometraje válido para agregar servicios.");
     }
 
     // 2) Si todo OK, crear la fila
@@ -211,11 +555,10 @@ document.addEventListener("DOMContentLoaded", function () {
   agregarProductoBtn.addEventListener("click", () => {
     const idp = selectedProduct.idproducto;
     const nombre = inputProductElement.value.trim();
-    /* const nombre = inputProductElement.value; */
     const precio = parseFloat(inputPrecio.value);
-    const cantidad = parseFloat(inputCantidad.value);
+    const cantidad = parseInt(inputCantidad.value, 10);
     if (isNaN(cantidad) || cantidad < 1) {
-      alert("La cantidad debe ser un número mayor o igual a 1.");
+      alert("La cantidad debe ser un número entero mayor o igual a 1.");
       inputCantidad.value = 1;
       inputCantidad.focus();
       return;
@@ -223,16 +566,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (inputDescuento.value.trim() === "") {
       inputDescuento.value = "0";
     }
-    /* inputPrecio.addEventListener("blur", () => {
-      const val = parseFloat(inputPrecio.value);
-      if (isNaN(val) || val <= 0) {
-        alert("Precio inválido.");
-        // Asegúrate de que selectedProduct.precio sea un número
-        inputPrecio.value = parseFloat(selectedProduct.precio).toFixed(2);
-      }
-    }); */
     const descuento = parseFloat(inputDescuento.value);
 
+    // Validaciones básicas
     if (!idp || nombre !== selectedProduct.subcategoria_producto) {
       alert("Ese producto no existe. Elige uno de la lista.");
       return resetCamposProducto();
@@ -246,26 +582,26 @@ document.addEventListener("DOMContentLoaded", function () {
       inputPrecio.focus();
       return;
     }
-    if (cantidad <= 0) {
+    if (cantidad < 1) {
       alert("La cantidad debe ser mayor que cero.");
-      inputCantidad.value = 1; // reset al mínimo
+      inputCantidad.value = 1;
       return;
     }
 
     const stockDisponible = selectedProduct.stock || 0;
-    /* const stockDisponible = parseFloat(inputStock.value) || 0; */
     if (cantidad > stockDisponible) {
-      alert(
-        `No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`
-      );
-      document.getElementById("cantidad").value = stockDisponible;
+      // 1) Muestro el toast de stock insuficiente
+      alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
+
+      // 2) Limpio TODOS los campos de producto
+      resetCamposProducto();
+
+      // 3) Corto la ejecución para no agregar nada
       return;
     }
-
-    // Validación de descuento unitario
     if (descuento > precio) {
       alert("El descuento unitario no puede ser mayor que el precio unitario.");
-      document.getElementById("descuento").value = "";
+      inputDescuento.value = "";
       return;
     }
     if (descuento < 0) {
@@ -273,129 +609,123 @@ document.addEventListener("DOMContentLoaded", function () {
       inputDescuento.value = 0;
       return;
     }
-
     if (detalleVenta.some((d) => d.idproducto === idp)) {
       alert("Este producto ya ha sido agregado.");
       return resetCamposProducto();
     }
 
-    /* const importe = (precio * cantidad) - descuento; */
+    // Cálculo de importe inicial
     const netoUnit = precio - descuento;
     const importe = netoUnit * cantidad;
 
+    // — Creamos la fila, seteando max="${stockDisponible}" —
     const fila = document.createElement("tr");
-    // le pongo data-idproducto a la fila
     fila.dataset.idproducto = idp;
     fila.innerHTML = `
-        <td>${tabla.rows.length + 1}</td>
-        <td>${nombre}</td>
-  <td>
-    <input type="number"
-          class="form-control form-control-sm precio-input"
-          value="${parseInt(precio)}"
-          min="1"
-          step="1"
-          style="width:5rem;">
-  </td>
-  <td>
-    <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
-      <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
-        <input type="number"
-          class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-          value="${parseInt(cantidad)}"
-          min="1"
-          step="1"
-          max="${stockDisponible}">
-      <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
-    </div>
-  </td>
-  <td>
-    <input type="number"
-          class="form-control form-control-sm descuento-input"
-          value="${parseInt(descuento)}"
-          min="0"
-          step="1"
-          style="width:5rem;">
+    <td>${tabla.rows.length + 1}</td>
+    <td>${nombre}</td>
+    <td>
+      <span class="precio-texto">${precio.toFixed(2)}</span>
     </td>
-        <td class="importe-cell">${importe.toFixed(2)}</td>
-
-        <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
-      `;
-    // al crear el botón de quitar
-    fila.querySelector(".btn-quitar").addEventListener("click", () => {
-      // 1) quito la fila del DOM
-      fila.remove();
-      // 2) quito del array usando el idproducto guardado en la fila
-      const idElim = parseInt(fila.dataset.idproducto, 10);
-      const idx = detalleVenta.findIndex((d) => d.idproducto === idElim);
-      if (idx >= 0) detalleVenta.splice(idx, 1);
-      // 3) renumero y recalculo
-      actualizarNumeros();
-      calcularTotales();
-    });
-
+    <td>
+      <div class="input-group input-group-sm cantidad-control" style="width: 8rem;">
+        <button class="btn btn-outline-secondary btn-decrement" type="button">-</button>
+        <input type="number"
+               class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+               value="${cantidad}"
+               min="1"
+               max="${stockDisponible}"
+               step="1">
+        <button class="btn btn-outline-secondary btn-increment" type="button">+</button>
+      </div>
+    </td>
+    <td>
+      <span class="descuento-texto">${descuento.toFixed(2)}</span>
+    </td>
+    <td class="importe-cell">${importe.toFixed(2)}</td>
+    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>`;
     tabla.appendChild(fila);
-    tabla.addEventListener("input", (e) => {
-      // Precio y cantidad deben mostrarse como enteros
-      if (e.target.classList.contains("precio-input") ||
-        e.target.classList.contains("cantidad-input")) {
-        let valor = parseInt(e.target.value) || 0;
-        e.target.value = valor;
-      }
-    });
 
+    // Referencias internas de esta fila
     const decBtn = fila.querySelector(".btn-decrement");
     const incBtn = fila.querySelector(".btn-increment");
-    const priceInput = fila.querySelector(".precio-input");
     const qtyInput = fila.querySelector(".cantidad-input");
     const importeCell = fila.querySelector(".importe-cell");
-    const descInput = fila.querySelector(".descuento-input");
-    const discountInput = fila.querySelector(".descuento-input");
+    const precioSpan = fila.querySelector(".precio-texto");
+    const descuentoSpan = fila.querySelector(".descuento-texto");
 
     function actualizarLinea() {
-      let qty = parseFloat(qtyInput.value) || 1;
+      // 1) Leer y normalizar cantidad ≥1
+      let qty = parseInt(qtyInput.value, 10) || 1;
       if (qty < 1) qty = 1;
-      if (qty > stockDisponible) qty = stockDisponible;
-      qtyInput.value = qty.toFixed(2);
+      qtyInput.value = qty;
 
-      let precioNuevo = parseFloat(priceInput.value) || 0;
-      if (precioNuevo < 0.01) precioNuevo = 0.01;
-      priceInput.value = precioNuevo.toFixed(2);
+      // 2) Verificar contra el atributo "max" (stock disponible)
+      const maxAllowed = parseInt(qtyInput.getAttribute("max"), 10) || Infinity;
+      if (qty > maxAllowed) {
+        // Si excede, mostramos modal y forzamos qty = maxAllowed
+        Swal.fire({
+          icon: "warning",
+          title: "Stock insuficiente",
+          text: `Solo hay ${maxAllowed} unidades disponibles.`,
+          confirmButtonText: "Entendido",
+          allowOutsideClick: false,
+        });
+        qty = maxAllowed;
+        qtyInput.value = qty;
+      }
 
-      let descuentoNuevo = parseFloat(discountInput.value) || 0;
-      if (descuentoNuevo < 0) descuentoNuevo = 0;
-      if (descuentoNuevo > precioNuevo) descuentoNuevo = precioNuevo;
-      discountInput.value = descuentoNuevo.toFixed(2);
-
-      const netoUnit = precioNuevo - descuentoNuevo;
+      // 3) Recalcular importe de la línea
+      const precioValor = parseFloat(precioSpan.textContent) || 0;
+      const descuentoValor = parseFloat(descuentoSpan.textContent) || 0;
+      const netoUnit = precioValor - descuentoValor;
       const nuevoImporte = netoUnit * qty;
       importeCell.textContent = nuevoImporte.toFixed(2);
 
-      const idx = detalleVenta.findIndex(d => d.idproducto === idp);
+      // 4) Actualizar el array detalleVenta
+      const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
       if (idx >= 0) {
         detalleVenta[idx].cantidad = qty;
-        detalleVenta[idx].precio = precioNuevo;
-        detalleVenta[idx].descuento = descuentoNuevo;
         detalleVenta[idx].importe = nuevoImporte.toFixed(2);
       }
+
+      // 5) Renumerar filas y recalcular totales generales
+      actualizarNumeros();
       calcularTotales();
     }
-    priceInput.addEventListener("input", actualizarLinea);
-    qtyInput.addEventListener("input", actualizarLinea);
-    discountInput.addEventListener("input", actualizarLinea);
-    descInput.addEventListener("input", actualizarLinea);
-    // incr/decr
+
+    // Listener para “-” (se deja igual)
     decBtn.addEventListener("click", () => {
       qtyInput.stepDown();
       actualizarLinea();
     });
+
+    // Listener para “+” (modificado):
     incBtn.addEventListener("click", () => {
-      qtyInput.stepUp();
-      actualizarLinea();
+      // 1) Leemos cantidad actual y stock (maxAllowed)
+      const currentQty = parseInt(qtyInput.value, 10) || 0;
+      const maxAllowed = parseInt(qtyInput.getAttribute("max"), 10) || Infinity;
+
+      if (currentQty >= maxAllowed) {
+        // Ya está en el máximo permitido → lanzamos modal
+        Swal.fire({
+          icon: "warning",
+          title: "Stock insuficiente",
+          text: `Solo hay ${maxAllowed} unidades disponibles.`,
+          confirmButtonText: "Entendido",
+          allowOutsideClick: false,
+        });
+      } else {
+        // Estamos por debajo del stock → incrementamos y recalculamos
+        qtyInput.stepUp();
+        actualizarLinea();
+      }
     });
-    // y si alguien escribe un número directamente
+
+    // Listener para cambios manuales en el input
     qtyInput.addEventListener("input", actualizarLinea);
-    // 3) resto de tu listener de quitar…
+
+    // Botón de quitar fila
     fila.querySelector(".btn-quitar").addEventListener("click", () => {
       fila.remove();
       const idx = detalleVenta.findIndex((d) => d.idproducto === idp);
@@ -404,15 +734,18 @@ document.addEventListener("DOMContentLoaded", function () {
       calcularTotales();
     });
 
+    // Agregar el objeto al array detalleVenta
     detalleVenta.push({
       idproducto: idp,
       producto: nombre,
-      precio,
-      cantidad,
-      descuento,
+      precio: precio.toFixed(2),
+      cantidad: cantidad,
+      descuento: descuento.toFixed(2),
       importe: importe.toFixed(2),
     });
+
     resetCamposProducto();
+    actualizarNumeros();
     calcularTotales();
   });
 
@@ -436,11 +769,9 @@ document.addEventListener("DOMContentLoaded", function () {
       filas[i].children[0].textContent = i + 1;
     }
   }
-
-  // Función de debounce para evitar demasiadas llamadas en tiempo real
   /**
-  * Crea una versión “debounced” de `func`. Además expone un método `cancel()` para anular el timer pendiente.
-  */
+   * Crea una versión “debounced” de `func`. Además expone un método `cancel()` para anular el timer pendiente.
+   */
   function debounce(func, delay) {
     let timeoutId;
     function wrapped(...args) {
@@ -455,7 +786,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     return wrapped;
   }
-
 
   // Función de navegación con el teclado para autocompletar
   function agregaNavegacion(input, itemsDiv) {
@@ -497,7 +827,6 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Busca productos y, si encuentra al menos uno, agrega automáticamente el primero a la tabla.
    * Si el término contiene letras o espacios, muestra un dropdown para búsqueda manual.
-   *
    * @param {HTMLInputElement} input  El <input> donde se escribe el término de búsqueda.
    */
   function mostrarOpcionesProducto(input) {
@@ -509,12 +838,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const esSoloDigitos = /^\d+$/.test(termino);
 
     fetch(
-      `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(termino)}&type=producto`
+      `http://localhost/Fix360/app/controllers/Venta.controller.php?q=${encodeURIComponent(
+        termino
+      )}&type=producto`
     )
       .then((response) => response.json())
       .then((data) => {
         if (!Array.isArray(data) || data.length === 0) {
-          showToast("No se encontraron productos.", "WARNING", 1500);
+          Swal.fire({
+            icon: "warning",
+            title: "No se encontraron productos",
+            text: "Por favor, verifica el término de búsqueda.",
+            confirmButtonText: "Aceptar",
+            allowOutsideClick: false,
+          });
           return;
         }
 
@@ -575,7 +912,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 if (nuevo < originalPrecio) {
                   const ok = window.confirm(
-                    `Has ingresado un precio menor al original (${originalPrecio.toFixed(2)}). ¿Deseas continuar?`
+                    `Has ingresado un precio menor al original (${originalPrecio.toFixed(
+                      2
+                    )}). ¿Deseas continuar?`
                   );
                   if (!ok) {
                     inputPrecioVenta.value = originalPrecio.toFixed(2);
@@ -611,8 +950,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Listeners para el autocompletado de productos usando debounce
-  // Creamos una versión debounced de mostrarOpcionesProducto:
-  const debouncedMostrarOpcionesProducto = debounce(mostrarOpcionesProducto, 500);
+  const debouncedMostrarOpcionesProducto = debounce(
+    mostrarOpcionesProducto,
+    500
+  );
 
   // Cuando el usuario escribe (o hace clic), disparamos el autocompletado “normal” con debounce
   // 1) Listener de ‘input’: sólo para búsquedas manuales con debounce:
@@ -623,79 +964,145 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!esSoloDigitos) {
       // Mientras escribes a mano (letras/espacios) usamos el debounce
       debouncedMostrarOpcionesProducto(this);
-    }
-    // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
+    } // Si es sólo dígitos, NO hacemos nada aquí; esperamos al ENTER
   });
 
   // 2) Listener de ‘keyup’: sólo para scanner (ENTER):
   inputProductElement.addEventListener("keyup", function (e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      // 1) limpias la lista y cancelas el debounce
       cerrarListas();
       debouncedMostrarOpcionesProducto.cancel();
 
       const codigo = this.value.trim();
       if (!codigo) return;
 
-      // 2) aquí solo lógica de scanner
-      fetch(`${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(codigo)}&type=producto`)
-        .then(r => r.json())
-        .then(data => {
-          if (Array.isArray(data) && data.length) {
-            const producto = data[0];
-            // rellenas los campos
-            inputProductElement.value = producto.subcategoria_producto;
-            inputPrecio.value = parseFloat(producto.precio).toFixed(2);
-            inputStock.value = producto.stock;
-            inputCantidad.value = 1;
-            inputDescuento.value = 0;
-            selectedProduct = {
-              idproducto: producto.idproducto,
-              subcategoria_producto: producto.subcategoria_producto,
-              precio: parseFloat(producto.precio),
-              stock: producto.stock
-            };
-            // y disparas tu “agregar”
-            agregarProductoBtn.click();
+      fetch(
+        `${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(
+          codigo
+        )}&type=producto`
+      )
+        .then((r) => r.json())
+        .then((data) => {
+          if (!Array.isArray(data) || data.length === 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "No se encontraron productos",
+              text: "Verifica el código o el nombre.",
+              confirmButtonText: "Aceptar",
+              allowOutsideClick: false,
+            });
+            return;
+          }
+
+          const producto = data[0];
+          const stockDisponible = parseInt(producto.stock, 10) || 0;
+
+          // 1) Busco si ya existe una fila con este producto
+          const selectorFila = `tr[data-idproducto="${producto.idproducto}"]`;
+          const filaExistente = tabla.querySelector(selectorFila);
+
+          if (filaExistente) {
+            // 2) Si ya estaba en el detalle, leo su input de cantidad
+            const qtyInput = filaExistente.querySelector(".cantidad-input");
+            const currentQty = parseInt(qtyInput.value, 10) || 0;
+            const maxAllowed = parseInt(qtyInput.getAttribute("max"), 10) || 0;
+
+            if (currentQty >= maxAllowed) {
+              // YA está en stock máximo → muestro alerta
+              Swal.fire({
+                icon: "warning",
+                title: "Stock insuficiente",
+                text: `Solo hay ${maxAllowed} unidades disponibles.`,
+                confirmButtonText: "Entendido",
+                allowOutsideClick: false,
+              });
+            } else {
+              // Subo 1 paso y disparo 'input' para que se ejecute actualizarLinea()
+              qtyInput.stepUp();
+              qtyInput.dispatchEvent(new Event("input"));
+            }
           } else {
-            showToast("No se encontraron productos.", "WARNING", 1500);
+            // 3) No existía en la tabla: agrego solo si stockDisponible ≥ 1
+            if (stockDisponible < 1) {
+              Swal.fire({
+                icon: "warning",
+                title: "Sin stock",
+                text: "No hay unidades disponibles de este producto.",
+                confirmButtonText: "Aceptar",
+                allowOutsideClick: false,
+              });
+            } else {
+              // Relleno los campos y “simulo” el clic en “Agregar producto”
+              inputProductElement.value = producto.subcategoria_producto;
+              inputPrecio.value = parseFloat(producto.precio).toFixed(2);
+              inputStock.value = stockDisponible;
+              inputCantidad.value = 1;
+              inputDescuento.value = 0;
+
+              selectedProduct = {
+                idproducto: producto.idproducto,
+                subcategoria_producto: producto.subcategoria_producto,
+                precio: parseFloat(producto.precio),
+                stock: stockDisponible,
+              };
+
+              agregarProductoBtn.click();
+            }
           }
         })
+        .catch((err) => {
+          console.error("Error al procesar escaneo:", err);
+          Swal.fire({
+            icon: "error",
+            title: "Error al buscar producto",
+            text: "Intenta nuevamente.",
+            confirmButtonText: "Aceptar",
+            allowOutsideClick: false,
+          });
+        })
         .finally(() => {
-          // borra y fócate **después** de agregar
           this.value = "";
           this.focus();
         });
     }
   });
 
-
   // --- Generación de Serie y Comprobante ---
-  function generateNumber(type) {
-    return `${type}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
+  function generateNumber(prefix) {
+    return `${prefix}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
   }
 
-  function generateComprobanteNumber(type) {
-    return `${type}-${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
+  function generateComprobanteNumber(prefix) {
+    return `${prefix}-${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
   }
 
   function inicializarCampos() {
     const tipo = document.querySelector('input[name="tipo"]:checked').value;
-    if (tipo === "boleta") {
-      numSerieInput.value = generateNumber("B");
-      numComInput.value = generateComprobanteNumber("B");
-    } else {
-      numSerieInput.value = generateNumber("F");
-      numComInput.value = generateComprobanteNumber("F");
+    let prefijoSerie, prefijoComprobante;
+    switch (tipo) {
+      case "factura":
+        prefijoSerie = "F";
+        prefijoComprobante = "F";
+        break;
+      case "boleta":
+        prefijoSerie = "B";
+        prefijoComprobante = "B";
+        break;
+      case "orden de trabajo":
+        prefijoSerie = "OT";
+        prefijoComprobante = "OT";
+        break;
+      default:
+        prefijoSerie = "";
+        prefijoComprobante = "";
     }
+    numSerieInput.value = generateNumber(prefijoSerie);
+    numComInput.value = generateComprobanteNumber(prefijoComprobante);
   }
   tipoInputs.forEach((i) => i.addEventListener("change", inicializarCampos));
   inicializarCampos();
   // --- Navegación con Enter entre campos de producto ---
-
-
-
   inputPrecio.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -718,9 +1125,7 @@ document.addEventListener("DOMContentLoaded", function () {
   btnFinalizarVenta.addEventListener("click", function (e) {
     e.preventDefault();
 
-    // 0) Capturo hiddenIdCliente (¡muy importante!)
     const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-
     if (detalleVenta.length === 0 && detalleServicios.length === 0) {
       return showToast(
         "Agrega al menos un producto o servicio.",
@@ -740,20 +1145,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }).then((result) => {
       if (!result.isConfirmed) return;
 
-      // Deshabilito el botón
+      // 1) Deshabilito botón y cambio texto
       btnFinalizarVenta.disabled = true;
       btnFinalizarVenta.textContent = "Guardando...";
 
-      // 1) Construyo el objeto de datos
+      // 2) Leo el tipo seleccionado y muestro el toast de “Registrando…”
+      const tipoSeleccionado = document.querySelector(
+        'input[name="tipo"]:checked'
+      ).value;
+      if (tipoSeleccionado === "orden de trabajo") {
+        showToast("Registrando Orden de Trabajo…", "INFO", 2000);
+      } else {
+        showToast("Registrando Venta…", "INFO", 2000);
+      }
+
+      // 3) Armo el payload
       const data = {
-        tipocom: document.querySelector('input[name="tipo"]:checked').value,
+        tipocom: tipoSeleccionado,
         fechahora: fechaInput.value.trim(),
         fechaingreso: null,
         numserie: numSerieInput.value.trim(),
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
-        idpropietario: +document.getElementById("hiddenIdPropietario").value,
-        idcliente: +hiddenIdCliente.value,
+        idpropietario: document.getElementById("hiddenIdPropietario").value,
+        idcliente: document.getElementById("hiddenIdCliente").value,
         idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
         kilometraje:
           parseFloat(document.getElementById("kilometraje").value) || 0,
@@ -763,32 +1178,38 @@ document.addEventListener("DOMContentLoaded", function () {
         servicios: detalleServicios,
       };
 
-      console.log("Payload a enviar:", data);
-
-      // 2) Disparo el fetch
+      // 4) Llamada al backend
       fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
         .then(async (res) => {
-          const text = await res.text(); // leo texto bruto
-          console.log("Respuesta HTTP:", res.status, text);
+          const text = await res.text();
           try {
-            return JSON.parse(text); // intento parsear JSON
+            return JSON.parse(text);
           } catch {
             throw new Error("Respuesta no es JSON válido");
           }
         })
         .then((json) => {
           if (json.status === "success") {
-            showToast(
-              "Guardado con éxito. Venta #" +
-              json.idventa +
-              (json.idorden ? ", Orden #" + json.idorden : ""),
-              "SUCCESS",
-              1500
-            );
+            // --- NUEVO: elijo el mensaje final según tipoSeleccionado ---
+            if (tipoSeleccionado === "orden de trabajo") {
+              // Si es OT, muestro solo el número de orden (o ambos, pero con prefijo OT)
+              showToast(
+                `Guardado con éxito. Orden de Trabajo`,
+                "SUCCESS",
+                1500
+              );
+            } else {
+              // Caso normal: boleta/factura
+              showToast(
+                `Guardado con éxito. Venta #${json.idventa}`,
+                "SUCCESS",
+                1500
+              );
+            }
             setTimeout(() => (location.href = "listar-ventas.php"), 1500);
           } else {
             Swal.fire(
@@ -808,20 +1229,34 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
-});
-document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("btn-increment")) {
-    const input = e.target.parentElement.querySelector(".cantidad-input");
-    input.value = parseInt(input.value || "0") + 1;
-    input.dispatchEvent(new Event("input"));
+  // —– NUEVO: cuando cambie vehículo, traemos último kilometraje —–
+  if (vehiculoSelect) {
+    vehiculoSelect.addEventListener("change", function () {
+      const idVeh = this.value;
+      if (idVeh) {
+        fetchUltimoKilometraje(idVeh);
+      } else {
+        // Si no hay vehículo seleccionado, limpiamos el campo de kilometraje
+        kmInput.value = "";
+        prevKilometraje = null;
+      }
+    });
   }
 
-  if (e.target.classList.contains("btn-decrement")) {
-    const input = e.target.parentElement.querySelector(".cantidad-input");
-    const newVal = parseInt(input.value || "1") - 1;
-    input.value = newVal > 0 ? newVal : 1;
-    input.dispatchEvent(new Event("input"));
+  // —– NUEVO: validación extra en el campo de kilometraje—–
+  if (kmInput) {
+    kmInput.addEventListener("change", () => {
+      const nuevo = parseFloat(kmInput.value);
+      if (prevKilometraje !== null && nuevo < prevKilometraje) {
+        alert(
+          `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`
+        );
+        kmInput.value = prevKilometraje;
+      }
+    });
   }
+});
+document.addEventListener("click", function (e) {
   const inputFecha = document.getElementById("fechaIngreso");
   const btnPermitir = document.getElementById("btnPermitirFechaPasada");
 
@@ -831,24 +1266,8 @@ document.addEventListener("click", function (e) {
   btnPermitir.addEventListener("click", () => {
     inputFecha.removeAttribute("min");
     btnPermitir.disabled = true;
-    btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
+    btnPermitir.innerHTML =
+      '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
     btnPermitir.title = "Fechas pasadas habilitadas";
   });
 });
-/* document.addEventListener('DOMContentLoaded', () => {
-  const cotId = new URLSearchParams(window.location.search).get('id');
-  if (!cotId) return;
-
-  const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-  const inputProp       = document.getElementById("propietario");
-  if (!hiddenIdCli || !inputProp) return;
-
-  fetch(`<?= SERVERURL ?>app/controllers/cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`)
-    .then(res => res.json())
-    .then(data => {
-      hiddenIdCliente.value = data.idcliente;
-      inputProp.value = data.cliente;
-      hiddenIdCliente.dispatchEvent(new Event('change'));
-    })
-    .catch(console.error);
-}); */

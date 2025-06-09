@@ -179,16 +179,47 @@ document.addEventListener("DOMContentLoaded", function () {
   btnToggleService.addEventListener("click", function (e) {
     e.preventDefault();
 
+    // 1) Validar tipo de comprobante: si no es “orden de trabajo”, forzar o advertir
+    const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked').value;
+    if (tipoSeleccionado !== "orden de trabajo") {
+      // Puedes mostrar un toast o alerta
+      showToast("Para agregar servicios debes seleccionar tipo 'Orden de Trabajo'.", "WARNING", 2000);
+      return;
+    }
+
+    // 2) Validar que haya vehículo seleccionado
+    const idVehiculo = vehiculoSelect.value;
+    if (!idVehiculo) {
+      showToast("Debes seleccionar un vehículo antes de agregar servicios.", "WARNING", 2000);
+      // Opcional: abrir dropdown de vehículo o enfocar el select:
+      vehiculoSelect.focus();
+      return;
+    }
+
+    // 3) Validar kilometraje ingresado y coherente con prevKilometraje
+    const kmVal = parseFloat(kmInput.value);
+    if (isNaN(kmVal) || kmInput.value.trim() === "") {
+      showToast("Debes ingresar el kilometraje antes de agregar servicios.", "WARNING", 2000);
+      kmInput.focus();
+      return;
+    }
+    if (prevKilometraje !== null && kmVal < prevKilometraje) {
+      showToast(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`, "ERROR", 2000);
+      kmInput.value = prevKilometraje;
+      kmInput.focus();
+      return;
+    }
+
+    // Si todo OK, procede a mostrar la sección de servicios
     // --- NUEVO: limpiar el arreglo y la tabla de servicios antes de mostrarla ---
     detalleServicios.length = 0;
     tablaServ.innerHTML = "";
-    actualizarNumerosServicios(); // (si quieres que los índices de la tabla queden “1, 2, …” correctamente)
+    actualizarNumerosServicios();
 
-    // 1) Mostrar la sección de servicios
     document.getElementById("serviceSection").classList.remove("d-none");
     document.getElementById("serviceListCard").classList.remove("d-none");
 
-    // 2) Deshabilitar el botón y cambiar su estilo a gris (btn-secondary)
+    // Deshabilitar el botón y ajustar estilo
     this.disabled = true;
     this.classList.remove("btn-success");
     this.classList.add("btn-secondary");
@@ -441,6 +472,15 @@ document.addEventListener("DOMContentLoaded", function () {
       return alert("El precio debe ser un número mayor a cero.");
     if (detalleServicios.some((s) => s.idservicio === idserv)) {
       return alert("Ese servicio ya fue agregado.");
+    }
+    const idVeh = vehiculoSelect.value;
+    if (!idVeh) {
+      return alert("Debe existir un vehículo seleccionado para agregar servicios.");
+    }
+    // (Opcional) validar kilometraje de nuevo:
+    const kmVal = parseFloat(kmInput.value);
+    if (isNaN(kmVal) || kmInput.value.trim() === "") {
+      return alert("Debe existir un kilometraje válido para agregar servicios.");
     }
 
     // 2) Si todo OK, crear la fila
