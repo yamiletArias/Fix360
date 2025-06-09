@@ -1,87 +1,85 @@
 <?php
+// Proveedor.controller.php
+header('Content-Type: application/json; charset=utf-8');
+// Limpia buffers anteriores para asegurar solo JSON
+if (ob_get_length())
+    ob_clean();
 
 require_once "../models/Proveedor.php";
 require_once "../models/Empresa.php";
 require_once "../helpers/helper.php";
-header('Content-Type: application/json');
-$empresa = new Empresa();
 
+$empresa = new Empresa();
 $proveedor = new Proveedores();
 
-switch ($_SERVER["REQUEST_METHOD"]) {
-    case "POST":
-        if (!isset($_POST["operation"])) {
-            echo json_encode(["status" => false, "message" => "Operación no especificada"]);
+// Solo atendemos POST y GET
+$method = $_SERVER['REQUEST_METHOD'];
+if ($method === 'POST') {
+    $op = $_POST['operation'] ?? '';
+    if ($op !== 'registerEmpresa' && $op !== 'update' && $op !== 'delete') {
+        echo json_encode(['status' => false, 'message' => 'Operación no válida']);
+        exit;
+    }
+
+    switch ($op) {
+        case 'registerEmpresa':
+            // Mapea explícito desde el formulario
+            $ruc = Helper::limpiarCadena($_POST['ruc'] ?? '');
+            $nomcomercial = Helper::limpiarCadena($_POST['nomcomercial'] ?? '');
+            $razonsocial = Helper::limpiarCadena($_POST['razonsocial'] ?? '');
+            $telefono = Helper::limpiarCadena($_POST['telempresa'] ?? '');
+            $correo = Helper::limpiarCadena($_POST['correoemp'] ?? '');
+
+            // 1) Registrar empresa
+            $resultEmpresa = $empresa->add([
+                'ruc' => $ruc,
+                'nomcomercial' => $nomcomercial,
+                'razonsocial' => $razonsocial,
+                'telefono' => $telefono,
+                'correo' => $correo
+            ]);
+            if (!$resultEmpresa['status']) {
+                echo json_encode($resultEmpresa);
+                exit;
+            }
+
+            // 2) Registrar proveedor
+            $idempresa = $resultEmpresa['idempresa'];
+            $resultProv = $proveedor->add($idempresa);
+
+            // 3) Respuesta final
+            echo json_encode([
+                'status' => $resultProv['status'],
+                'message' => $resultProv['message'],
+                'idempresa' => $idempresa,
+                'idproveedor' => $resultProv['idproveedor'],
+                'nomcomercial' => $nomcomercial
+            ]);
             exit;
-        }
 
-        switch ($_POST["operation"]) {
-            case "registerEmpresa":
-                // 1) Registrar empresa
-                $empresaData = [
-                    "ruc" => Helper::limpiarCadena($_POST["ruc"]),
-                    "nomcomercial" => Helper::limpiarCadena($_POST["nomcomercial"]),
-                    "razonsocial" => Helper::limpiarCadena($_POST["razonsocial"]),
-                    "telefono" => Helper::limpiarCadena($_POST["telempresa"]),
-                    "correo" => Helper::limpiarCadena($_POST["correoemp"])
-                ];
+        case 'update':
+            $idprov = Helper::limpiarCadena($_POST['idproveedor'] ?? '');
+            $idemp = Helper::limpiarCadena($_POST['idempresa'] ?? '');
+            $result = $proveedor->update($idprov, $idemp);
+            echo json_encode($result);
+            exit;
 
-                $resultEmpresa = $empresa->add($empresaData);
-                if (!$resultEmpresa["status"] || !$resultEmpresa["idempresa"]) {
-                    // devuelve detalle de error
-                    echo json_encode($resultEmpresa);
-                    exit;
-                }
+        case 'delete':
+            $idprov = Helper::limpiarCadena($_POST['idproveedor'] ?? '');
+            $result = $proveedor->delete($idprov);
+            echo json_encode($result);
+            exit;
+    }
 
-                // 2) Registrar proveedor con ese idempresa
-                $idempresa = $resultEmpresa["idempresa"];
-                $resultProv = $proveedor->add($idempresa);
-
-                // 3) Añadir datos para el frontend
-                $result["idempresa"] = $idempresa;
-                $result["nomcomercial"] = $empresaData["nomcomercial"];
-
-                echo json_encode([
-                    "status"      => $resultProv["status"],
-                    "message"     => $resultProv["message"],
-                    "idproveedor" => $resultProv["idproveedor"],
-                    "nomcomercial"=> $empresaData["nomcomercial"]
-                    ]);
-                break;
-            /* case "register":
-                $result = $proveedor->add(
-                    Helper::limpiarCadena($_POST["idempresa"])
-                );
-                echo json_encode($result);
-                break; */
-
-            case "update":
-                $result = $proveedor->update(
-                    Helper::limpiarCadena($_POST["idproveedor"]),
-                    Helper::limpiarCadena($_POST["idempresa"])
-                );
-                echo json_encode($result);
-                break;
-
-            case "delete":
-                $idproveedor = Helper::limpiarCadena($_POST["idproveedor"]);
-                echo json_encode($proveedor->delete($idproveedor));
-                break;
-
-            default:
-                echo json_encode(["status" => false, "message" => "Operación no válida"]);
-        }
-        break;
-
-    case "GET":
-        if (isset($_GET["idproveedor"])) {
-            $idproveedor = Helper::limpiarCadena($_GET["idproveedor"]);
-            echo json_encode($proveedor->find($idproveedor));
-        } else {
-            echo json_encode($proveedor->getAll());
-        }
-        break;
-
-    default:
-        echo json_encode(["status" => false, "message" => "Método no permitido"]);
+} elseif ($method === 'GET') {
+    if (isset($_GET['idproveedor'])) {
+        $idprov = Helper::limpiarCadena($_GET['idproveedor']);
+        echo json_encode($proveedor->find($idprov));
+    } else {
+        echo json_encode($proveedor->getAll());
+    }
+    exit;
+} else {
+    echo json_encode(['status' => false, 'message' => 'Método no permitido']);
+    exit;
 }

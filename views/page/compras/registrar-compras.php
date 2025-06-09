@@ -371,49 +371,53 @@ require_once "../../partials/_footer.php";
 <script src="<?= SERVERURL ?>views/page/clientes/js/registrar-cliente.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const modal = document.getElementById('modalNuevoProveedor');
+    const modalEl = document.getElementById('modalNuevoProveedor');
+    const bsModal = new bootstrap.Modal(modalEl);
     const formProv = document.getElementById('formProveedor');
     const selectProv = document.getElementById('proveedor');
-    modal.addEventListener('hidden.bs.modal', () => {
-      formProv.reset();
-    });
-    formProv.addEventListener('submit', async (e) => {
+
+    modalEl.addEventListener('hidden.bs.modal', () => formProv.reset());
+
+    formProv.addEventListener('submit', async e => {
       e.preventDefault();
-      const formData = new URLSearchParams(new FormData(formProv));
-      formData.append('operation', 'registerEmpresa');
+      const data = new URLSearchParams();
+      data.append('operation', 'registerEmpresa');
+      data.append('ruc', formProv.ruc.value);
+      data.append('nomcomercial', formProv.nomcomercial.value);
+      data.append('razonsocial', formProv.razonsocial.value);
+      data.append('telempresa', formProv.telempresa.value);
+      data.append('correoemp', formProv.correoemp.value);
+
+      let text, result;
       try {
         const resp = await fetch('<?= SERVERURL ?>app/controllers/Proveedor.controller.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: formData.toString()
+          body: data.toString()
         });
-        // 1) Lée la respuesta como texto para no “vaciar” el stream
-        const text = await resp.text();
-        /* console.log("Raw response:", text); */
-        let result;
-        try {
-          result = JSON.parse(text);
-        } catch (err) {
-          showToast("Respuesta del servidor no es JSON válido", "ERROR", 2000);
-          return;
-        }
-        // 2) Ahora haces la lógica normal
-        if (result.status) {
-          const newOption = document.createElement('option');
-          newOption.value = result.idproveedor;
-          newOption.textContent = result.nomcomercial;
-          newOption.selected = true;
-          selectProv.appendChild(newOption);
-          selectProv.value = result.idproveedor;
-          bootstrap.Modal.getInstance(modal).hide();
-          showToast(result.message, 'SUCCESS', 1500);
-        } else {
-          // Muestra el mensaje tal cual venga
-          showToast(result.message, 'ERROR', 2000);
-        }
+        text = await resp.text();
+        result = JSON.parse(text);
+        console.log("Respuesta parseada:", result);
       } catch (err) {
-        console.error("❗ Error de red o JS:", err);
-        showToast('Error de red. Intenta de nuevo.', 'ERROR', 1500);
+        console.error("Error al parsear JSON:", text, err);
+        showToast("Respuesta del servidor no es JSON válido", "ERROR");
+        return;
+      }
+
+      if (result.status === true) {
+        console.log("Registro OK, cerrando modal");
+        const newOption = document.createElement('option');
+        newOption.value = result.idproveedor;
+        newOption.textContent = result.nomcomercial;
+        newOption.selected = true;
+        selectProv.appendChild(newOption);
+
+        bsModal.hide();
+
+        showToast(result.message, 'SUCCESS', 1500);
+      } else {
+        console.log("Status false:", result.message);
+        showToast(result.message, 'ERROR', 2000);
       }
     });
   });

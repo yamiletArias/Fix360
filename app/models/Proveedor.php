@@ -41,24 +41,19 @@ class Proveedores extends Conexion
    * @param int $idempresa ID de la empresa
    * @return array Resultado de la operación
    */
-  public function add($idempresa)
+  public function add(int $idempresa): array
   {
-    $resultado = ["status" => false, "message" => ""];
+    $resultado = ["status" => false, "message" => "", "idproveedor" => null];
     try {
-      // Insert directo en la tabla proveedores
       $sql = "INSERT INTO proveedores (idempresa) VALUES (?)";
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute([$idempresa]);
-      $idprov = $this->pdo->lastInsertId();
+      $idprov = (int) $this->pdo->lastInsertId();
       $resultado = [
         "status" => true,
         "message" => "Proveedor registrado correctamente",
         "idproveedor" => $idprov
       ];
-      return $resultado;
-
-      /*       $resultado["status"] = true;
-            $resultado["message"] = "Proveedor registrado correctamente"; */
     } catch (Exception $e) {
       $resultado["message"] = $e->getMessage();
     }
