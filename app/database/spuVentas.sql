@@ -97,7 +97,7 @@ BEGIN
       idvehiculo
     ) VALUES (
       NULLIF(_idcliente, 0),
-      NULLIF(_idvehiculo, 0)
+      _idvehiculo
     );
     SET v_idexpediente_ot = LAST_INSERT_ID();
   END IF;
@@ -118,7 +118,7 @@ BEGIN
       _idadmin,
       _idpropietario,
       NULLIF(_idcliente, 0),
-      NULLIF(_idvehiculo, 0),
+      _idvehiculo,
       _kilometraje,
       _observaciones,
       _ingresogrua,
