@@ -90,7 +90,7 @@ if ($id <= 0) {
 
                     <div class="col-md-3">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50" placeholder="Usuario" required>
+                            <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50" placeholder="Usuario">
                             <label for="namuser"><strong>Username</strong></label>
                         </div>
                     </div>
@@ -120,7 +120,7 @@ if ($id <= 0) {
         </div>
         <div class="card-footer text-end">
             <a href="listar-colaborador.php" class="btn btn-secondary">Cancelar</a>
-            <button id="btnActualizar" class="btn btn-success">Guardar</button>
+            <button id="btnActualizar" class="btn btn-success" disabled>Guardar</button>
         </div>
     </div>
 </div>
@@ -132,7 +132,6 @@ if ($id <= 0) {
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const id = <?= $id ?>;
-        const rolSelect = document.getElementById('idrol');
         const tipodocEl = document.getElementById('tipodoc');
         const numdocEl = document.getElementById('numdoc');
         const nombresEl = document.getElementById('nombres');
@@ -140,75 +139,131 @@ if ($id <= 0) {
         const direccionEl = document.getElementById('direccion');
         const correoEl = document.getElementById('correo');
         const telEl = document.getElementById('telprincipal');
-        const fechaIniEl = document.getElementById('fechainicio');
-        const fechaFinEl = document.getElementById('fechafin');
+        const rolSelect = document.getElementById('idrol');
         const namuserEl = document.getElementById('namuser');
+        const passuserEl = document.getElementById('passuser');
+        const btnActualizar = document.getElementById('btnActualizar');
+        const form = document.getElementById('formEditarColaborador');
 
-        // 1) Cargar roles y luego seleccionar
+        let originalUsername = ''; // para comparar después
+
+        // 1) Carga roles y luego datos del colaborador
         fetch("<?= SERVERURL ?>app/controllers/Rol.controller.php")
             .then(res => res.json())
             .then(data => {
                 rolSelect.innerHTML = '<option value="">Seleccione un rol</option>';
                 data.forEach(r => {
-                    const opt = document.createElement('option'); opt.value = r.idrol; opt.textContent = r.rol;
-                    rolSelect.appendChild(opt);
+                    rolSelect.innerHTML += `<option value="${r.idrol}">${r.rol}</option>`;
                 });
-                // Después de cargar roles, obtén datos colaborador
                 return fetch(`<?= SERVERURL ?>app/controllers/colaborador.controller.php?action=get&id=${id}`);
             })
             .then(res => res.json())
             .then(resp => {
-                if (resp.status === 'success') {
-                    const d = resp.data;
-                    tipodocEl.value = d.tipodoc;
-                    numdocEl.value = d.numdoc;
-                    nombresEl.value = d.nombres;
-                    apellidosEl.value = d.apellidos;
-                    direccionEl.value = d.direccion;
-                    correoEl.value = d.correo;
-                    telEl.value = d.telprincipal;
-                    fechaIniEl.value = d.fechainicio;
-                    fechaFinEl.value = d.fechafin || '';
-                    namuserEl.value = d.username;
-                    rolSelect.value = d.idrol;
-                } else {
+                if (!resp.status) {
                     Swal.fire('Error', 'No se pudo cargar datos.', 'error');
+                    return;
                 }
+                const d = resp.data;
+                tipodocEl.value = d.tipodoc;
+                numdocEl.value = d.numdoc;
+                nombresEl.value = d.nombres;
+                apellidosEl.value = d.apellidos;
+                direccionEl.value = d.direccion;
+                correoEl.value = d.correo;
+                telEl.value = d.telprincipal;
+                document.getElementById('fechainicio').value = d.fechainicio;
+                document.getElementById('fechafin').value = d.fechafin || '';
+                namuserEl.value = d.username || '';
+                originalUsername = d.username || '';
+                rolSelect.value = d.idrol;
+                updateBtnState();
             })
             .catch(err => console.error(err));
 
-        // 2) Actualizar
-        document.getElementById('btnActualizar').addEventListener('click', async () => { // Agrega async aquí
-            const nombres = document.getElementById('nombres').value.trim();
-            const apellidos = document.getElementById('apellidos').value.trim();
-            const direccion = document.getElementById('direccion').value.trim();
-            const correo = document.getElementById('correo').value.trim();
-            const telprincipal = document.getElementById('telprincipal').value.trim();
-            const idrol = document.getElementById('idrol').value;
-            const namuser = document.getElementById('namuser').value.trim();
+        // Validaciones
+        function validarCorreo() {
+            const c = correoEl.value.trim();
+            return !c || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c);
+        }
 
-            if (!nombres || !apellidos  ||  !telprincipal || !idrol || !namuser) {
-                return showToast("Rellene los campos obligatorios", "WARNING");
+        function validarTelefono() {
+            return /^[9]\d{8}$/.test(telEl.value.trim());
+        }
+
+        function camposBasicosValidos() {
+            if (!telEl.value.trim() || !validarTelefono()) return false;
+            if (!rolSelect.value) return false;
+            return true;
+        }
+
+        // Regla de credenciales ajustada
+        function credencialesValidas() {
+            const u = namuserEl.value.trim();
+            const p = passuserEl.value.trim();
+
+            // Caso 1: no cambió usuario y no puso contraseña → OK
+            if (u === originalUsername && !p) return true;
+
+            // Caso 2: cambió usuario (u ≠ original) → exige password
+            if (u !== originalUsername && (!p || p.length < 6)) return false;
+
+            // Caso 3: quiere cambiar sólo pass (u === original) → exige password
+            if (u === originalUsername && p && p.length < 6) return false;
+
+            // Resto: user no puede quedar vacío
+            if (!u || u.length < 3) return false;
+
+            return true;
+        }
+
+        // Habilita o deshabilita el botón
+        function updateBtnState() {
+            btnActualizar.disabled = !(camposBasicosValidos() && credencialesValidas());
+        }
+
+        // Listeners en cada campo relevante
+        [
+            direccionEl, correoEl, telEl,
+            rolSelect, namuserEl, passuserEl
+        ].forEach(el => el.addEventListener('input', updateBtnState));
+
+        // Al hacer click en Guardar
+        btnActualizar.addEventListener('click', async e => {
+            e.preventDefault();
+
+            if (!camposBasicosValidos()) {
+                return showToast('Completa correctamente los campos obligatorios.', 'ERROR', 1500);
+            }
+            if (!credencialesValidas()) {
+                return showToast(
+                    'Si cambias el usuario o la contraseña, asegúrate de que:\n' +
+                    '- Usuario tenga al menos 3 caracteres.\n' +
+                    '- Contraseña (si se ingresa) tenga al menos 6 caracteres.',
+                    'ERROR', 2500
+                );
             }
 
-            const confirmar = await ask("¿Está seguro de que desea actualizar este colaborador?", "Colaboradores");
-            if (confirmar) {
-                const data = new FormData(document.getElementById('formEditarColaborador'));
-                data.append('action', 'update');
-                fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", { method: 'POST', body: data })
-                    .then(res => res.json())
-                    .then(r => {
-                        if (r.status) {
-                            showToast('Colaborador actualizado correctamente', 'SUCCESS',1500);
-                            setTimeout(() => window.location.href = 'listar-colaborador.php', 1500);
-                        } else {
-                            showToast('Error', r.message, 'ERROR');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        showToast("Error al conectar con el servidor", "ERROR");
-                    });
+            const confirmar = await ask("¿Confirma la actualización del colaborador?", "Colaboradores");
+            if (!confirmar) return;
+
+            const fd = new FormData(form);
+            fd.append('action', 'update');
+
+            try {
+                const resp = await fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", {
+                    method: 'POST',
+                    body: fd
+                });
+                const result = await resp.json();
+                if (result.status) {
+                    showToast('Colaborador actualizado.', 'SUCCESS', 1000);
+                    setTimeout(() => window.location.href = 'listar-colaborador.php', 1500);
+                } else {
+                    showToast(result.message || 'Error inesperado.', 'ERROR', 2000);
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error de servidor.', 'ERROR', 2000);
             }
         });
     });

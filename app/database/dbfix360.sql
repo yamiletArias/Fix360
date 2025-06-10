@@ -203,8 +203,8 @@ DROP TABLE IF EXISTS colaboradores;
 CREATE TABLE colaboradores(
 idcolaborador	INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idcontrato 		INT 				NOT NULL,
-namuser			VARCHAR(50)		NOT NULL,
-passuser		VARCHAR(255)	NOT NULL,
+namuser			VARCHAR(50)		NULL,
+passuser		VARCHAR(255)	   NULL,
 estado 			BOOLEAN 			DEFAULT TRUE,
 CONSTRAINT fk_idcontrato FOREIGN KEY (idcontrato) REFERENCES contratos (idcontrato),
 CONSTRAINT uq_namuser UNIQUE (namuser)
