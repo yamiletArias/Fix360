@@ -229,4 +229,40 @@ public function deleteOrdenServicio(int $idorden, string $justificacion): int
         }
     }
 
+        /**
+     * Devuelve el total de órdenes activas (fechasalida IS NULL y estado = 'A')
+     *
+     * @return int
+     */
+    public function getTotalOrdenesActivas(): int
+    {
+        try {
+            $stmt = $this->pdo->query("SELECT total_ordenes_activas FROM v_total_ordenes_activas");
+            $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? (int)$row['total_ordenes_activas'] : 0;
+        } catch (\PDOException $e) {
+            error_log("OrdenServicio::getTotalOrdenesActivas error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Devuelve el total de órdenes ingresadas HOY (estado = 'A' y DATE(fechaingreso)=CURDATE())
+     *
+     * @return int
+     */
+    public function getTotalOrdenesHoy(): int
+    {
+        try {
+            $stmt = $this->pdo->query("SELECT total_ordenes_hoy FROM vista_total_ordenes_hoy");
+            $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? (int)$row['total_ordenes_hoy'] : 0;
+        } catch (\PDOException $e) {
+            error_log("OrdenServicio::getTotalOrdenesHoy error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    
+
 }

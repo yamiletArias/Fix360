@@ -37,6 +37,8 @@
 <script src="<?= SERVERURL ?>views/assets/vendors/daterangepicker/daterangepicker.js"></script>
 <script src="<?= SERVERURL ?>views/assets/vendors/chartist/chartist.min.js"></script>
 <script src="<?= SERVERURL ?>views/assets/vendors/progressbar.js/progressbar.min.js"></script>
+<script src="<?= SERVERURL ?>views/assets/js/colores.js"></script>
+<script src="<?= SERVERURL ?>views/assets/js/dashboard.js"></script>
 
 <!-- 6) Tus scripts de UI y lógica -->
 <script src="<?= SERVERURL ?>views/assets/js/off-canvas.js"></script>

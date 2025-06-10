@@ -54,7 +54,7 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <style>
 

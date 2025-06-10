@@ -1,6 +1,7 @@
 <?php
 
-require_once "../models/Conexion.php";
+require_once __DIR__ . '/Conexion.php';
+
 
 class Servicio extends Conexion
 {
@@ -53,4 +54,29 @@ class Servicio extends Conexion
     }
     return $response;
   }
+
+    /**
+   * Obtiene el conteo mensual de veces que se realizó cada servicio
+   *
+   * @return array [ [ 'mes' => '2025-06', 'servicio' => 'Alineación', 'veces_realizado' => 42 ], … ]
+   */
+  public function getServiciosMensuales(): array
+  {
+    try {
+      $sql = "
+        SELECT
+          mes,
+          servicio,
+          veces_realizado
+        FROM vw_servicios_mensuales
+        ORDER BY mes ASC, veces_realizado DESC
+      ";
+      $stmt = $this->pdo->query($sql);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+      error_log("Servicio::getServiciosMensuales error: " . $e->getMessage());
+      return [];
+    }
+  }
+
 }

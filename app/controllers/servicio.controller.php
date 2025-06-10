@@ -15,6 +15,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
     echo json_encode(["error" => "Parámetros GET inválidos"]);
     exit;
+        // GET /ServicioController.php?task=getServiciosMensuales
+    if (isset($_GET['task']) && $_GET['task'] === 'getServiciosMensuales') {
+      $data = $servicioModel->getServiciosMensuales();
+      echo json_encode([
+        'status' => 'success',
+        'data'   => $data
+      ]);
+      exit;
+    }
+
 
   case 'POST':
     // Leer el JSON crudo

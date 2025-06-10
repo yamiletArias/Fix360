@@ -112,6 +112,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status'=>'success','data'=>$data]);
         exit;
     }
+        // 3) Totales para el dashboard
+    if (isset($_GET['action']) && $_GET['action'] === 'totales') {
+        $totalActivas = $ordenModel->getTotalOrdenesActivas();
+        $totalHoy     = $ordenModel->getTotalOrdenesHoy();
+        echo json_encode([
+            'status'             => 'success',
+            'total_activas'      => $totalActivas,
+            'total_ordenes_hoy'  => $totalHoy
+        ]);
+        exit;
+    }
+
+    
 
 
 
