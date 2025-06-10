@@ -43,9 +43,9 @@ VALUES ('entrada','compra'),('salida','venta'),('entrada','devolucion'),('salida
 
 /*
 INSERT INTO personas (nombres, apellidos, tipodoc, numdoc, numruc, direccion, correo, telprincipal, telalternativo) VALUES
-('Maria Elena', 'Castila Hernandez', 'DNI', '75849320', '20123456789', 'Av. Los Pinos 123', 'elenafix360@gmail.com', '987654321', NULL);
+('Maria Elena', 'Castila Herrera', 'DNI', '75849320', '20123456789', 'Av. Los Pinos 123', 'elenafix360@gmail.com', '987654321', NULL);
 */
-CALL spRegisterColaborador('ElenaCastilla','fix3602025',1,CURDATE(),NULL,'Maria Elena', 'Castila Hernandez', 'DNI', '75849320', 'Av. Los Pinos 123', 'elenafix360@gmail.com', '987654321');
+CALL spRegisterColaborador('ElenaCastilla','fix3602025',1,CURDATE(),NULL,'Elena', 'Castilla', 'DNI', '75849320', 'Av. Los Pinos 123', 'elenafix360@gmail.com', '987654321');
 
 -- select * from rolvistas  
 -- select * from vistas  

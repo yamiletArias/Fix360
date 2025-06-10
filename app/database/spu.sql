@@ -1487,6 +1487,7 @@ CREATE PROCEDURE spUpdateColaborador(
     IN  _idrol            INT,
     IN  _fechainicio      DATE,
     IN  _fechafin         DATE,
+    -- ahora pueden ser NULL o ''
     IN  _namuser          VARCHAR(50),
     IN  _passuser         VARCHAR(255)
 )
@@ -1494,131 +1495,95 @@ proc_block: BEGIN
     DECLARE v_idpersona      INT;
     DECLARE v_idcontrato     INT;
     DECLARE v_old_idrol      INT;
-    DECLARE v_old_fchInicio  DATE;
+    DECLARE v_old_fchIni     DATE;
     DECLARE v_old_fchFin     DATE;
     DECLARE v_new_idcontrato INT;
+    DECLARE v_hashed_pwd     VARCHAR(64);
 
-    -- 1) Obtener el contrato asociado a este colaborador
-    SELECT c.idcontrato
-      INTO v_idcontrato
-      FROM colaboradores AS c
+    -- 1) Obtener contrato y persona
+    SELECT c.idcontrato INTO v_idcontrato
+      FROM colaboradores c
      WHERE c.idcolaborador = _idcolaborador;
+    IF v_idcontrato IS NULL THEN LEAVE proc_block; END IF;
 
-    IF v_idcontrato IS NULL THEN
-        -- Si no existe contrato, salimos del bloque
-        LEAVE proc_block;
-    END IF;
-
-    -- 2) Obtener el idpersona vinculado al contrato
-    SELECT ct.idpersona
-      INTO v_idpersona
-      FROM contratos AS ct
+    SELECT ct.idpersona INTO v_idpersona
+      FROM contratos ct
      WHERE ct.idcontrato = v_idcontrato;
+    IF v_idpersona IS NULL THEN LEAVE proc_block; END IF;
 
-    IF v_idpersona IS NULL THEN
-        -- Si no existe persona, salimos del bloque
-        LEAVE proc_block;
-    END IF;
-
-    -- 3) Actualizar datos de la persona
+    -- 2) Actualizar persona
     UPDATE personas
-       SET nombres        = _nombres,
-           apellidos      = _apellidos,
-           direccion      = NULLIF(_direccion, ''),
-           correo         = NULLIF(_correo, ''),
-           telprincipal   = _telprincipal,
-           modificado     = NOW()
+       SET nombres      = _nombres,
+           apellidos    = _apellidos,
+           direccion    = NULLIF(_direccion, ''),
+           correo       = NULLIF(_correo, ''),
+           telprincipal = _telprincipal,
+           modificado   = NOW()
      WHERE idpersona = v_idpersona;
 
-    -- 4) Leer datos actuales del contrato (para saber el rol actual)
-    SELECT idrol,
-           fechainicio,
-           fechafin
-      INTO v_old_idrol,
-           v_old_fchInicio,
-           v_old_fchFin
+    -- 3) Leer datos previos del contrato
+    SELECT idrol, fechainicio, fechafin
+      INTO v_old_idrol, v_old_fchIni, v_old_fchFin
       FROM contratos
      WHERE idcontrato = v_idcontrato;
 
-    -- 5) Si el rol cambió, cerramos el contrato viejo y creamos uno nuevo
+    -- 4) Lógica de cambio de rol / fecha
     IF v_old_idrol <> _idrol THEN
-        -- 5.1) Cerrar contrato anterior asignando fecha de fin
+        -- Cerrar contrato viejo
         UPDATE contratos
            SET fechafin = COALESCE(_fechafin, CURRENT_DATE())
          WHERE idcontrato = v_idcontrato;
 
-        -- 5.2) Insertar nuevo contrato con el nuevo rol
-        INSERT INTO contratos (
-            idpersona,
-            idrol,
-            fechainicio,
-            fechafin,
-            creado
-        ) VALUES (
-            v_idpersona,
-            _idrol,
-            COALESCE(_fechainicio, CURRENT_DATE()),
-            _fechafin,
-            NOW()
+        -- Nuevo contrato
+        INSERT INTO contratos(idpersona, idrol, fechainicio, fechafin, creado)
+        VALUES (
+          v_idpersona,
+          _idrol,
+          COALESCE(_fechainicio, CURRENT_DATE()),
+          _fechafin,
+          NOW()
         );
         SET v_new_idcontrato = LAST_INSERT_ID();
 
-        -- 5.3) Apuntar el colaborador hacia el nuevo contrato
+        -- Apuntar colaborador al nuevo contrato
         UPDATE colaboradores
            SET idcontrato = v_new_idcontrato
          WHERE idcolaborador = _idcolaborador;
-
-        -- 5.4) Actualizar usuario/contraseña si vinieron
-        IF (_namuser IS NOT NULL AND _namuser <> '') THEN
-            IF (_passuser IS NOT NULL AND _passuser <> '') THEN
-                UPDATE colaboradores
-                   SET namuser  = _namuser,
-                       passuser = SHA2(_passuser,256)
-                 WHERE idcolaborador = _idcolaborador;
-            ELSE
-                UPDATE colaboradores
-                   SET namuser = _namuser
-                 WHERE idcolaborador = _idcolaborador;
-            END IF;
-        ELSEIF (_passuser IS NOT NULL AND _passuser <> '') THEN
-            UPDATE colaboradores
-               SET passuser = SHA2(_passuser,256)
-             WHERE idcolaborador = _idcolaborador;
-        END IF;
-
     ELSE
-        -- 6) Si el rol NO cambió, solo actualizamos el contrato existente
+        -- Actualizar contrato existente
         UPDATE contratos
            SET idrol       = _idrol,
                fechainicio = CASE
-                                WHEN _fechainicio IS NULL OR _fechainicio = '' THEN fechainicio
-                                ELSE _fechainicio
-                              END,
+                               WHEN _fechainicio IS NULL THEN fechainicio
+                               ELSE _fechainicio
+                             END,
                fechafin    = _fechafin,
                modificado  = NOW()
          WHERE idcontrato = v_idcontrato;
-
-        -- 6.1) También actualizar usuario/contraseña
-        IF (_namuser IS NOT NULL AND _namuser <> '') THEN
-            IF (_passuser IS NOT NULL AND _passuser <> '') THEN
-                UPDATE colaboradores
-                   SET namuser  = _namuser,
-                       passuser = SHA2(_passuser,256)
-                 WHERE idcolaborador = _idcolaborador;
-            ELSE
-                UPDATE colaboradores
-                   SET namuser = _namuser
-                 WHERE idcolaborador = _idcolaborador;
-            END IF;
-        ELSEIF (_passuser IS NOT NULL AND _passuser <> '') THEN
-            UPDATE colaboradores
-               SET passuser = SHA2(_passuser,256)
-             WHERE idcolaborador = _idcolaborador;
-        END IF;
     END IF;
 
-    -- Si llegamos aquí, terminamos normalmente
+    -- 5) Preparar hash de contraseña si corresponde
+    SET v_hashed_pwd = CASE
+                         WHEN _passuser IS NULL THEN NULL            -- no tocar
+                         WHEN _passuser = ''   THEN NULL            -- limpiar
+                         ELSE SHA2(_passuser,256)                   -- nuevo hash
+                       END;
+
+    -- 6) Actualizar usuario/contraseña en colaboradores
+    UPDATE colaboradores
+       SET namuser  = CASE
+                        WHEN _namuser  IS NULL THEN namuser      -- no tocar
+                        WHEN _namuser  = ''   THEN NULL          -- limpiar
+                        ELSE _namuser                           -- nuevo valor
+                      END,
+           passuser = CASE
+                        WHEN _passuser IS NULL THEN passuser    -- no tocar
+                        ELSE v_hashed_pwd                       -- NULL o hash
+                      END
+     WHERE idcolaborador = _idcolaborador;
+
 END proc_block $$
+
 -- select * from colaboradores;
 DROP PROCEDURE IF EXISTS spGetColaboradorById $$
 CREATE PROCEDURE spGetColaboradorById(
@@ -1653,7 +1618,7 @@ END $$
 
 DROP PROCEDURE IF EXISTS spRegisterColaborador $$
 CREATE PROCEDURE spRegisterColaborador(
-  -- Datos de acceso
+  -- Datos de acceso (ahora pueden ser NULL o '')
   IN _namuser         VARCHAR(50),
   IN _passuser        VARCHAR(255),
   -- Datos de contrato
@@ -1675,17 +1640,20 @@ BEGIN
   DECLARE _idcontrato   INT;
 
   START TRANSACTION;
-    -- 1) Hash de la contraseña
-    SET _hashed_pwd = SHA2(_passuser, 256);
+    -- 1) Sólo hashear si _passuser no es NULL/''; si no, dejamos _hashed_pwd en NULL
+    SET _hashed_pwd = CASE
+                        WHEN _passuser IS NULL OR _passuser = '' THEN NULL
+                        ELSE SHA2(_passuser, 256)
+                      END;
 
-    -- 2) Insertar persona
+    -- 2) Insertar persona (igual que antes, manejamos '' como NULL en opcionales)
     INSERT INTO personas (
       nombres, apellidos, tipodoc, numdoc,
-       direccion, correo,
+      direccion, correo,
       telprincipal
     ) VALUES (
       _nombres, _apellidos, _tipodoc, _numdoc,
-       NULLIF(_direccion,''), NULLIF(_correo,''),
+      NULLIF(_direccion,''), NULLIF(_correo,''),
       _telprincipal
     );
     SET _idpersona = LAST_INSERT_ID();
@@ -1694,18 +1662,24 @@ BEGIN
     INSERT INTO contratos (
       idrol, idpersona, fechainicio, fechafin
     ) VALUES (
-      _idrol, _idpersona, CURDATE(), NULLIF(_fechafin,'')
+      _idrol, _idpersona, COALESCE(_fechainicio, CURDATE()),
+      -- si _fechafin es '', lo convertimos a NULL
+      CASE WHEN _fechafin = '' THEN NULL ELSE _fechafin END
     );
     SET _idcontrato = LAST_INSERT_ID();
 
-    -- 4) Insertar colaborador con contraseña hasheada
+    -- 4) Insertar colaborador; si _namuser es '' o NULL, se guarda NULL
     INSERT INTO colaboradores (
       idcontrato, namuser, passuser, estado
     ) VALUES (
-      _idcontrato, _namuser, _hashed_pwd, TRUE
+      _idcontrato,
+      NULLIF(_namuser,''),    -- convierte '' en NULL
+      _hashed_pwd,            -- ya es NULL o hash válido
+      TRUE
     );
   COMMIT;
 END$$
+
 -- select * from personas
 DROP PROCEDURE IF EXISTS spGetDatosGeneralesVehiculo $$
 CREATE PROCEDURE spGetDatosGeneralesVehiculo(

@@ -89,14 +89,14 @@ require_once "../../partials/header.php";
           <div class="col-md-3">
             <div class="form-floating">
               <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50"
-                placeholder="Usuario" required>
+                placeholder="Usuario">
               <label for="namuser"><strong>Username</strong></label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-floating">
               <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6"
-                maxlength="100" placeholder="Contraseña" required>
+                maxlength="100" placeholder="Contraseña">
               <label for="passuser"><strong>Contraseña</strong></label>
             </div>
           </div>
@@ -122,7 +122,7 @@ require_once "../../partials/header.php";
 
     <div class="card-footer text-end">
       <a href="listar-colaborador.php" class="btn btn-secondary">Cancelar</a>
-      <button id="btnRegistrar" class="btn btn-success">Guardar</button>
+      <button id="btnRegistrar" class="btn btn-success" disabled>Guardar</button>
     </div>
   </div>
 </div>
@@ -132,128 +132,146 @@ require_once "../../partials/header.php";
 <?php require_once "../../partials/_footer.php"; ?>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // Cargar roles en el select
-    fetch("<?= SERVERURL ?>app/controllers/Rol.controller.php")
-      .then(res => res.json())
-      .then(data => {
-        const sel = document.getElementById("idrol");
-        sel.innerHTML = '<option value="">Seleccione un rol</option>';
-        data.forEach(r => {
-          sel.innerHTML += `<option value="${r.idrol}">${r.rol}</option>`;
-        });
+document.addEventListener("DOMContentLoaded", () => {
+  // Elementos
+  const tipodoc       = document.getElementById('tipodoc');
+  const numdoc        = document.getElementById('numdoc');
+  const nombres       = document.getElementById('nombres');
+  const apellidos     = document.getElementById('apellidos');
+  const direccion     = document.getElementById('direccion');
+  const correo        = document.getElementById('correo');
+  const telprincipal  = document.getElementById('telprincipal');
+  const idrol         = document.getElementById('idrol');
+  const namuser       = document.getElementById('namuser');
+  const passuser      = document.getElementById('passuser');
+  const btnRegistrar  = document.getElementById('btnRegistrar');
+  const form          = document.getElementById('formColaborador');
+
+  // 1) Cargar roles en el select
+  fetch("<?= SERVERURL ?>app/controllers/Rol.controller.php")
+    .then(res => res.json())
+    .then(data => {
+      idrol.innerHTML = '<option value="">Seleccione un rol</option>';
+      data.forEach(r => {
+        idrol.innerHTML += `<option value="${r.idrol}">${r.rol}</option>`;
       });
-
-    // Elements
-    const tipodoc      = document.getElementById('tipodoc');
-    const numdoc       = document.getElementById('numdoc');
-    const nombres      = document.getElementById('nombres');
-    const apellidos    = document.getElementById('apellidos');
-    const form         = document.getElementById('formColaborador');
-    const idrol        = document.getElementById('idrol');
-    const namuser      = document.getElementById('namuser');
-    const passuser     = document.getElementById('passuser');
-
-    // API DNI lookup on blur
-    numdoc.addEventListener('blur', async () => {
-      if (tipodoc.value === 'DNI' && numdoc.value.trim().length === 8) {
-        try {
-          const resp = await fetch(`<?= SERVERURL ?>app/api/consultaDni.php?dni=${numdoc.value.trim()}`);
-          const data = await resp.json();
-          if (data.nombres) {
-            nombres.value = data.nombres;
-            apellidos.value = `${data.apellidoPaterno} ${data.apellidoMaterno}`;
-            nombres.readOnly = true;
-            apellidos.readOnly = true;
-          }
-        } catch (e) {
-          console.error('Error DNI API:', e);
-          nombres.disabled = false;
-          apellidos.disabled = false;
-        }
-      }
+      updateBtnState();
     });
 
-    // Validation helper
-    function validar() {
-      // Validar correo
-      const correo = document.getElementById('correo').value.trim();
-      if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-        showToast('Correo inválido', 'ERROR', 1500);
-        return false;
+  // API DNI lookup on blur
+  numdoc.addEventListener('blur', async () => {
+    if (tipodoc.value === 'DNI' && /^\d{8}$/.test(numdoc.value.trim())) {
+      try {
+        const resp = await fetch(`<?= SERVERURL ?>app/api/consultaDni.php?dni=${numdoc.value.trim()}`);
+        const data = await resp.json();
+        if (data.nombres) {
+          nombres.value   = data.nombres;
+          apellidos.value = `${data.apellidoPaterno} ${data.apellidoMaterno}`;
+          nombres.readOnly   = true;
+          apellidos.readOnly = true;
+        }
+      } catch (e) {
+        console.error('Error DNI API:', e);
+        nombres.readOnly   = false;
+        apellidos.readOnly = false;
       }
-      // Validar DNI formato
-      if (tipodoc.value === 'DNI' && !/^\d{8}$/.test(numdoc.value.trim())) {
-        showToast('El DNI debe tener 8 dígitos', 'ERROR', 1500);
-        return false;
-      }
-      // Validar celular
-      const tel = document.getElementById('telprincipal').value.trim();
-      if (!/^[9]\d{8}$/.test(tel)) {
-        showToast('El teléfono debe tener 9 dígitos y comenzar con 9', 'ERROR', 1500);
-        return false;
-      }
-      return true;
+    }
+    updateBtnState();
+  });
+
+  // Validation helpers
+  function validarCorreo() {
+    const c = correo.value.trim();
+    return !c || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c);
+  }
+  function validarDNI() {
+    return tipodoc.value !== 'DNI' || /^\d{8}$/.test(numdoc.value.trim());
+  }
+  function validarTelefono() {
+    return /^[9]\d{8}$/.test(telprincipal.value.trim());
+  }
+
+  // Campos básicos obligatorios
+  function camposBasicosValidos() {
+    if (!idrol.value)                   return false;
+    if (!nombres.value.trim())          return false;
+    if (!apellidos.value.trim())        return false;
+    if (!validarDNI())                  return false;
+    if (!validarTelefono())             return false;
+    if (!validarCorreo())               return false;
+    return true;
+  }
+
+  // Regla de credenciales: si uno tiene valor, el otro también
+  function credencialesValidas() {
+    const u = namuser.value.trim();
+    const p = passuser.value.trim();
+    if (!u && !p)       return true;   // ambos vacíos => OK
+    if (u.length < 3)   return false;  // user mínimo 3
+    if (p.length < 6)   return false;  // pass mínimo 6
+    return true;
+  }
+
+  // Actualiza estado del botón
+  function updateBtnState() {
+    btnRegistrar.disabled = !(camposBasicosValidos() && credencialesValidas());
+  }
+
+  // Escuchar cambios en todos los campos
+  [
+    tipodoc, numdoc, nombres, apellidos, direccion,
+    correo, telprincipal, idrol, namuser, passuser
+  ].forEach(el => el.addEventListener('input', updateBtnState));
+
+  // Inicial
+  updateBtnState();
+
+  // Manejo de clic en Guardar
+  btnRegistrar.addEventListener('click', async e => {
+    e.preventDefault();
+
+    // Validaciones de seguridad
+    if (!camposBasicosValidos()) {
+      showToast('Completa todos los campos obligatorios correctamente.', 'ERROR', 1500);
+      return;
+    }
+    if (!credencialesValidas()) {
+      showToast('Si pones username, la contraseña (mín. 6c) es obligatoria, y viceversa.', 'ERROR', 2000);
+      return;
     }
 
-    // Registrar
-    document.getElementById('btnRegistrar').addEventListener('click', async e => {
-      e.preventDefault();
+    // Confirmación
+    const confirmado = await ask(
+      "¿Está seguro de registrar este colaborador?",
+      "Colaboradores"
+    );
+    if (!confirmado) return;
 
-      // 1) Validar que se haya seleccionado rol, y que username/contraseña no estén vacíos (antes de preguntar)
-      if (idrol.value.trim() === "") {
-        showToast('Debe seleccionar un rol', 'ERROR', 1500);
-        return;
+    // Preparar y enviar datos
+    const fd = new FormData(form);
+    fd.append('action', 'create');
+
+    try {
+      const resp = await fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", {
+        method: 'POST',
+        body: fd
+      });
+      const result = await resp.json();
+
+      if (result.status) {
+        showToast('Colaborador registrado exitosamente.', 'SUCCESS', 1000);
+        setTimeout(() => {
+          window.location.href = 'listar-colaborador.php';
+        }, 1500);
+      } else {
+        showToast(result.message || 'Ocurrió un error inesperado.', 'ERROR', 2000);
       }
-      if (namuser.value.trim() === "") {
-        showToast('Ingrese un username', 'ERROR', 1500);
-        return;
-      }
-      if (passuser.value.trim() === "") {
-        showToast('Ingrese una contraseña', 'ERROR', 1500);
-        return;
-      }
-
-      // 2) Preguntar confirmación antes de continuar
-      const confirmado = await ask(
-        "¿Está seguro de registrar este colaborador?", 
-        "Colaboradores"
-      );
-      if (!confirmado) {
-        // Si el usuario cancela, no hacemos nada más
-        return;
-      }
-
-      // 3) Validar campos restantes
-      if (!validar()) return;
-
-      // 4) Preparar FormData y enviar petición
-      const fd = new FormData(form);
-      fd.append('action', 'create');
-
-      try {
-        const resp = await fetch("<?= SERVERURL ?>app/controllers/colaborador.controller.php", {
-          method: 'POST',
-          body: fd
-        });
-        const result = await resp.json();
-
-        if (result.status) {
-          // 5a) Si todo salió bien, mostrar toast de éxito y luego redirigir
-          showToast('Colaborador registrado exitosamente.', 'SUCCESS', 1000);
-          setTimeout(() => {
-            window.location.href = 'listar-colaborador.php';
-          }, 1500);
-        } else {
-          // 5b) Si hay error, mostrar toast de error
-          showToast(result.message || 'Ocurrió un error inesperado.', 'ERROR', 2000);
-        }
-      } catch (err) {
-        // 5c) Si falla la petición (problema de red o servidor), mostrar toast
-        console.error('Fetch error:', err);
-        showToast('Error de servidor. Intenta nuevamente.', 'ERROR', 2000);
-      }
-    });
+    } catch (err) {
+      console.error('Fetch error:', err);
+      showToast('Error de servidor. Intenta nuevamente.', 'ERROR', 2000);
+    }
   });
+});
 </script>
+
 
