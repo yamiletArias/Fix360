@@ -148,7 +148,7 @@ require_once "../../partials/header.php";
           <div class="col-md-2">
             <div class="form-floating">
               <input type="number" class="form-control input" name="precio" id="precio" placeholder="Precio" required />
-              <label for="precio"><strong>Precio</strong></label>
+              <label for="precio"><strong>Precio Unt</strong></label>
             </div>
           </div>
           <div class="col-md-2">
@@ -312,7 +312,7 @@ require_once "../../partials/header.php";
         </tbody>
       </table>
       <div class="mt-4">
-        <button id="btnFinalizarVenta" type="button" class="btn btn-success text-end">Aceptar</button>
+        <button id="btnFinalizarVenta" type="button" class="btn btn-success text-end" disabled>Guardar</button>
         <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
           Cancelar
         </a>

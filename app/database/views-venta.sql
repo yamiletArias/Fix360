@@ -728,6 +728,7 @@ CREATE VIEW vs_compras AS
 SELECT 
   C.idcompra AS id,
   C.tipocom,
+  C.numserie,
   C.numcom,
   E.nomcomercial AS proveedores,
   VSPC.total_pendiente,

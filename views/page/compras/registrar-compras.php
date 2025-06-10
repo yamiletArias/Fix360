@@ -20,13 +20,11 @@ require_once "../../partials/header.php";
         <div class="row g-2">
           <div class="col-md-5">
             <label>
-              <input class="form-check-input text-start" type="radio" name="tipo" value="factura"
-                onclick="inicializarCampos()" checked>
+              <input class="form-check-input text-start" type="radio" name="tipo" value="factura" checked>
               Factura
             </label>
             <label style="padding-left: 10px;">
-              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta"
-                onclick="inicializarCampos()">
+              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta">
               Boleta
             </label>
           </div>
@@ -34,10 +32,10 @@ require_once "../../partials/header.php";
           <div class="col-md-7 d-flex align-items-center justify-content-end">
             <label for="numserie" class="mb-0">N° serie:</label>
             <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
-              id="numserie" required disabled />
+              id="numserie" required />
             <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
             <input type="text" name="numcomprobante" id="numcom"
-              class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
+              class="form-control text-center input form-control-sm w-25 ms-2" required />
           </div>
         </div>
         <!-- Sección Cliente, Fecha y Moneda -->
@@ -103,7 +101,7 @@ require_once "../../partials/header.php";
             <div class="form-floating">
               <input type="number" class="form-control input" name="preciocompra" id="preciocompra" placeholder="Precio"
                 required />
-              <label for="preciocompra"><strong>Precio</strong></label>
+              <label for="preciocompra"><strong>Precio Unt</strong></label>
             </div>
           </div>
           <div class="col-md-2">
@@ -118,7 +116,7 @@ require_once "../../partials/header.php";
               <div class="form-floating">
                 <input type="number" class="form-control input" name="descuento" id="descuento" placeholder="DSCT"
                   required />
-                <label for="descuento">DSCT</label>
+                <label for="descuento">DSCT UNT</label>
               </div>
               <button type="button" class="btn btn-sm btn-success" id="agregarProducto">Agregar</button>
             </div>
@@ -185,7 +183,7 @@ require_once "../../partials/header.php";
         </tbody>
       </table>
       <div class="mt-4">
-        <button id="btnFinalizarCompra" type="button" class="btn btn-success text-end">Aceptar</button>
+        <button id="btnFinalizarCompra" type="button" class="btn btn-success text-end" disabled>Guardar</button>
         <a href="" type="reset" class="btn btn-secondary" id="btnCancelarVenta">
           Cancelar
         </a>
@@ -309,8 +307,8 @@ require_once "../../partials/header.php";
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary" id="btnRegistrarProducto">Guardar</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary btn-sm" id="btnRegistrarProducto">Guardar</button>
       </div>
     </div>
   </div>
@@ -390,7 +388,7 @@ require_once "../../partials/header.php";
   <div class="modal-dialog modal-md" style="margin-top: 60px;">
     <div class="modal-content" style="background-color: #fff; color: #000;">
       <div class="modal-header">
-        <h5 class="modal-title">Registrar Nueva Empresa / Proveedor</h5>
+        <h5 class="modal-title">Registrar Nueva Proveedor</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
@@ -436,8 +434,8 @@ require_once "../../partials/header.php";
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="formProveedor" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="formProveedor" class="btn btn-primary btn-sm">Guardar</button>
       </div>
     </div>
   </div>
@@ -511,44 +509,6 @@ require_once "../../partials/_footer.php";
   });
 </script>
 
-<!-- <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const fechaInput = document.getElementById("fechaIngreso");
-    const btnPermitir = document.getElementById('btnPermitirFechaPasada');
-    if (!fechaInput) return;
-
-    // Función para rellenar con ceros
-    const pad = n => String(n).padStart(2, '0');
-
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const MM = pad(now.getMonth() + 1);
-    const dd = pad(now.getDate());
-    const hh = pad(now.getHours());
-    const mm = pad(now.getMinutes());
-
-    // Valor por defecto: ahora mismo
-    fechaInput.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-
-    // Rango: desde hace 2 días hasta hoy
-    const twoDaysAgo = new Date(now);
-    twoDaysAgo.setDate(now.getDate() - 2);
-    const yyyy2 = twoDaysAgo.getFullYear();
-    const MM2 = pad(twoDaysAgo.getMonth() + 1);
-    const dd2 = pad(twoDaysAgo.getDate());
-
-    fechaInput.min = `${yyyy2}-${MM2}-${dd2}T00:00`;
-    fechaInput.max = `${yyyy}-${MM}-${dd}T23:59`;
-
-    btnPermitir.addEventListener("click", () => {
-      // Solo quitamos el "min", mantenemos "max" = hoy
-      fechaInput.removeAttribute("min");
-      btnPermitir.disabled = true;
-      btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
-      btnPermitir.title = "Fechas pasadas habilitadas";
-    });
-  });
-</script> -->
 <script>
   document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
     e.preventDefault();
@@ -740,7 +700,44 @@ require_once "../../partials/_footer.php";
 </body>
 
 </html>
+<!-- <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const fechaInput = document.getElementById("fechaIngreso");
+    const btnPermitir = document.getElementById('btnPermitirFechaPasada');
+    if (!fechaInput) return;
 
+    // Función para rellenar con ceros
+    const pad = n => String(n).padStart(2, '0');
+
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const MM = pad(now.getMonth() + 1);
+    const dd = pad(now.getDate());
+    const hh = pad(now.getHours());
+    const mm = pad(now.getMinutes());
+
+    // Valor por defecto: ahora mismo
+    fechaInput.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+
+    // Rango: desde hace 2 días hasta hoy
+    const twoDaysAgo = new Date(now);
+    twoDaysAgo.setDate(now.getDate() - 2);
+    const yyyy2 = twoDaysAgo.getFullYear();
+    const MM2 = pad(twoDaysAgo.getMonth() + 1);
+    const dd2 = pad(twoDaysAgo.getDate());
+
+    fechaInput.min = `${yyyy2}-${MM2}-${dd2}T00:00`;
+    fechaInput.max = `${yyyy}-${MM}-${dd}T23:59`;
+
+    btnPermitir.addEventListener("click", () => {
+      // Solo quitamos el "min", mantenemos "max" = hoy
+      fechaInput.removeAttribute("min");
+      btnPermitir.disabled = true;
+      btnPermitir.innerHTML = '<i class="fa-solid fa-unlock-keyhole text-success"></i>';
+      btnPermitir.title = "Fechas pasadas habilitadas";
+    });
+  });
+</script> -->
 <!-- <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Variables y elementos

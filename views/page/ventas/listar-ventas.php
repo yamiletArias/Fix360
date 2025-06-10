@@ -38,9 +38,9 @@ require_once "../../partials/header.php";
                     data-estado="A">
                     <i class="fa-solid fa-eye-slash"></i>
                 </button>
-                <button type="button" class="btn btn-danger text-white">
+                <!-- <button type="button" class="btn btn-danger text-white">
                     <i class="fa-solid fa-file-pdf"></i>
-                </button>
+                </button> -->
             </div>
 
             <div class="input-group" style="max-width: 300px;">

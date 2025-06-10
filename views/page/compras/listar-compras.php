@@ -25,9 +25,9 @@ require_once "../../partials/header.php";
                     data-estado="A">
                     <i class="fa-solid fa-eye-slash"></i>
                 </button>
-                <button type="button" class="btn btn-danger text-white">
+                <!-- <button type="button" class="btn btn-danger text-white">
                     <i class="fa-solid fa-file-pdf"></i>
-                </button>
+                </button> -->
             </div>
             <div class="row mt-3">
                 <div class="col-12">
@@ -50,6 +50,7 @@ require_once "../../partials/header.php";
                         <th class="text-left">Proveedor</th>
                         <th class="text-center">T. Comprobante</th>
                         <th class="text-center">N° Comprobante</th>
+                        <th class="text-center">N° Serie</th>
                         <th class="text-center">Opciones</th>
                     </tr>
                 </thead>
@@ -250,6 +251,7 @@ require_once "../../partials/_footer.php";
                 { data: "proveedor", defaultContent: "—", class: "text-start" },
                 { data: "tipocom", defaultContent: "—", class: "text-center" },
                 { data: "numcom", defaultContent: "—", class: "text-center" },
+                { data: "numserie", defaultContent: "—", class: "text-center" },
                 { data: null, class: "text-center", render: renderOpciones }
             ],
             language: {

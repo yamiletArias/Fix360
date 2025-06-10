@@ -784,6 +784,7 @@ BEGIN
     E.nomcomercial AS proveedor,
     C.tipocom, 
     C.numcom,
+	C.numserie,
     vspc.total_pendiente,
     CASE 
       WHEN vspc.total_pendiente = 0 THEN 'pagado'

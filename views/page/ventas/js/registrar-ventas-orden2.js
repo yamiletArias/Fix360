@@ -35,6 +35,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const gruField = document.getElementById("ingresogrua");
   const hiddenIdPropietario = document.getElementById("hiddenIdPropietario");
   const inputClienteVisible = document.getElementById("inputClienteVisible");
+  // 1) Función para habilitar/deshabilitar el botón “Guardar”
+  function actualizarEstadoGuardar() {
+    const tieneProductos = detalleVenta.length > 0;
+    const propietarioSeleccionado = !!document.getElementById("hiddenIdPropietario").value.trim();
+    btnFinalizarVenta.disabled = !(tieneProductos && propietarioSeleccionado);
+  }
+  actualizarEstadoGuardar();
 
   // 2) Cargar lista de servicios por subcategoría
   async function cargarServiciosPorSubcategoria(idsubcat) {
@@ -690,6 +697,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (idx >= 0) detalleVenta.splice(idx, 1);
       actualizarNumeros();
       calcularTotales();
+      actualizarEstadoGuardar();
     });
 
     // Agregar el objeto al array detalleVenta
@@ -705,6 +713,7 @@ document.addEventListener("DOMContentLoaded", function () {
     resetCamposProducto();
     actualizarNumeros();
     calcularTotales();
+    actualizarEstadoGuardar();
   });
 
   function resetCamposProducto() {

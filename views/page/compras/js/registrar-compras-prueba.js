@@ -16,8 +16,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputDescuento = document.getElementById("descuento");
     const fechaInput = document.getElementById("fechaIngreso");
     // 1) Declárala UNA sola vez, arriba de todo:
-    /*     let selectedProduct = {}; */
     const detalleCompra = [];
+    numSerieInput.value = "";
+    numComInput.value = "";
+    // ----- 3) Función para (des)habilitar el botón Guardar -----
+    function actualizarEstadoBotonGuardar() {
+        const proveedorValido = proveedorSelect.value &&
+            proveedorSelect.value !== "Selecciona proveedor";
+        const tieneProductos = detalleCompra.length > 0;
+        btnFinalizarCompra.disabled = !(proveedorValido && tieneProductos);
+    }
+
+    // Llamada inicial para que al cargar la página ya esté correctamente deshabilitado
+    actualizarEstadoBotonGuardar();
+
+    // Cuando cambie el proveedor, volver a evaluar
+    proveedorSelect.addEventListener("change", actualizarEstadoBotonGuardar);
 
     // --- Funciones auxiliares ---
     function calcularTotales() {
@@ -236,6 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (idx >= 0) detalleCompra.splice(idx, 1);
                 actualizarNumeros();
                 calcularTotales();
+                actualizarEstadoBotonGuardar();
             });
 
         // — Agrego al array detalleCompra —
@@ -251,6 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resetCamposProducto();
         actualizarNumeros();
         calcularTotales();
+        actualizarEstadoBotonGuardar();
     });
 
     function resetCamposProducto() {
@@ -478,15 +494,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const debouncedScan = debounce(manejarEscaneo, 150);
     inputProductElement.addEventListener("input", debouncedScan);
     // Funciones para generar número de serie y de comprobante
-    function generateNumber(type) {
+    /* function generateNumber(type) {
         const randomNumber = Math.floor(Math.random() * 100);
         return `${type}${String(randomNumber).padStart(3, "0")}`;
     }
     function generateComprobanteNumber(type) {
         const randomNumber = Math.floor(Math.random() * 10000000);
         return `${type}-${String(randomNumber).padStart(7, "0")}`;
-    }
-    function inicializarCampos() {
+    } */
+    /* function inicializarCampos() {
         const tipoSeleccionado = document.querySelector(
             'input[name="tipo"]:checked'
         ).value;
@@ -497,11 +513,11 @@ document.addEventListener("DOMContentLoaded", function () {
             numSerieInput.value = generateNumber("B");
             numComInput.value = generateComprobanteNumber("B");
         }
-    }
-    inicializarCampos();
+    } */
+    /* inicializarCampos();
     tipoInputs.forEach((input) => {
         input.addEventListener("change", inicializarCampos);
-    });
+    }); */
     // Establecer fecha actual
     const setFechaDefault = () => {
         const today = new Date();
