@@ -309,5 +309,40 @@ JOIN personas p
 JOIN roles r
   ON ct.idrol      = r.idrol;
   
+  DROP VIEW IF EXISTS vista_total_ordenes_hoy;
+CREATE VIEW vista_total_ordenes_hoy AS
+SELECT
+    COUNT(*) AS total_ordenes_hoy
+FROM
+    ordenservicios o
+WHERE
+    DATE(o.fechaingreso) = CURDATE()
+    AND o.estado = 'A';
+
+
+CREATE OR REPLACE VIEW vw_servicios_mensuales AS
+SELECT
+  DATE_FORMAT(o.fechaingreso, '%Y-%m') AS mes,
+  s.servicio                           AS servicio,
+  COUNT(*)                             AS veces_realizado
+FROM detalleordenservicios dos
+JOIN ordenservicios o
+  ON dos.idorden = o.idorden
+JOIN servicios s
+  ON dos.idservicio = s.idservicio
+WHERE dos.estado = 'A'
+GROUP BY
+  mes,
+  s.servicio
+ORDER BY
+  mes,
+  veces_realizado DESC;
+  
+  CREATE OR REPLACE VIEW v_total_ordenes_activas AS
+SELECT
+  COUNT(*) AS total_ordenes_activas
+FROM ordenservicios
+WHERE fechasalida IS NULL
+  AND estado = 'A';
   
 
