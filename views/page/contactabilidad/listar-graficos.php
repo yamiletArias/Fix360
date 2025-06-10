@@ -177,8 +177,8 @@ require_once "../../partials/_footer.php";
         return {
           label: canal,
           data: conteosPorCanal[canal],
-          backgroundColor: colorPalette,
-          borderColor: colorPalette,
+          backgroundColor: colorPalette[i % colorPalette.length],
+          borderColor: colorPalette[i % colorPalette.length],
           borderWidth: 1
         };
       });
