@@ -270,24 +270,25 @@ require_once "../../partials/_footer.php";
 
     function verDetalleVenta(idventa) {
         console.log("verDetalleVenta se está ejecutando para idventa =", idventa);
-        // — Limpiar modal
+
+        // — Limpiar modal —
         $("#miModal tbody, #tabla-detalle-productos-modal tbody, #tabla-detalle-servicios-modal tbody").empty();
         $("#miModal .amortizaciones-container").remove();
         $("#modeloInput, #fechaHora, #vehiculo, #kilometraje").val('');
         $("label[for='propietario']").text('');
 
-        // — Abrir modal
+        // — Abrir modal —
         $("#miModal").modal("show");
 
         // 1) Propietario
         fetch(`<?= SERVERURL ?>app/controllers/Venta.controller.php?action=propietario&idventa=${idventa}`)
             .then(r => r.json())
             .then(jsonVenta => {
-                if (jsonVenta.status === 'success') {
-                    $("label[for='propietario']").text(jsonVenta.data.propietario || 'Sin propietario');
-                } else {
-                    $("label[for='propietario']").text('No encontrado');
-                }
+                $("label[for='propietario']").text(
+                    jsonVenta.status === 'success'
+                        ? (jsonVenta.data.propietario || 'Sin propietario')
+                        : 'No encontrado'
+                );
             })
             .catch(() => {
                 $("label[for='propietario']").text('Error al cargar');
@@ -297,17 +298,33 @@ require_once "../../partials/_footer.php";
         fetch(`<?= SERVERURL ?>app/controllers/Detventa.controller.php?idventa=${idventa}`)
             .then(r => r.json())
             .then(json => {
-                console.log("DETALLE VENTA RAW:", json);
                 if (json.status !== 'success') {
                     console.error("Detventa error:", json.message);
                     return;
                 }
                 const { productos, servicios } = json.data;
 
+                // — Extraer datos generales del primer elemento disponible —
+                let header = {};
+                if (productos.length) {
+                    header = productos[0];
+                } else if (servicios.length) {
+                    header = servicios[0];
+                }
+                // Rellenar siempre los campos generales
+                $("#modeloInput").val(header.cliente ?? 'Sin Cliente');
+                $("#fechaHora").val(header.fechahora ?? '');
+                $("#vehiculo").val(header.vehiculo ?? 'Sin vehículo');
+                $("#kilometraje").val(header.kilometraje ?? 'Sin kilometraje');
+
                 // — Productos —
                 const $prodBody = $("#tabla-detalle-productos-modal tbody").empty();
                 if (!productos.length) {
-                    $prodBody.append(`<tr><td colspan="6" class="text-center text-muted">No hay productos</td></tr>`);
+                    $prodBody.append(`
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay productos</td>
+                    </tr>
+                `);
                 } else {
                     productos.forEach((p, i) => {
                         $prodBody.append(`
@@ -318,25 +335,22 @@ require_once "../../partials/_footer.php";
                             <td>${parseFloat(p.precio).toFixed(2)} $</td>
                             <td>${parseFloat(p.descuento).toFixed(2)} $</td>
                             <td>${parseFloat(p.total_producto).toFixed(2)} $</td>
-                        </tr>`);
+                        </tr>
+                    `);
                     });
-                    // Campos generales
-                    $("#modeloInput").val(productos[0].cliente || 'Sin Cliente');
-                    $("#fechaHora").val(productos[0].fechahora);
-                    $("#vehiculo").val(productos[0].vehiculo || 'Sin vehículo');
-                    $("#kilometraje").val(productos[0].kilometraje || 'Sin kilometraje');
                 }
 
-                const serviciosValidos = servicios.filter(s =>
-                    s.tiposervicio !== null ||
-                    s.nombreservicio !== null ||
-                    s.mecanico !== null ||
-                    s.precio_servicio !== null
-                );
                 // — Servicios —
+                const serviciosValidos = servicios.filter(s =>
+                    s.tiposervicio || s.nombreservicio || s.mecanico || s.precio_servicio
+                );
                 const $servBody = $("#tabla-detalle-servicios-modal tbody").empty();
                 if (!serviciosValidos.length) {
-                    $servBody.append(`<tr><td colspan="5" class="text-center text-muted">No hay servicios</td></tr>`);
+                    $servBody.append(`
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No hay servicios</td>
+                    </tr>
+                `);
                 } else {
                     serviciosValidos.forEach((s, i) => {
                         $servBody.append(`
@@ -345,76 +359,65 @@ require_once "../../partials/_footer.php";
                             <td>${s.tiposervicio ?? '-'}</td>
                             <td>${s.nombreservicio ?? '-'}</td>
                             <td>${s.mecanico ?? '-'}</td>
-                            <td>${s.precio_servicio !== null
+                            <td>${s.precio_servicio != null
                                 ? parseFloat(s.precio_servicio).toFixed(2) + ' $'
                                 : '-'
                             }</td>
-                        </tr>`);
+                        </tr>
+                    `);
                     });
                 }
 
                 // — Amortizaciones —
-                fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idventa=${idventa}`)
-                    .then(r => r.json())
-                    .then(jsonA => {
-                        if (jsonA.status !== 'success') return;
-                        const amort = jsonA.data;                   // lista de amortizaciones
-                        const totalVenta = jsonA.total_original;    // total de la venta
-                        const amortizado = jsonA.total_pagado;      // suma de lo amortizado
-                        const saldoPendiente = jsonA.total_pendiente;// lo que falta pagar
-
-                        // Elimina cualquier sección previa
-                        $("#miModal .amortizaciones-container").remove();
-
-                        // Solo si hay al menos una amortización, la mostramos
-                        if (amort.length > 0) {
-                            let html = `
-                <div class="amortizaciones-container mt-4">
-                    <h6>Amortizaciones</h6>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Fecha</th>
-                                <th>Nº Transacción</th>
-                                <th>Monto</th>
-                                <th>Forma de Pago</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-                            amort.forEach((a, i) => {
-                                const dt = new Date(a.creado);
-                                const fecha = dt.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                                const hora = dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-                                html += `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${fecha} ${hora}</td>
-                        <td>${a.numtransaccion}</td>
-                        <td>S/ ${parseFloat(a.amortizacion).toFixed(2)}</td>
-                        <td>${a.formapago}</td>
-                    </tr>
-                `;
-                            });
-                            html += `
-                        </tbody>
-                    </table>
-                    <div class="text-end pe-3 mt-3">
-                        <p><strong>Total Venta</strong> S/ ${totalVenta.toFixed(2)}</p>
-                        <p><strong>Amortizado</strong> S/ ${amortizado.toFixed(2)}</p>
-                        <p><strong>Saldo Pendiente</strong> S/ ${saldoPendiente.toFixed(2)}</p>
-                    </div>
-                </div>
-            `;
-                            $("#miModal .modal-body").append(html);
-                        }
-                    })
-                    .catch(err => console.error("Error al cargar amortizaciones:", err));
-
+                return fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idventa=${idventa}`)
             })
-            .catch(() => {
-                console.error("Error al cargar detalle de venta");
+            .then(r => r && r.json())
+            .then(jsonA => {
+                if (!jsonA || jsonA.status !== 'success') return;
+                const amort = jsonA.data;
+                const totalVenta = jsonA.total_original;
+                const amortizado = jsonA.total_pagado;
+                const saldoPendiente = jsonA.total_pendiente;
+
+                if (amort.length > 0) {
+                    let html = `
+    <div class="amortizaciones-container mt-4">
+        <h6>Amortizaciones</h6>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>#</th><th>Fecha</th><th>Nº Transacción</th>
+                    <th>Monto</th><th>Forma de Pago</th>
+                </tr>
+            </thead>
+            <tbody>`;
+                    amort.forEach((a, i) => {
+                        const dt = new Date(a.creado);
+                        const fecha = dt.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const hora = dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+                        html += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${fecha} ${hora}</td>
+                    <td>${a.numtransaccion}</td>
+                    <td>S/ ${parseFloat(a.amortizacion).toFixed(2)}</td>
+                    <td>${a.formapago}</td>
+                </tr>`;
+                    });
+                    html += `
+            </tbody>
+        </table>
+        <div class="text-end pe-3 mt-3">
+            <p><strong>Total Venta</strong> S/ ${totalVenta.toFixed(2)}</p>
+            <p><strong>Amortizado</strong> S/ ${amortizado.toFixed(2)}</p>
+            <p><strong>Saldo Pendiente</strong> S/ ${saldoPendiente.toFixed(2)}</p>
+        </div>
+    </div>`;
+                    $("#miModal .modal-body").append(html);
+                }
+            })
+            .catch(err => {
+                console.error("Error al cargar detalle o amortizaciones:", err);
                 alert("Ocurrió un error al cargar el detalle.");
             });
     }

@@ -192,33 +192,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
 
     // 11) Registro de venta (con o sin orden de servicio)
-    $conOrden = !empty($data['servicios']);
-
-    // Obtener idvehiculo y kilometraje del payload
-    $idvehiculo = (isset($data['idvehiculo']) && $data['idvehiculo'] !== '') ? (int) $data['idvehiculo'] : null;
-    $kilometraje = isset($data['kilometraje']) ? floatval($data['kilometraje']) : 0;
-    if ($conOrden) {
-      if (empty($idvehiculo)) {
+    // 1) Determinar si es orden de trabajo
+    $conOrden      = !empty($data['servicios']);
+    $idvehiculo    = (!empty($data['idvehiculo']) ? (int)$data['idvehiculo'] : null);
+    $kilometraje   = isset($data['kilometraje']) ? floatval($data['kilometraje']) : 0;
+    if ($conOrden && ($idvehiculo === null || $kilometraje <= 0)) {
         echo json_encode([
-          'status' => 'error',
-          'message' => 'Para registrar una Orden de Trabajo con servicios, debes especificar un vehículo.'
+            'status'  => 'error',
+            'message' => 'Para registrar una Orden de Trabajo con servicios, se requieren vehículo y kilometraje válidos.'
         ]);
         exit;
-      }
-      if ($kilometraje <= 0) {
-        echo json_encode([
-          'status' => 'error',
-          'message' => 'Para registrar una Orden de Trabajo con servicios, el kilometraje debe ser mayor que cero.'
-        ]);
-        exit;
-      }
-      // (Opcional) Si deseas validar contra el último km en BD:
-      // $ultimo = $venta->getUltimoKilometraje($idvehiculo);
-      // if ($kilometraje < $ultimo) {
-      //     echo json_encode(['status'=>'error','message'=>"El kilometraje no puede ser menor que el último registrado ($ultimo)."]);
-      //     exit;
-      // }
     }
+
 
     // Mapeo a NULL si está vacío
     /* $idpropietario = (isset($data['idpropietario']) && $data['idpropietario'] !== '')
@@ -228,23 +213,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
       ? (int) $data['idcliente']
       : null;
 
+    // 2) Armar parámetros para el método
     $params = [
-      'conOrden' => $conOrden,
-      'idcolaborador' => $_SESSION['login']['idcolaborador'],
-      'idpropietario' => $data['idpropietario'] ?? 0,
-      'idcliente' => $idcliente,
-      'idvehiculo' => $idvehiculo,
-      'kilometraje' => $kilometraje,
-      'observaciones' => trim($data['observaciones'] ?? ''),
-      'ingresogrua' => !empty($data['ingresogrua']) ? 1 : 0,
-      'fechaingreso' => $data['fechaingreso'] ?? null,
-      'tipocom' => $data['tipocom'] ?? '',
-      'fechahora' => $data['fechahora'] ?? null,
-      'numserie' => $data['numserie'] ?? '',
-      'numcom' => $data['numcom'] ?? '',
-      'moneda' => $data['moneda'] ?? '',
-      'productos' => $data['productos'] ?? [],
-      'servicios' => $data['servicios'] ?? [],
+        'servicios'     => $data['servicios']   ?? [],
+        'productos'     => $data['productos']   ?? [],
+        'conOrden'      => $conOrden,
+        'idcolaborador' => $_SESSION['login']['idcolaborador'],
+        'idpropietario'=> $data['idpropietario'] ?? 0,
+        'idcliente'    => (!empty($data['idcliente']) ? (int)$data['idcliente'] : null),
+        'idvehiculo'   => $idvehiculo,
+        'kilometraje'  => $kilometraje,
+        'observaciones'=> trim($data['observaciones'] ?? ''),
+        'ingresogrua'  => !empty($data['ingresogrua']) ? 1 : 0,
+        'fechaingreso' => $data['fechaingreso'] ?? null,
+        'tipocom'      => $data['tipocom']     ?? '',
+        'fechahora'    => $data['fechahora']   ?? null,
+        'numserie'     => $data['numserie']    ?? '',
+        'numcom'       => $data['numcom']      ?? '',
+        'moneda'       => $data['moneda']      ?? '',
     ];
 
     try {

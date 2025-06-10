@@ -2,14 +2,13 @@
 
 -- VISTA DE VENTAS CON ORDEN DE SERVICIO
 -- ESTE ES EL QUE FUNCIONA (SIN DUPLICADOS)
-DROP VIEW IF EXISTS vista_detalle_venta;
-CREATE VIEW vista_detalle_venta AS
-
+CREATE VIEW vista_detalle_ventas AS
 -- 1) Parte de PRODUCTOS
 SELECT
   v.idventa,
   v.fechahora,
 
+  -- Propietario
   COALESCE(
     CASE 
       WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
@@ -18,20 +17,30 @@ SELECT
     'Sin propietario'
   ) AS propietario,
 
+  -- Cliente
   COALESCE(
     CONCAT(p.apellidos,' ',p.nombres),
     e.nomcomercial
   ) AS cliente,
 
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+  -- Kilometraje: primero de ventas, si es NULL, de ordenservicios
+  COALESCE(v.kilometraje, os.kilometraje) AS kilometraje,
 
+  -- Vehículo: idem, con COALESCE
+  CONCAT(
+    tv.tipov,' ',
+    ma.nombre,' ',
+    vh.color,' (',vh.placa,')'
+  ) AS vehiculo,
+
+  -- Producto
   CONCAT(su.subcategoria,' ', pr.descripcion) AS producto,
   dv.cantidad,
   dv.precioventa AS precio,
   dv.descuento,
   ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
 
+  -- Campos de servicio en NULL
   NULL AS tiposervicio,
   NULL AS nombreservicio,
   NULL AS mecanico,
@@ -39,19 +48,26 @@ SELECT
   'producto' AS registro_tipo
 
 FROM ventas v
+  -- Propietario
   LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
   LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
   LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
 
+  -- Cliente
   LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
   LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
   LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
 
-  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
+  -- Orden de servicio (para fallback)
+  LEFT JOIN ordenservicios         os   ON v.idexpediente_ot = os.idorden
+
+  -- Vehículo (usa COALESCE más abajo)
+  LEFT JOIN vehiculos      vh  ON COALESCE(v.idvehiculo, os.idvehiculo) = vh.idvehiculo
   LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
   LEFT JOIN tipovehiculos tv  ON m.idtipov        = tv.idtipov
   LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
 
+  -- Detalle de productos
   JOIN detalleventa       dv   ON v.idventa        = dv.idventa
   JOIN productos          pr   ON dv.idproducto    = pr.idproducto
   JOIN subcategorias      su   ON pr.idsubcategoria = su.idsubcategoria
@@ -65,6 +81,7 @@ SELECT
   v.idventa,
   v.fechahora,
 
+  -- Propietario
   COALESCE(
     CASE 
       WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
@@ -73,365 +90,73 @@ SELECT
     'Sin propietario'
   ) AS propietario,
 
+  -- Cliente
   COALESCE(
     CONCAT(p.apellidos,' ',p.nombres),
     e.nomcomercial
   ) AS cliente,
 
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+  -- Kilometraje (fallback)
+  COALESCE(v.kilometraje, os.kilometraje) AS kilometraje,
 
+  -- Vehículo (fallback)
+  CONCAT(
+    tv.tipov,' ',
+    ma.nombre,' ',
+    vh.color,' (',vh.placa,')'
+  ) AS vehiculo,
+
+  -- Campos de producto en NULL
   NULL AS producto,
   NULL AS cantidad,
   NULL AS precio,
   NULL AS descuento,
   NULL AS total_producto,
 
+  -- Servicio
   sc.subcategoria   AS tiposervicio,
   se.servicio       AS nombreservicio,
 
-  -- Aquí usamos COALESCE para mostrar el nombre completo si namuser está vacío
+  -- Mecánico
   COALESCE(col.namuser, CONCAT(percol.nombres, ' ', percol.apellidos)) AS mecanico,
 
+  -- Precio de servicio
   dos.precio        AS precio_servicio,
   'servicio'        AS registro_tipo
 
 FROM ventas v
+  -- Propietario
   LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
   LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
   LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
 
+  -- Cliente
   LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
   LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
   LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
 
-  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
+  -- Orden de servicio (para fallback)
+  LEFT JOIN ordenservicios         os   ON v.idexpediente_ot = os.idorden
+
+  -- Vehículo (fallback)
+  LEFT JOIN vehiculos      vh  ON COALESCE(v.idvehiculo, os.idvehiculo) = vh.idvehiculo
   LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
   LEFT JOIN tipovehiculos tv  ON m.idtipov         = tv.idtipov
   LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
 
-  LEFT JOIN ordenservicios         os   ON v.idexpediente_ot = os.idorden
+  -- Detalle de servicios
   LEFT JOIN detalleordenservicios  dos  ON os.idorden        = dos.idorden
   LEFT JOIN servicios              se   ON dos.idservicio    = se.idservicio
   LEFT JOIN subcategorias          sc   ON se.idsubcategoria = sc.idsubcategoria
+
+  -- Mecánico
   LEFT JOIN colaboradores          col  ON dos.idmecanico    = col.idcolaborador
   LEFT JOIN contratos              con  ON col.idcontrato    = con.idcontrato
   LEFT JOIN personas              percol ON con.idpersona    = percol.idpersona
 
 WHERE v.estado = TRUE
   AND dos.idorden IS NOT NULL;
-/*
--- MECANICO NO SALE:
-DROP VIEW IF EXISTS vista_detalle_venta;
-CREATE VIEW vista_detalle_venta AS
--- 1) Parte de PRODUCTOS
-SELECT
-  v.idventa,
-  v.fechahora,
 
-  -- Propietario (si es empresa o persona)
-  COALESCE(
-    CASE 
-      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
-      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
-    END,
-    'Sin propietario'
-  ) AS propietario,
-
-  -- Cliente (si es persona ó empresa)
-  COALESCE(
-    CONCAT(p.apellidos,' ',p.nombres),
-    e.nomcomercial
-  ) AS cliente,
-
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-
-  -- Campos de PRODUCTO
-  CONCAT(su.subcategoria,' ', pr.descripcion) AS producto,
-  dv.cantidad,
-  dv.precioventa AS precio,
-  dv.descuento,
-  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
-
-  -- Campos de SERVICIO = NULL aquí
-  NULL AS tiposervicio,
-  NULL AS nombreservicio,
-  NULL AS mecanico,
-  NULL AS precio_servicio,
-  'producto' AS registro_tipo
-
-FROM ventas v
-  LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
-  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
-  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
-
-  LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
-  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
-  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
-
-  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
-  LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
-  LEFT JOIN tipovehiculos tv  ON m.idtipov        = tv.idtipov
-  LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
-
-  JOIN detalleventa       dv   ON v.idventa        = dv.idventa
-  JOIN productos          pr   ON dv.idproducto    = pr.idproducto
-  JOIN subcategorias      su   ON pr.idsubcategoria = su.idsubcategoria
-
-WHERE v.estado = TRUE
-
-UNION ALL
-
--- 2) Parte de SERVICIOS
-SELECT
-  v.idventa,
-  v.fechahora,
-
-  COALESCE(
-    CASE 
-      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
-      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
-    END,
-    'Sin propietario'
-  ) AS propietario,
-
-  COALESCE(
-    CONCAT(p.apellidos,' ',p.nombres),
-    e.nomcomercial
-  ) AS cliente,
-
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-
-  -- Campos de PRODUCTO = NULL aquí
-  NULL AS producto,
-  NULL AS cantidad,
-  NULL AS precio,
-  NULL AS descuento,
-  NULL AS total_producto,
-
-  -- Campos de SERVICIO (ahora sí llenos)
-  sc.subcategoria   AS tiposervicio,
-  se.servicio       AS nombreservicio,
-  col.namuser       AS mecanico,
-  dos.precio        AS precio_servicio,
-  'servicio'        AS registro_tipo
-
-FROM ventas v
-  LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
-  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
-  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
-
-  LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
-  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
-  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
-
-  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
-  LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
-  LEFT JOIN tipovehiculos tv  ON m.idtipov        = tv.idtipov
-  LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
-
-  -- Aquí está la corrección: unimos por el id de orden real
-  LEFT JOIN ordenservicios         os   ON v.idexpediente_ot = os.idorden
-  LEFT JOIN detalleordenservicios  dos  ON os.idorden        = dos.idorden
-  LEFT JOIN servicios              se   ON dos.idservicio    = se.idservicio
-  LEFT JOIN subcategorias          sc   ON se.idsubcategoria = sc.idsubcategoria
-  LEFT JOIN colaboradores          col  ON dos.idmecanico    = col.idcolaborador
-
-WHERE v.estado = TRUE
-  AND dos.idorden IS NOT NULL;
-*/
-
-/*
--- CON ESTA VISTA SE ESTABA DUPLICANDO
-DROP VIEW IF EXISTS vista_detalle_venta;
-CREATE VIEW vista_detalle_venta AS
-SELECT
-  v.idventa,
-  v.fechahora,
-  -- Propietario (directo desde clientes)
-  COALESCE(
-    CASE 
-      WHEN propc.idempresa IS NOT NULL 
-        THEN epc.nomcomercial
-      WHEN propc.idpersona IS NOT NULL 
-        THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
-    END,
-    'Sin propietario'
-  ) AS propietario,
-
-  -- Cliente (vendedor u otro cliente)
-  COALESCE(
-    CONCAT(p.apellidos,' ',p.nombres),
-    e.nomcomercial
-  ) AS cliente,
-
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-
-  -- Campos de producto
-  CONCAT(su.subcategoria,' ', pr.descripcion) AS producto,
-  dv.cantidad,
-  dv.precioventa AS precio,
-  dv.descuento,
-  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
-
-  -- Campos de servicio = NULL en esta parte
-  NULL AS tiposervicio,
-  NULL AS nombreservicio,
-  NULL AS mecanico,
-  NULL AS precio_servicio,
-  'producto' AS registro_tipo
-
-FROM ventas v
-  LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
-  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
-  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
-
-  LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
-  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
-  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
-
-  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
-  LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
-  LEFT JOIN tipovehiculos tv  ON m.idtipov        = tv.idtipov
-  LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
-
-  JOIN detalleventa       dv   ON v.idventa        = dv.idventa
-  JOIN productos          pr   ON dv.idproducto    = pr.idproducto
-  JOIN subcategorias      su   ON pr.idsubcategoria = su.idsubcategoria
-
-WHERE v.estado = TRUE
-
-UNION ALL
-
-SELECT
-  v.idventa,
-  v.fechahora,
-  COALESCE(
-    CASE 
-      WHEN propc.idempresa IS NOT NULL 
-        THEN epc.nomcomercial
-      WHEN propc.idpersona IS NOT NULL 
-        THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
-    END,
-    'Sin propietario'
-  ) AS propietario,
-
-  COALESCE(
-    CONCAT(p.apellidos,' ',p.nombres),
-    e.nomcomercial
-  ) AS cliente,
-
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-
-  NULL AS producto,
-  NULL AS cantidad,
-  NULL AS precio,
-  NULL AS descuento,
-  NULL AS total_producto,
-
-  sc.subcategoria AS tiposervicio,
-  se.servicio      AS nombreservicio,
-  col.namuser      AS mecanico,
-  dos.precio       AS precio_servicio,
-  'servicio' AS registro_tipo
-
-FROM ventas v
-  LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
-  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
-  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
-
-  LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
-  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
-  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
-
-  LEFT JOIN vehiculos      vh  ON v.idvehiculo     = vh.idvehiculo
-  LEFT JOIN modelos        m   ON vh.idmodelo      = m.idmodelo
-  LEFT JOIN tipovehiculos tv  ON m.idtipov        = tv.idtipov
-  LEFT JOIN marcas         ma  ON m.idmarca        = ma.idmarca
-
-  LEFT JOIN ordenservicios         os   ON v.idpropietario = os.idpropietario
-                                     AND DATE(v.fechahora) = DATE(os.fechaingreso)
-  LEFT JOIN detalleordenservicios  dos  ON os.idorden     = dos.idorden
-  LEFT JOIN servicios              se   ON dos.idservicio    = se.idservicio
-  LEFT JOIN subcategorias          sc   ON se.idsubcategoria = sc.idsubcategoria
-  LEFT JOIN colaboradores          col  ON dos.idmecanico    = col.idcolaborador
-
-WHERE v.estado = TRUE
-  AND dos.idorden IS NOT NULL;
-*/
-
-/* REAL no fake
-DROP VIEW IF EXISTS vista_detalle_venta;
-CREATE VIEW vista_detalle_venta AS
--- filas de productos
-SELECT
-  v.idventa,
-  v.fechahora,
-  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-  -- columnas de producto
-  CONCAT(su.subcategoria,' ', pr.descripcion) AS producto,
-  dv.cantidad,
-  dv.precioventa AS precio,
-  dv.descuento,
-  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
-  -- campos de servicio nulos
-  NULL AS tiposervicio,
-  NULL AS nombreservicio,
-  NULL AS mecanico,
-  NULL AS precio_servicio,
-  'producto' AS registro_tipo
-FROM ventas v
-LEFT JOIN clientes cte        ON v.idcliente = cte.idcliente
-LEFT JOIN personas p     ON cte.idpersona = p.idpersona
-LEFT JOIN empresas e     ON cte.idempresa = e.idempresa
-LEFT JOIN vehiculos vh   ON v.idvehiculo = vh.idvehiculo
-LEFT JOIN modelos m      ON vh.idmodelo  = m.idmodelo
-LEFT JOIN tipovehiculos tv ON m.idtipov  = tv.idtipov
-LEFT JOIN marcas ma      ON m.idmarca    = ma.idmarca
-JOIN detalleventa dv     ON v.idventa    = dv.idventa
-JOIN productos pr        ON dv.idproducto= pr.idproducto
-JOIN subcategorias su    ON pr.idsubcategoria = su.idsubcategoria
-WHERE v.estado = TRUE
-UNION ALL
--- filas de servicios
-SELECT
-  v.idventa,
-  v.fechahora,
-  COALESCE(CONCAT(p.apellidos,' ',p.nombres), e.nomcomercial) AS cliente,
-  v.kilometraje,
-  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
-  -- campos de producto nulos
-  NULL AS producto,
-  NULL AS cantidad,
-  NULL AS precio,
-  NULL AS descuento,
-  NULL AS total_producto,
-  -- columnas de servicio
-  sc.subcategoria AS tiposervicio,
-  se.servicio      AS nombreservicio,
-  col.namuser      AS mecanico,
-  dos.precio       AS precio_servicio,
-  'servicio' AS registro_tipo
-FROM ventas v
-LEFT JOIN clientes cte        ON v.idcliente = cte.idcliente
-LEFT JOIN personas p     ON cte.idpersona = p.idpersona
-LEFT JOIN empresas e     ON cte.idempresa = e.idempresa
-LEFT JOIN vehiculos vh   ON v.idvehiculo = vh.idvehiculo
-LEFT JOIN modelos m      ON vh.idmodelo  = m.idmodelo
-LEFT JOIN tipovehiculos tv ON m.idtipov  = tv.idtipov
-LEFT JOIN marcas ma      ON m.idmarca    = ma.idmarca
-LEFT JOIN ordenservicios os ON v.idpropietario   = os.idpropietario AND DATE(v.fechahora) = DATE(os.fechaingreso)
-LEFT JOIN detalleordenservicios dos ON os.idorden = dos.idorden
-LEFT JOIN servicios se            ON dos.idservicio    = se.idservicio
-LEFT JOIN subcategorias sc        ON se.idsubcategoria = sc.idsubcategoria
-LEFT JOIN colaboradores col       ON dos.idmecanico    = col.idcolaborador
-WHERE v.estado = TRUE;*/
 
 -- VISTA DE VENTAS PDF
 DROP VIEW IF EXISTS vista_detalle_venta_pdf;

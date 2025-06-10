@@ -38,8 +38,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // 1) Función para habilitar/deshabilitar el botón “Guardar”
   function actualizarEstadoGuardar() {
     const tieneProductos = detalleVenta.length > 0;
-    const propietarioSeleccionado = !!document.getElementById("hiddenIdPropietario").value.trim();
-    btnFinalizarVenta.disabled = !(tieneProductos && propietarioSeleccionado);
+    const tieneServicios = detalleServicios.length > 0;
+    const propietarioSeleccionado = !!hiddenIdPropietario.value.trim();
+    // Habilita si hay al menos un producto o un servicio y hay propietario
+    btnFinalizarVenta.disabled = !((tieneProductos || tieneServicios) && propietarioSeleccionado);
   }
   actualizarEstadoGuardar();
 
@@ -182,7 +184,6 @@ document.addEventListener("DOMContentLoaded", function () {
     )}-${pad(twoDaysAgo.getDate())}T00:00`;
     input.max = `${yyyy}-${MM}-${dd}T23:59`;
   }
-
 
   btnToggleService.addEventListener("click", function (e) {
     e.preventDefault();
@@ -508,12 +509,14 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.remove();
       actualizarNumerosServicios(); // renumera servicios
       calcularTotales(); // recalcula sumas
+      actualizarEstadoGuardar();
     });
     tablaServ.appendChild(tr);
 
     // 3) Limpia el campo de precio para la próxima vez
     inputPrecioServicio.value = "";
     calcularTotales();
+    actualizarEstadoGuardar();
   });
 
   // --- Agregar Producto al Detalle ---
