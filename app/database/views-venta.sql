@@ -437,6 +437,119 @@ WHERE v.estado = TRUE;*/
 DROP VIEW IF EXISTS vista_detalle_venta_pdf;
 CREATE VIEW vista_detalle_venta_pdf AS
 
+-- === 1) PRODUCTOS ===
+SELECT
+  v.idventa,
+  v.tipocom,
+  v.numcom    AS numcomp,
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+  COALESCE(
+    CASE 
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
+  v.fechahora AS fecha,
+  v.kilometraje,
+  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+  CONCAT(su.subcategoria,' ',pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa AS precio,
+  dv.descuento,
+  ROUND((dv.precioventa - dv.descuento)*dv.cantidad, 2) AS total_producto,
+  NULL AS tiposervicio,
+  NULL AS nombreservicio,
+  NULL AS mecanico,
+  NULL AS precio_servicio,
+  'producto' AS registro_tipo
+
+FROM ventas v
+  LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
+  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
+  LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
+  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
+  LEFT JOIN vehiculos    vh    ON v.idvehiculo     = vh.idvehiculo
+  LEFT JOIN modelos      m     ON vh.idmodelo      = m.idmodelo
+  LEFT JOIN tipovehiculos tv   ON m.idtipov        = tv.idtipov
+  LEFT JOIN marcas       ma    ON m.idmarca        = ma.idmarca
+  JOIN detalleventa      dv    ON dv.idventa       = v.idventa
+  JOIN productos         pr    ON pr.idproducto    = dv.idproducto
+  JOIN subcategorias     su    ON su.idsubcategoria = pr.idsubcategoria
+
+WHERE v.estado = TRUE
+
+UNION ALL
+
+-- === 2) SERVICIOS ===
+SELECT
+  v.idventa,
+  v.tipocom,
+  v.numcom    AS numcomp,
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+  COALESCE(
+    CASE 
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
+  v.fechahora AS fecha,
+  v.kilometraje,
+  CONCAT(tv.tipov,' ',ma.nombre,' ',vh.color,' (',vh.placa,')') AS vehiculo,
+  NULL AS producto,
+  NULL AS cantidad,
+  NULL AS precio,
+  NULL AS descuento,
+  NULL AS total_producto,
+  sc.subcategoria   AS tiposervicio,
+  se.servicio       AS nombreservicio,
+  -- Ahora usamos COALESCE para mostrar col.namuser o, si es NULL, el nombre completo de percol
+  COALESCE(col.namuser, CONCAT(percol.nombres, ' ', percol.apellidos)) AS mecanico,
+  dos.precio        AS precio_servicio,
+  'servicio'        AS registro_tipo
+
+FROM ventas v
+  LEFT JOIN clientes     propc ON v.idpropietario = propc.idcliente
+  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
+  LEFT JOIN clientes     cte   ON v.idcliente      = cte.idcliente
+  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
+  LEFT JOIN vehiculos    vh    ON v.idvehiculo     = vh.idvehiculo
+  LEFT JOIN modelos      m     ON vh.idmodelo      = m.idmodelo
+  LEFT JOIN tipovehiculos tv   ON m.idtipov        = tv.idtipov
+  LEFT JOIN marcas       ma    ON m.idmarca        = ma.idmarca
+
+  LEFT JOIN ordenservicios         os   ON v.idexpediente_ot = os.idorden
+  LEFT JOIN detalleordenservicios  dos  ON dos.idorden       = os.idorden
+  LEFT JOIN servicios              se   ON dos.idservicio    = se.idservicio
+  LEFT JOIN subcategorias          sc   ON sc.idsubcategoria = se.idsubcategoria
+  LEFT JOIN colaboradores          col  ON col.idcolaborador = dos.idmecanico
+  LEFT JOIN contratos              con  ON col.idcontrato    = con.idcontrato
+  LEFT JOIN personas               percol ON con.idpersona   = percol.idpersona
+
+WHERE v.estado = TRUE
+  AND dos.idorden IS NOT NULL;
+
+/*
+DROP VIEW IF EXISTS vista_detalle_venta_pdf;
+CREATE VIEW vista_detalle_venta_pdf AS
+
 -- 1) PRODUCTOS
 SELECT
   v.idventa,
@@ -568,6 +681,7 @@ FROM ventas v
 
 WHERE v.estado = TRUE
   AND dos.idorden IS NOT NULL;
+*/
   
 /*
 DROP VIEW IF EXISTS vista_detalle_venta_pdf;
