@@ -898,12 +898,12 @@ require_once "../../partials/_footer.php";
                 <!-- NUEVOS CAMPOS PARA SERIE Y NÚMERO DE COMPROBANTE -->
                 <div class="mb-3">
                     <label class="form-label">Serie</label>
-                    <input type="text" id="numSerieCombinar" class="form-control" readonly
+                    <input type="text" id="numSerieCombinar" class="form-control input" readonly
                         placeholder="Se genera automáticamente">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Número de Comprobante</label>
-                    <input type="text" id="numComCombinar" class="form-control" readonly
+                    <input type="text" id="numComCombinar" class="form-control input" readonly
                         placeholder="Se genera automáticamente">
                 </div>
 

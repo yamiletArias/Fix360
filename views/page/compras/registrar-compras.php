@@ -198,117 +198,139 @@ require_once "../../partials/header.php";
     <div class="modal-content" style="background-color: #fff; color: #000;">
       <div class="modal-header">
         <h5 class="modal-title">Registrar producto</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
         <form id="form-nuevo-producto">
           <div class="row g-3">
+
+            <!-- Marca -->
             <div class="col-12">
-              <div class="form-floating d-flex align-items-center">
-                <select class="form-select" id="marca" name="idmarca" required
-                  style="background-color: white; color: black;">
-                  <option>Seleccione una opción</option>
+              <div class="form-floating input-group mb-3">
+                <select class="form-select" id="marca" name="idmarca" style="color: black;" required>
+                  <option value="">Seleccione una opcion</option>
                 </select>
-                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
+                <label for="marca">Marca:</label>
+                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
                   data-bs-target="#modalMarca">
                   <i class="fa-solid fa-plus"></i>
                 </button>
-                <label for="marca" class="mb-0 ms-2">Marca:</label>
               </div>
             </div>
+
+            <!-- Categoría -->
             <div class="col-12">
-              <div class="form-floating d-flex align-items-center">
-                <select class="form-select" id="categoria" name="categoria" required
-                  style="background-color: white; color: black;">
-                  <option>Seleccione una opción</option>
+              <div class="form-floating input-group mb-3">
+                <select class="form-select" id="categoria" name="categoria" style="color: black;" required>
+                  <option value="">Seleccione una opcion</option>
                 </select>
-                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
+                <label for="categoria">Categoría:</label>
+                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
                   data-bs-target="#modalCategoria">
                   <i class="fa-solid fa-plus"></i>
                 </button>
-                <label for="categoria" class="mb-0 ms-2">Categoría:</label>
               </div>
             </div>
+
+            <!-- Subcategoría -->
             <div class="col-12">
-              <div class="form-floating d-flex align-items-center">
-                <select class="form-select" id="subcategoria" name="subcategoria" required
-                  style="background-color: white; color: black;">
-                  <option value="">Seleccione una opción</option>
+              <div class="form-floating input-group mb-3">
+                <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
+                  <option value="">Seleccione una opcion</option>
                 </select>
-                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
+                <label for="subcategoria">Subcategoría:</label>
+                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
                   data-bs-target="#modalSubcategoria">
                   <i class="fa-solid fa-plus"></i>
                 </button>
-                <label for="subcategoria" class="mb-0 ms-2">Subcategoría:</label>
               </div>
             </div>
+
+            <!-- Descripción -->
             <div class="col-12">
               <div class="form-floating">
                 <textarea class="form-control input" id="descripcion" name="descripcion" placeholder="Descripción"
-                  style="height: 70px; background-color: white; color: black;"></textarea>
-                <label for="descripcion">Descripción:</label>
+                  style="height: 70px;"></textarea>
+                <label for="descripcion">Descripción</label>
               </div>
             </div>
+
+            <!-- Presentación -->
             <div class="col-12">
               <div class="form-floating">
                 <input type="text" class="form-control input" id="presentacion" name="presentacion"
-                  placeholder="Presentación" style="background-color: white; color: black;" />
-                <label for="presentacion">Presentación:</label>
+                  placeholder="Presentación" />
+                <label for="presentacion">Presentación</label>
               </div>
             </div>
+
+            <!-- Cantidad -->
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" class="form-control input" id="cantidad" name="cantidad" placeholder="Cantidad"
-                  style="background-color: white; color: black;" />
-                <label for="cantidad">Cantidad:</label>
+                <input type="number" class="form-control input" step="0.1" id="cantidad" name="cantidad"
+                  placeholder="Cantidad" min="0" />
+                <label for="cantidad">Cantidad</label>
               </div>
             </div>
+
+            <!-- Unidad de Medida -->
             <div class="col-6">
               <div class="form-floating">
                 <input type="text" class="form-control input" id="undmedida" name="undmedida"
-                  placeholder="Unidad de Medida" style="background-color: white; color: black;" />
-                <label for="undmedida">Und. Medida:</label>
+                  placeholder="Unidad de Medida" />
+                <label for="undmedida">Und. de Medida</label>
               </div>
             </div>
+
+            <!-- Precio -->
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" class="form-control input" id="precio" name="precio" placeholder="Precio"
-                  style="background-color: white; color: black;" />
-                <label for="precio">Precio:</label>
+                <input type="number" class="form-control input" step="0.1" id="precio" name="precio"
+                  placeholder="Precio" min="0" />
+                <label for="precio">Precio</label>
               </div>
             </div>
+
+            <!-- Stock Actual -->
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" step="0.1" class="form-control input" id="stockInicial" name="stockInicial"
-                  placeholder="stockInicial" min="0" />
+                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial"
+                  placeholder="Stock Actual" min="0" />
                 <label for="stockInicial">Stock Actual</label>
               </div>
             </div>
+
+            <!-- Stock Mínimo -->
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" step="0.1" class="form-control input" id="stockmin" name="stockmin"
-                  placeholder="stockmin" min="0" />
+                <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin"
+                  placeholder="Stock min." min="0" />
                 <label for="stockmin">Stock min.</label>
               </div>
             </div>
+
+            <!-- Stock Máximo -->
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax"
-                  placeholder="stockmax" min="0" />
+                <input type="number" class="form-control input" step="0.1" id="stockmax" name="stockmax"
+                  placeholder="Stock max." min="0" />
                 <label for="stockmax">Stock max.</label>
               </div>
             </div>
+
+            <!-- Imagen -->
             <div class="col-12">
-              <label for="img" class="form-label input" style="color: black;">Imagen del producto:</label>
-              <input type="file" class="form-control" id="img" name="img" accept="image/png, image/jpeg"
-                style="background-color: white; color: black;" />
+              <label for="img" class="form-label">Imagen del producto:</label>
+              <input type="file" class="form-control input-img" id="img" name="img" accept="image/png, image/jpeg" />
             </div>
+
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary btn-sm" id="btnRegistrarProducto">Guardar</button>
+        <button type="submit" class="btn btn-primary btn-sm" id="btnRegistrarProducto"
+          form="form-nuevo-producto">Guardar</button>
       </div>
     </div>
   </div>
