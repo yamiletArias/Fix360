@@ -5,6 +5,10 @@ require_once "../../../app/config/app.php";
 require_once "../../partials/header.php";
 ?>
 <style>
+    #comboTipocom {
+        color: black;
+    }
+
     #am_formapago {
         color: black;
         /* Cambia solo el color de la letra */
@@ -1066,7 +1070,7 @@ require_once "../../partials/_footer.php";
             </div>
             <div class="modal-body">
                 <p>¿Por qué deseas eliminar esta Venta? (Escribe una justificación)</p>
-                <textarea id="justificacion" class="form-control" rows="4"
+                <textarea id="justificacion" class="form-control input" rows="4"
                     placeholder="Escribe tu justificación aquí..."></textarea>
             </div>
             <div class="modal-footer">

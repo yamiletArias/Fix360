@@ -193,15 +193,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // 11) Registro de venta (con o sin orden de servicio)
     // 1) Determinar si es orden de trabajo
-    $conOrden      = !empty($data['servicios']);
-    $idvehiculo    = (!empty($data['idvehiculo']) ? (int)$data['idvehiculo'] : null);
-    $kilometraje   = isset($data['kilometraje']) ? floatval($data['kilometraje']) : 0;
+    $conOrden = !empty($data['servicios']);
+    $idvehiculo = (!empty($data['idvehiculo']) ? (int) $data['idvehiculo'] : null);
+    $kilometraje = isset($data['kilometraje']) ? floatval($data['kilometraje']) : 0;
     if ($conOrden && ($idvehiculo === null || $kilometraje <= 0)) {
-        echo json_encode([
-            'status'  => 'error',
-            'message' => 'Para registrar una Orden de Trabajo con servicios, se requieren vehículo y kilometraje válidos.'
-        ]);
-        exit;
+      echo json_encode([
+        'status' => 'error',
+        'message' => 'Para registrar una Orden de Trabajo con servicios, se requieren vehículo y kilometraje válidos.'
+      ]);
+      exit;
     }
 
 
@@ -215,22 +215,22 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // 2) Armar parámetros para el método
     $params = [
-        'servicios'     => $data['servicios']   ?? [],
-        'productos'     => $data['productos']   ?? [],
-        'conOrden'      => $conOrden,
-        'idcolaborador' => $_SESSION['login']['idcolaborador'],
-        'idpropietario'=> $data['idpropietario'] ?? 0,
-        'idcliente'    => (!empty($data['idcliente']) ? (int)$data['idcliente'] : null),
-        'idvehiculo'   => $idvehiculo,
-        'kilometraje'  => $kilometraje,
-        'observaciones'=> trim($data['observaciones'] ?? ''),
-        'ingresogrua'  => !empty($data['ingresogrua']) ? 1 : 0,
-        'fechaingreso' => $data['fechaingreso'] ?? null,
-        'tipocom'      => $data['tipocom']     ?? '',
-        'fechahora'    => $data['fechahora']   ?? null,
-        'numserie'     => $data['numserie']    ?? '',
-        'numcom'       => $data['numcom']      ?? '',
-        'moneda'       => $data['moneda']      ?? '',
+      'servicios' => $data['servicios'] ?? [],
+      'productos' => $data['productos'] ?? [],
+      'conOrden' => $conOrden,
+      'idcolaborador' => $_SESSION['login']['idcolaborador'],
+      'idpropietario' => $data['idpropietario'] ?? 0,
+      'idcliente' => (!empty($data['idcliente']) ? (int) $data['idcliente'] : null),
+      'idvehiculo' => $idvehiculo,
+      'kilometraje' => $kilometraje,
+      'observaciones' => trim($data['observaciones'] ?? ''),
+      'ingresogrua' => !empty($data['ingresogrua']) ? 1 : 0,
+      'fechaingreso' => $data['fechaingreso'] ?? null,
+      'tipocom' => $data['tipocom'] ?? '',
+      'fechahora' => $data['fechahora'] ?? null,
+      'numserie' => $data['numserie'] ?? '',
+      'numcom' => $data['numcom'] ?? '',
+      'moneda' => $data['moneda'] ?? '',
     ];
 
     try {

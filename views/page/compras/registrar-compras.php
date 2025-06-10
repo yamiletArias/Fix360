@@ -244,62 +244,62 @@ require_once "../../partials/header.php";
             </div>
             <div class="col-12">
               <div class="form-floating">
-                <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Descripción"
+                <textarea class="form-control input" id="descripcion" name="descripcion" placeholder="Descripción"
                   style="height: 70px; background-color: white; color: black;"></textarea>
                 <label for="descripcion">Descripción:</label>
               </div>
             </div>
             <div class="col-12">
               <div class="form-floating">
-                <input type="text" class="form-control" id="presentacion" name="presentacion" placeholder="Presentación"
-                  style="background-color: white; color: black;" />
+                <input type="text" class="form-control input" id="presentacion" name="presentacion"
+                  placeholder="Presentación" style="background-color: white; color: black;" />
                 <label for="presentacion">Presentación:</label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad"
+                <input type="number" class="form-control input" id="cantidad" name="cantidad" placeholder="Cantidad"
                   style="background-color: white; color: black;" />
                 <label for="cantidad">Cantidad:</label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="Unidad de Medida"
-                  style="background-color: white; color: black;" />
+                <input type="text" class="form-control input" id="undmedida" name="undmedida"
+                  placeholder="Unidad de Medida" style="background-color: white; color: black;" />
                 <label for="undmedida">Und. Medida:</label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio"
+                <input type="number" class="form-control input" id="precio" name="precio" placeholder="Precio"
                   style="background-color: white; color: black;" />
                 <label for="precio">Precio:</label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" step="0.1" class="form-control" id="stockInicial" name="stockInicial"
+                <input type="number" step="0.1" class="form-control input" id="stockInicial" name="stockInicial"
                   placeholder="stockInicial" min="0" />
                 <label for="stockInicial">Stock Actual</label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" step="0.1" class="form-control" id="stockmin" name="stockmin"
+                <input type="number" step="0.1" class="form-control input" id="stockmin" name="stockmin"
                   placeholder="stockmin" min="0" />
                 <label for="stockmin">Stock min.</label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="number" step="0.1" class="form-control" id="stockmax" name="stockmax"
+                <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax"
                   placeholder="stockmax" min="0" />
                 <label for="stockmax">Stock max.</label>
               </div>
             </div>
             <div class="col-12">
-              <label for="img" class="form-label" style="color: black;">Imagen del producto:</label>
+              <label for="img" class="form-label input" style="color: black;">Imagen del producto:</label>
               <input type="file" class="form-control" id="img" name="img" accept="image/png, image/jpeg"
                 style="background-color: white; color: black;" />
             </div>
@@ -396,14 +396,14 @@ require_once "../../partials/header.php";
           <div class="row g-3">
             <div class="col-12">
               <div class="form-floating">
-                <input type="text" id="ruc" name="ruc" class="form-control" placeholder="RUC" minlength="11"
+                <input type="text" id="ruc" name="ruc" class="form-control input" placeholder="RUC" minlength="11"
                   maxlength="11" required style="background-color: white; color: black;" />
                 <label for="ruc"><strong>RUC</strong></label>
               </div>
             </div>
             <div class="col-12">
               <div class="form-floating">
-                <input type="text" id="nomcomercial" name="nomcomercial" class="form-control"
+                <input type="text" id="nomcomercial" name="nomcomercial" class="form-control input"
                   placeholder="Nombre Comercial" minlength="5" maxlength="100" required
                   style="background-color: white; color: black;" />
                 <label for="nomcomercial"><strong>Nombre Comercial</strong></label>
@@ -411,21 +411,22 @@ require_once "../../partials/header.php";
             </div>
             <div class="col-12">
               <div class="form-floating">
-                <input type="text" id="razonsocial" name="razonsocial" class="form-control" placeholder="Razón Social"
-                  minlength="5" maxlength="100" required style="background-color: white; color: black;" />
+                <input type="text" id="razonsocial" name="razonsocial" class="form-control input"
+                  placeholder="Razón Social" minlength="5" maxlength="100" required
+                  style="background-color: white; color: black;" />
                 <label for="razonsocial"><strong>Razón Social</strong></label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="text" id="telempresa" name="telempresa" class="form-control" placeholder="Teléfono"
+                <input type="text" id="telempresa" name="telempresa" class="form-control input" placeholder="Teléfono"
                   minlength="9" maxlength="9" style="background-color: white; color: black;" />
                 <label for="telempresa"><strong>Teléfono</strong></label>
               </div>
             </div>
             <div class="col-6">
               <div class="form-floating">
-                <input type="email" id="correoemp" name="correoemp" class="form-control" placeholder="Correo"
+                <input type="email" id="correoemp" name="correoemp" class="form-control input" placeholder="Correo"
                   minlength="10" maxlength="100" style="background-color: white; color: black;" />
                 <label for="correoemp"><strong>Correo</strong></label>
               </div>

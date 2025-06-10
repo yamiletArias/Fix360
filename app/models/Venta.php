@@ -336,30 +336,30 @@ class Venta extends Conexion
         }
     }
 
-public function registerVentasConOrden(array $params): array
-{
-    // 1) VALIDACIÓN PREVIA
-    $conOrden        = !empty($params['servicios']);
-    $tipocom         = $params['tipocom'] ?? '';
-    $esOrdenTrabajo  = $conOrden || (strcasecmp($tipocom, 'orden de trabajo') === 0);
+    public function registerVentasConOrden(array $params): array
+    {
+        // 1) VALIDACIÓN PREVIA
+        $conOrden = !empty($params['servicios']);
+        $tipocom = $params['tipocom'] ?? '';
+        $esOrdenTrabajo = $conOrden || (strcasecmp($tipocom, 'orden de trabajo') === 0);
 
-    if ($esOrdenTrabajo) {
-        if (empty($params['idvehiculo'])) {
-            throw new Exception("Orden de Trabajo: debe especificarse un vehículo.");
+        if ($esOrdenTrabajo) {
+            if (empty($params['idvehiculo'])) {
+                throw new Exception("Orden de Trabajo: debe especificarse un vehículo.");
+            }
+            $kilometraje = isset($params['kilometraje']) ? floatval($params['kilometraje']) : 0;
+            if ($kilometraje <= 0) {
+                throw new Exception("Orden de Trabajo: el kilometraje debe ser mayor que cero.");
+            }
         }
-        $kilometraje = isset($params['kilometraje']) ? floatval($params['kilometraje']) : 0;
-        if ($kilometraje <= 0) {
-            throw new Exception("Orden de Trabajo: el kilometraje debe ser mayor que cero.");
-        }
-    }
 
-    try {
-        $pdo = $this->pdo;
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->beginTransaction();
+        try {
+            $pdo = $this->pdo;
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
 
-        // 2) Llamada al SP unificado con los 15 parámetros en orden
-        $sql = "CALL spRegisterVentaConOrden(
+            // 2) Llamada al SP unificado con los 15 parámetros en orden
+            $sql = "CALL spRegisterVentaConOrden(
             ?,  -- _conOrden
             ?,  -- _idadmin
             ?,  -- _idpropietario
@@ -376,78 +376,78 @@ public function registerVentasConOrden(array $params): array
             ?,  -- _moneda
             ?   -- _idcolaborador
         )";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $conOrden,                           // 1) true|false según servicios
-            $params['idcolaborador'],            // 2) idadmin
-            $params['idpropietario'],            // 3) idpropietario
-            $params['idcliente'],                // 4) idcliente
-            $params['idvehiculo'],               // 5) idvehiculo
-            $params['kilometraje'],              // 6) kilometraje
-            $params['observaciones'],            // 7) observaciones
-            $params['ingresogrua'],              // 8) ingresogrua
-            $params['fechaingreso'] ?? null,     // 9) fechaingreso
-            $params['tipocom'],                  // 10) tipocom
-            $params['fechahora'],                // 11) fechahora
-            $params['numserie'],                 // 12) numserie
-            $params['numcom'],                   // 13) numcom
-            $params['moneda'],                   // 14) moneda
-            $params['idcolaborador'],            // 15) idcolaborador
-        ]);
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                $conOrden,                           // 1) true|false según servicios
+                $params['idcolaborador'],            // 2) idadmin
+                $params['idpropietario'],            // 3) idpropietario
+                $params['idcliente'],                // 4) idcliente
+                $params['idvehiculo'],               // 5) idvehiculo
+                $params['kilometraje'],              // 6) kilometraje
+                $params['observaciones'],            // 7) observaciones
+                $params['ingresogrua'],              // 8) ingresogrua
+                $params['fechaingreso'] ?? null,     // 9) fechaingreso
+                $params['tipocom'],                  // 10) tipocom
+                $params['fechahora'],                // 11) fechahora
+                $params['numserie'],                 // 12) numserie
+                $params['numcom'],                   // 13) numcom
+                $params['moneda'],                   // 14) moneda
+                $params['idcolaborador'],            // 15) idcolaborador
+            ]);
 
-        // 3) Recuperar idventa / idorden
-        $result = [];
-        do {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row && isset($row['idventa'])) {
-                $result = $row;
-                break;
+            // 3) Recuperar idventa / idorden
+            $result = [];
+            do {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($row && isset($row['idventa'])) {
+                    $result = $row;
+                    break;
+                }
+            } while ($stmt->nextRowset());
+            $stmt->closeCursor();
+            if (empty($result['idventa'])) {
+                throw new Exception("No se obtuvo idventa tras invocar spRegisterVentaConOrden");
             }
-        } while ($stmt->nextRowset());
-        $stmt->closeCursor();
-        if (empty($result['idventa'])) {
-            throw new Exception("No se obtuvo idventa tras invocar spRegisterVentaConOrden");
-        }
-        $idventa = (int) $result['idventa'];
-        $idorden = isset($result['idorden']) ? (int) $result['idorden'] : null;
+            $idventa = (int) $result['idventa'];
+            $idorden = isset($result['idorden']) ? (int) $result['idorden'] : null;
 
-        // 4) Detalle de productos
-        if (!empty($params['productos'])) {
-            $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?,?)");
-            foreach ($params['productos'] as $prod) {
-                $stmtProd->execute([
-                    $idventa,
-                    $prod['idproducto'],
-                    $prod['cantidad'],
-                    $prod['numserie']   ?? null,
-                    $prod['precio'],
-                    $prod['descuento'],
-                    true
-                ]);
+            // 4) Detalle de productos
+            if (!empty($params['productos'])) {
+                $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?,?)");
+                foreach ($params['productos'] as $prod) {
+                    $stmtProd->execute([
+                        $idventa,
+                        $prod['idproducto'],
+                        $prod['cantidad'],
+                        $prod['numserie'] ?? null,
+                        $prod['precio'],
+                        $prod['descuento'],
+                        true
+                    ]);
+                }
             }
-        }
 
-        // 5) Detalle de servicios (solo si hay orden y servicios)
-        if ($conOrden && !empty($params['servicios'])) {
-            $stmtServ = $pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
-            foreach ($params['servicios'] as $srv) {
-                $stmtServ->execute([
-                    $idorden,
-                    $srv['idservicio'],
-                    $srv['idmecanico'],
-                    $srv['precio']
-                ]);
+            // 5) Detalle de servicios (solo si hay orden y servicios)
+            if ($conOrden && !empty($params['servicios'])) {
+                $stmtServ = $pdo->prepare("CALL spInsertDetalleOrdenServicio(?,?,?,?)");
+                foreach ($params['servicios'] as $srv) {
+                    $stmtServ->execute([
+                        $idorden,
+                        $srv['idservicio'],
+                        $srv['idmecanico'],
+                        $srv['precio']
+                    ]);
+                }
             }
+
+            $pdo->commit();
+            return ['idventa' => $idventa, 'idorden' => $idorden];
+
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
         }
-
-        $pdo->commit();
-        return ['idventa' => $idventa, 'idorden' => $idorden];
-
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        throw $e;
     }
-}
 
     /**
      * Summary of combinarOtYCrearVenta
