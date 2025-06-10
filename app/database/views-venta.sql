@@ -1,7 +1,6 @@
 -- ************************* VISTA DE DETALLE DE VENTA *************************
 
 -- VISTA DE VENTAS CON ORDEN DE SERVICIO
-  
 -- ESTE ES EL QUE FUNCIONA (SIN DUPLICADOS)
 DROP VIEW IF EXISTS vista_detalle_venta;
 CREATE VIEW vista_detalle_venta AS
@@ -857,6 +856,138 @@ WHERE V.estado = FALSE;
 -- DETALLE DE VENTA ELIMINADA
 DROP VIEW IF EXISTS vista_detalle_venta_eliminada;
 CREATE VIEW vista_detalle_venta_eliminada AS
+
+-- 1) Productos anulados
+SELECT
+  v.idventa,
+  v.fechahora,
+
+  -- Cliente
+  COALESCE(
+    CASE 
+      WHEN cli.idempresa IS NOT NULL THEN emp.nomcomercial
+      WHEN cli.idpersona IS NOT NULL THEN CONCAT(per.apellidos, ' ', per.nombres)
+    END,
+    'Sin cliente'
+  ) AS cliente,
+
+  -- Propietario
+  COALESCE(
+    CASE 
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos, ' ', p.nombres)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  v.kilometraje,
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+
+  -- Detalles de producto
+  CONCAT(su.subcategoria, ' ', pr.descripcion) AS producto,
+  dv.cantidad,
+  dv.precioventa AS precio,
+  dv.descuento,
+  ROUND((dv.precioventa - dv.descuento) * dv.cantidad, 2) AS total_producto,
+
+  -- Campos nulos para servicio
+  NULL AS tiposervicio,
+  NULL AS nombreservicio,
+  NULL AS mecanico,
+  NULL AS precio_servicio,
+
+  'producto' AS registro_tipo
+
+FROM ventas v
+LEFT JOIN clientes cte    ON v.idpropietario = cte.idcliente
+LEFT JOIN personas p      ON cte.idpersona   = p.idpersona
+LEFT JOIN empresas e      ON cte.idempresa   = e.idempresa
+
+LEFT JOIN clientes cli    ON v.idcliente     = cli.idcliente
+LEFT JOIN personas per    ON cli.idpersona   = per.idpersona
+LEFT JOIN empresas emp    ON cli.idempresa   = emp.idempresa
+
+LEFT JOIN vehiculos vh    ON v.idvehiculo    = vh.idvehiculo
+LEFT JOIN modelos m       ON vh.idmodelo     = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov      = tv.idtipov
+LEFT JOIN marcas ma       ON m.idmarca       = ma.idmarca
+
+JOIN detalleventa dv      ON v.idventa       = dv.idventa
+JOIN productos pr         ON dv.idproducto   = pr.idproducto
+JOIN subcategorias su     ON pr.idsubcategoria = su.idsubcategoria
+WHERE v.estado = FALSE
+
+UNION ALL
+
+-- 2) Servicios anulados
+SELECT
+  v.idventa,
+  v.fechahora,
+
+  -- Cliente
+  COALESCE(
+    CASE 
+      WHEN cli.idempresa IS NOT NULL THEN emp.nomcomercial
+      WHEN cli.idpersona IS NOT NULL THEN CONCAT(per.apellidos, ' ', per.nombres)
+    END,
+    'Sin cliente'
+  ) AS cliente,
+
+  -- Propietario
+  COALESCE(
+    CASE 
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos, ' ', p.nombres)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  v.kilometraje,
+  CONCAT(tv.tipov, ' ', ma.nombre, ' ', vh.color, ' (', vh.placa, ')') AS vehiculo,
+
+  -- Campos nulos para producto
+  NULL AS producto,
+  NULL AS cantidad,
+  NULL AS precio,
+  NULL AS descuento,
+  NULL AS total_producto,
+
+  -- Detalles de servicio
+  sc.subcategoria AS tiposervicio,
+  se.servicio AS nombreservicio,
+  col.namuser AS mecanico,
+  dos.precio AS precio_servicio,
+
+  'servicio' AS registro_tipo
+
+FROM ventas v
+LEFT JOIN clientes cte    ON v.idpropietario = cte.idcliente
+LEFT JOIN personas p      ON cte.idpersona   = p.idpersona
+LEFT JOIN empresas e      ON cte.idempresa   = e.idempresa
+
+LEFT JOIN clientes cli    ON v.idcliente     = cli.idcliente
+LEFT JOIN personas per    ON cli.idpersona   = per.idpersona
+LEFT JOIN empresas emp    ON cli.idempresa   = emp.idempresa
+
+LEFT JOIN vehiculos vh    ON v.idvehiculo    = vh.idvehiculo
+LEFT JOIN modelos m       ON vh.idmodelo     = m.idmodelo
+LEFT JOIN tipovehiculos tv ON m.idtipov      = tv.idtipov
+LEFT JOIN marcas ma       ON m.idmarca       = ma.idmarca
+
+-- ✅ Corrección aquí: unión directa con idorden
+LEFT JOIN ordenservicios os          ON v.idexpediente_ot = os.idorden
+LEFT JOIN detalleordenservicios dos ON os.idorden        = dos.idorden
+LEFT JOIN servicios se              ON dos.idservicio    = se.idservicio
+LEFT JOIN subcategorias sc          ON se.idsubcategoria = sc.idsubcategoria
+LEFT JOIN colaboradores col         ON dos.idmecanico    = col.idcolaborador
+
+WHERE v.estado = FALSE
+  AND dos.idorden IS NOT NULL;
+  
+/* 
+-- sin servicios
+DROP VIEW IF EXISTS vista_detalle_venta_eliminada;
+CREATE VIEW vista_detalle_venta_eliminada AS
 -- Filas de productos
 SELECT
   v.idventa,
@@ -983,6 +1114,7 @@ LEFT JOIN servicios se              ON dos.idservicio = se.idservicio
 LEFT JOIN subcategorias sc          ON se.idsubcategoria = sc.idsubcategoria
 LEFT JOIN colaboradores col         ON dos.idmecanico = col.idcolaborador
 WHERE v.estado = FALSE;
+*/
 
 /*SELECT 
   v.idventa,

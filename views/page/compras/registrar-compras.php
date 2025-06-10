@@ -83,7 +83,7 @@ require_once "../../partials/header.php";
             <div class="form-floating input-group mb-3">
               <!-- Campo de búsqueda de Producto -->
               <input name="producto" id="producto" type="text" class="autocomplete-input form-control input"
-                placeholder="Buscar Producto" required>
+                placeholder="Buscar Producto" autofocus required>
               <label for="producto"><strong>Buscar Producto:</strong></label>
               <input type="hidden" id="hiddenIdCliente" />
               <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal"
@@ -449,10 +449,14 @@ require_once "../../partials/header.php";
 require_once "../../partials/_footer.php";
 ?>
 <script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
-<script src="<?= SERVERURL ?>views/page/compras/js/registrar-compras.js"></script>
+<script src="<?= SERVERURL ?>views/page/compras/js/registrar-compras-prueba.js"></script>
 <!-- js de carga moneda -->
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script src="<?= SERVERURL ?>views/page/clientes/js/registrar-cliente.js"></script>
+<script>
+  let selectedProduct = {};
+  const detalleCompra = [];
+</script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const modalEl = document.getElementById('modalNuevoProveedor');
@@ -506,13 +510,8 @@ require_once "../../partials/_footer.php";
     });
   });
 </script>
-<script>
-  // 1) Declárala UNA sola vez, arriba de todo:
-  let selectedProduct = {};
-  const detalleCompra = [];
-  let originalPrecio = 0;
-</script>
-<script>
+
+<!-- <script>
   document.addEventListener("DOMContentLoaded", () => {
     const fechaInput = document.getElementById("fechaIngreso");
     const btnPermitir = document.getElementById('btnPermitirFechaPasada');
@@ -549,7 +548,7 @@ require_once "../../partials/_footer.php";
       btnPermitir.title = "Fechas pasadas habilitadas";
     });
   });
-</script>
+</script> -->
 <script>
   document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
     e.preventDefault();
@@ -738,7 +737,6 @@ require_once "../../partials/_footer.php";
     });
   });
 </script>
-
 </body>
 
 </html>

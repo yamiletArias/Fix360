@@ -83,7 +83,7 @@ require_once "../../partials/header.php";
           <div class="col-md-3">
             <div class="form-floating">
               <select class="form-select" id="vehiculo" name="vehiculo" style="color:black;">
-                <option selected>Sin vehiculo</option>
+                <option value="" selected>Sin vehiculo</option>
               </select>
               <label for="vehiculo"><strong>Eliga un vehículo</strong></label>
             </div>
