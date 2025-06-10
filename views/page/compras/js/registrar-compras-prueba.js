@@ -19,19 +19,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const detalleCompra = [];
     numSerieInput.value = "";
     numComInput.value = "";
-    // ----- 3) Función para (des)habilitar el botón Guardar -----
+    // — Función que decide si habilitar o no el botón “Guardar” —
     function actualizarEstadoBotonGuardar() {
-        const proveedorValido = proveedorSelect.value &&
-            proveedorSelect.value !== "Selecciona proveedor";
+        const proveedorValido = proveedorSelect.value && proveedorSelect.value !== "Selecciona proveedor";
         const tieneProductos = detalleCompra.length > 0;
-        btnFinalizarCompra.disabled = !(proveedorValido && tieneProductos);
+        const serieValida = numSerieInput.value.trim() !== "";
+        const comprobanteValido = numComInput.value.trim() !== "";
+
+        // Sólo si todas las condiciones son verdaderas, el botón se habilita
+        btnFinalizarCompra.disabled = !(proveedorValido && tieneProductos && serieValida && comprobanteValido);
     }
 
-    // Llamada inicial para que al cargar la página ya esté correctamente deshabilitado
+    // — Inicialización y listeners para re-evaluar —
     actualizarEstadoBotonGuardar();
-
-    // Cuando cambie el proveedor, volver a evaluar
     proveedorSelect.addEventListener("change", actualizarEstadoBotonGuardar);
+    numSerieInput.addEventListener("input", actualizarEstadoBotonGuardar);
+    numComInput.addEventListener("input", actualizarEstadoBotonGuardar);
 
     // --- Funciones auxiliares ---
     function calcularTotales() {
