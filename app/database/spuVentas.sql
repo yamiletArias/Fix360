@@ -531,7 +531,6 @@ BEGIN
   COMMIT;
 END $$
 
--- 13) PROCEDIMIENTO PARA ANULAR VENTA (DEVOLUCIÓN DE STOCK)
 DROP PROCEDURE IF EXISTS spuDeleteVenta $$
 CREATE PROCEDURE spuDeleteVenta (
   IN _idventa       INT,
@@ -559,20 +558,28 @@ BEGIN
 
   START TRANSACTION;
 
+    -- Obtener fecha/hora de la venta
     SELECT fechahora INTO v_fechahora
     FROM ventas
     WHERE idventa = _idventa;
 
+    -- Anular la venta
     UPDATE ventas
     SET estado = FALSE,
         justificacion = _justificacion
     WHERE idventa = _idventa;
 
+    -- Anular orden de servicio
     UPDATE ordenservicios
     SET estado = 'I'
     WHERE idcliente = (SELECT idcliente FROM ventas WHERE idventa = _idventa)
       AND DATE(fechaingreso) = DATE(v_fechahora);
 
+    -- Eliminar amortización asociada
+    DELETE FROM amortizaciones
+    WHERE idventa = _idventa;
+
+    -- Devolver productos al stock
     OPEN cur;
     read_loop: LOOP
       FETCH cur INTO _idproducto, _cantidad;
@@ -615,6 +622,7 @@ BEGIN
 
   COMMIT;
 END $$
+
 
 -- 14) PROCEDIMIENTO PARA ELIMINAR COTIZACIÓN
 DROP PROCEDURE IF EXISTS spuDeleteCotizacion $$

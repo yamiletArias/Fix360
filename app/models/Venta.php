@@ -634,17 +634,22 @@ class Venta extends Conexion
                 ]);
             }
 
-            // 4.5) Transferir amortizaciones previas (si hubiere)
-            $amModel = new Amortizacion();
-            foreach ($amortPrevias as $prev) {
-                $amModel->create(
-                    'venta',
-                    $newVentaId,
-                    (int) $prev['idformapago'],
-                    (float) $prev['amortizacion'],
-                    $prev['numtransaccion']
-                );
+            // 4.5') ——> Re-asignar amortizaciones de las OT originales a la nueva venta
+            if (!empty($amortPrevias)) {
+                // Preparamos placeholders e índices
+                $inOt = implode(',', array_fill(0, count($idsOT), '?'));
+                $sqlUpd = "
+      UPDATE amortizaciones
+      SET idventa = ?, idcompra = NULL
+      WHERE idventa IN ($inOt)
+    ";
+                $stmtUpd = $this->pdo->prepare($sqlUpd);
+                // El primer parámetro para execute() es newVentaId,
+                // luego pasamos todos los idsOT en el mismo array:
+                $paramsUpd = array_merge([$newVentaId], $idsOT);
+                $stmtUpd->execute($paramsUpd);
             }
+
 
             // 4.6) Marcar como “C” (cerradas) las OT originales en ordenservicios
             $sqlOrd2 = "

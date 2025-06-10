@@ -176,27 +176,19 @@ document.addEventListener("DOMContentLoaded", function () {
     input.max = `${yyyy}-${MM}-${dd}T23:59`;
   }
 
+
   btnToggleService.addEventListener("click", function (e) {
     e.preventDefault();
 
-    // 1) Validar tipo de comprobante: si no es “orden de trabajo”, forzar o advertir
-    const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked').value;
-    if (tipoSeleccionado !== "orden de trabajo") {
-      // Puedes mostrar un toast o alerta
-      showToast("Para agregar servicios debes seleccionar tipo 'Orden de Trabajo'.", "WARNING", 2000);
-      return;
-    }
-
-    // 2) Validar que haya vehículo seleccionado
+    // 1) Validar que haya vehículo seleccionado
     const idVehiculo = vehiculoSelect.value;
     if (!idVehiculo) {
       showToast("Debes seleccionar un vehículo antes de agregar servicios.", "WARNING", 2000);
-      // Opcional: abrir dropdown de vehículo o enfocar el select:
       vehiculoSelect.focus();
       return;
     }
 
-    // 3) Validar kilometraje ingresado y coherente con prevKilometraje
+    // 2) Validar kilometraje ingresado y coherente con prevKilometraje
     const kmVal = parseFloat(kmInput.value);
     if (isNaN(kmVal) || kmInput.value.trim() === "") {
       showToast("Debes ingresar el kilometraje antes de agregar servicios.", "WARNING", 2000);
@@ -204,14 +196,17 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     if (prevKilometraje !== null && kmVal < prevKilometraje) {
-      showToast(`El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`, "ERROR", 2000);
+      showToast(
+        `El kilometraje no puede ser menor que el último registrado (${prevKilometraje}).`,
+        "ERROR",
+        2000
+      );
       kmInput.value = prevKilometraje;
       kmInput.focus();
       return;
     }
 
-    // Si todo OK, procede a mostrar la sección de servicios
-    // --- NUEVO: limpiar el arreglo y la tabla de servicios antes de mostrarla ---
+    // 3) Si todo OK, muestra la sección de servicios
     detalleServicios.length = 0;
     tablaServ.innerHTML = "";
     actualizarNumerosServicios();
@@ -219,7 +214,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("serviceSection").classList.remove("d-none");
     document.getElementById("serviceListCard").classList.remove("d-none");
 
-    // Deshabilitar el botón y ajustar estilo
     this.disabled = true;
     this.classList.remove("btn-success");
     this.classList.add("btn-secondary");
