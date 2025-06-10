@@ -318,6 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
         hiddenIdCliente.value = 0; // clienteVenta = NULL
         inputProp.value = data.cliente; // muestro el nombre en “Propietario”
         hiddenIdPropietario.dispatchEvent(new Event("change"));
+        actualizarEstadoGuardar();
       })
       .catch(console.error);
 
@@ -441,6 +442,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Finalmente, renumero y recalculo TOTALES generales
         actualizarNumeros();
         calcularTotales();
+        actualizarEstadoGuardar();
       })
       .catch(console.error);
   }
@@ -449,15 +451,15 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!idcli) {
       inputProp.value = "";
       hiddenIdPropietario.value = 0;
+      actualizarEstadoGuardar();    // ≤≤≤ Agregado
       return;
     }
-    fetch(
-      `${API_BASE}cliente.controller.php?action=getDetalles&idcliente=${idcli}`
-    )
+    fetch(`${API_BASE}cliente.controller.php?action=getDetalles&idcliente=${idcli}`)
       .then((r) => r.json())
       .then((clienteData) => {
         inputClienteVisible.value = clienteData.razonSocial;
-        hiddenIdPropietario.value = 0; // para que en el SP “propietario” quede NULL
+        hiddenIdPropietario.value = 0;
+        actualizarEstadoGuardar();    // ≤≤≤ Agregado
       })
       .catch(console.error);
   });
