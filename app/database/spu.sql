@@ -1638,6 +1638,8 @@ BEGIN
   DECLARE _hashed_pwd   VARCHAR(64);
   DECLARE _idpersona    INT;
   DECLARE _idcontrato   INT;
+  DECLARE _idcolaborador INT;
+
 
   START TRANSACTION;
     -- 1) Sólo hashear si _passuser no es NULL/''; si no, dejamos _hashed_pwd en NULL
@@ -1662,7 +1664,9 @@ BEGIN
     INSERT INTO contratos (
       idrol, idpersona, fechainicio, fechafin
     ) VALUES (
-      _idrol, _idpersona, COALESCE(_fechainicio, CURDATE()),
+      _idrol, _idpersona, COALESCE( NULLIF(_fechainicio, ''),  -- si es '' lo vuelve NULL
+                CURDATE()                   -- y aquí usamos hoy
+              ),
       -- si _fechafin es '', lo convertimos a NULL
       CASE WHEN _fechafin = '' THEN NULL ELSE _fechafin END
     );
@@ -1677,7 +1681,10 @@ BEGIN
       _hashed_pwd,            -- ya es NULL o hash válido
       TRUE
     );
+    -- aquí capturamos el id del colaborador
+    SET _idcolaborador = LAST_INSERT_ID();
   COMMIT;
+  SELECT _idcolaborador AS idcolaborador;
 END$$
 
 -- select * from personas

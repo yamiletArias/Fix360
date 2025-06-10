@@ -114,7 +114,6 @@ class Colaborador extends Conexion
      */
     public function add($params = []): int
     {
-        $numRows = 0;
         try {
             $query = "CALL spRegisterColaborador(?,?,?,?,?,?,?,?,?,?,?,?)";
             $stmt = $this->pdo->prepare($query);
@@ -134,13 +133,20 @@ class Colaborador extends Conexion
                 $params['telprincipal']
             ));
 
-            $numRows = $stmt->rowCount();
-        } catch (PDOException $e) {
-            error_log("Error DB: " . $e->getMessage());
-            return $numRows;
+         // Leer el SELECT final del SP
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+
+        if ($result && !empty($result['idcolaborador'])) {
+            return (int)$result['idcolaborador'];
         }
-        return $numRows;
+
+        return 0;
+    } catch (PDOException $e) {
+        error_log("Error DB en add(): " . $e->getMessage());
+        return 0;
     }
+}
 
     /**
      * Actualizar datos de un colaborador (persona, contrato y usuario).

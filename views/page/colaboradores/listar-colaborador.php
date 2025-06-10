@@ -109,12 +109,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 data: null,
                 render: row => `${row.nombres} ${row.apellidos}`
             },
-            { data: "nombre_rol" },
+            { data: "nombre_rol",
+                render: r => r || "No proporcionado"
+             },
             {
                 data: "telprincipal",
                 render: v => v || "No proporcionado"
             },
-            { data: "username" },
+            {   data: "username",
+                defaultContent: "sin cuenta" },
             {
                 data: null,
                 orderable: false,

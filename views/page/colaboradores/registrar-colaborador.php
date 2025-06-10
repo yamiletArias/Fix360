@@ -90,21 +90,21 @@ require_once "../../partials/header.php";
             <div class="form-floating">
               <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50"
                 placeholder="Usuario">
-              <label for="namuser"><strong>Username</strong></label>
+              <label for="namuser">Username</label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-floating">
               <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6"
                 maxlength="100" placeholder="Contraseña">
-              <label for="passuser"><strong>Contraseña</strong></label>
+              <label for="passuser">Contraseña</label>
             </div>
           </div>
 
           <!-- Fechas de contrato -->
           <div class="col-md-3">
             <div class="form-floating">
-              <input type="date" class="form-control input" name="fechainicio" id="fechainicio" value="<?= date('Y-m-d') ?>" required disabled>
+              <input type="date" class="form-control input" name="fechainicio" id="fechainicio" value="<?= date('Y-m-d') ?>" required readonly>
               <label for="fechainicio"><strong>Fecha Inicio</strong></label>
             </div>
           </div>
@@ -197,8 +197,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!nombres.value.trim())          return false;
     if (!apellidos.value.trim())        return false;
     if (!validarDNI())                  return false;
-    if (!validarTelefono())             return false;
-    if (!validarCorreo())               return false;
     return true;
   }
 

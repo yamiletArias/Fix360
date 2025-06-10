@@ -79,9 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         'correo'       => Helper::limpiarCadena($_POST['correo']       ?? ''),
         'telprincipal' => Helper::limpiarCadena($_POST['telprincipal'] ?? '')
     ];
-    $inserted = $col->add($p);
-    if ($inserted > 0) {
-        echo json_encode(['status' => true, 'message' => 'Registrado correctamente.']);
+    $insertedId = $col->add($p);
+    if ($insertedId > 0) {
+        echo json_encode(['status' => true, 'message' => 'Registrado correctamente.', 'idcolaborador' => $insertedId]);
     } else {
         echo json_encode(['status' => false, 'message' => 'Error al registrar.']);
     }
