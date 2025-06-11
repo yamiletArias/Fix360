@@ -143,7 +143,7 @@ if (isset($_GET['idpersona'])) {
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <select id="cempresa" name="cempresa" class="form-select input" required>
+              <select id="cempresa" name="cempresa" class="form-select input"  style="color:black;" required>
                 <option value="">-- Contactabilidad --</option>
               </select>
               <label for="cempresa">Contactabilidad</label>

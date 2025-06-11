@@ -107,7 +107,7 @@
 
             <div class="col-md-2">
               <div class="form-floating ">
-                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial" placeholder="stockInicial" min="0" autocomplete="off" />
+                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial" placeholder="stockInicial" min="0" autocomplete="off" value="0" />
                 <label for="stockInicial">Stock Actual</label>
               </div>
             </div>
