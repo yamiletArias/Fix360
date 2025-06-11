@@ -21,11 +21,10 @@ document.addEventListener("DOMContentLoaded", function () {
     numComInput.value = ""; */
   // — Función que decide si habilitar o no el botón “Guardar” —
   function actualizarEstadoBotonGuardar() {
-    const proveedorValido = proveedorSelect.selectedIndex > 0;
-    const tieneProductos = detalleCompra.length > 0;
-    const serieValida = numSerieInput.value.trim() !== "";
+    const proveedorValido   = proveedorSelect.selectedIndex > 0;
+    const tieneProductos    = detalleCompra.length > 0;
+    const serieValida       = numSerieInput.value.trim() !== "";
     const comprobanteValido = numComInput.value.trim() !== "";
-
     btnFinalizarCompra.disabled = !(
       proveedorValido &&
       tieneProductos &&
@@ -34,11 +33,11 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // — Inicialización y listeners para re-evaluar —
-  actualizarEstadoBotonGuardar();
+  // Listeners de inputs básicos
   proveedorSelect.addEventListener("change", actualizarEstadoBotonGuardar);
-  numSerieInput.addEventListener("input", actualizarEstadoBotonGuardar);
-  numComInput.addEventListener("input", actualizarEstadoBotonGuardar);
+  numSerieInput.addEventListener("input",   actualizarEstadoBotonGuardar);
+  numComInput.addEventListener("input",     actualizarEstadoBotonGuardar);
+
 
   // --- Funciones auxiliares ---
   function calcularTotales() {
@@ -226,8 +225,6 @@ document.addEventListener("DOMContentLoaded", function () {
       actualizarNumeros();
       calcularTotales();
     }
-
-    // — Asignar listeners —
 
     // Botones de cantidad
     decBtn.addEventListener("click", () => {
