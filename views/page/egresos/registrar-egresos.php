@@ -61,7 +61,7 @@ require_once "../../partials/header.php";
           <!-- Monto y Comprobante -->
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="number" class="form-control input" id="monto" name="monto" step="0.01" min="0.01" placeholder="0.00" required>
+              <input type="number" class="form-control input" id="monto" name="monto" step="0.01" min="0.01" placeholder="0.00" autocomplete="off" required>
               <label for="monto">Monto</label>
             </div>
           </div>

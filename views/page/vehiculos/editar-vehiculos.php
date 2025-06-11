@@ -45,7 +45,7 @@ require_once "../../partials/header.php";
 
           <div class="col-md-2 mb-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6"
+              <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" autocomplete="off"
                 required maxlength="6" />
               <label for="fplaca"><strong>Placa</strong></label>
             </div>
@@ -53,7 +53,7 @@ require_once "../../partials/header.php";
 
           <div class="col-md-2 mb-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4"
+              <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" autocomplete="off"
                 maxlength="4" required />
               <label for="fanio"><strong> Año</strong></label>
             </div>
@@ -61,7 +61,7 @@ require_once "../../partials/header.php";
 
           <div class="col-md-4 mb-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17"
+              <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17" autocomplete="off"
                 placeholder="numerodeserie" />
               <label for="fnumserie">N° de serie</label>
             </div>
@@ -69,7 +69,7 @@ require_once "../../partials/header.php";
 
           <div class="col-md-2 mb-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" minlength="3"
+              <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" minlength="3" autocomplete="off"
                 maxlength="20" />
               <label for="fcolor"><strong>Color</strong></label>
             </div>
@@ -87,7 +87,7 @@ require_once "../../partials/header.php";
 
           <div class="col-md-4 mb-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="vin" placeholder="vin" minlength="17"
+              <input type="text" class="form-control input" id="vin" placeholder="vin" minlength="17" autocomplete="off"
                 maxlength="17" />
               <label for="vin">VIN</label>
             </div>
@@ -95,7 +95,7 @@ require_once "../../partials/header.php";
 
           <div class="col-md-4 mb-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" minlength="17"
+              <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" minlength="17" autocomplete="off"
                 maxlength="17" />
               <label for="numchasis">N° Chasis</label>
             </div>

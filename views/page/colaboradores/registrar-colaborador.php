@@ -29,7 +29,7 @@ require_once "../../partials/header.php";
           <div class="col-md-2">
             <div class="form-floating">
               <input type="text" class="form-control input" id="numdoc" name="numdoc" minlength="6" maxlength="20"
-                pattern="[0-9A-Za-z]+" placeholder="Documento" required>
+                pattern="[0-9A-Za-z]+" placeholder="Documento" autocomplete="off" required>
               <label for="numdoc"><strong>N° Documento</strong></label>
             </div>
           </div>
@@ -37,14 +37,14 @@ require_once "../../partials/header.php";
           <!-- Datos personales -->
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50"
+              <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50" autocomplete="off"
                 placeholder="Apellidos" required>
               <label for="apellidos"><strong>Apellidos</strong></label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50"
+              <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50" autocomplete="off"
                 placeholder="Nombres" required>
               <label for="nombres"><strong>Nombres</strong></label>
             </div>
@@ -53,14 +53,14 @@ require_once "../../partials/header.php";
           <!-- Dirección y correo -->
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="direccion" name="direccion" minlength="5"
+              <input type="text" class="form-control input" id="direccion" name="direccion" minlength="5" autocomplete="off"
                 maxlength="100" placeholder="Dirección">
               <label for="direccion">Dirección</label>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-floating">
-              <input type="email" class="form-control input" id="correo" name="correo" minlength="5" maxlength="100"
+              <input type="email" class="form-control input" id="correo" name="correo" minlength="5" maxlength="100" autocomplete="off"
                 placeholder="Correo">
               <label for="correo">Correo</label>
             </div>
@@ -69,7 +69,7 @@ require_once "../../partials/header.php";
           <!-- Teléfono principal -->
           <div class="col-md-2">
             <div class="form-floating">
-              <input type="text" class="form-control input" id="telprincipal" name="telprincipal" minlength="9"
+              <input type="text" class="form-control input" id="telprincipal" name="telprincipal" minlength="9" autocomplete="off"
                 maxlength="9" pattern="9\d{8}" placeholder="Tel. principal" required>
               <label for="telprincipal"><strong>Tel. Principal</strong></label>
             </div>
@@ -88,14 +88,14 @@ require_once "../../partials/header.php";
           <!-- Datos de acceso -->
           <div class="col-md-3">
             <div class="form-floating">
-              <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50"
+              <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50" autocomplete="off"
                 placeholder="Usuario">
               <label for="namuser">Username</label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-floating">
-              <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6"
+              <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6" autocomplete="off"
                 maxlength="100" placeholder="Contraseña">
               <label for="passuser">Contraseña</label>
             </div>

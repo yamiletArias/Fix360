@@ -221,7 +221,7 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-2 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6"
+                    <input type="text" class="form-control input" id="fplaca" placeholder="placadeejemplo" minlength="6" autocomplete="off"
                       required maxlength="6" />
                     <label for="fplaca"><strong>Placa</strong></label>
                   </div>
@@ -229,7 +229,7 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-2 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4"
+                    <input type="text" class="form-control input" id="fanio" placeholder="anio" minlength="4" autocomplete="off"
                       maxlength="4" required />
                     <label for="fanio"><strong> Año</strong></label>
                   </div>
@@ -237,14 +237,14 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17" placeholder="numerodeserie" />
+                    <input type="text" class="form-control input" id="fnumserie" minlength="17" maxlength="17" placeholder="numerodeserie" autocomplete="off" />
                     <label for="fnumserie">N° de serie</label>
                   </div>
                 </div>
 
                 <div class="col-md-2 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" minlength="3" maxlength="20" />
+                    <input type="text" class="form-control input" id="fcolor" placeholder="#e0aef6" minlength="3" maxlength="20" autocomplete="off" />
                     <label for="fcolor"><strong>Color</strong></label>
                   </div>
                 </div>
@@ -262,21 +262,21 @@ require_once "../../partials/header.php";
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="vin" placeholder="vin" minlength="17" maxlength="17" />
+                    <input type="text" class="form-control input" id="vin" placeholder="vin" minlength="17" maxlength="17"  autocomplete="off" />
                     <label for="vin">VIN</label>
                   </div>
                 </div>
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" minlength="17" maxlength="17" />
+                    <input type="text" class="form-control input" id="numchasis" placeholder="numchasis" minlength="17" maxlength="17"  autocomplete="off" />
                     <label for="numchasis">N° Chasis</label>
                   </div>
                 </div>
 
                 <div class="col-md-4 mb-3">
                   <div class="form-floating input-group mb-3">
-                    <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario"
+                    <input type="text" disabled class="form-control input" id="floatingInput" placeholder="propietario" autocomplete="off"
                       value="" />
                     <label for="floatingInput"><strong>Propietario</strong></label>
                     <input type="hidden" id="hiddenIdCliente" />
@@ -344,7 +344,7 @@ require_once "../../partials/header.php";
         </div>
         <div class="modal-body">
           <div class="form-floating mb-3">
-            <input type="text" id="inputMarcaNueva" class="form-control input" placeholder="marca" style="background-color: white;" required>
+            <input type="text" id="inputMarcaNueva" class="form-control input" placeholder="marca" style="background-color: white;" autocomplete="off" required>
             <label for="inputMarcaNueva" class="form-label input"><strong>Marca</strong></label>
           </div>
         </div>
@@ -368,12 +368,7 @@ require_once "../../partials/header.php";
         </div>
         <div class="modal-body">
           <div class="form-floating mb-3">
-            <input type="text"
-                   id="inputTcombustibleNuevo"
-                   class="form-control input"
-                   placeholder="tipo de combustible"
-                   style="background-color: white;"
-                   required>
+            <input type="text" id="inputTcombustibleNuevo" class="form-control input" placeholder="tipo de combustible" style="background-color: white;" autocomplete="off" required>
             <label for="inputTcombustibleNuevo">Tipo de combustible</label>
           </div>
         </div>
@@ -406,7 +401,7 @@ require_once "../../partials/header.php";
             <label class="form-label">Marca de Vehículo:</label>
           </div>
           <div class="form-floating mb-3">
-            <input type="text" id="inputModeloNuevo" class="form-control input" placeholder="modelo" style="background-color: white;color:black;" required>
+            <input type="text" id="inputModeloNuevo" class="form-control input" placeholder="modelo" autocomplete="off" style="background-color: white;color:black;" required>
             <label for="inputModeloNuevo" class="form-label">Nombre del Modelo</label>
           </div>
         </div>
