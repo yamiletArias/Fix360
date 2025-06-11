@@ -41,7 +41,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const tieneServicios = detalleServicios.length > 0;
     const propietarioSeleccionado = !!hiddenIdPropietario.value.trim();
     // Habilita si hay al menos un producto o un servicio y hay propietario
-    btnFinalizarVenta.disabled = !((tieneProductos || tieneServicios) && propietarioSeleccionado);
+    btnFinalizarVenta.disabled = !(
+      (tieneProductos || tieneServicios) &&
+      propietarioSeleccionado
+    );
   }
   actualizarEstadoGuardar();
 
@@ -191,7 +194,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1) Validar que haya vehículo seleccionado
     const idVehiculo = vehiculoSelect.value;
     if (!idVehiculo) {
-      showToast("Debes seleccionar un vehículo antes de agregar servicios.", "WARNING", 2000);
+      showToast(
+        "Debes seleccionar un vehículo antes de agregar servicios.",
+        "WARNING",
+        2000
+      );
       vehiculoSelect.focus();
       return;
     }
@@ -199,7 +206,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // 2) Validar kilometraje ingresado y coherente con prevKilometraje
     const kmVal = parseFloat(kmInput.value);
     if (isNaN(kmVal) || kmInput.value.trim() === "") {
-      showToast("Debes ingresar el kilometraje antes de agregar servicios.", "WARNING", 2000);
+      showToast(
+        "Debes ingresar el kilometraje antes de agregar servicios.",
+        "WARNING",
+        2000
+      );
       kmInput.focus();
       return;
     }
@@ -450,16 +461,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const idcli = parseInt(this.value, 10);
     if (!idcli) {
       inputProp.value = "";
-      hiddenIdPropietario.value = 0;
-      actualizarEstadoGuardar();    // ≤≤≤ Agregado
+      hiddenIdPropietario.value = "";
+      actualizarEstadoGuardar(); // ≤≤≤ Agregado
       return;
     }
-    fetch(`${API_BASE}cliente.controller.php?action=getDetalles&idcliente=${idcli}`)
+    fetch(
+      `${API_BASE}cliente.controller.php?action=getDetalles&idcliente=${idcli}`
+    )
       .then((r) => r.json())
       .then((clienteData) => {
         inputClienteVisible.value = clienteData.razonSocial;
-        hiddenIdPropietario.value = 0;
-        actualizarEstadoGuardar();    // ≤≤≤ Agregado
+        hiddenIdPropietario.value = idcli;
+        actualizarEstadoGuardar(); // ≤≤≤ Agregado
       })
       .catch(console.error);
   });
@@ -479,12 +492,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     const idVeh = vehiculoSelect.value;
     if (!idVeh) {
-      return alert("Debe existir un vehículo seleccionado para agregar servicios.");
+      return alert(
+        "Debe existir un vehículo seleccionado para agregar servicios."
+      );
     }
     // (Opcional) validar kilometraje de nuevo:
     const kmVal = parseFloat(kmInput.value);
     if (isNaN(kmVal) || kmInput.value.trim() === "") {
-      return alert("Debe existir un kilometraje válido para agregar servicios.");
+      return alert(
+        "Debe existir un kilometraje válido para agregar servicios."
+      );
     }
 
     // 2) Si todo OK, crear la fila
@@ -561,7 +578,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const stockDisponible = selectedProduct.stock || 0;
     if (cantidad > stockDisponible) {
       // 1) Muestro el toast de stock insuficiente
-      alert(`No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`);
+      alert(
+        `No puedes pedir ${cantidad} unidades; solo hay ${stockDisponible} en stock.`
+      );
 
       // 2) Limpio TODOS los campos de producto
       resetCamposProducto();
@@ -950,7 +969,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!codigo) return;
 
       fetch(
-        `${window.FIX360_BASE_URL}app/controllers/Venta.controller.php?q=${encodeURIComponent(
+        `${
+          window.FIX360_BASE_URL
+        }app/controllers/Venta.controller.php?q=${encodeURIComponent(
           codigo
         )}&type=producto`
       )
