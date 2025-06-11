@@ -4,9 +4,11 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../models/sesion.php';
 require_once __DIR__ . '/../models/Cotizacion.php';
+require_once __DIR__ . '/../models/Vehiculo.php';
 require_once __DIR__ . '/../helpers/helper.php';
 
 $cotizacion = new Cotizacion();
+$vehiculo = new Vehiculo();
 
 // —————— ENDPOINT: obtener solo cliente de la cotización ——————
 if (
@@ -15,9 +17,47 @@ if (
   && isset($_GET['idcotizacion'])
 ) {
   $cab = $cotizacion->getCabeceraById((int) $_GET['idcotizacion']);
+  if (!$cab) {
+    echo json_encode(['error' => 'Cotización no encontrada']);
+    exit;
+  }
+
+  // Vehículos del cliente
+  $vehiculos = $vehiculo->getVehiculoByCliente((int) $cab['idcliente']);
+  $primerVeh = $vehiculos[0] ?? null;
+
+  if ($primerVeh && isset($primerVeh['idvehiculo'])) {
+    $idv = (int) $primerVeh['idvehiculo'];
+
+    // Datos desde vwVehiculos
+    $datosVeh = $vehiculo->getDesdeVista($idv);
+    $descripcion = $datosVeh
+      ? sprintf(
+        '%s %s %s (%s)',
+        $datosVeh['tipov'] ?? '',
+        $datosVeh['marca'] ?? '',
+        $datosVeh['color'] ?? '',
+        $datosVeh['placa'] ?? ''
+      )
+      : '';
+
+    // Último kilómetro
+    $kmRow = $vehiculo->getUltimoKilometraje($idv);
+    $ultimoKm = isset($kmRow['ultimo_kilometraje'])
+      ? (float) $kmRow['ultimo_kilometraje']
+      : 0;
+  } else {
+    $idv = null;
+    $descripcion = '';
+    $ultimoKm = 0;
+  }
+
   echo json_encode([
-    'idcliente' => $cab['idcliente'] ?? null,
-    'cliente' => $cab['cliente'] ?? null
+    'idcliente' => $cab['idcliente'],
+    'cliente' => $cab['cliente'],
+    'idvehiculo' => $idv,
+    'vehiculo' => $descripcion,
+    'ultimo_km' => $ultimoKm,
   ]);
   exit;
 }

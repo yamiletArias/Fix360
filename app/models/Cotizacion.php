@@ -11,9 +11,9 @@ class Cotizacion extends Conexion
     $this->pdo = parent::getConexion();
   }
   public function getPdo(): PDO
-    {
-        return $this->pdo;
-    }
+  {
+    return $this->pdo;
+  }
 
   //LLEVAR DATOS
   public function getCabeceraById(int $id)
@@ -21,7 +21,7 @@ class Cotizacion extends Conexion
     $sql = "
     SELECT 
       c.idcotizacion,
-      c.idcliente,                                             -- ← lo agregamos aquí
+      c.idcliente,
       COALESCE(CONCAT(p.nombres,' ',p.apellidos), e.nomcomercial) AS cliente,
       c.fechahora,
       c.vigenciadias,

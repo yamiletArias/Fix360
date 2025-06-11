@@ -23,6 +23,21 @@ class Vehiculo extends Conexion
         }
         return $result;
     }
+    /**
+     * Obtiene la fila de vwVehiculos para un idvehiculo dado.
+     *
+     * @param int $idvehiculo
+     * @return array null
+     */
+    public function getDesdeVista(int $idvehiculo): ?array
+    {
+        $sql = "SELECT * FROM vwVehiculos WHERE idvehiculo = ? LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idvehiculo]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $row ?: null;
+    }
 
     public function registerVehiculo($params = []): int
     {

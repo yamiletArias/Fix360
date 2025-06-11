@@ -324,10 +324,33 @@ document.addEventListener("DOMContentLoaded", function () {
     )
       .then((r) => r.json())
       .then((data) => {
-        // 1) Cliente (para vehículos)
+        if (data.error) {
+          console.error(data.error);
+          return;
+        }
+        // — Propietario —
         hiddenIdPropietario.value = data.idcliente; // clienteCot → propietario
         hiddenIdCliente.value = 0; // clienteVenta = NULL
-        inputProp.value = data.cliente; // muestro el nombre en “Propietario”
+        inputProp.value = data.cliente; // nombre en “Propietario”
+
+        // — Vehículo —
+        // Limpio el select y, si hay uno, lo agrego y selecciono
+        vehiculoSelect.innerHTML = "";
+        if (data.idvehiculo) {
+          const optVeh = document.createElement("option");
+          optVeh.value = data.idvehiculo;
+          optVeh.textContent = data.vehiculo; // por ejemplo la placa
+          vehiculoSelect.appendChild(optVeh);
+          vehiculoSelect.value = data.idvehiculo;
+          // Desbloquea el botón de agregar servicios si usas esa lógica
+          btnToggleService.disabled = false;
+        }
+
+        // — Kilometraje —
+        prevKilometraje = parseFloat(data.ultimo_km) || 0;
+        kmInput.value = prevKilometraje > 0 ? prevKilometraje : "";
+
+        // Disparamos el change y recalculamos el estado de “Guardar”
         hiddenIdPropietario.dispatchEvent(new Event("change"));
         actualizarEstadoGuardar();
       })
@@ -341,39 +364,50 @@ document.addEventListener("DOMContentLoaded", function () {
           const precio = parseFloat(item.precio);
           const cantidad = parseInt(item.cantidad, 10);
           const descuento = parseFloat(item.descuento);
+
+          // — Validaciones de stock —
+          if (stock <= 0) {
+            alert(
+              `El producto "${item.producto}" no tiene stock disponible para la venta.`
+            );
+            return; // salta al siguiente item
+          }
+          if (cantidad > stock) {
+            alert(
+              `La cantidad solicitada (${cantidad}) excede el stock disponible (${stock}) de "${item.producto}".`
+            );
+            return;
+          }
           const importe = (precio - descuento) * cantidad;
 
           // 1) Creo la fila TR
           const tr = document.createElement("tr");
           tr.dataset.idproducto = item.idproducto;
           tr.innerHTML = `
-        <td>0</td>
-        <td>${item.producto}</td>
-        <!-- Envolvemos precio en <span class="precio-texto"> -->
-        <td>
-          <span class="precio-texto">${precio.toFixed(2)}</span>
-        </td>
-        <td>
-          <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
-            <button class="btn btn-outline-secondary btn-decrement" type="button">−</button>
-            <input type="number"
-                   class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                   value="${cantidad}"
-                   min="1"
-                   max="${item.stock}">
-            <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
-          </div>
-        </td>
-        <!-- Envolvemos descuento en <span class="descuento-texto"> -->
-        <td>
-          <span class="descuento-texto">${descuento.toFixed(2)}</span>
-        </td>
-        <td class="importe-cell">${importe.toFixed(2)}</td>
-        <td>
-          <button class="btn btn-danger btn-sm btn-quitar">X</button>
-        </td>`;
-
-          // 2) Lo agrego al tbody
+      <td>0</td>
+      <td>${item.producto}</td>
+      <td>
+        <span class="precio-texto">${precio.toFixed(2)}</span>
+      </td>
+      <td>
+        <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
+          <button class="btn btn-outline-secondary btn-decrement" type="button">−</button>
+          <input type="number"
+                 class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                 value="${cantidad}"
+                 min="1"
+                 max="${stock}">
+          <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
+        </div>
+      </td>
+      <td>
+        <span class="descuento-texto">${descuento.toFixed(2)}</span>
+      </td>
+      <td class="importe-cell">${importe.toFixed(2)}</td>
+      <td>
+        <button class="btn btn-danger btn-sm btn-quitar">X</button>
+      </td>
+    `;
           tabla.appendChild(tr);
 
           // 3) Lo agrego también al array detalleVenta (igual que en tu “Agregar” manual)
@@ -1119,6 +1153,28 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
 
     const hiddenIdCliente = document.getElementById("hiddenIdCliente");
+    // ——— VALIDACIÓN DE STOCK ANTES DE TODO ———
+    for (const tr of tabla.querySelectorAll("tr")) {
+      const nombreProd = tr.cells[1].textContent.trim();
+      const qtyInput = tr.querySelector(".cantidad-input");
+      const qty = parseInt(qtyInput.value, 10) || 0;
+      const maxStock = parseInt(qtyInput.getAttribute("max"), 10) || 0;
+
+      if (maxStock <= 0) {
+        return Swal.fire(
+          "Error de stock",
+          `El producto "${nombreProd}" no tiene unidades disponibles.`,
+          "error"
+        );
+      }
+      if (qty > maxStock) {
+        return Swal.fire(
+          "Error de stock",
+          `La cantidad solicitada (${qty}) excede el stock disponible (${maxStock}) de "${nombreProd}".`,
+          "error"
+        );
+      }
+    }
     if (detalleVenta.length === 0 && detalleServicios.length === 0) {
       return showToast(
         "Agrega al menos un producto o servicio.",
