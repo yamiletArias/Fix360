@@ -1,0 +1,76 @@
+<?php
+// reports/reportecotizacion.php
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once dirname(__DIR__, 2) . '/app/models/sesion.php';
+require_once dirname(__DIR__, 2) . '/app/config/app.php';
+require_once dirname(__DIR__, 2) . '/app/helpers/helper.php';
+require_once dirname(__DIR__, 2) . '/app/models/Colaborador.php';
+require_once dirname(__DIR__, 2) . '/app/models/Cotizacion.php';
+
+use Spipu\Html2Pdf\Html2Pdf;
+use Spipu\Html2Pdf\Exception\Html2PdfException;
+
+// — Parámetros de sesión / usuario —
+$colModel      = new Colaborador();
+$usuario       = $colModel->getById($idadmin);
+$usuarioNombre = $usuario['nombreCompleto'] ?? 'Usuario';
+
+// — ID de cotización por GET —
+$idcot = $_GET['idcotizacion'] ?? null;
+if (!$idcot) {
+    die('Falta id de cotización');
+}
+
+// — Conexión y modelo —
+$cotiModel = new Cotizacion();
+$pdo       = $cotiModel->getPdo();
+
+// 1) Recuperar todos los datos desde la vista
+$stmt = $pdo->prepare(
+    "SELECT * 
+     FROM vista_detalle_cotizacion_pdf 
+     WHERE idcotizacion = :idcotizacion"
+);
+$stmt->execute([':idcotizacion' => $idcot]);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if (empty($rows)) {
+    die("No se encontró información para la cotización $idcot");
+}
+
+// 2) Armar cabecera tomando la primera fila
+$first = $rows[0];
+$info = [
+    'idcotizacion'      => $idcot,
+    'fechahora'         => $first['fechahora'],
+    'cliente'           => $first['cliente']      ?: 'Sin cliente',
+    'vigenciadias'      => $first['vigenciadias'] ?: 0,
+    'estado'            => $first['estado']       ?: '—',
+    'justificacion'     => $first['justificacion']?: '',
+];
+
+// 3) Detalle de productos
+$detalle = [];
+foreach ($rows as $r) {
+    $detalle[] = [
+        'producto'        => $r['producto'],
+        'cantidad'        => $r['cantidad'],
+        'precio'          => $r['precio'],
+        'descuento'       => $r['descuento'],
+        'total_producto'  => $r['total_producto'],
+    ];
+}
+
+// 4) Capturar la plantilla HTML
+ob_start();
+require __DIR__ . '/css/estilos_pdf.html';
+require __DIR__ . '/content/data-reporte-cotizacion.php';
+$content = ob_get_clean();
+
+// 5) Generar PDF
+$html2pdf = new Html2Pdf('P', 'A4', 'es', true, 'UTF-8', [10, 10, 10, 10]);
+$html2pdf->setDefaultFont('helvetica');
+$html2pdf->writeHTML($content);
+if (ob_get_length()) {
+    ob_end_clean();
+}
+$html2pdf->output("cotizacion-{$idcot}.pdf", 'I');

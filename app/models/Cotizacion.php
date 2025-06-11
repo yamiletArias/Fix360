@@ -10,6 +10,10 @@ class Cotizacion extends Conexion
   {
     $this->pdo = parent::getConexion();
   }
+  public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
 
   //LLEVAR DATOS
   public function getCabeceraById(int $id)
