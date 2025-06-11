@@ -71,28 +71,28 @@
 
             <div class="col-md-5">
               <div class="form-floating mb-3">
-                <textarea class="form-control input" id="descripcion" rows="4" name="descripcion" placeholder="descripcion"></textarea>
+                <textarea class="form-control input" id="descripcion" rows="4" name="descripcion" autocomplete="off" placeholder="descripcion"></textarea>
                 <label for="descripcion">Descripción</label>
               </div>
             </div>
 
             <div class="col-md-3 mb-3">
               <div class="form-floating ">
-                <input type="text" class="form-control input" id="presentacion" name="presentacion" placeholder="presentacion" />
+                <input type="text" class="form-control input" id="presentacion" name="presentacion" autocomplete="off" placeholder="presentacion" />
                 <label for="presentacion">Presentación</label>
               </div>
             </div>
 
             <div class="col-md-2">
               <div class="form-floating mb-3">
-                <input type="number" class="form-control input" step="0.1" id="cantidad" name="cantidad" placeholder="cantidad" min="0" />
+                <input type="number" class="form-control input" step="0.1" id="cantidad" name="cantidad"  autocomplete="off" placeholder="cantidad" min="0" />
                 <label for="cantidad">Cantidad</label>
               </div>
             </div>
 
             <div class="col-md-2">
               <div class="form-floating mb-3">
-                <input type="text" class="form-control input" id="undmedida" name="undmedida" placeholder="medida" />
+                <input type="text" class="form-control input" id="undmedida" name="undmedida" placeholder="medida" autocomplete="off" />
                 <label for="undmedida">Und. de Medida</label>
               </div>
             </div>
@@ -100,28 +100,28 @@
 
             <div class="col-md-2">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" id="precio" name="precio" placeholder="presio" min="0" />
+                <input type="number" class="form-control input" step="0.1" id="precio" name="precio" placeholder="presio" min="0" autocomplete="off" />
                 <label for="precio">Precio</label>
               </div>
             </div>
 
             <div class="col-md-2">
               <div class="form-floating ">
-                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial" placeholder="stockInicial" min="0" />
+                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial" placeholder="stockInicial" min="0" autocomplete="off" />
                 <label for="stockInicial">Stock Actual</label>
               </div>
             </div>
 
             <div class="col-md-2 ">
               <div class="form-floating ">
-                <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin" placeholder="stockmin" min="0" />
+                <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin" placeholder="stockmin" min="0" autocomplete="off" />
                 <label for="stockmin">Stock min.</label>
               </div>
             </div>
 
             <div class="col-md-2">
               <div class="form-floating ">
-                <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax" placeholder="stockmax" min="0" />
+                <input type="number" step="0.1" class="form-control input" id="stockmax" name="stockmax" placeholder="stockmax" min="0" autocomplete="off" />
                 <label for="stockmax">Stock max.</label>
               </div>
             </div>
@@ -162,7 +162,7 @@
         </div>
         <div class="modal-body">
           <div class="form-floating">
-            <input type="text" id="inputMarca" class="form-control input" placeholder="marca"  style="background-color: white;" required>
+            <input type="text" id="inputMarca" class="form-control input" placeholder="marca"  style="background-color: white;" autocomplete="off" required>
             <label for="inputMarca" class="form-label"><strong>Marca</strong></label>
           </div>
         </div>
@@ -184,7 +184,7 @@
         </div>
         <div class="modal-body">
           <div class="form-floating">
-            <input type="text" id="inputCategoria" class="form-control input" placeholder="categoria"  style="background-color: white;" required>
+            <input type="text" id="inputCategoria" class="form-control input" placeholder="categoria"  style="background-color: white;" autocomplete="off" required>
             <label for="inputCategoria" class="form-label"><strong>Categoria</strong></label>
           </div>
         </div>
@@ -207,7 +207,7 @@
         <div class="modal-body">
           <div class="form-floating">
 
-            <input type="text" id="inputSubcategoria" class="form-control input" placeholder="subcategoria"  style="background-color: white;" required>
+            <input type="text" id="inputSubcategoria" class="form-control input" placeholder="subcategoria"  style="background-color: white;" autocomplete="off"  required>
             <label for="inputSubcategoria" class="form-label"><strong>Subcategoria</strong></label>
           </div>
         </div>

@@ -31,7 +31,7 @@ require_once "../../partials/header.php";
                 </div>
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input type="text" id="new-comentario" class="form-control input" placeholder="Escribe un comentario…" />
+                        <input type="text" id="new-comentario" class="form-control input" placeholder="Escribe un comentario…" autocomplete="off" />
                         <label for="new-comentario" class="form-label">Comentario</label>
                     </div>
                 </div>

@@ -34,8 +34,6 @@ require_once "../../partials/header.php";
     <input type="hidden" name="action" value="update">
     <input type="hidden" name="idproducto" id="idproducto" value="">
     <input type="hidden" name="img_old" id="img_old" value="">
-
-
     <div class="card border" style="margin-top:50px;">
       <div class="card-body">
         <div class="row">
@@ -49,13 +47,7 @@ require_once "../../partials/header.php";
           <!-- MARCA -->
           <div class="col-md-3 mb-3">
             <div class="form-floating">
-              <select
-                class="form-select"
-                id="marca"
-                name="idmarca"
-                style="color: black;"
-                required
-                disabled>
+              <select class="form-select" id="marca" name="idmarca" style="color: black;" required disabled>
                 <option value="">Seleccione una opcion</option>
               </select>
               <label for="marca">Marca:</label>
@@ -65,13 +57,7 @@ require_once "../../partials/header.php";
           <!-- CATEGORÍA -->
           <div class="col-md-3 mb-3">
             <div class="form-floating">
-              <select
-                class="form-select"
-                id="categoria"
-                name="categoria"
-                style="color: black;"
-                required
-                disabled>
+              <select class="form-select" id="categoria" name="categoria" style="color: black;" required disabled>
                 <option value="">Seleccione una opcion</option>
               </select>
               <label for="categoria">Categoría:</label>
@@ -81,13 +67,7 @@ require_once "../../partials/header.php";
           <!-- SUBCATEGORÍA -->
           <div class="col-md-3 mb-3">
             <div class="form-floating">
-              <select
-                class="form-select"
-                name="subcategoria"
-                id="subcategoria"
-                style="color: black;"
-                required
-                disabled>
+              <select class="form-select" name="subcategoria" id="subcategoria" style="color: black;" required disabled>
                 <option value="">Selecciona una opcion</option>
               </select>
               <label for="subcategoria">Subcategoría:</label>
@@ -97,12 +77,7 @@ require_once "../../partials/header.php";
           <!-- DESCRIPCIÓN -->
           <div class="col-md-5">
             <div class="form-floating mb-3">
-              <textarea
-                class="form-control input"
-                id="descripcion"
-                rows="4"
-                name="descripcion"
-                placeholder="Descripción"></textarea>
+              <textarea class="form-control input" id="descripcion" rows="4" name="descripcion" placeholder="Descripción" autocomplete="off"></textarea>
               <label for="descripcion">Descripción</label>
             </div>
           </div>
@@ -110,13 +85,7 @@ require_once "../../partials/header.php";
           <!-- PRESENTACIÓN (solo lectura) -->
           <div class="col-md-3">
             <div class="form-floating mb-3">
-              <input
-                type="text"
-                class="form-control input"
-                id="presentacion"
-                name="presentacion"
-                placeholder="Presentación"
-                disabled />
+              <input type="text" class="form-control input" id="presentacion" name="presentacion" placeholder="Presentación"  autocomplete="off" disabled />
               <label for="presentacion">Presentación</label>
             </div>
           </div>
@@ -124,15 +93,7 @@ require_once "../../partials/header.php";
           <!-- CANTIDAD POR PRESENTACIÓN -->
           <div class="col-md-2">
             <div class="form-floating mb-3">
-              <input
-                type="number"
-                class="form-control input"
-                step="0.1"
-                id="cantidad"
-                name="cantidad"
-                placeholder="Cantidad"
-                min="0"
-                required />
+              <input type="number" class="form-control input" step="0.1" id="cantidad" name="cantidad" placeholder="Cantidad" min="0" autocomplete="off" required />
               <label for="cantidad">Cantidad</label>
             </div>
           </div>
@@ -140,13 +101,7 @@ require_once "../../partials/header.php";
           <!-- UNIDAD DE MEDIDA (solo lectura) -->
           <div class="col-md-2">
             <div class="form-floating mb-3">
-              <input
-                type="text"
-                class="form-control input"
-                id="undmedida"
-                name="undmedida"
-                placeholder="Medida"
-                disabled />
+              <input type="text" class="form-control input" id="undmedida" name="undmedida" placeholder="Medida" disabled autocomplete="off" />
               <label for="undmedida">Und. de Medida</label>
             </div>
           </div>
@@ -154,15 +109,7 @@ require_once "../../partials/header.php";
           <!-- PRECIO -->
           <div class="col-md-2">
             <div class="form-floating mb-3">
-              <input
-                type="number"
-                class="form-control input"
-                step="0.01"
-                id="precio"
-                name="precio"
-                placeholder="Precio"
-                min="0"
-                required />
+              <input type="number" class="form-control input" step="0.01" id="precio" name="precio" placeholder="Precio" min="0" required autocomplete="off" />
               <label for="precio">Precio</label>
             </div>
           </div>
@@ -170,15 +117,7 @@ require_once "../../partials/header.php";
           <!-- STOCK ACTUAL (solo lectura) -->
           <div class="col-md-2">
             <div class="form-floating mb-3">
-              <input
-                type="number"
-                class="form-control input"
-                step="0.01"
-                id="stockActual"
-                name="stockActual"
-                placeholder="Stock Actual"
-                min="0"
-                disabled />
+              <input type="number" class="form-control input" step="0.01" id="stockActual" name="stockActual" placeholder="Stock Actual" min="0" autocomplete="off" disabled />
               <label for="stockActual">Stock Actual</label>
             </div>
           </div>
@@ -186,15 +125,7 @@ require_once "../../partials/header.php";
           <!-- STOCK MÍNIMO -->
           <div class="col-md-2">
             <div class="form-floating mb-3">
-              <input
-                type="number"
-                class="form-control input"
-                step="0.01"
-                id="stockmin"
-                name="stockmin"
-                placeholder="Stock mínimo"
-                min="0"
-                required />
+              <input type="number" class="form-control input" step="0.01" id="stockmin" name="stockmin" placeholder="Stock mínimo" min="0" autocomplete="off" required />
               <label for="stockmin">Stock min.</label>
             </div>
           </div>
@@ -202,14 +133,7 @@ require_once "../../partials/header.php";
           <!-- STOCK MÁXIMO -->
           <div class="col-md-2">
             <div class="form-floating mb-3">
-              <input
-                type="number"
-                class="form-control input"
-                step="0.01"
-                id="stockmax"
-                name="stockmax"
-                placeholder="Stock máximo"
-                min="0" />
+              <input type="number" class="form-control input" step="0.01" id="stockmax" name="stockmax" placeholder="Stock máximo" autocomplete="off" min="0" />
               <label for="stockmax">Stock max.</label>
             </div>
           </div>
@@ -217,25 +141,15 @@ require_once "../../partials/header.php";
           <!-- IMAGEN (nueva) -->
           <div class="col-md-4">
             <div class="form-floating mb-3">
-              <input
-                type="file"
-                class="btn btn-outline-dark border input-img"
-                name="img"
-                id="img"
-                accept="image/png, image/jpeg" />
+              <input type="file" class="btn btn-outline-dark border input-img" name="img" id="img" accept="image/png, image/jpeg" />
             </div>
-            <!-- Previsualización de la imagen antigua (SIN type="hidden") -->
-            <!--img id="img-preview" src="" alt="Imagen anterior del producto"-->
           </div>
-        </div><!-- /row -->
-      </div><!-- /card-body -->
+        </div>
+      </div>
 
       <div class="card-footer">
         <div style="display: flex; justify-content: flex-end; gap: 20px">
-          <a
-            type="button"
-            class="btn btn-secondary"
-            href="listar-producto.php">
+          <a type="button" class="btn btn-secondary" href="listar-producto.php">
             Cancelar
           </a>
           <button type="submit" class="btn btn-success" id="btnRegistrarProducto">
@@ -404,13 +318,13 @@ require_once "../../partials/_footer.php";
       showToast("El stock máximo debe ser mayor o igual al mínimo.", "ERROR", 1500);
       return;
     }
-const confirmado = await ask( // Agregar await aquí
-  "¿Está seguro de que desea actualizar este producto?",
-  "Productos"
-);
-if (!confirmado) {
-  return; // Usuario canceló
-}
+    const confirmado = await ask( // Agregar await aquí
+      "¿Está seguro de que desea actualizar este producto?",
+      "Productos"
+    );
+    if (!confirmado) {
+      return; // Usuario canceló
+    }
 
 
     // Construimos FormData (incluye archivo si se seleccionó)

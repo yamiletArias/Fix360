@@ -24,11 +24,8 @@ if ($id <= 0) {
     <div class="card border">
         <div class="card-body">
             <form id="formEditarColaborador" autocomplete="off">
-
                 <input type="hidden" id="idcolaborador" name="idcolaborador" value="<?= $id ?>">
-
                 <div class="row g-3">
-
                     <div class="col-md-2">
                         <div class="form-floating">
                             <select class="form-select input" id="tipodoc" name="tipodoc" style="color: black;" ReadOnly disabled>
@@ -41,40 +38,40 @@ if ($id <= 0) {
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" id="numdoc" name="numdoc" minlength="6" maxlength="20" pattern="[0-9A-Za-z]+" placeholder="Documento" disabled>
+                            <input type="text" class="form-control input" id="numdoc" name="numdoc" minlength="6" maxlength="20" pattern="[0-9A-Za-z]+" placeholder="Documento" autocomplete="off" disabled> 
                             <label for="numdoc"><strong>N° Documento</strong></label>
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50" placeholder="Apellidos" ReadOnly>
+                            <input type="text" class="form-control input" id="apellidos" name="apellidos" minlength="2" maxlength="50" placeholder="Apellidos" autocomplete="off" ReadOnly>
                             <label for="apellidos"><strong>Apellidos</strong></label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50" placeholder="Nombres" ReadOnly>
+                            <input type="text" class="form-control input" id="nombres" name="nombres" minlength="2" maxlength="50" placeholder="Nombres" autocomplete="off" ReadOnly>
                             <label for="nombres"><strong>Nombres</strong></label>
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" id="direccion" name="direccion" minlength="5" maxlength="100" placeholder="Dirección" required>
+                            <input type="text" class="form-control input" id="direccion" name="direccion" minlength="5" maxlength="100" placeholder="Dirección" autocomplete="off" required>
                             <label for="direccion">Dirección</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-floating">
-                            <input type="email" class="form-control input" id="correo" name="correo" minlength="5" maxlength="100" placeholder="Correo" required>
+                            <input type="email" class="form-control input" id="correo" name="correo" minlength="5" maxlength="100" placeholder="Correo" autocomplete="off" required>
                             <label for="correo">Correo</label>
                         </div>
                     </div>
 
                     <div class="col-md-2">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" id="telprincipal" name="telprincipal" minlength="9" maxlength="9" pattern="9\d{8}" placeholder="Tel. principal" required>
+                            <input type="text" class="form-control input" id="telprincipal" name="telprincipal" minlength="9" maxlength="9" pattern="9\d{8}" placeholder="Tel. principal" autocomplete="off" required>
                             <label for="telprincipal"><strong>Tel. Principal</strong></label>
                         </div>
                     </div>
@@ -90,13 +87,13 @@ if ($id <= 0) {
 
                     <div class="col-md-3">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50" placeholder="Usuario">
+                            <input type="text" class="form-control input" name="namuser" id="namuser" minlength="3" maxlength="50" placeholder="Usuario" autocomplete="off" >
                             <label for="namuser"><strong>Username</strong></label>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-floating">
-                            <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6" maxlength="100" placeholder="Nueva contraseña (dejar en blanco para mantener)">
+                            <input type="password" class="form-control input" name="passuser" id="passuser" minlength="6" maxlength="100" placeholder="Nueva contraseña (dejar en blanco para mantener)" autocomplete="off">
                             <label for="passuser">Nueva contraseña</label>
                         </div>
                     </div>

@@ -39,56 +39,56 @@ require_once "../../partials/header.php";
 
             <div class="col-md-2 mb-3">
               <div class="form-floating">
-                <input type="text" class="form-control input"  name="numdoc" id="numdoc" minlength="8" maxlength="20" placeholder="numdoc" autofocus required>
+                <input type="text" class="form-control input"  name="numdoc" id="numdoc" minlength="8" maxlength="20" placeholder="numdoc" autocomplete="off" autofocus required>
                 <label for="numdoc"><strong> N° de Documento</strong></label>
               </div>
             </div>
 
             <div class="col-md-4 mb-3">
               <div class="form-floating">
-                <input type="text" name="apellidos" class="form-control input" id="apellidos" minlength="2" maxlength="100" placeholder="apellidos" required>
+                <input type="text" name="apellidos" class="form-control input" id="apellidos" minlength="2" autocomplete="off" maxlength="100" placeholder="apellidos" required>
                 <label for="apellidos"><strong>Apellidos</strong></label>
               </div>
             </div>
 
             <div class="col-md-4 mb-3">
               <div class="form-floating">
-                <input type="text" id="nombres" class="form-control input" name="nombres" minlength="2" maxlength="100" required placeholder="nombrealazar">
+                <input type="text" id="nombres" class="form-control input" name="nombres" minlength="2" autocomplete="off"  maxlength="100" required placeholder="nombrealazar">
                 <label for="nombres"><strong>Nombres</strong></label>
               </div>
             </div>
 
             <div class="col-md-8 mb-3">
               <div class="form-floating">
-                <input type="text" class="form-control input" name="direccion" id="direccion" minlength="5" maxlength="100" placeholder="mi casa">
+                <input type="text" class="form-control input" name="direccion" id="direccion"  autocomplete="off" minlength="5" maxlength="100" placeholder="mi casa">
                 <label for="direccion">Direccion</label>
               </div>
             </div>
 
             <div class="col-md-2 mb-3">
               <div class="form-floating">
-                <input type="text" id="telprincipal" class="form-control input" minlength="9" maxlength="9" name="telprincipal" placeholder="celular">
+                <input type="text" id="telprincipal" class="form-control input" minlength="9" autocomplete="off" maxlength="9" name="telprincipal" placeholder="celular">
                 <label for="telprincipal"><strong>Tel. principal</strong></label>
               </div>
             </div>
 
             <div class="col-md-2 mb-3">
               <div class="form-floating">
-                <input type="text" id="telalternativo" name="telalternativo" class="form-control input" minlength="9" maxlength="9" placeholder="956633983">
+                <input type="text" id="telalternativo" name="telalternativo" class="form-control input" autocomplete="off" minlength="9" maxlength="9" placeholder="956633983">
                 <label for="telalternativo">Tel. alternativo</label>
               </div>
             </div>
 
             <div class="col-md-8 mb-3">
               <div class="form-floating">
-                <input type="email" name="correo" class="form-control input" id="correo" minlength="10" maxlength="100" placeholder="thepunisher2000@gmail.com">
+                <input type="email" name="correo" class="form-control input" id="correo" autocomplete="off" minlength="10" maxlength="100" placeholder="thepunisher2000@gmail.com">
                 <label for="correo">Correo</label>
               </div>
             </div>
 
             <div class="col-md-2 mb-3">
               <div class="form-floating">
-                <input type="text" name="numruc" class="form-control input" id="numruc" minlength="11" maxlength="11" placeholder="N° RUC">
+                <input type="text" name="numruc" class="form-control input" id="numruc" autocomplete="off" minlength="11" maxlength="11" placeholder="N° RUC">
                 <label for="numruc">N° RUC</label>
               </div>
             </div>
@@ -112,31 +112,31 @@ require_once "../../partials/header.php";
           <div class="row">
             <div class="col-md-4 mb-3">
               <div class="form-floating">
-                <input type="text" id="ruc" name="ruc" class="form-control input" placeholder="rucdelaempresa" minlength="11" maxlength="11" required>
+                <input type="text" id="ruc" name="ruc" class="form-control input" placeholder="rucdelaempresa" minlength="11" maxlength="11" autocomplete="off" required>
                 <label for="ruc"><strong>RUC</strong></label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="text" id="nomcomercial" name="nomcomercial" class="form-control input" placeholder="nomcomercial" minlength="5" maxlength="100" required>
+                <input type="text" id="nomcomercial" name="nomcomercial" class="form-control input" placeholder="nomcomercial" minlength="5" autocomplete="off" maxlength="100" required>
                 <label for="nomcomercial"><strong>Nombre Comercial</strong></label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="text" id="razonsocial" name="razonsocial" class="form-control input" placeholder="razonsocia0l" minlength="5" maxlength="100" required>
+                <input type="text" id="razonsocial" name="razonsocial" class="form-control input" placeholder="razonsocia0l" autocomplete="off" minlength="5" maxlength="100" required>
                 <label for="razonsocial"><strong>Razón Social</strong></label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="text" id="telempresa" name="telempresa" class="form-control input" placeholder="telempresa" minlength="9" maxlength="9">
+                <input type="text" id="telempresa" name="telempresa" class="form-control input" placeholder="telempresa" autocomplete="off" minlength="9" maxlength="9">
                 <label for="telempresa"><strong>Teléfono</strong></label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="email" id="correoemp" name="correoemp" class="form-control input" placeholder="coreoemp" minlength="10" maxlength="100">
+                <input type="email" id="correoemp" name="correoemp" class="form-control input" placeholder="coreoemp"  autocomplete="off" minlength="10" maxlength="100">
                 <label for="correoEmp">Correo</label>
               </div>
             </div>
