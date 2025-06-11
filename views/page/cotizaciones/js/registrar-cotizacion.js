@@ -166,55 +166,86 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Agregar producto al detalle de venta
   agregarProductoBtn.addEventListener("click", function () {
-    const productoNombre = inputProductElement.value;
-    const productoPrecio = parseFloat(inputPrecio.value);
-    const productoCantidad = parseFloat(inputCantidad.value);
-    const productoDescuento = parseFloat(inputDescuento.value);
-    if (!productoNombre || isNaN(productoPrecio) || isNaN(productoCantidad)) {
-      alert("Por favor, complete todos los campos correctamente.");
-      return;
+    // 1) Leer y validar campos
+    const nombre = inputProductElement.value.trim();
+    const precio = parseFloat(inputPrecio.value);
+    const cantidad = parseFloat(inputCantidad.value);
+    const descuento = parseFloat(inputDescuento.value) || 0;
+
+    if (
+      !nombre ||
+      isNaN(precio) ||
+      isNaN(cantidad) ||
+      precio <= 0 ||
+      cantidad <= 0
+    ) {
+      return alert("Por favor, completa todos los campos correctamente.");
     }
     if (estaDuplicado(selectedProduct.idproducto)) {
       alert("Este producto ya ha sido agregado.");
-      inputProductElement.value = "";
-      inputPrecio.value = "";
-      inputCantidad.value = 1;
-      inputDescuento.value = 0;
+      resetCamposProducto();
       return;
     }
-    const importe = productoPrecio * productoCantidad - productoDescuento;
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.innerHTML = `
-            <td>${tabla.rows.length + 1}</td>
-            <td>${productoNombre}</td>
-            <td>${productoPrecio.toFixed(2)}</td>
-            <td>${productoCantidad}</td>
-            <td>${productoDescuento.toFixed(2)}</td>
-            <td>${importe.toFixed(2)}</td>
-            <td><button class="btn btn-danger btn-sm">X</button></td>
-        `;
-    nuevaFila.querySelector("button").addEventListener("click", function () {
-      nuevaFila.remove();
-      actualizarNumeros();
-      calcularTotales();
-    });
-    tabla.appendChild(nuevaFila);
-    // Agregar al array de detalles
+
+    // 2) Calcular importe y preparar objeto detalle
+    const importe = (precio * cantidad - descuento).toFixed(2);
     const detalle = {
       idproducto: selectedProduct.idproducto,
-      producto: productoNombre,
-      precio: productoPrecio,
-      cantidad: productoCantidad,
-      descuento: productoDescuento,
-      importe: importe.toFixed(2),
+      producto: nombre,
+      precio,
+      cantidad,
+      descuento,
+      importe,
     };
+    // Agregar al array
     detalleCotizacion.push(detalle);
+
+    // 3) Crear la fila en la tabla
+    const nuevaFila = document.createElement("tr");
+    nuevaFila.dataset.idproducto = detalle.idproducto;
+    nuevaFila.innerHTML = `
+    <td>${tabla.rows.length + 1}</td>
+    <td>${detalle.producto}</td>
+    <td>${detalle.precio.toFixed(2)}</td>
+    <td>${detalle.cantidad}</td>
+    <td>${detalle.descuento.toFixed(2)}</td>
+    <td>${detalle.importe}</td>
+    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+  `;
+    tabla.appendChild(nuevaFila);
+
+    // 4) Listener para el botón “X” (quitar)
+    nuevaFila
+      .querySelector(".btn-quitar")
+      .addEventListener("click", function () {
+        // 4.1) Eliminar del array usando el data-idproducto
+        const id = nuevaFila.dataset.idproducto;
+        const idx = detalleCotizacion.findIndex(
+          (d) => String(d.idproducto) === id
+        );
+        if (idx > -1) detalleCotizacion.splice(idx, 1);
+
+        // 4.2) Eliminar la fila del DOM
+        nuevaFila.remove();
+
+        // 4.3) Renumerar y recalcular totales
+        actualizarNumeros();
+        calcularTotales();
+      });
+
+    // 5) Limpiar campos y recalcular totales
+    resetCamposProducto();
+    actualizarNumeros();
+    calcularTotales();
+  });
+
+  // Función para resetear los campos de entrada de producto
+  function resetCamposProducto() {
     inputProductElement.value = "";
     inputPrecio.value = "";
     inputCantidad.value = 1;
     inputDescuento.value = 0;
-    calcularTotales();
-  });
+  }
 
   function actualizarNumeros() {
     const filas = tabla.getElementsByTagName("tr");

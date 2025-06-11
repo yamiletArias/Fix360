@@ -224,8 +224,6 @@ document.addEventListener("DOMContentLoaded", function () {
       calcularTotales();
     }
 
-    // — Asignar listeners —
-
     // Botones de cantidad
     decBtn.addEventListener("click", () => {
       qtyInput.stepDown();

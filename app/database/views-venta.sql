@@ -915,8 +915,8 @@ CREATE VIEW vista_total_por_venta AS
 SELECT
   idventa,
   ROUND(
-    SUM(total_producto)
-    + SUM(COALESCE(precio_servicio,0))
+    COALESCE(SUM(total_producto), 0)
+    + COALESCE(SUM(precio_servicio), 0)
   , 2) AS total
 FROM vista_detalle_venta
 GROUP BY idventa;
@@ -1555,6 +1555,35 @@ SELECT
   CASE
     WHEN cli.idempresa IS NOT NULL THEN e.nomcomercial
     WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
+    ELSE 'Sin cliente'
+  END AS cliente,
+  -- Si no hay detalles, SUM(dc.precio) es NULL; COALESCE lo cambia a 0
+  COALESCE(SUM(dc.precio), 0) AS total,
+  c.vigenciadias AS vigencia,
+  c.fechahora
+FROM cotizaciones c
+LEFT JOIN clientes cli
+  ON c.idcliente = cli.idcliente
+LEFT JOIN empresas e
+  ON cli.idempresa = e.idempresa
+LEFT JOIN personas p
+  ON cli.idpersona = p.idpersona
+LEFT JOIN detallecotizacion dc
+  ON c.idcotizacion = dc.idcotizacion
+WHERE c.estado = FALSE
+GROUP BY
+  c.idcotizacion,
+  cliente,
+  c.vigenciadias,
+  c.fechahora;
+  
+/*DROP VIEW IF EXISTS vs_cotizaciones_eliminadas;
+CREATE VIEW vs_cotizaciones_eliminadas AS
+SELECT 
+  c.idcotizacion,
+  CASE
+    WHEN cli.idempresa IS NOT NULL THEN e.nomcomercial
+    WHEN cli.idpersona IS NOT NULL THEN CONCAT(p.nombres, ' ', p.apellidos)
   END AS cliente,
   SUM(dc.precio) AS total,
   c.vigenciadias AS vigencia,
@@ -1564,7 +1593,7 @@ LEFT JOIN clientes cli ON c.idcliente = cli.idcliente
 LEFT JOIN empresas e ON cli.idempresa = e.idempresa
 LEFT JOIN personas p ON cli.idpersona = p.idpersona
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
-WHERE c.estado = FALSE;
+WHERE c.estado = FALSE;*/
 
 -- DETALLE DE COTIZACIÓN ELIMINADA
 DROP VIEW IF EXISTS vista_detalle_cotizacion_eliminada;

@@ -310,14 +310,14 @@ require_once "../../partials/_footer.php";
                     render: function (data, type, row) {
                         return `
                             <button class="btn btn-primary btn-sm btn-ver-justificacion"
-                                data-id="${row.id}"
+                                data-id="${row.idcotizacion}"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalVerJustificacion">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                             <button title="Detalle de la cotización" class="btn btn-info btn-sm btn-detalle"
                                     data-action="detalle"
-                                    data-id="${row.id}"
+                                    data-id="${row.idcotizacion}"
                                     data-bs-toggle="modal"
                                     data-bs-target="#miModal">
                                 <i class='fa-solid fa-clipboard-list'></i>
