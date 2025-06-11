@@ -201,7 +201,7 @@ require_once "../../partials/header.php";
         <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <form id="form-nuevo-producto">
+        <form id="form-nuevo-producto" autocomplete="off">
           <div class="row g-3">
 
             <!-- Marca -->
@@ -339,7 +339,7 @@ require_once "../../partials/header.php";
 <!-- Modal para agregar Marca -->
 <div class="modal fade" id="modalMarca" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form id="formAddMarca" class="modal-content">
+    <form id="formAddMarca" class="modal-content" autocomplete="off">
       <div class="modal-header">
         <h5 class="modal-title">Nueva Marca</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -362,7 +362,7 @@ require_once "../../partials/header.php";
 <!-- Modal para agregar Categoría -->
 <div class="modal fade" id="modalCategoria" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form id="formAddCategoria" class="modal-content">
+    <form id="formAddCategoria" class="modal-content" autocomplete="off">
       <div class="modal-header">
         <h5 class="modal-title">Nueva Categoría</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -385,7 +385,7 @@ require_once "../../partials/header.php";
 <!-- Modal para agregar Subcategoría -->
 <div class="modal fade" id="modalSubcategoria" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form id="formAddSubcategoria" class="modal-content">
+    <form id="formAddSubcategoria" class="modal-content" autocomplete="off">
       <div class="modal-header">
         <h5 class="modal-title">Nueva Subcategoría</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -414,7 +414,7 @@ require_once "../../partials/header.php";
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <form id="formProveedor">
+        <form id="formProveedor" autocomplete="off">
           <div class="row g-3">
             <div class="col-12">
               <div class="form-floating">
