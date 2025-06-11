@@ -128,6 +128,18 @@ require_once "../../partials/_footer.php";
     });
 </script>
 <script>
+    function toggleNumTransAmort() {
+        // Obtenemos el texto de la opción seleccionada, en minúsculas
+        const texto = $('#am_formapago_com option:selected').text().trim().toLowerCase();
+        if (texto === 'efectivo') {
+            // Si es efectivo, ocultar y limpiar
+            $('#div_num_transaccion_com').hide()
+                .find('input').val('');
+        } else {
+            // Si no es efectivo, mostrar
+            $('#div_num_transaccion_com').show();
+        }
+    }
     $(document).on('click', '.btn-amortizar', async function () {
         const id = $(this).data('id');
         const monto = parseFloat($(this).data('total')) || 0;
@@ -163,7 +175,10 @@ require_once "../../partials/_footer.php";
             const js = await resp.json();
             if (js.status === 'success') {
                 $sel.empty();
-                js.data.forEach(fp => $sel.append(`<option value="${fp.idformapago}">${fp.formapago}</option>`));
+                js.data.forEach(fp => {
+                    $sel.append(`<option value="${fp.idformapago}">${fp.formapago}</option>`);
+                });
+                // Seleccionar por defecto 'Efectivo' si existe
                 $sel.find('option').filter((i, opt) => opt.text.toLowerCase() === 'efectivo').prop('selected', true);
             } else {
                 $sel.html('<option>Error</option>');
@@ -172,6 +187,9 @@ require_once "../../partials/_footer.php";
             $sel.html('<option>Error</option>');
         } finally {
             $sel.prop('disabled', false);
+            // Registrar listener y ejecutar inmediatamente para ajustar visibilidad
+            $sel.off('change', toggleNumTransAmort).on('change', toggleNumTransAmort);
+            toggleNumTransAmort();
         }
 
         // carga amortizaciones previas...
@@ -320,87 +338,124 @@ require_once "../../partials/_footer.php";
     }
 
     function verDetalleCompra(idcompra) {
-        const modal = $('#miModal');
-        const tbody = modal.find('tbody');
+    const modal = $('#miModal');
+    const tbody = modal.find('tbody');
 
-        // Limpiar contenido previo
-        modal.find('#proveedor, #fechaCompra').val('');
-        tbody.empty();
-        modal.find('.amortizaciones-container').remove();
+    // Limpiar contenido previo
+    modal.find('#proveedor, #fechaCompra').val('');
+    tbody.empty();
+    modal.find('.amortizaciones-container, .totales-container').remove();
 
-        // Mostrar modal
-        modal.modal('show');
+    // Mostrar modal
+    modal.modal('show');
 
-        // Petición AJAX para detalle de compra
-        $.ajax({
-            url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
-            method: "GET",
-            data: { idcompra },
-            dataType: "json",
-            success(response) {
-                if (!Array.isArray(response) || response.length === 0) {
-                    tbody.append(
-                        `<tr><td colspan="6" class="text-center">No hay detalles disponibles</td></tr>`
-                    );
-                    return;
-                }
+    // 1) Petición AJAX para detalle de compra
+    $.ajax({
+        url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
+        method: "GET",
+        data: { idcompra },
+        dataType: "json",
+        success(response) {
+            if (!Array.isArray(response) || response.length === 0) {
+                tbody.append(
+                    `<tr><td colspan="6" class="text-center">No hay detalles disponibles</td></tr>`
+                );
+                return;
+            }
 
-                // Rellenar encabezados: proveedor y fecha
-                modal.find('#proveedor').val(response[0].proveedor);
-                modal.find('#fechaCompra').val(response[0].fechacompra);
+            // Rellenar encabezados: proveedor y fecha
+            modal.find('#proveedor').val(response[0].proveedor);
+            modal.find('#fechaCompra').val(response[0].fechacompra);
 
-                // Agregar filas de productos
-                response.forEach((item, i) => {
-                    tbody.append(`
+            // Agregar filas de productos
+            response.forEach((item, i) => {
+                tbody.append(`
                     <tr>
                         <td>${i + 1}</td>
                         <td>${item.producto}</td>
                         <td>${item.cantidad}</td>
-                        <td>${parseFloat(item.precio).toFixed(2)}</td>
+                        <td>${parseFloat(item.precio).toFixed(2)} $</td>
                         <td>${parseFloat(item.descuento).toFixed(2)} $</td>
                         <td>${parseFloat(item.total_producto).toFixed(2)} $</td>
                     </tr>
-                    `);
-                });
+                `);
+            });
 
-                // Cargar amortizaciones si existen
-                fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?action=list&idcompra=${idcompra}`)
-                    .then(r => r.json())
-                    .then(json => {
-                        if (json.status === 'success' && Array.isArray(json.data) && json.data.length) {
-                            const cont = $(
-                                `<div class="amortizaciones-container mt-4">
-                <h6>Amortizaciones</h6>
-                <table class="table table-sm">
-                  <thead><tr>
-                    <th>#</th><th>Transacción</th><th>Monto</th><th>F. Pago</th><th>Saldo</th>
-                  </tr></thead>
-                  <tbody></tbody>
-                </table>
-              </div>`
-                            );
-                            const bodyAmp = cont.find('tbody');
-                            json.data.forEach((a, i) => {
-                                bodyAmp.append(`
-                <tr>
-                  <td>${i + 1}</td>
-                  <td>${new Date(a.creado).toLocaleString()}</td>
-                  <td>${parseFloat(a.amortizacion).toFixed(2)}</td>
-                  <td>${a.formapago}</td>
-                  <td>${parseFloat(a.saldo).toFixed(2)}</td>
-                </tr>
-              `);
+            // 2) Cargar amortizaciones y totales
+            fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idcompra=${idcompra}`)
+                .then(r => r.json())
+                .then(json => {
+                    if (json.status !== 'success') return;
+
+                    const amort = json.data;                            // array de amortizaciones
+                    const totalCompra     = json.total_original;        // total original
+                    const amortizado      = json.total_pagado;          // ya pagado
+                    const saldoPendiente  = json.total_pendiente;       // queda por pagar
+
+                    // Sólo si hay amortizaciones, agregamos la tabla
+                    if (amort.length) {
+                        let html = `
+                        <div class="amortizaciones-container mt-4">
+                            <h6>Amortizaciones</h6>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Fecha</th>
+                                        <th>Nº Transacción</th>
+                                        <th>Monto</th>
+                                        <th>Forma de Pago</th>
+                                        <th>Saldo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                        amort.forEach((a, i) => {
+                            const dt = new Date(a.creado);
+                            const fecha = dt.toLocaleDateString('es-PE', {
+                                day: '2-digit', month: '2-digit', year: 'numeric'
                             });
-                            modal.find('.modal-body').append(cont);
-                        }
-                    })
-                    .catch(err => console.error("Error amortizaciones:", err));
-            },
-            error() {
-                alert("Ocurrió un error al cargar el detalle.");
-            }
-        });
-    }
+                            const hora = dt.toLocaleTimeString('es-PE', {
+                                hour: '2-digit', minute: '2-digit'
+                            });
+                            html += `
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td>${fecha} ${hora}</td>
+                                    <td>${a.numtransaccion}</td>
+                                    <td>S/ ${parseFloat(a.amortizacion).toFixed(2)}</td>
+                                    <td>${a.formapago}</td>
+                                    <td>S/ ${parseFloat(a.saldo).toFixed(2)}</td>
+                                </tr>`;
+                        });
+
+                        html += `
+                                </tbody>
+                            </table>
+                        </div>`;
+
+                        modal.find('.modal-body').append(html);
+                    }
+
+                    // 3) Agregar bloque de totales siempre
+                    const totalesHtml = `
+                        <div class="totales-container text-end pe-3 mt-3">
+                            <p><strong>Total Compra:</strong> S/ ${parseFloat(totalCompra).toFixed(2)}</p>
+                            <p><strong>Amortizado:</strong> S/ ${parseFloat(amortizado).toFixed(2)}</p>
+                            <p><strong>Saldo Pendiente:</strong> S/ ${parseFloat(saldoPendiente).toFixed(2)}</p>
+                        </div>
+                    `;
+                    modal.find('.modal-body').append(totalesHtml);
+                })
+                .catch(err => {
+                    console.error("Error amortizaciones:", err);
+                });
+        },
+        error() {
+            alert("Ocurrió un error al cargar el detalle de compra.");
+        }
+    });
+}
 
     $(document).ready(function () {
         // Inicializar fecha de hoy y tabla
@@ -483,10 +538,18 @@ require_once "../../partials/_footer.php";
             const monto = parseFloat($('#am_monto_com').val());
             const formapago = +$('#am_formapago_com').val();
             if (!monto || monto <= 0) return alert('Monto inválido');
+
             const form = new FormData();
             form.append('idcompra', idcompra);
             form.append('monto', monto);
             form.append('idformapago', formapago);
+
+            const $numField = $('#num_transaccion_com');
+            // Sólo si está visible y no vacío, lo agregamos
+            if ($numField.is(':visible') && $numField.val().trim() !== '') {
+                form.append('numtransaccion', $numField.val().trim());
+            }
+
             const res = await fetch("<?= SERVERURL ?>app/controllers/Amortizacion.controller.php", {
                 method: 'POST', body: form
             }).then(r => r.json());
@@ -521,6 +584,11 @@ require_once "../../partials/_footer.php";
                     <select id="am_formapago_com" class="form-select">
                         <!-- Aquí puedes cargar las formas de pago si tienes disponibles -->
                     </select>
+                </div>
+                <!-- Oculto por defecto -->
+                <div class="mb-3" id="div_num_transaccion_com" style="display: none;">
+                    <label>Numero de Transacción</label>
+                    <input type="text" id="num_transaccion_com" name="numtransaccion" class="form-control input">
                 </div>
             </div>
             <div class="modal-footer">

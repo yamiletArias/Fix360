@@ -12,52 +12,102 @@ class Amortizacion extends Conexion
     }
 
     /**
-     * Crea una amortización para venta o compra
-     * @param string $tipo 'venta' o 'compra'
+     * Crea una amortización para venta o compra.
+     * Si es compra, inserta también un egreso.
+     *
+     * @param string $tipo             'venta' o 'compra'
+     * @param int    $id               idventa o idcompra
+     * @param int    $idformapago
+     * @param float  $monto
+     * @param string $numTrans         Opcional: número de transacción
+     * @param int    $idadmin          quien registra el egreso
+     * @param int    $idcolaborador    quien recibe el dinero
+     * @param string $numcomprobante   opcional
+     * @param string $justificacion    opcional
+     * @return array
+     * @throws Exception
      */
-    public function create($tipo, $id, $idformapago, $monto, $numTrans = null): array
-    {
-        // obtener info previa
+    public function create(
+        string $tipo,
+        int $id,
+        int $idformapago,
+        float $monto,
+        ?string $numTrans = null,
+        int $idadmin,
+        int $idcolaborador,
+        ?string $numcomprobante = null,
+        ?string $justificacion = null
+    ): array {
+        // 1) Obtener info previa y validar monto
         $info = $this->obtenerInfo($tipo, $id);
         $saldoPrevio = (float) $info['total_pendiente'];
-
         if ($monto > $saldoPrevio) {
             throw new Exception("El monto de amortización no puede exceder el saldo restante");
         }
 
-        // calcular nuevo saldo y estado
+        // 2) Calcular nuevo saldo y estado
         $nuevoSaldo = $saldoPrevio - $monto;
         $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
 
-        // generar numTrans
+        // 3) Generar numTrans si no viene
         if (!$numTrans) {
             $numTrans = uniqid();
         }
-        /* $numTrans = uniqid(); */
 
-        // insertar amortización
-        $sql = "INSERT INTO amortizaciones
-        (idventa, idcompra, idformapago, amortizacion, saldo, estado, numtransaccion)
-        VALUES (?, ?, ?, ?, ?, ?, ?)";
-        if ($tipo === 'venta') {
-            $params = [$id, null, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans];
-        } else {
-            $params = [null, $id, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans];
+        // 4) Iniciar transacción
+        $this->pdo->beginTransaction();
+        try {
+            // 5) Insertar en amortizaciones
+            $sqlA = "INSERT INTO amortizaciones
+                (idventa, idcompra, idformapago, amortizacion, saldo, estado, numtransaccion)
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $paramsA = $tipo === 'venta'
+                ? [$id, null, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans]
+                : [null, $id, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans];
+            $stmtA = $this->pdo->prepare($sqlA);
+            $stmtA->execute($paramsA);
+            $lastId = $this->pdo->lastInsertId();
+
+            // 6) Si es compra, insertar egreso
+            if ($tipo === 'compra') {
+                $sqlE = "INSERT INTO egresos
+                    (idadmin, idcolaborador, idformapago, idcompra, concepto, monto, numcomprobante, justificacion)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $concepto = "compra de insumos";
+                $numcomprobante = $numcomprobante ?: $numTrans;
+                $paramsE = [
+                    $idadmin,
+                    $idcolaborador,
+                    $idformapago,
+                    $id,
+                    $concepto,
+                    $monto,
+                    $numcomprobante,
+                    $justificacion
+                ];
+                $stmtE = $this->pdo->prepare($sqlE);
+                $stmtE->execute($paramsE);
+            }
+
+            // 7) Commit
+            $this->pdo->commit();
+
+            // 8) Devolver datos de amortización
+            return [
+                'idamortizacion' => $lastId,
+                $tipo === 'venta' ? 'idventa' : 'idcompra' => $id,
+                'idformapago' => $idformapago,
+                'amortizacion' => number_format($monto, 2, '.', ''),
+                'saldo' => number_format($nuevoSaldo, 2, '.', ''),
+                'numtransaccion' => $numTrans,
+                'creado' => date('Y-m-d H:i:s')
+            ];
+
+        } catch (Exception $e) {
+            // Rollback en caso de error
+            $this->pdo->rollBack();
+            throw $e;
         }
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-
-        // devolver registro
-        $lastId = $this->pdo->lastInsertId();
-        return [
-            'idamortizacion' => $lastId,
-            $tipo === 'venta' ? 'idventa' : 'idcompra' => $id,
-            'idformapago' => $idformapago,
-            'amortizacion' => number_format($monto, 2, '.', ''),
-            'saldo' => number_format($nuevoSaldo, 2, '.', ''),
-            'numtransaccion' => $numTrans,
-            'creado' => date('Y-m-d H:i:s')
-        ];
     }
 
     /**
@@ -69,14 +119,17 @@ class Amortizacion extends Conexion
             $sql = "SELECT total_original, total_pagado, total_pendiente
                     FROM vista_saldos_por_venta WHERE idventa = ?";
         } else {
-            // totales de compra desde vistas
-            $sql = "SELECT total_original, total_pagado, total_pendiente 
+            $sql = "SELECT total_original, total_pagado, total_pendiente
                     FROM vista_saldos_por_compra WHERE idcompra = ?";
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
         $fila = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $fila ?: ['total_original' => 0, 'total_pagado' => 0, 'total_pendiente' => 0];
+        return $fila ?: [
+            'total_original' => 0,
+            'total_pagado' => 0,
+            'total_pendiente' => 0
+        ];
     }
 
     /**
@@ -85,13 +138,14 @@ class Amortizacion extends Conexion
     public function listBy($tipo, $id)
     {
         if ($tipo === 'venta') {
-            $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idventa = ? ORDER BY idamortizacion";
+            $sql = "SELECT * FROM vista_amortizaciones_con_formapago
+                    WHERE idventa = ? ORDER BY idamortizacion";
         } else {
-            $sql = "SELECT * FROM vista_amortizaciones_con_formapago WHERE idcompra = ? ORDER BY idamortizacion";
+            $sql = "SELECT * FROM vista_amortizaciones_con_formapago
+                    WHERE idcompra = ? ORDER BY idamortizacion";
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
 }
