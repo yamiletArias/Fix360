@@ -72,12 +72,13 @@ try {
       $id,
       $fp,
       $monto,
-      $numTran,
       $idadmin,
       $idcolaborador,
+      $numTran,
       $numcomprobante,
       $justificacion
     );
+
 
     echo json_encode([
       'status' => 'success',

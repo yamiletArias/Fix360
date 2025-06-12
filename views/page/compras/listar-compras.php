@@ -338,63 +338,63 @@ require_once "../../partials/_footer.php";
     }
 
     function verDetalleCompra(idcompra) {
-    const modal = $('#miModal');
-    const tbody = modal.find('tbody');
+        const modal = $('#miModal');
+        const tbody = modal.find('tbody');
 
-    // Limpiar contenido previo
-    modal.find('#proveedor, #fechaCompra').val('');
-    tbody.empty();
-    modal.find('.amortizaciones-container, .totales-container').remove();
+        // Limpiar contenido previo
+        modal.find('#proveedor, #fechaCompra').val('');
+        tbody.empty();
+        modal.find('.amortizaciones-container, .totales-container').remove();
 
-    // Mostrar modal
-    modal.modal('show');
+        // Mostrar modal
+        modal.modal('show');
 
-    // 1) Petición AJAX para detalle de compra
-    $.ajax({
-        url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
-        method: "GET",
-        data: { idcompra },
-        dataType: "json",
-        success(response) {
-            if (!Array.isArray(response) || response.length === 0) {
-                tbody.append(
-                    `<tr><td colspan="6" class="text-center">No hay detalles disponibles</td></tr>`
-                );
-                return;
-            }
+        // 1) Petición AJAX para detalle de compra
+        $.ajax({
+            url: "<?= SERVERURL ?>app/controllers/Detcompra.controller.php",
+            method: "GET",
+            data: { idcompra },
+            dataType: "json",
+            success(response) {
+                if (!Array.isArray(response) || response.length === 0) {
+                    tbody.append(
+                        `<tr><td colspan="6" class="text-center">No hay detalles disponibles</td></tr>`
+                    );
+                    return;
+                }
 
-            // Rellenar encabezados: proveedor y fecha
-            modal.find('#proveedor').val(response[0].proveedor);
-            modal.find('#fechaCompra').val(response[0].fechacompra);
+                // Rellenar encabezados: proveedor y fecha
+                modal.find('#proveedor').val(response[0].proveedor);
+                modal.find('#fechaCompra').val(response[0].fechacompra);
 
-            // Agregar filas de productos
-            response.forEach((item, i) => {
-                tbody.append(`
+                // Agregar filas de productos
+                response.forEach((item, i) => {
+                    tbody.append(`
                     <tr>
                         <td>${i + 1}</td>
                         <td>${item.producto}</td>
                         <td>${item.cantidad}</td>
-                        <td>${parseFloat(item.precio).toFixed(2)} $</td>
-                        <td>${parseFloat(item.descuento).toFixed(2)} $</td>
-                        <td>${parseFloat(item.total_producto).toFixed(2)} $</td>
+                        <td>S/ ${parseFloat(item.precio).toFixed(2)}</td>
+                        <td>S/ ${parseFloat(item.descuento).toFixed(2)}</td>
+                        <td>S/ ${parseFloat(item.total_producto).toFixed(2)}</td>
                     </tr>
                 `);
-            });
+                });
 
-            // 2) Cargar amortizaciones y totales
-            fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idcompra=${idcompra}`)
-                .then(r => r.json())
-                .then(json => {
-                    if (json.status !== 'success') return;
+                // 2) Cargar amortizaciones y totales
+                fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idcompra=${idcompra}`)
+                    .then(r => r.json())
+                    .then(json => {
+                        if (json.status !== 'success') return;
 
-                    const amort = json.data;                            // array de amortizaciones
-                    const totalCompra     = json.total_original;        // total original
-                    const amortizado      = json.total_pagado;          // ya pagado
-                    const saldoPendiente  = json.total_pendiente;       // queda por pagar
+                        const amort = json.data;                            // array de amortizaciones
+                        const totalCompra = json.total_original;        // total original
+                        const amortizado = json.total_pagado;          // ya pagado
+                        const saldoPendiente = json.total_pendiente;       // queda por pagar
 
-                    // Sólo si hay amortizaciones, agregamos la tabla
-                    if (amort.length) {
-                        let html = `
+                        // Sólo si hay amortizaciones, agregamos la tabla
+                        if (amort.length) {
+                            let html = `
                         <div class="amortizaciones-container mt-4">
                             <h6>Amortizaciones</h6>
                             <table class="table table-sm">
@@ -410,15 +410,15 @@ require_once "../../partials/_footer.php";
                                 </thead>
                                 <tbody>`;
 
-                        amort.forEach((a, i) => {
-                            const dt = new Date(a.creado);
-                            const fecha = dt.toLocaleDateString('es-PE', {
-                                day: '2-digit', month: '2-digit', year: 'numeric'
-                            });
-                            const hora = dt.toLocaleTimeString('es-PE', {
-                                hour: '2-digit', minute: '2-digit'
-                            });
-                            html += `
+                            amort.forEach((a, i) => {
+                                const dt = new Date(a.creado);
+                                const fecha = dt.toLocaleDateString('es-PE', {
+                                    day: '2-digit', month: '2-digit', year: 'numeric'
+                                });
+                                const hora = dt.toLocaleTimeString('es-PE', {
+                                    hour: '2-digit', minute: '2-digit'
+                                });
+                                html += `
                                 <tr>
                                     <td>${i + 1}</td>
                                     <td>${fecha} ${hora}</td>
@@ -427,35 +427,35 @@ require_once "../../partials/_footer.php";
                                     <td>${a.formapago}</td>
                                     <td>S/ ${parseFloat(a.saldo).toFixed(2)}</td>
                                 </tr>`;
-                        });
+                            });
 
-                        html += `
+                            html += `
                                 </tbody>
                             </table>
                         </div>`;
 
-                        modal.find('.modal-body').append(html);
-                    }
+                            modal.find('.modal-body').append(html);
+                        }
 
-                    // 3) Agregar bloque de totales siempre
-                    const totalesHtml = `
+                        // 3) Agregar bloque de totales siempre
+                        const totalesHtml = `
                         <div class="totales-container text-end pe-3 mt-3">
                             <p><strong>Total Compra:</strong> S/ ${parseFloat(totalCompra).toFixed(2)}</p>
                             <p><strong>Amortizado:</strong> S/ ${parseFloat(amortizado).toFixed(2)}</p>
                             <p><strong>Saldo Pendiente:</strong> S/ ${parseFloat(saldoPendiente).toFixed(2)}</p>
                         </div>
                     `;
-                    modal.find('.modal-body').append(totalesHtml);
-                })
-                .catch(err => {
-                    console.error("Error amortizaciones:", err);
-                });
-        },
-        error() {
-            alert("Ocurrió un error al cargar el detalle de compra.");
-        }
-    });
-}
+                        modal.find('.modal-body').append(totalesHtml);
+                    })
+                    .catch(err => {
+                        console.error("Error amortizaciones:", err);
+                    });
+            },
+            error() {
+                alert("Ocurrió un error al cargar el detalle de compra.");
+            }
+        });
+    }
 
     $(document).ready(function () {
         // Inicializar fecha de hoy y tabla

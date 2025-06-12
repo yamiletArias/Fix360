@@ -32,9 +32,9 @@ class Amortizacion extends Conexion
         int $id,
         int $idformapago,
         float $monto,
-        ?string $numTrans = null,
         int $idadmin,
         int $idcolaborador,
+        ?string $numTrans = null,
         ?string $numcomprobante = null,
         ?string $justificacion = null
     ): array {

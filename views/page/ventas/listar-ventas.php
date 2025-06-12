@@ -336,9 +336,9 @@ require_once "../../partials/_footer.php";
                             <td>${i + 1}</td>
                             <td>${p.producto}</td>
                             <td>${p.cantidad}</td>
-                            <td>${parseFloat(p.precio).toFixed(2)} $</td>
-                            <td>${parseFloat(p.descuento).toFixed(2)} $</td>
-                            <td>${parseFloat(p.total_producto).toFixed(2)} $</td>
+                            <td>S/ ${parseFloat(p.precio).toFixed(2)}</td>
+                            <td>S/ ${parseFloat(p.descuento).toFixed(2)}</td>
+                            <td>S/ ${parseFloat(p.total_producto).toFixed(2)}</td>
                         </tr>
                     `);
                     });
@@ -364,7 +364,7 @@ require_once "../../partials/_footer.php";
                             <td>${s.nombreservicio ?? '-'}</td>
                             <td>${s.mecanico ?? '-'}</td>
                             <td>${s.precio_servicio != null
-                                ? parseFloat(s.precio_servicio).toFixed(2) + ' $'
+                                ? parseFloat(s.precio_servicio).toFixed(2) + ' S/'
                                 : '-'
                             }</td>
                         </tr>
