@@ -143,9 +143,7 @@ require_once "../../partials/header.php";
     fechaIngresoInput.disabled = true;
 
     btnCandado.addEventListener('click', () => {
-      // Habilitar el input
       fechaIngresoInput.disabled = false;
-      // Cambiar icono y estilo
       btnCandado.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
       btnCandado.classList.remove('btn-outline-warning');
       btnCandado.classList.add('btn-outline-success');
@@ -153,55 +151,35 @@ require_once "../../partials/header.php";
       btnCandado.disabled = true;
     });
 
-    // Cancelar → volver al listado
     btnCancelar.addEventListener('click', () => {
       window.location.href = 'listar-egresos.php';
     });
 
-    // Submit del form con ask() y showToast()
     formEgreso.addEventListener('submit', async e => {
       e.preventDefault();
 
-      // 1) Validaciones previas
+      // Validaciones previas
       const idcolaborador  = parseInt(formEgreso.idcolaborador.value, 10);
       const idformapago    = parseInt(formEgreso.idformapago.value, 10);
       const concepto       = formEgreso.concepto.value.trim();
       const monto          = parseFloat(formEgreso.monto.value);
       const numcomprobante = formEgreso.numcomprobante.value.trim();
-      const fecharegistro  = fechaIngresoInput.value;
+      if (!idcolaborador)    { showToast('Debe seleccionar un colaborador','ERROR',1500); return; }
+      if (!idformapago)      { showToast('Debe seleccionar una forma de entrega','ERROR',1500); return; }
+      if (!concepto)         { showToast('Debe seleccionar un concepto','ERROR',1500); return; }
+      if (isNaN(monto) || monto <= 0) { showToast('El monto debe ser mayor que 0','ERROR',1500); return; }
+      if (!fechaIngresoInput.value)   { showToast('La fecha es obligatoria','ERROR',1500); return; }
 
-      if (!idcolaborador) {
-        showToast('Debe seleccionar un colaborador', 'ERROR', 1500);
-        return;
-      }
-      if (!idformapago) {
-        showToast('Debe seleccionar una forma de entrega', 'ERROR', 1500);
-        return;
-      }
-      if (!concepto) {
-        showToast('Debe seleccionar un concepto', 'ERROR', 1500);
-        return;
-      }
-      if (isNaN(monto) || monto <= 0) {
-        showToast('El monto debe ser mayor que 0', 'ERROR', 1500);
-        return;
-      }
-      if (!fecharegistro) {
-        showToast('La fecha es obligatoria', 'ERROR', 1500);
-        return;
-      }
+      // Formateo de la fecha para MySQL DATETIME
+      const rawFecha      = fechaIngresoInput.value;            // "2025-06-12T14:30"
+      const fecharegistro = rawFecha.replace('T', ' ') + ':00'; // "2025-06-12 14:30:00"
 
-      // 2) Confirmación con SweetAlert2 (ask)
-      const confirmado = await ask(
-        "¿Estás seguro de que deseas registrar este egreso?",
-        "Egresos"
-      );
-      if (!confirmado) {
-        return;
-      }
+      // Confirmación
+      const confirmado = await ask("¿Estás seguro de que deseas registrar este egreso?","Egresos");
+      if (!confirmado) return;
 
-      // 3) Envío al controller
-      const data = {
+      // Payload
+      const payload = {
         action: 'register',
         idcolaborador,
         idformapago,
@@ -210,26 +188,45 @@ require_once "../../partials/header.php";
         numcomprobante,
         fecharegistro
       };
+      console.log('Payload egreso →', payload);
 
       try {
-        const resp = await fetch(API, {
+        // 1) Llamada al servidor
+        const fetchResponse = await fetch(API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        }).then(r => r.json());
+          body: JSON.stringify(payload)
+        });
+        console.log('Fetch response object →', fetchResponse);
 
-        if (resp.status === 'success') {
-          showToast('Egreso registrado correctamente', 'SUCCESS', 1500);
-          setTimeout(() => {
-            window.location.href = 'listar-egresos.php';
-          }, 1500);
-        } else {
-          showToast('Error: ' + (resp.message || 'No se pudo registrar.'), 'ERROR', 2000);
+        // 2) Texto crudo de la respuesta
+        const text = await fetchResponse.text();
+        console.log('Response text →', text);
+
+        // 3) Intentar parsear a JSON
+        let json;
+        try {
+          json = JSON.parse(text);
+        } catch (parseErr) {
+          console.error('Error parseando JSON:', parseErr);
+          showToast('Respuesta inválida del servidor','ERROR',2000);
+          return;
         }
+        console.log('Response JSON →', json);
+
+        // 4) Lógica según status
+        if (json.status === 'success') {
+          showToast('Egreso registrado correctamente','SUCCESS',1500);
+          setTimeout(() => window.location.href = 'listar-egresos.php', 1500);
+        } else {
+          showToast('Error: ' + (json.message || 'No se pudo registrar.'),'ERROR',2000);
+        }
+
       } catch (err) {
-        console.error('Error al registrar egreso:', err);
-        showToast('Error de servidor. Intenta nuevamente.', 'ERROR', 2000);
+        console.error('Error en el fetch:', err);
+        showToast('Error de servidor. Intenta nuevamente.','ERROR',2000);
       }
     });
   });
 </script>
+

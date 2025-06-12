@@ -1,11 +1,26 @@
 <?php
-// app/controllers/egresos.controller.php
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../models/sesion.php';
-require_once '../models/Egreso.php';
+session_start();
+
+// 1) Validar sesión
+if (
+  !isset($_SESSION['login']) ||
+  empty($_SESSION['login']['status']) ||
+  $_SESSION['login']['status'] !== true
+) {
+  header("HTTP/1.1 401 Unauthorized");
+  echo json_encode(['status'=>'error','message'=>'No autorizado']);
+  exit;
+}
+$idadmin = intval($_SESSION['login']['idcolaborador']);
+
+// 2) Modelos y resto del controller
+require_once __DIR__ . '/../models/Egreso.php';
 require_once '../helpers/helper.php';
 
 $egresoModel = new Egreso();
+// …
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -41,11 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'numcomprobante' => Helper::limpiarCadena($data['numcomprobante'] ?? '')
     ];
 
-    $idegreso = $egresoModel->registerEgreso($params);
-    echo json_encode($idegreso > 0
-        ? ['status' => 'success', 'idegreso' => $idegreso]
-        : ['status' => 'error', 'message' => 'No se pudo registrar el egreso']
-    );
+     try {
+       $idegreso = $egresoModel->registerEgreso($params);
+       echo json_encode(['status' => 'success', 'idegreso' => $idegreso]);
+   } catch (Exception $e) {
+       // aquí vemos el mensaje real ("Column 'justificacion' no default", "Incorrect datetime value", etc)
+       echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+   }
+    
     exit;
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {

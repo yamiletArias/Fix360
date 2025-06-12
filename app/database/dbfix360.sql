@@ -364,7 +364,7 @@ CREATE TABLE egresos (
   idadmin            INT             NOT NULL,  -- quien registra el egreso
   idcolaborador      INT             NOT NULL,  -- quien recibe el dinero
   idformapago        INT             NOT NULL,
-  idcompra 			 INT 			NOT NULL,
+  idcompra 			 INT 			 NULL,
   concepto           VARCHAR(100)    NOT NULL,
   monto              DECIMAL(10,2)   NOT NULL,
   fecharegistro      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,

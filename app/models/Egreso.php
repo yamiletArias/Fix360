@@ -90,12 +90,12 @@ class Egreso extends Conexion
 
             $pdo->commit();
             return $idegreso;
-        } catch (Exception $e) {
+       } catch (Exception $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            error_log("Egreso::registerEgreso error: " . $e->getMessage());
-            return 0;
+            // lanzamos la excepción para que el controller la capture
+            throw $e;
         }
     }
 
