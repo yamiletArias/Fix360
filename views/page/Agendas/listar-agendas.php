@@ -128,7 +128,7 @@ require_once "../../partials/header.php";
                 <div class="row mb-3">
                     <div class="col">
                         <div class="form-floating">
-                            <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;" placeholder="Valor buscado" autofocus>
+                            <input type="text" class="form-control input" id="vbuscadoCliente" style="background-color: white;" placeholder="Valor buscado" autocomplete="off" autofocus>
                             <label for="vbuscadoCliente">Valor buscado</label>
                         </div>
                     </div>

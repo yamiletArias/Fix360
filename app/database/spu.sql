@@ -2143,4 +2143,46 @@ BEGIN
     END IF;
 END $$
 
+CREATE TRIGGER trg_egresos_before_ins
+BEFORE INSERT ON egresos
+FOR EACH ROW
+BEGIN
+  IF fn_saldo_formapago(NEW.idformapago) < NEW.monto THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Saldo insuficiente en la forma de pago seleccionada';
+  END IF;
+END$$
+
+CREATE TRIGGER trg_egresos_before_upd
+BEFORE UPDATE ON egresos
+FOR EACH ROW
+BEGIN
+  IF fn_saldo_formapago(NEW.idformapago) + OLD.monto < NEW.monto THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Saldo insuficiente en la forma de pago seleccionada';
+  END IF;
+END$$
+
+CREATE FUNCTION fn_saldo_formapago(p_idformapago INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+  DECLARE ingresos DECIMAL(10,2);
+  DECLARE egresos DECIMAL(10,2);
+  -- Suma de amortizaciones (ingresos) válidas para esta forma de pago
+  SELECT COALESCE(SUM(amortizacion),0)
+    INTO ingresos
+    FROM amortizaciones
+   WHERE idformapago = p_idformapago
+     AND estado = 'P';  -- o el estado que definas como “contabilizado”
+  -- Suma de egresos ya registrados
+  SELECT COALESCE(SUM(monto),0)
+    INTO egresos
+    FROM egresos
+   WHERE idformapago = p_idformapago
+     AND estado = 'A';  -- suponiendo 'A' = activo
+  RETURN ingresos - egresos;
+END$$
+
 DELIMITER ;

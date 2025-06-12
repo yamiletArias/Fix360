@@ -89,14 +89,24 @@ class Egreso extends Conexion
             }
 
             $pdo->commit();
-            return $idegreso;
-       } catch (Exception $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            // lanzamos la excepción para que el controller la capture
-            throw $e;
+        return $idegreso;
+
+    } catch (\PDOException $e) {
+        // Si algo falla en la llamada a MySQL (trigger), aquí cae
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
         }
+        // errorInfo[2] es exactamente tu SIGNAL … MESSAGE_TEXT
+        $cleanMsg = $e->errorInfo[2] ?? $e->getMessage();
+        throw new \Exception($cleanMsg, 0, $e);
+
+    } catch (\Exception $e) {
+        // Otros errores
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
     }
 
     /**
