@@ -23,19 +23,17 @@ require_once "../../partials/header.php";
       <form action="" method="POST" autocomplete="off" id="formulario-detalle">
         <div class="row g-2">
           <div class="col-md-5">
+            <!-- onclick="inicializarCampos()"  -->
             <label>
-              <input class="form-check-input text-start" type="radio" name="tipo" value="factura"
-                onclick="inicializarCampos()">
+              <input class="form-check-input text-start" type="radio" name="tipo" value="factura">
               Factura
             </label>
             <label style="padding-left: 10px;">
-              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta"
-                onclick="inicializarCampos()" checked>
+              <input class="form-check-input text-start" type="radio" name="tipo" value="boleta" checked>
               Boleta
             </label>
             <label style="padding-left: 10px;">
-              <input class="form-check-input text-start" type="radio" name="tipo" value="orden de trabajo"
-                onclick="inicializarCampos()">
+              <input class="form-check-input text-start" type="radio" name="tipo" value="orden de trabajo">
               OT
             </label>
           </div>
@@ -43,11 +41,19 @@ require_once "../../partials/header.php";
           <div class="col-md-7 d-flex align-items-center justify-content-end">
             <label for="numserie" class="mb-0">N° serie:</label>
             <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
+              id="numserie" required />
+            <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
+            <input type="text" name="numcomprobante" id="numcom"
+              class="form-control text-center input form-control-sm w-25 ms-2" required />
+          </div>
+          <!-- <div class="col-md-7 d-flex align-items-center justify-content-end">
+            <label for="numserie" class="mb-0">N° serie:</label>
+            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
               id="numserie" required disabled />
             <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
             <input type="text" name="numcomprobante" id="numcom"
               class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
-          </div>
+          </div> -->
         </div>
         <!-- Sección Cliente, Fecha y Moneda -->
         <div class="row g-2 mt-3">

@@ -35,6 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const gruField = document.getElementById("ingresogrua");
   const hiddenIdPropietario = document.getElementById("hiddenIdPropietario");
   const inputClienteVisible = document.getElementById("inputClienteVisible");
+  numSerieInput.value = "";
+  numComInput.value = "";
   // 1) Función para habilitar/deshabilitar el botón “Guardar”
   function actualizarEstadoGuardar() {
     const tieneProductos = detalleVenta.length > 0;
@@ -1003,8 +1005,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!codigo) return;
 
       fetch(
-        `${
-          window.FIX360_BASE_URL
+        `${window.FIX360_BASE_URL
         }app/controllers/Venta.controller.php?q=${encodeURIComponent(
           codigo
         )}&type=producto`
@@ -1096,39 +1097,39 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // --- Generación de Serie y Comprobante ---
-  function generateNumber(prefix) {
-    return `${prefix}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
-  }
-
-  function generateComprobanteNumber(prefix) {
-    return `${prefix}-${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
-  }
-
-  function inicializarCampos() {
-    const tipo = document.querySelector('input[name="tipo"]:checked').value;
-    let prefijoSerie, prefijoComprobante;
-    switch (tipo) {
-      case "factura":
-        prefijoSerie = "F";
-        prefijoComprobante = "F";
-        break;
-      case "boleta":
-        prefijoSerie = "B";
-        prefijoComprobante = "B";
-        break;
-      case "orden de trabajo":
-        prefijoSerie = "OT";
-        prefijoComprobante = "OT";
-        break;
-      default:
-        prefijoSerie = "";
-        prefijoComprobante = "";
-    }
-    numSerieInput.value = generateNumber(prefijoSerie);
-    numComInput.value = generateComprobanteNumber(prefijoComprobante);
-  }
-  tipoInputs.forEach((i) => i.addEventListener("change", inicializarCampos));
-  inicializarCampos();
+  /*  function generateNumber(prefix) {
+     return `${prefix}${String(Math.floor(Math.random() * 100)).padStart(3, "0")}`;
+   }
+ 
+   function generateComprobanteNumber(prefix) {
+     return `${prefix}-${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
+   }
+ 
+   function inicializarCampos() {
+     const tipo = document.querySelector('input[name="tipo"]:checked').value;
+     let prefijoSerie, prefijoComprobante;
+     switch (tipo) {
+       case "factura":
+         prefijoSerie = "F";
+         prefijoComprobante = "F";
+         break;
+       case "boleta":
+         prefijoSerie = "B";
+         prefijoComprobante = "B";
+         break;
+       case "orden de trabajo":
+         prefijoSerie = "OT";
+         prefijoComprobante = "OT";
+         break;
+       default:
+         prefijoSerie = "";
+         prefijoComprobante = "";
+     }
+     numSerieInput.value = generateNumber(prefijoSerie);
+     numComInput.value = generateComprobanteNumber(prefijoComprobante);
+   }
+   tipoInputs.forEach((i) => i.addEventListener("change", inicializarCampos));
+   inicializarCampos(); */
   // --- Navegación con Enter entre campos de producto ---
   inputPrecio.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
