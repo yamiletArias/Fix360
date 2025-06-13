@@ -21,9 +21,9 @@ document.addEventListener("DOMContentLoaded", function () {
     numComInput.value = ""; */
   // — Función que decide si habilitar o no el botón “Guardar” —
   function actualizarEstadoBotonGuardar() {
-    const proveedorValido   = proveedorSelect.selectedIndex > 0;
-    const tieneProductos    = detalleCompra.length > 0;
-    const serieValida       = numSerieInput.value.trim() !== "";
+    const proveedorValido = proveedorSelect.selectedIndex > 0;
+    const tieneProductos = detalleCompra.length > 0;
+    const serieValida = numSerieInput.value.trim() !== "";
     const comprobanteValido = numComInput.value.trim() !== "";
     btnFinalizarCompra.disabled = !(
       proveedorValido &&
@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Listeners de inputs básicos
   proveedorSelect.addEventListener("change", actualizarEstadoBotonGuardar);
-  numSerieInput.addEventListener("input",   actualizarEstadoBotonGuardar);
-  numComInput.addEventListener("input",     actualizarEstadoBotonGuardar);
+  numSerieInput.addEventListener("input", actualizarEstadoBotonGuardar);
+  numComInput.addEventListener("input", actualizarEstadoBotonGuardar);
 
 
   // --- Funciones auxiliares ---
@@ -462,11 +462,11 @@ document.addEventListener("DOMContentLoaded", function () {
           const qtyInput = fila.querySelector(".cantidad-input");
           qtyInput.stepUp();
           qtyInput.dispatchEvent(new Event("input"));
-        } else if (stock > 0) {
-          // no existe ⇒ agregamos con cantidad=1
+        } else {
+          // no existe ⇒ agregamos con cantidad=1, aunque stock sea 0
           inputProductElement.value = producto.subcategoria_producto;
           inputPrecio.value = parseFloat(producto.precio).toFixed(2);
-          inputStock.value = stock;
+          inputStock.value = stock;         // aquí stock puede ser 0
           inputCantidad.value = 1;
           inputDescuento.value = 0;
 
@@ -478,14 +478,6 @@ document.addEventListener("DOMContentLoaded", function () {
           };
 
           agregarProductoBtn.click();
-        } else {
-          Swal.fire({
-            icon: "warning",
-            title: "Sin stock",
-            text: producto.subcategoria_producto,
-            confirmButtonText: "OK",
-            allowOutsideClick: false,
-          });
         }
       })
       .catch((err) => {
@@ -662,7 +654,7 @@ document.addEventListener("DOMContentLoaded", function () {
             Swal.fire(
               "Error",
               "No se pudo registrar la compra: " +
-                (json.message || "Desconocido"),
+              (json.message || "Desconocido"),
               "error"
             );
           }
