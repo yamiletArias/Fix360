@@ -1646,6 +1646,132 @@ UNION ALL SELECT 'otros conceptos'
 UNION ALL SELECT 'pasajes'
 UNION ALL SELECT 'servicios varios';
 
+DROP VIEW IF EXISTS vista_resumen_arqueo;
+CREATE VIEW vista_resumen_arqueo AS
+SELECT
+  f.fecha,
+
+  -- SALDO ANTERIOR (solo amortizaciones 'P' y egresos 'A' antes de f.fecha)
+  COALESCE((
+    SELECT SUM(a.amortizacion)
+    FROM amortizaciones a
+    WHERE (a.idventa   IS NOT NULL OR a.idcompra IS NOT NULL)
+      AND DATE(a.creado) < f.fecha
+      AND a.estado = 'P'
+  ), 0)
+  -
+  COALESCE((
+    SELECT SUM(e.monto)
+    FROM egresos e
+    JOIN vista_conceptos_egresos c USING(concepto)
+    WHERE DATE(e.creado) < f.fecha
+      AND e.estado = 'A'
+  ), 0)
+  AS saldo_anterior,
+
+  -- INGRESO EFECTIVO DEL DÍA (solo amortizaciones 'P' en f.fecha)
+  COALESCE((
+    SELECT SUM(a.amortizacion)
+    FROM amortizaciones a
+    WHERE (a.idventa   IS NOT NULL OR a.idcompra IS NOT NULL)
+      AND DATE(a.creado) = f.fecha
+      AND a.estado = 'P'
+  ), 0) AS ingreso_efectivo,
+
+  -- EGRESOS DEL DÍA (solo egresos 'A' en f.fecha)
+  COALESCE((
+    SELECT SUM(e.monto)
+    FROM egresos e
+    JOIN vista_conceptos_egresos c USING(concepto)
+    WHERE DATE(e.creado) = f.fecha
+      AND e.estado = 'A'
+  ), 0) AS total_egresos,
+
+  -- TOTAL EFECTIVO (saldo anterior + ingreso del día)
+  (
+    COALESCE((
+      SELECT SUM(a.amortizacion)
+      FROM amortizaciones a
+      WHERE (a.idventa   IS NOT NULL OR a.idcompra IS NOT NULL)
+        AND DATE(a.creado) < f.fecha
+        AND a.estado = 'P'
+    ), 0)
+    -
+    COALESCE((
+      SELECT SUM(e.monto)
+      FROM egresos e
+      JOIN vista_conceptos_egresos c USING(concepto)
+      WHERE DATE(e.creado) < f.fecha
+        AND e.estado = 'A'
+    ), 0)
+  )
+  +
+  COALESCE((
+    SELECT SUM(a.amortizacion)
+    FROM amortizaciones a
+    WHERE (a.idventa   IS NOT NULL OR a.idcompra IS NOT NULL)
+      AND DATE(a.creado) = f.fecha
+      AND a.estado = 'P'
+  ), 0)
+  AS total_efectivo,
+
+  -- TOTAL EN CAJA (no negativo)
+  GREATEST(
+    (
+      (
+        COALESCE((
+          SELECT SUM(a.amortizacion)
+          FROM amortizaciones a
+          WHERE (a.idventa   IS NOT NULL OR a.idcompra IS NOT NULL)
+            AND DATE(a.creado) < f.fecha
+            AND a.estado = 'P'
+        ), 0)
+        -
+        COALESCE((
+          SELECT SUM(e.monto)
+          FROM egresos e
+          JOIN vista_conceptos_egresos c USING(concepto)
+          WHERE DATE(e.creado) < f.fecha
+            AND e.estado = 'A'
+        ), 0)
+      )
+      +
+      COALESCE((
+        SELECT SUM(a.amortizacion)
+        FROM amortizaciones a
+        WHERE (a.idventa   IS NOT NULL OR a.idcompra IS NOT NULL)
+          AND DATE(a.creado) = f.fecha
+          AND a.estado = 'P'
+      ), 0)
+    )
+    -
+    COALESCE((
+      SELECT SUM(e.monto)
+      FROM egresos e
+      JOIN vista_conceptos_egresos c USING(concepto)
+      WHERE DATE(e.creado) = f.fecha
+        AND e.estado = 'A'
+    ), 0)
+  , 0) AS total_caja
+
+FROM (
+  -- Solo días con amortizaciones P o egresos A
+  SELECT DATE(creado) AS fecha
+  FROM amortizaciones
+  WHERE estado = 'P'
+    AND (idventa IS NOT NULL OR idcompra IS NOT NULL)
+
+  UNION
+
+  SELECT DATE(creado) AS fecha
+  FROM egresos
+  WHERE estado = 'A'
+) AS f
+
+ORDER BY f.fecha;
+
+/*
+-- real
 -- VISTA PARA EL RESUMEN Y SALDO RESTANTE
 DROP VIEW IF EXISTS vista_resumen_arqueo;
 CREATE VIEW vista_resumen_arqueo AS
@@ -1691,7 +1817,7 @@ FROM (
   UNION
   SELECT DATE(creado) AS fecha FROM egresos
 ) AS f
-ORDER BY f.fecha;
+ORDER BY f.fecha;*/
 
 
 /*DROP VIEW IF EXISTS vista_detalle_venta;
