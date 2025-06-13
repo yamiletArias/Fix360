@@ -204,9 +204,16 @@ require_once "../../partials/header.php";
         <form id="form-nuevo-producto" autocomplete="off">
           <div class="row g-3">
 
+            <!-- <div class="col-12">
+              <div class="form-floating mb-1">
+                <input type="text" class="form-control input" id="codigobarra" name="codigobarra" placeholder="Código de barras" autocomplete="off" autofocus />
+                <label for="codigobarra">Código de Barras</label>
+              </div>
+            </div> -->
+
             <!-- Marca -->
             <div class="col-12">
-              <div class="form-floating input-group mb-3">
+              <div class="form-floating input-group mb-1">
                 <select class="form-select" id="marca" name="idmarca" style="color: black;" required>
                   <option value="">Seleccione una opcion</option>
                 </select>
@@ -220,7 +227,7 @@ require_once "../../partials/header.php";
 
             <!-- Categoría -->
             <div class="col-12">
-              <div class="form-floating input-group mb-3">
+              <div class="form-floating input-group mb-1">
                 <select class="form-select" id="categoria" name="categoria" style="color: black;" required>
                   <option value="">Seleccione una opcion</option>
                 </select>
@@ -234,7 +241,7 @@ require_once "../../partials/header.php";
 
             <!-- Subcategoría -->
             <div class="col-12">
-              <div class="form-floating input-group mb-3">
+              <div class="form-floating input-group mb-1">
                 <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
                   <option value="">Seleccione una opcion</option>
                 </select>
