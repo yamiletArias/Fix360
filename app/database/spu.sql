@@ -108,7 +108,8 @@ CREATE PROCEDURE spRegisterProducto(
   IN  _idsubcategoria INT,
   IN  _idmarca        INT,
   IN  _descripcion    VARCHAR(50),
-  IN  _precio         DECIMAL(7,2),
+  IN  _precioc         DECIMAL(7,2),
+  IN  _preciov         DECIMAL(7,2),
   IN  _presentacion   VARCHAR(40),
   IN  _undmedida      VARCHAR(40),
   IN  _cantidad       DECIMAL(10,2),  -- sólo para presentacion
@@ -125,12 +126,13 @@ BEGIN
 
   -- 1) Inserto el producto (cantidad = presentacion)
   INSERT INTO productos 
-    (idsubcategoria, idmarca, descripcion, precio, presentacion, undmedida, cantidad, img,codigobarra)
+    (idsubcategoria, idmarca, descripcion, precioc, preciov, presentacion, undmedida, cantidad, img,codigobarra)
   VALUES 
     (_idsubcategoria,
      _idmarca,
      _descripcion,
-     _precio,
+     _precioc,
+     _preciov,
      _presentacion,
      _undmedida,
      _cantidad,
@@ -167,7 +169,7 @@ BEGIN
      _idtipomov,
      CURDATE(),
      _stockInicial,
-     _precio,
+     _precioc,
      _stockInicial
     );
 
@@ -1311,7 +1313,8 @@ CREATE PROCEDURE spUpdateProducto(
   IN  _idproducto   INT,
   IN  _descripcion  VARCHAR(50),
   IN  _cantidad     DECIMAL(10,2),
-  IN  _precio       DECIMAL(7,2),
+  IN  _precioc       DECIMAL(7,2),
+  IN  _preciov       DECIMAL(7,2),
   IN  _img          VARCHAR(255),    -- ruta o '' para no cambiar
   IN  _codigobarra  VARCHAR(255),    -- ruta o '' para no cambiar
   IN  _stockmin     INT,
@@ -1324,7 +1327,12 @@ BEGIN
       SET MESSAGE_TEXT = 'spUpdateProducto: La cantidad no puede ser negativa';
   END IF;
 
-  IF _precio < 0 THEN
+  IF _precioc < 0 THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'spUpdateProducto: El precio no puede ser negativo';
+  END IF;
+  
+  IF _preciov < 0 THEN
     SIGNAL SQLSTATE '45000'
       SET MESSAGE_TEXT = 'spUpdateProducto: El precio no puede ser negativo';
   END IF;
@@ -1355,7 +1363,8 @@ BEGIN
   SET
     descripcion = _descripcion,
     cantidad    = _cantidad,
-    precio      = _precio,
+    precioc      = _precioc,
+    preciov      = _preciov,
     codigobarra = _codigobarra,
     -- Solo actualizar imagen si se envía un valor no vacío
     img         = CASE 
@@ -1437,7 +1446,8 @@ BEGIN
     p.presentacion,
     p.undmedida,
     p.cantidad       AS cantidad_por_presentacion,
-    p.precio,
+    p.precioc,
+    p.preciov,
     p.img,
     p.codigobarra,
     k.stockmin,

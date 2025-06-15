@@ -428,7 +428,8 @@ idproducto 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
 idmarca 			INT 				NOT NULL,
 idsubcategoria INT 				NOT NULL,
 descripcion 	VARCHAR(50)		NOT NULL,
-precio 			DECIMAL(7,2) 	NOT NULL,
+precioc			DECIMAL(7,2) 	NOT NULL,
+preciov			DECIMAL(7,2) 	NOT NULL,
 presentacion	VARCHAR(40)		NOT NULL,
 undmedida		VARCHAR(40)    NOT NULL,
 cantidad 		DECIMAL(10,2) 	NOT NULL,
@@ -438,7 +439,8 @@ creado  			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 modificado  	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
 CONSTRAINT fk_idmarca FOREIGN KEY (idmarca) REFERENCES marcas (idmarca),
 CONSTRAINT fk_subcategoria FOREIGN KEY (idsubcategoria) REFERENCES subcategorias (idsubcategoria),
-CONSTRAINT chk_precio CHECK (precio >= 0),
+CONSTRAINT chk_precioc CHECK (precioc >= 0),
+CONSTRAINT chk_preciov CHECK (preciov >= 0),
 CONSTRAINT chk_cantidad CHECK (cantidad >= 0),
 CONSTRAINT uq_descripcion UNIQUE (descripcion, idsubcategoria),
 CONSTRAINT uq_codigobarra UNIQUE (codigobarra)
@@ -519,21 +521,34 @@ CONSTRAINT uq_venta UNIQUE (idcliente, tipocom, numserie, numcom)
 )ENGINE = INNODB; 
 
 DROP TABLE IF EXISTS detallecotizacion;
-CREATE TABLE detallecotizacion(
+CREATE TABLE detallecotizacion (
+  iddetcotizacion INT AUTO_INCREMENT PRIMARY KEY,
+  idcotizacion    INT                     NOT NULL,
+  idproducto      INT                     NULL,
+  idservicio      INT                     NULL,
+  cantidad        INT                     NOT NULL,
+  precio          DECIMAL(7,2)            NOT NULL,
+  descuento       DECIMAL(5,2) DEFAULT 0              ,
+  creado          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  modificado      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  -- Foreign keys
+  CONSTRAINT fk_dcotsv_cot FOREIGN KEY (idcotizacion) REFERENCES cotizaciones(idcotizacion),
+  CONSTRAINT fk_dcotsv_prod FOREIGN KEY (idproducto)    REFERENCES productos(idproducto),
+  CONSTRAINT fk_dcotsv_serv FOREIGN KEY (idservicio)    REFERENCES servicios(idservicio),
+  
+  -- Validaciones
+  CONSTRAINT chk_dcotsv_tipo  
+    CHECK (
+      (idproducto IS NOT NULL AND idservicio IS NULL)
+      OR
+      (idproducto IS NULL   AND idservicio IS NOT NULL)
+    ),
+  CONSTRAINT chk_dcotsv_cant CHECK (cantidad > 0),
+  CONSTRAINT chk_dcotsv_precio CHECK (precio > 0),
+  CONSTRAINT chk_dcotsv_desc CHECK (descuento BETWEEN 0 AND 100)
+) ENGINE=INNODB;
 
-iddetcotizacion 		INT 				PRIMARY KEY 	AUTO_INCREMENT,
-idcotizacion			INT 				NOT NULL,
-idproducto				INT 				NOT NULL,
-cantidad 				INT 				NOT NULL,
-precio 					DECIMAL(7,2)	NOT NULL,
-descuento 				DECIMAL(5,2)	DEFAULT 0,
-CONSTRAINT fk_idcotizacion FOREIGN KEY (idcotizacion) REFERENCES cotizaciones (idcotizacion),
-CONSTRAINT fk_idproducto_3 FOREIGN KEY (idproducto) REFERENCES productos (idproducto),
-CONSTRAINT chk_cantidad CHECK (cantidad > 0 ),
-CONSTRAINT chk_precio CHECK (precio > 0),
-CONSTRAINT chk_descuento CHECK (descuento BETWEEN 0 AND 100)
-
-)ENGINE = INNODB;
 
 
 DROP TABLE IF EXISTS detalleventa;
