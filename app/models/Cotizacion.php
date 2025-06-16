@@ -41,24 +41,33 @@ class Cotizacion extends Conexion
   /**
    * Devuelve el detalle completo (productos, precio, cantidad, descuento) de una cotización.
    */
-  public function getDetalleById(int $idcotizacion): array
-  {
-    $sql = "
-      SELECT 
-        dc.idproducto,
-        p.subcategoria_producto AS producto,
-        dc.precio,
-        dc.cantidad,
-        dc.descuento
-      FROM detallecotizacion dc
-      JOIN productos p ON p.idproducto = dc.idproducto
-      WHERE dc.idcotizacion = ?
-      ORDER BY dc.iddetallecotizacion ASC
-    ";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute([$idcotizacion]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
+public function getDetalleById(int $idcotizacion): array
+{
+  $sql = "
+    SELECT 
+      dc.iddetallecotizacion,
+      dc.cantidad,
+      dc.precio,
+      dc.descuento,
+      CASE
+        WHEN dc.idproducto IS NOT NULL THEN p.descripcion
+        ELSE s.servicio
+      END AS item,
+      CASE
+        WHEN dc.idproducto IS NOT NULL THEN 'producto'
+        ELSE 'servicio'
+      END AS tipo
+    FROM detallecotizacion dc
+    LEFT JOIN productos p   ON p.idproducto  = dc.idproducto
+    LEFT JOIN servicios s   ON s.idservicio  = dc.idservicio
+    WHERE dc.idcotizacion = ?
+    ORDER BY dc.iddetallecotizacion
+  ";
+  $stmt = $this->pdo->prepare($sql);
+  $stmt->execute([$idcotizacion]);
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
   public function getAll(): array
   {
@@ -203,17 +212,17 @@ class Cotizacion extends Conexion
         throw new Exception("Nose pudo obtener el id de la cotizacion");
       }
 
-      $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleCotizacion(?,?,?,?,?)");
-      foreach ($params["productos"] as $producto) {
-        error_log("Insertando productos ID: " . $producto["idproducto"]);
-        $stmtDetalle->execute([
-          $idcotizacion,
-          $producto["idproducto"],
-          $producto["cantidad"],
-          $producto["precio"],
-          $producto["descuento"]
-        ]);
-      }
+      $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleCotizacion(?,?,?,?,?,?)");
+      foreach ($params["items"] as $item) {
+    $stmtDetalle->execute([
+      $idcotizacion,
+      $item["idproducto"] ?? null,
+      $item["idservicio"] ?? null,
+      $item["cantidad"],
+      $item["precio"],
+      $item["descuento"]
+    ]);
+}
 
       $pdo->commit();
       error_log("Venta registrada con id: " . $idcotizacion);

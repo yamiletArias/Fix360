@@ -206,23 +206,22 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
     $idcliente = $dataJSON['idcliente'] ?? 0;
-    $productos = $dataJSON['productos'] ?? [];
-
-    if (empty($productos)) {
-      echo json_encode(["status" => "error", "message" => "No se enviaron productos."]);
-      exit;
-    }
+    $items = $dataJSON['items'] ?? [];
+if (empty($items)) {
+  echo json_encode(["status" => "error", "message" => "No se enviaron ítems de cotización."]);
+  exit;
+}
     error_log("Datos recibidos: " . print_r($dataJSON, true));
 
     $cotizacion = new Cotizacion();
     $idCotInsertada = $cotizacion->registerCotizacion([
-      "fechahora" => $fechahora,
-      "vigenciadias" => $vigenciadias,
-      "moneda" => $moneda,
-      "idcolaborador" => $idadmin,
-      "idcliente" => $idcliente,
-      "productos" => $productos
-    ]);
+  "fechahora"     => $fechahora,
+  "vigenciadias"  => $vigenciadias,
+  "moneda"        => $moneda,
+  "idcolaborador" => $idadmin,
+  "idcliente"     => $idcliente,
+  "items"         => $items
+]);
     if ($idCotInsertada > 0) {
       echo json_encode([
         "status" => "success",

@@ -1,3 +1,6 @@
+<?php 
+const SERVERURL = "http://localhost/Fix360/";
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -31,8 +34,8 @@
                   <h1 class="display-1 mb-0">404</h1>
                 </div>
                 <div class="col-lg-6 error-page-divider text-lg-left pl-lg-4">
-                  <h2>SORRY!</h2>
-                  <h3 class="font-weight-light">The page you’re looking for was not found.</h3>
+                  <h2>Ups!</h2>
+                  <h3 class="font-weight-light">La pagina que buscas no ha sido encontrada.</h3>
                 </div>
               </div>
               <div class="row mt-5">
