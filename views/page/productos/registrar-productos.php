@@ -69,7 +69,7 @@
               </div>
             </div>
 
-            <div class="col-md-5">
+            <div class="col-md-3">
               <div class="form-floating mb-3">
                 <textarea class="form-control input" id="descripcion" rows="4" name="descripcion" autocomplete="off" placeholder="descripcion"></textarea>
                 <label for="descripcion">Descripción</label>
@@ -97,20 +97,29 @@
               </div>
             </div>
 
-
-            <div class="col-md-2">
-              <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" id="precio" name="precio" placeholder="presio" min="0" autocomplete="off" />
-                <label for="precio">Precio</label>
-              </div>
-            </div>
-
             <div class="col-md-2">
               <div class="form-floating ">
                 <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial" placeholder="stockInicial" min="0" autocomplete="off" value="0" />
                 <label for="stockInicial">Stock Actual</label>
               </div>
             </div>
+
+
+            <div class="col-md-2">
+              <div class="form-floating">
+                <input type="number" class="form-control input" step="0.1" id="precioc" name="precioc" placeholder="presioc" min="0" autocomplete="off" />
+                <label for="precioc">Precio de Compra</label>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="form-floating">
+                  <input type="number" class="form-control input" step="0.1" id="preciov" name="preciov" placeholder="presio" min="0" autocomplete="off" />
+                <label for="preciov">Precio de Venta</label>
+              </div>
+            </div>
+
+            
 
             <div class="col-md-2 ">
               <div class="form-floating ">
@@ -242,7 +251,7 @@
   </script>
 
   <script>
-  // …tu código existente (cargas, fetchs, submits, etc.)…
+  
 
   document.addEventListener("DOMContentLoaded", () => {
     // Modal Marca
@@ -281,12 +290,16 @@
     e.preventDefault();
 
     // 1) Validaciones previas: asegurarnos que los campos obligatorios no estén vacíos
-    const marcaSelect       = document.getElementById("marca");
-    const categoriaSelect   = document.getElementById("categoria");
-    const subcategoriaSelect= document.getElementById("subcategoria");
-    const descripcionInput  = document.getElementById("descripcion");
-    const precioInput       = document.getElementById("precio");
-    const stockInput        = document.getElementById("stockInicial");
+    const marcaSelect         = document.getElementById("marca");
+    const categoriaSelect     = document.getElementById("categoria");
+    const subcategoriaSelect  = document.getElementById("subcategoria");
+    const descripcionInput    = document.getElementById("descripcion");
+    const presentacionInput   = document.getElementById("presentacion");
+    const cantidadInput       = document.getElementById("cantidad");
+    const undmedidaInput      = document.getElementById("undmedida");
+    const preciocInput        = document.getElementById("precioc");
+    const preciovInput        = document.getElementById("preciov");
+    const stockInput          = document.getElementById("stockInicial");
 
     if (!marcaSelect.value) {
       showToast('Debe seleccionar una marca', 'ERROR', 1500);
@@ -304,10 +317,31 @@
       showToast('La descripción no puede estar vacía', 'ERROR', 1500);
       return;
     }
-    if (!precioInput.value || Number(precioInput.value) < 0) {
-      showToast('Ingrese un precio válido', 'ERROR', 1500);
+    if (!presentacionInput.value.trim()) {
+      showToast('La presentacion no puede estar vacía', 'ERROR', 1500);
       return;
     }
+    if (!cantidadInput.value.trim()) {
+      showToast('La cantidad no puede estar vacía', 'ERROR', 1500);
+      return;
+    }
+    if (!undmedidaInput.value.trim()) {
+      showToast('La unidad de medida no puede estar vacía', 'ERROR', 1500);
+      return;
+    }
+    if (!preciocInput.value || Number(preciocInput.value) < 0) {
+      showToast('Ingrese un precio de compra válido', 'ERROR', 1500);
+      return;
+    }
+    
+    if (!preciovInput.value || Number(preciovInput.value) < 0) {
+      showToast('Ingrese un precio de venta válido', 'ERROR', 1500);
+      return;
+    }
+    if (Number(preciovInput.value) <= Number(preciocInput.value)) {
+  showToast('El precio de venta debe ser mayor que el de compra', 'ERROR', 2000);
+  return;
+}
     if (!stockInput.value || Number(stockInput.value) < 0) {
       showToast('Ingrese un stock inicial válido', 'ERROR', 1500);
       return;

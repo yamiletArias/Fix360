@@ -28,7 +28,7 @@ class Producto extends Conexion
             throw new Exception($e->getMessage());
         }
         return $result;
-    }    
+    }
 
     /**
      * Agrega un nuevo producto + kardex (stockmin, stockmax)
@@ -46,40 +46,39 @@ class Producto extends Conexion
      * }
      * @return int  El nuevo idproducto (0 si falla)
      */
-    public function add(array $params): int
-    {
-        $idProducto = 0;
-        try {
-            // Nótese que ya pasamos 10 IN y luego usamos @idproducto como OUT
-            $sql = "CALL spRegisterProducto(?,?,?,?,?,?,?,?,?,?,?,?,@idproducto)";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([
-                $params["idsubcategoria"],
-                $params["idmarca"],
-                $params["descripcion"],
-                $params["precio"],
-                $params["presentacion"],
-                $params["undmedida"],
-                $params["cantidad"],
-                $params["img"],
-                $params["codigobarra"],
-                $params["stockInicial"],
-                $params["stockmin"],   // nuevo
-                $params["stockmax"]    // nuevo
-            ]);
-            
+public function add(array $params): int
+{
+    try {
+        // 13 placeholders + @idproducto
+        $sql = "CALL spRegisterProducto(?,?,?,?,?,?,?,?,?,?,?,?,?,@idproducto)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            $params["idsubcategoria"], // 1
+            $params["idmarca"],        // 2
+            $params["descripcion"],    // 3
+            $params["precioc"],        // 4
+            $params["preciov"],        // 5
+            $params["presentacion"],   // 6
+            $params["undmedida"],      // 7
+            $params["cantidad"],       // 8
+            $params["img"],            // 9
+            $params["codigobarra"],    // 10
+            $params["stockInicial"],   // 11
+            $params["stockmin"],       // 12
+            $params["stockmax"]        // 13
+        ]);
 
-            // Recuperar la variable OUT
-            $idProducto = (int) $this->pdo
-                ->query("SELECT @idproducto")
-                ->fetchColumn();
-
-        } catch (Exception $e) {
-            error_log("Producto::add error: " . $e->getMessage());
-        }
+        $idProducto = (int) $this->pdo
+            ->query("SELECT @idproducto")
+            ->fetchColumn();
 
         return $idProducto;
+    } catch (Exception $e) {
+        throw new Exception("Producto::add ERROR SQL: " . $e->getMessage());
     }
+}
+
+
 
     /**
      * Actualiza sólo descripción, presentación, precio, img, stockmin y stockmax
@@ -97,17 +96,18 @@ class Producto extends Conexion
     public function update(array $params): bool
     {
         try {
-            $sql = "CALL spUpdateProducto(?,?,?,?,?,?,?,?)";
+            $sql = "CALL spUpdateProducto(?,?,?,?,?,?,?,?,?)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 $params['idproducto'],
                 $params['descripcion'],
                 $params['cantidad'],
-                $params['precio'],
-                $params['img']        ?? '',
+                $params['precioc'],     // nuevo
+                $params['preciov'],     // nuevo
+                $params['img']   ?? '',
                 $params["codigobarra"],
                 $params['stockmin'],
-                $params['stockmax']   // si quieres permitir NULL, pásalo directamente
+                $params['stockmax']
             ]);
             return true;
         } catch (Exception $e) {
@@ -137,14 +137,15 @@ class Producto extends Conexion
         return $resultado;
     }
 
-    public function find($idproducto){
-    try {
-        $query = "CALL spGetProductoById(?)";
-        $cmd   = $this->pdo->prepare($query);
-        $cmd->execute([$idproducto]);
-        return $cmd->fetch(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-        die($e->getMessage());
+    public function find($idproducto)
+    {
+        try {
+            $query = "CALL spGetProductoById(?)";
+            $cmd   = $this->pdo->prepare($query);
+            $cmd->execute([$idproducto]);
+            return $cmd->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
     }
-}
 }

@@ -53,7 +53,7 @@ CREATE OR REPLACE VIEW vwKardex AS
 SELECT
   k.*,
   p.descripcion,
-  p.precio
+  p.precioc
 FROM kardex k
 INNER JOIN productos p
   ON k.idproducto = p.idproducto;
@@ -186,7 +186,7 @@ SELECT
   p.presentacion AS presentacion,
   p.cantidad     AS cantidad,
   p.undmedida    AS medida,
-  p.precio       AS precio,
+  p.preciov       AS precio,
   p.img          AS img
 FROM productos p
 LEFT JOIN marcas m

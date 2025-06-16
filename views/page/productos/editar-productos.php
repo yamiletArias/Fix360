@@ -17,12 +17,7 @@ require_once "../../partials/header.php";
     width: 100%;
   }
 
-  #img-preview {
-    max-width: 120px;
-    max-height: 120px;
-    margin-top: 10px;
-    display: block;
-  }
+
 </style>
 
 <div class="container-main">
@@ -75,7 +70,7 @@ require_once "../../partials/header.php";
           </div>
 
           <!-- DESCRIPCIÓN -->
-          <div class="col-md-5">
+          <div class="col-md-3">
             <div class="form-floating mb-3">
               <textarea class="form-control input" id="descripcion" rows="4" name="descripcion" placeholder="Descripción" autocomplete="off"></textarea>
               <label for="descripcion">Descripción</label>
@@ -107,12 +102,26 @@ require_once "../../partials/header.php";
           </div>
 
           <!-- PRECIO -->
-          <div class="col-md-2">
-            <div class="form-floating mb-3">
-              <input type="number" class="form-control input" step="0.01" id="precio" name="precio" placeholder="Precio" min="0" required autocomplete="off" />
-              <label for="precio">Precio</label>
-            </div>
-          </div>
+          <!-- PRECIO DE COMPRA -->
+<div class="col-md-2">
+  <div class="form-floating mb-3">
+    <input type="number" class="form-control input" step="0.01"
+           id="precioc" name="precioc"
+           placeholder="Precio de Compra" min="0" required autocomplete="off" />
+    <label for="precioc">Precio Compra</label>
+  </div>
+</div>
+
+<!-- PRECIO DE VENTA -->
+<div class="col-md-2">
+  <div class="form-floating mb-3">
+    <input type="number" class="form-control input" step="0.01"
+           id="preciov" name="preciov"
+           placeholder="Precio de Venta" min="0" required autocomplete="off" />
+    <label for="preciov">Precio Venta</label>
+  </div>
+</div>
+
 
           <!-- STOCK ACTUAL (solo lectura) -->
           <div class="col-md-2">
@@ -269,7 +278,8 @@ require_once "../../partials/_footer.php";
           document.getElementById('presentacion').value = data.presentacion;
           document.getElementById('undmedida').value = data.undmedida;
           document.getElementById('cantidad').value = data.cantidad_por_presentacion;
-          document.getElementById('precio').value = data.precio;
+          document.getElementById('precioc').value = data.precioc;
+document.getElementById('preciov').value = data.preciov;
           document.getElementById('stockActual').value = data.stock_actual;
           document.getElementById('stockmin').value = data.stockmin;
           document.getElementById('stockmax').value = data.stockmax;
@@ -292,7 +302,8 @@ require_once "../../partials/_footer.php";
     const descripcion = document.getElementById("descripcion").value.trim();
     const codigobarra = document.getElementById("codigobarra").value.trim();
     const cantidad = parseFloat(document.getElementById("cantidad").value);
-    const precio = parseFloat(document.getElementById("precio").value);
+    const precioc = parseFloat(document.getElementById("precioc").value);
+const preciov = parseFloat(document.getElementById("preciov").value);
     const stockmin = parseFloat(document.getElementById("stockmin").value);
     const stockmax = document.getElementById("stockmax").value !== "" ?
       parseFloat(document.getElementById("stockmax").value) :
@@ -306,8 +317,12 @@ require_once "../../partials/_footer.php";
       showToast("La cantidad debe ser un número mayor que 0.", "ERROR", 1500);
       return;
     }
-    if (isNaN(precio) || precio < 0) {
-      showToast("El precio no puede ser negativo.", "ERROR", 1500);
+    if (isNaN(precioc) || precioc < 0) {
+      showToast("El precio de compra no puede ser negativo.", "ERROR", 1500);
+      return;
+    }
+    if (isNaN(preciov) || preciov < 0) {
+      showToast("El precio de venta no puede ser negativo.", "ERROR", 1500);
       return;
     }
     if (isNaN(stockmin) || stockmin < 0) {
@@ -318,6 +333,19 @@ require_once "../../partials/_footer.php";
       showToast("El stock máximo debe ser mayor o igual al mínimo.", "ERROR", 1500);
       return;
     }
+    if (isNaN(precioc) || precioc < 0) {
+  showToast("Ingrese un precio de compra válido.", "ERROR", 1500);
+  return;
+}
+if (isNaN(preciov) || preciov < 0) {
+  showToast("Ingrese un precio de venta válido.", "ERROR", 1500);
+  return;
+}
+// **VALIDACIÓN LÓGICA**
+if (preciov <= precioc) {
+  showToast("El precio de venta debe ser mayor al precio de compra.", "ERROR", 2000);
+  return;
+}
     const confirmado = await ask( // Agregar await aquí
       "¿Está seguro de que desea actualizar este producto?",
       "Productos"
