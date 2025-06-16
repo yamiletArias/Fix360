@@ -3,18 +3,23 @@ require_once '../models/Conexion.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (isset($_GET['idcotizacion'])) {
-    $idcotizacion = $_GET['idcotizacion'];
+    $id = $_GET['idcotizacion'];
     try {
         $db = Conexion::getConexion();
+
+        // Siempre usamos la misma vista que mezcla productos y servicios
         $stmt = $db->prepare(
-            "SELECT * FROM vista_detalle_cotizacion WHERE idcotizacion = ?;"
+            "SELECT * FROM vista_detalle_cotizacion WHERE idcotizacion = ?"
         );
-        $stmt->execute([$idcotizacion]);
+        $stmt->execute([$id]);
         $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        // Si viene vacío y quieres incluir eliminadas:
         if (empty($detalles)) {
-            $stmt = $db->prepare("SELECT * FROM vista_detalle_cotizacion_eliminada WHERE idcotizacion = ?");
-            $stmt->execute([$idcotizacion]);
+            $stmt = $db->prepare(
+              "SELECT * FROM vista_detalle_cotizacion_eliminada WHERE idcotizacion = ?"
+            );
+            $stmt->execute([$id]);
             $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 

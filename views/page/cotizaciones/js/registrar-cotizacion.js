@@ -1,34 +1,35 @@
 // views/page/cotizaciones/js/registrar-cotizacion.js
 document.addEventListener("DOMContentLoaded", () => {
   // — Referencias DOM —
-  const inputProduct       = document.getElementById("producto");
-  const inputPrecio        = document.getElementById("precio");
-  const inputCantidad      = document.getElementById("cantidad");
-  const inputDescuento     = document.getElementById("descuento");
-  const btnAgregarProd     = document.getElementById("agregarProducto");
-  const tablaProductos     = document.querySelector("#tabla-detalle tbody");
+  const inputProduct = document.getElementById("producto");
+  const inputPrecio = document.getElementById("precio");
+  const inputCantidad = document.getElementById("cantidad");
+  const inputDescuento = document.getElementById("descuento");
+  const btnAgregarProd = document.getElementById("agregarProducto");
+  const tablaProductos = document.querySelector("#tabla-detalle tbody");
 
-  const fechaInput         = document.getElementById("fecha");
-  const vigenciaInput      = document.getElementById("vigenciadias");
-  const monedaSelect       = document.getElementById("moneda");
-  const btnGuardarCot      = document.getElementById("btnFinalizarCotizacion");
+  const fechaInput = document.getElementById("fecha");
+  const vigenciaInput = document.getElementById("vigenciadias");
+  const monedaSelect = document.getElementById("moneda");
+  const btnGuardarCot = document.getElementById("btnFinalizarCotizacion");
 
-  const btnToggleService   = document.getElementById("btnToggleService");
-  const serviceSection     = document.getElementById("serviceSection");
-  const serviceListCard    = document.getElementById("serviceListCard");
-  const tablaServicios     = document.querySelector("#tabla-detalle-servicios tbody");
-  const btnAgregarServ     = document.getElementById("btnAgregarDetalleServicio");
+  const btnToggleService = document.getElementById("btnToggleService");
+  const serviceSection = document.getElementById("serviceSection");
+  const serviceListCard = document.getElementById("serviceListCard");
+  const tablaServicios = document.querySelector("#tabla-detalle-servicios tbody");
+  const btnAgregarServ = document.getElementById("btnAgregarDetalleServicio");
   const selectSubcategoria = document.getElementById("subcategoria");
-  const selectServicio     = document.getElementById("servicio");
-  const inputPrecioServ    = document.getElementById("precioServicio");
+  const selectServicio = document.getElementById("servicio");
+  const inputPrecioServ = document.getElementById("precioServicio");
   const btnGuardarServicio = document.getElementById("btnGuardarServicio");
+  const btnAgregarServicio = document.getElementById("btnAgregarServicio");
 
-  const detalleCotizacion  = [];
-  const detalleServicios   = [];
+  const detalleCotizacion = [];
+  const detalleServicios = [];
 
   // Estado para autocompletar
   let selectedProduct = {};
-  let diasVigencia    = 0;
+  let diasVigencia = 0;
 
   // — Toggle sección de servicios (deshabilita botón tras primer clic) —
   btnToggleService.addEventListener("click", e => {
@@ -65,18 +66,47 @@ document.addEventListener("DOMContentLoaded", () => {
   function mostrarOpcionesProducto() {
     cerrarListas();
     if (!inputProduct.value) return;
-    fetch(`${window.FIX360_BASE_URL}app/controllers/Cotizacion.controller.php?q=${encodeURIComponent(inputProduct.value)}&type=producto`)
+
+    fetch(
+      `${window.FIX360_BASE_URL}app/controllers/Cotizacion.controller.php` +
+      `?q=${encodeURIComponent(inputProduct.value)}` +
+      `&type=producto`
+    )
       .then(r => r.json())
       .then(json => {
+        // 1) Normalizar el array de productos:
+        //    tu controlador debería devolver { status, data: [...] }
+        //    o bien el array directamente. Así cubrimos ambos casos.
+        const productos = Array.isArray(json)
+          ? json
+          : Array.isArray(json.data)
+            ? json.data
+            : [];
+
+        // 2) Si no hay nada, mostramos un warning y salimos
+        if (productos.length === 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No se encontraron productos',
+            text: 'Verifica el término de búsqueda.',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false
+          });
+          return;
+        }
+
+        // 3) Creamos el contenedor de sugerencias
         const cont = document.createElement("div");
         cont.className = "autocomplete-items";
         inputProduct.parentNode.append(cont);
-        (json.data || []).forEach(prod => {
+
+        // 4) Agregamos una div por cada producto
+        productos.forEach(prod => {
           const opt = document.createElement("div");
           opt.textContent = prod.subcategoria_producto;
           opt.addEventListener("click", () => {
             inputProduct.value = prod.subcategoria_producto;
-            inputPrecio.value = prod.precio;
+            inputPrecio.value = prod.preciov;
             inputCantidad.value = 1;
             inputDescuento.value = 0;
             selectedProduct = { idproducto: prod.idproducto, precio: prod.precio };
@@ -84,6 +114,10 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           cont.append(opt);
         });
+      })
+      .catch(err => {
+        console.error("Error al obtener los productos:", err);
+        showToast("Error al buscar productos.", "ERROR", 1500);
       });
   }
   const debMostrar = debounce(mostrarOpcionesProducto, 300);
@@ -202,38 +236,71 @@ document.addEventListener("DOMContentLoaded", () => {
       selectServicio.innerHTML = '<option value="">Error al cargar</option>';
     }
   });
-
+  const modalServicioEl = document.getElementById("ModalServicio");
+  const modalServicio = new bootstrap.Modal(modalServicioEl, {
+    backdrop: true,
+    keyboard: false
+  });
   // — Modal para registrar nuevo servicio —
   btnAgregarServicio.addEventListener("click", () => {
     const idc = selectSubcategoria.value;
-    const txt = selectSubcategoria.selectedOptions[0]?.text || "";
-    if (!idc) return alert("Selecciona primero una subcategoría");
+    if (!idc) {
+      return Swal.fire("Atención", "Selecciona primero una subcategoría", "warning");
+    }
+    // completamos los campos del modal
     document.getElementById("modalSubcategoriaId").value = idc;
-    document.getElementById("modalSubcategoriaNombre").value = txt;
+    document.getElementById("modalSubcategoriaNombre").value = selectSubcategoria.selectedOptions[0].text;
     document.getElementById("modalServicioNombre").value = "";
+    // ahora sí mostramos el modal
+    modalServicio.show();
   });
 
   btnGuardarServicio.addEventListener("click", async () => {
     const idsubcategoria = document.getElementById("modalSubcategoriaId").value;
     const nombreServicio = document.getElementById("modalServicioNombre").value.trim();
-    if (!nombreServicio) return alert("Ingresa el nombre del servicio");
+
+    if (!nombreServicio) {
+      return Swal.fire("Error", "Ingresa el nombre del servicio", "warning");
+    }
+
     try {
-      const res = await fetch(`${window.FIX360_BASE_URL}app/controllers/Servicio.Controller.php?task=registrarServicio`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `idsubcategoria=${idsubcategoria}&servicio=${encodeURIComponent(nombreServicio)}`
-      });
+      // Enviamos por POST JSON al controlador
+      const res = await fetch(
+        `${window.FIX360_BASE_URL}app/controllers/Servicio.Controller.php`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            task: "registerServicio",
+            idsubcategoria,
+            servicio: nombreServicio
+          })
+        }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      if (json.status === "success") {
-        alert("Servicio registrado con éxito");
-        selectServicio.innerHTML += `<option value="${json.idservicio}">${nombreServicio}</option>`;
-        document.getElementById("ModalServicio").querySelector(".btn-close").click();
+
+      // El controlador POST devuelve { success: true, idservicio, servicio }
+      if (json.success) {
+        Swal.fire("¡Listo!", "Servicio registrado con éxito", "success");
+
+        // ① Crear el <option> y añadirlo al <select>
+        const nuevaOpcion = document.createElement("option");
+        nuevaOpcion.value = json.idservicio;
+        nuevaOpcion.text = json.servicio;
+        selectServicio.appendChild(nuevaOpcion);
+
+        // ② Opcional: marcarlo como seleccionado
+        selectServicio.value = json.idservicio;
+
+        // ③ Cerrar el modal limpio
+        bootstrap.Modal.getInstance(document.getElementById("ModalServicio")).hide();
       } else {
-        alert("Error al registrar el servicio");
+        Swal.fire("Error", json.error || "No se pudo registrar el servicio", "error");
       }
     } catch (err) {
       console.error(err);
-      alert("Fallo en la conexión");
+      Swal.fire("Error", "Fallo de conexión", "error");
     }
   });
 
@@ -274,32 +341,66 @@ document.addEventListener("DOMContentLoaded", () => {
   // — Guardar cotización —
   btnGuardarCot.addEventListener("click", e => {
     e.preventDefault();
-    if (!document.getElementById("hiddenIdCliente").value) {
+
+    const clienteId = document.getElementById("hiddenIdCliente").value;
+    if (!clienteId) {
       return alert("Selecciona un cliente");
     }
     if (detalleCotizacion.length === 0 && detalleServicios.length === 0) {
       return alert("Agrega al menos un producto o servicio");
     }
+
     btnGuardarCot.disabled = true;
     btnGuardarCot.textContent = "Guardando...";
+
+    // 1) Unificar productos y servicios en un solo array "items"
+    const items = [
+      ...detalleCotizacion.map(d => ({
+        idproducto: d.idproducto,
+        idservicio: null,
+        cantidad: d.cantidad,
+        precio: d.precio,
+        descuento: d.descuento
+      })),
+      ...detalleServicios.map(s => ({
+        idproducto: null,
+        idservicio: s.idservicio,
+        cantidad: 1,
+        precio: s.precio,
+        descuento: 0
+      }))
+    ];
+
+    // 2) Armar el payload que el backend espera
     const payload = {
       fechahora: fechaInput.value,
       vigenciadias: diasVigencia,
       moneda: monedaSelect.value,
-      idcliente: document.getElementById("hiddenIdCliente").value,
-      productos: detalleCotizacion,
-      servicios: detalleServicios
+      idcliente: clienteId,
+      items: items
     };
+
+    // 3) Log para depurar (ya con payload definido)
+    console.log("Items a enviar:", items);
+    console.log("Payload completo:", payload);
+
+    // 4) Enviar la petición
     fetch(`${window.FIX360_BASE_URL}app/controllers/Cotizacion.controller.php`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
-      .then(r => r.json())
+      .then(res => res.json())
       .then(json => {
         if (json.status === "success") {
-          Swal.fire({ icon: "success", title: "¡Registrado!", timer: 1500, showConfirmButton: false })
-            .then(() => location.href = "listar-cotizacion.php");
+          Swal.fire({
+            icon: "success",
+            title: "¡Registrado!",
+            timer: 1500,
+            showConfirmButton: false
+          }).then(() => {
+            window.location.href = "listar-cotizacion.php";
+          });
         } else {
           Swal.fire("Error", json.message || "No se pudo guardar", "error");
         }
@@ -313,7 +414,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btnGuardarCot.textContent = "Aceptar";
       });
   });
-
   // — Modal propietario —
   window.actualizarOpciones = function () {
     const esEmp = document.getElementById("rbtnempresa").checked;

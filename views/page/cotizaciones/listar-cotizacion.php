@@ -48,7 +48,7 @@ require_once "../../partials/header.php";
                     <tr>
                         <th>#</th>
                         <th>Cliente</th>
-                        <th class="text-center">Precio</th>
+                        <th class="text-center">Total</th>
                         <th class="text-center">D. Vigencia</th>
                         <th class="text-center">Opciones</th>
                     </tr>
@@ -67,7 +67,7 @@ require_once "../../partials/header.php";
                 <tr>
                     <th>#</th>
                     <th>Cliente</th>
-                    <th class="text-center">Precio</th>
+                    <th class="text-center">Total</th>
                     <th class="text-center">D. Vigencia</th>
                     <th class="text-center">Opciones</th>
                 </tr>
@@ -126,7 +126,7 @@ require_once "../../partials/_footer.php";
     });
 </script>
 <script>
-    $(document).on('click', '.btn-ver-justificacion', async function () {
+    $(document).on('click', '.btn-ver-justificacion', async function() {
         const id = $(this).data('id');
         console.log('voy a pedir justificación para id=', id);
         $('#contenidoJustificacion').text('Cargando…');
@@ -148,68 +148,86 @@ require_once "../../partials/_footer.php";
 <!-- Vista en el modal de detalle de cotizacion para visualizar informacion de esa cotizacion -->
 <script>
     function verDetalleCotizacion(idcotizacion) {
-        // 1) Limpia modal
-        $("#miModal tbody").empty();
+        // 1) Limpiar modal
+        const $tbodyProd = $("#miModal table").first().find("tbody").empty();
+        const $tbodyServ = $("#tabla-detalle-servicios-modal tbody").empty();
         $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion").val('');
-        $("label[for='cliente']").text('');
 
-        // 2) Abre el modal
+        // 2) Mostrar modal
         $("#miModal").modal("show");
 
-        // 3) Carga datos de cabecera
+        // 3) Cabecera (igual que antes)…
         fetch(`<?= SERVERURL ?>app/controllers/Cotizacion.controller.php?action=detalle&idcotizacion=${idcotizacion}`)
             .then(res => res.json())
             .then(json => {
-                console.log("Detalle cabecera:", json);
                 if (json.status === 'success') {
-                    // Ponemos cliente en el input#modeloInput
-                    $("#modeloInput").val(json.data.cliente || 'Sin cliente');
-                    // Fecha & Hora
-                    $("#fechaHora").val(json.data.fechahora || '');
-                    // Días de Vigencia
-                    $("#vigencia").val(json.data.vigenciadias || '');
-                    // Estado
-                    $("#estadoCotizacion").val(json.data.estado || '');
+                    $("#modeloInput").val(json.data.cliente || '—');
+                    $("#fechaHora").val(json.data.fechahora || '—');
+                    $("#vigencia").val(json.data.vigenciadias || '—');
+                    $("#estadoCotizacion").val(json.data.estado ? 'Activa' : 'Anulada');
                 } else {
-                    // Si algo falla
-                    $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion")
-                        .val('—');
+                    $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion").val('—');
                 }
             })
-            .catch(err => {
-                console.error("Error al cargar cabecera de cotización:", err);
-                $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion")
-                    .val('Error');
+            .catch(() => {
+                $("#modeloInput, #fechaHora, #vigencia, #estadoCotizacion").val('Error');
             });
 
-        // 4) Carga productos (detalle)
+        // 4) Detalle: un solo endpoint que trae productos y servicios
         $.ajax({
             url: "<?= SERVERURL ?>app/controllers/Detcotizacion.controller.php",
             method: "GET",
-            data: { idcotizacion },
+            data: {
+                idcotizacion
+            },
             dataType: "json",
             success(response) {
-                if (!response.length) {
-                    return $("#miModal tbody").append(
-                        `<tr><td colspan="6" class="text-center">No hay detalles disponibles</td></tr>`
-                    );
+                // filtrar
+                const productos = response.filter(r => r.tipo === 'producto');
+                const servicios = response.filter(r => r.tipo === 'servicio');
+
+                // 4a) Pinta productos
+                if (productos.length === 0) {
+                    $tbodyProd.append(`
+          <tr><td colspan="6" class="text-center">No hay productos registrados</td></tr>
+        `);
+                } else {
+                    productos.forEach((row, i) => {
+                        $tbodyProd.append(`
+            <tr>
+              <td>${i+1}</td>
+              <td>${row.producto}</td>
+              <td class="text-center">${row.cantidad}</td>
+              <td class="text-center">S/ ${parseFloat(row.precio).toFixed(2)}</td>
+              <td class="text-center">${row.descuento}%</td>
+              <td class="text-center">S/ ${parseFloat(row.total).toFixed(2)}</td>
+            </tr>
+          `);
+                    });
                 }
-                // Cada fila de producto
-                response.forEach((item, i) => {
-                    $("#miModal tbody").append(`
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td>${item.producto}</td>
-                        <td class="text-center">${item.cantidad}</td>
-                        <td class="text-end">$${parseFloat(item.precio).toFixed(2)}</td>
-                        <td class="text-center">${item.descuento}%</td>
-                        <td class="text-end">$${parseFloat(item.total_producto).toFixed(2)}</td>
-                    </tr>
-                    `);
-                });
+
+                // 4b) Pinta servicios
+                if (servicios.length === 0) {
+                    $tbodyServ.append(`
+          <tr><td colspan="4" class="text-center">No hay servicios registrados</td></tr>
+        `);
+                } else {
+                    servicios.forEach((row, i) => {
+                        $tbodyServ.append(`
+            <tr>
+              <td class="text-center">${i+1}</td>
+              <td class="text-center">${row.tiposervicio}</td>
+              <td class="text-center">${row.nombreservicio}</td>
+              <td class="text-center">S/ ${parseFloat(row.precio_servicio).toFixed(2)}</td>
+            </tr>
+          `);
+                    });
+                }
             },
             error() {
-                alert("Ocurrió un error al cargar el detalle de productos.");
+                // Error genérico
+                $tbodyProd.append(`<tr><td colspan="6" class="text-center text-danger">Error al cargar productos</td></tr>`);
+                $tbodyServ.append(`<tr><td colspan="4" class="text-center text-danger">Error al cargar servicios</td></tr>`);
             }
         });
     }
@@ -236,11 +254,13 @@ require_once "../../partials/_footer.php";
         tablaCotizaciones = $("#tablacotizacion").DataTable({
             ajax: {
                 url: "<?= SERVERURL ?>app/controllers/Cotizacion.controller.php",
-                data: { modo, fecha },
+                data: {
+                    modo,
+                    fecha
+                },
                 dataSrc: "data"
             },
-            columns: [
-                { // Columna 1: Número de fila
+            columns: [{ // Columna 1: Número de fila
                     data: null,
                     render: (data, type, row, meta) => meta.row + 1
                 }, // Cierra columna 1
@@ -294,20 +314,30 @@ require_once "../../partials/_footer.php";
                     return json.status === 'success' ? json.data : [];
                 }
             },
-            columns: [
-                { data: null, render: (d, t, r, m) => m.row + 1 },
-                { data: "cliente", class: "text-start", defaultContent: "—" },
+            columns: [{
+                    data: null,
+                    render: (d, t, r, m) => m.row + 1
+                },
+                {
+                    data: "cliente",
+                    class: "text-start",
+                    defaultContent: "—"
+                },
                 {
                     data: "total",
                     class: "text-center",
                     defaultContent: "—",
                     render: (data) => data ? `$${parseFloat(data).toFixed(2)}` : '—'
                 },
-                { data: "vigencia", class: "text-center", defaultContent: "—" },
+                {
+                    data: "vigencia",
+                    class: "text-center",
+                    defaultContent: "—"
+                },
                 {
                     data: null,
                     class: "text-center",
-                    render: function (data, type, row) {
+                    render: function(data, type, row) {
                         return `
                             <button class="btn btn-primary btn-sm btn-ver-justificacion"
                                 data-id="${row.idcotizacion}"
@@ -389,7 +419,7 @@ require_once "../../partials/_footer.php";
         });
 
         // eliminación con justificación
-        $(document).on('click', '.btnEliminar', function () {
+        $(document).on('click', '.btnEliminar', function() {
             const idv = $(this).data('id');
             $('#justificacion').val('');
             $('#btnEliminarCotizacion').data('id', idv);
@@ -397,7 +427,7 @@ require_once "../../partials/_footer.php";
         });
 
         // confirmar eliminación
-        $(document).on('click', '#btnEliminarCotizacion', async function () {
+        $(document).on('click', '#btnEliminarCotizacion', async function() {
             const just = $('#justificacion').val().trim();
             const idv = $(this).data('id');
             if (!just) {
@@ -407,8 +437,11 @@ require_once "../../partials/_footer.php";
             if (!confirm('¿Estás seguro de que quieres eliminar esta cotización?')) {
                 return;
             }
-            $.post(API,
-                { action: 'eliminar', idcotizacion: idv, justificacion: just },
+            $.post(API, {
+                    action: 'eliminar',
+                    idcotizacion: idv,
+                    justificacion: just
+                },
                 res => {
                     if (res.status === 'success') {
                         showToast('Cotización eliminada', 'SUCCESS', 1500);
@@ -422,7 +455,7 @@ require_once "../../partials/_footer.php";
             );
         });
 
-        $(document).on('click', '.btn-detalle', function () {
+        $(document).on('click', '.btn-detalle', function() {
             const idcotizacion = $(this).data('id');
             verDetalleCotizacion(idcotizacion);
             $('#miModal').modal('show');
@@ -502,6 +535,21 @@ require_once "../../partials/_footer.php";
                         </thead>
                         <tbody>
 
+                        </tbody>
+                    </table>
+                    <hr>
+                    <h6>Servicios asociados</h6>
+                    <table class="table table-striped table-bordered" id="tabla-detalle-servicios-modal">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tipo Servicio</th>
+                                <th>Servicio</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se llenarán con JS -->
                         </tbody>
                     </table>
                 </div>

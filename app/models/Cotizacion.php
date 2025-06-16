@@ -41,9 +41,9 @@ class Cotizacion extends Conexion
   /**
    * Devuelve el detalle completo (productos, precio, cantidad, descuento) de una cotización.
    */
-public function getDetalleById(int $idcotizacion): array
-{
-  $sql = "
+  public function getDetalleById(int $idcotizacion): array
+  {
+    $sql = "
     SELECT 
       dc.iddetallecotizacion,
       dc.cantidad,
@@ -63,10 +63,10 @@ public function getDetalleById(int $idcotizacion): array
     WHERE dc.idcotizacion = ?
     ORDER BY dc.iddetallecotizacion
   ";
-  $stmt = $this->pdo->prepare($sql);
-  $stmt->execute([$idcotizacion]);
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$idcotizacion]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
 
 
   public function getAll(): array
@@ -149,17 +149,15 @@ public function getDetalleById(int $idcotizacion): array
   //buscar productos
   public function buscarProducto(string $termino): array
   {
-    $result = [];
     try {
-      $sql = "CALL buscar_producto(:termino)";
+      $sql  = "CALL buscar_producto_cot(:termino)";
       $stmt = $this->pdo->prepare($sql);
       $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
       $stmt->execute();
-      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
       throw new Exception("Error al buscar productos: " . $e->getMessage());
     }
-    return $result;
   }
 
   // Mostrar monedas
@@ -214,15 +212,15 @@ public function getDetalleById(int $idcotizacion): array
 
       $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleCotizacion(?,?,?,?,?,?)");
       foreach ($params["items"] as $item) {
-    $stmtDetalle->execute([
-      $idcotizacion,
-      $item["idproducto"] ?? null,
-      $item["idservicio"] ?? null,
-      $item["cantidad"],
-      $item["precio"],
-      $item["descuento"]
-    ]);
-}
+        $stmtDetalle->execute([
+          $idcotizacion,
+          $item["idproducto"] ?? null,
+          $item["idservicio"] ?? null,
+          $item["cantidad"],
+          $item["precio"],
+          $item["descuento"]
+        ]);
+      }
 
       $pdo->commit();
       error_log("Venta registrada con id: " . $idcotizacion);
@@ -261,4 +259,3 @@ public function getDetalleById(int $idcotizacion): array
     }
   }
 }
-?>

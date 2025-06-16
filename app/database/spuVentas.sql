@@ -268,7 +268,7 @@ BEGIN
 END $$
 
 -- 6) PROCEDIMIENTO PARA BUSCAR PRODUCTO (producto, stock, precio)
-DROP PROCEDURE IF EXISTS buscar_producto;
+DROP PROCEDURE IF EXISTS buscar_producto $$
 DELIMITER $$
 CREATE PROCEDURE buscar_producto(
   IN termino_busqueda VARCHAR(255),
@@ -300,16 +300,15 @@ BEGIN
   LIMIT 10;
 END $$
 
-/*
-DROP PROCEDURE IF EXISTS buscar_producto $$
-CREATE PROCEDURE buscar_producto(
+DROP PROCEDURE IF EXISTS buscar_producto_cot $$
+CREATE PROCEDURE buscar_producto_cot(
   IN termino_busqueda VARCHAR(255)
 )
 BEGIN
   SELECT
     P.idproducto,
     CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-    P.precio,
+    P.preciov,
     (
       SELECT m2.saldorestante
       FROM movimientos m2
@@ -325,7 +324,6 @@ BEGIN
      OR P.codigobarra   LIKE CONCAT('%', termino_busqueda, '%')
   LIMIT 10;
 END $$
-*/
 
 -- 7) PROCEDIMIENTO PARA MOSTRAR PROVEEDORES
 DROP PROCEDURE IF EXISTS spuGetProveedores $$
@@ -470,26 +468,29 @@ END $$
 -- 11) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COTIZACIÓN
 DROP PROCEDURE IF EXISTS spuInsertDetalleCotizacion $$
 CREATE PROCEDURE spuInsertDetalleCotizacion (
-  IN _idcotizacion INT,
-  IN _idproducto   INT,
-  IN _cantidad     INT,
-  IN _precio       DECIMAL(7,2),
-  IN _descuento    DECIMAL(5,2)
+     IN _idcotizacion INT,
+     IN _idproducto   INT,
+     IN _idservicio   INT,
+     IN _cantidad     INT,
+     IN _precio       DECIMAL(7,2),
+     IN _descuento    DECIMAL(5,2)
 )
 BEGIN
-  INSERT INTO detallecotizacion (
-    idproducto,
-    idcotizacion,
-    cantidad,
-    precio,
-    descuento
-  ) VALUES (
-    _idproducto,
-    _idcotizacion,
-    _cantidad,
-    _precio,
-    _descuento
-  );
+   INSERT INTO detallecotizacion (
+     idcotizacion,
+     idproducto,
+     idservicio,
+     cantidad,
+     precio,
+     descuento
+   ) VALUES (
+     _idcotizacion,
+     _idproducto,
+     _idservicio,
+     _cantidad,
+     _precio,
+     _descuento
+   );
 END $$
 
 -- 12) PROCEDIMIENTO PARA ANULAR COMPRA (DEVOLUCIÓN DE STOCK)

@@ -519,6 +519,67 @@ WHERE c.estado = TRUE;
 -- REAL
 DROP VIEW IF EXISTS vista_detalle_cotizacion;
 CREATE VIEW vista_detalle_cotizacion AS
+
+-- 1) Productos
+SELECT
+  c.idcotizacion,
+  dc.idproducto,
+  NULL                           AS idservicio,
+  CONCAT(su.subcategoria,' ',pr.descripcion) AS producto,
+  'producto'                     AS tipo,
+  dc.precio,
+  dc.cantidad,
+  dc.descuento,
+  ROUND(dc.precio * dc.cantidad * (1 - dc.descuento/100),2) AS total,
+  c.fechahora,
+  c.vigenciadias,
+  
+  -- Campos de servicio, que aquí serán NULL
+  NULL        AS tiposervicio,
+  NULL        AS nombreservicio,
+  NULL        AS precio_servicio
+
+FROM cotizaciones c
+JOIN detallecotizacion dc  ON dc.idcotizacion   = c.idcotizacion
+JOIN productos pr          ON pr.idproducto     = dc.idproducto
+JOIN subcategorias su      ON su.idsubcategoria = pr.idsubcategoria
+WHERE c.estado = TRUE
+  AND dc.idproducto IS NOT NULL
+
+UNION ALL
+
+-- 2) Servicios
+SELECT
+  c.idcotizacion,
+  NULL                           AS idproducto,
+  dc.idservicio,
+  NULL                           AS producto,
+  'servicio'                     AS tipo,
+  
+  -- Para no colisionar con precio_producto, lo dejamos NULL
+  NULL        AS precio,
+  NULL        AS cantidad,
+  NULL        AS descuento,
+  NULL        AS total,
+  c.fechahora,
+  c.vigenciadias,
+
+  -- Los tres campos nuevos, ahora sí con datos
+  sc.subcategoria               AS tiposervicio,
+  se.servicio                   AS nombreservicio,
+  dc.precio                     AS precio_servicio
+
+FROM cotizaciones c
+JOIN detallecotizacion dc  ON dc.idcotizacion = c.idcotizacion
+JOIN servicios se          ON se.idservicio   = dc.idservicio
+JOIN subcategorias sc      ON sc.idsubcategoria = se.idsubcategoria
+WHERE c.estado = TRUE
+  AND dc.idservicio IS NOT NULL;
+
+
+/*
+DROP VIEW IF EXISTS vista_detalle_cotizacion;
+CREATE VIEW vista_detalle_cotizacion AS
 SELECT 
   c.idcotizacion,
   c.idcliente,
@@ -538,7 +599,7 @@ LEFT JOIN empresas e   ON cli.idempresa = e.idempresa
 JOIN detallecotizacion dc ON c.idcotizacion = dc.idcotizacion
 JOIN productos pr        ON dc.idproducto   = pr.idproducto
 JOIN subcategorias S     ON pr.idsubcategoria = S.idsubcategoria
-WHERE c.estado = TRUE;
+WHERE c.estado = TRUE;*/
 
 -- ************************* VISTAS ELIMINADAS *************************
 

@@ -110,7 +110,7 @@ require_once "../../partials/header.php";
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-4 mt-3">
+                    <div class="col-md-4">
                         <div class="input-group">
                             <div class="form-floating">
                                 <input type="number" class="form-control input" step="0.01" min="0.01" id="precioServicio" />
@@ -305,8 +305,11 @@ require_once "../../partials/header.php";
 </div>
 
 <?php require_once "../../partials/_footer.php"; ?>
-
+<script>
+  window.FIX360_BASE_URL = "<?= SERVERURL ?>";
+</script>
 <script src="<?= SERVERURL ?>views/assets/js/moneda.js"></script>
 <script src="<?= SERVERURL ?>views/page/cotizaciones/js/registrar-cotizacion.js"></script>
+<script src="<?= SERVERURL ?>views/page/ordenservicios/js/registrar-ordenes.js"></script>
 </body>
 </html>

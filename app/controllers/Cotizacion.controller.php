@@ -10,7 +10,7 @@ require_once __DIR__ . '/../helpers/helper.php';
 $cotizacion = new Cotizacion();
 $vehiculo = new Vehiculo();
 
-// —————— ENDPOINT: obtener solo cliente de la cotización ——————
+// —————— ENDPOINT: lLEVAR LA COTIZACION A UNA VENTA ——————
 if (
   $_SERVER['REQUEST_METHOD'] === 'GET'
   && ($_GET['action'] ?? '') === 'getSoloCliente'
@@ -108,14 +108,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // 5) Búsqueda dinámica de cliente/producto
     if (isset($_GET['q']) && $_GET['q'] !== '') {
-      $term = Helper::limpiarCadena($_GET['q']);
+      $termino = Helper::limpiarCadena($_GET['q']);
+      $tipo    = $_GET['type'] ?? '';        // ← Asegúrate de esto
       if ($tipo === 'producto') {
-        $res = $cotizacion->buscarProducto($term);
+        $productos = $cotizacion->buscarProducto($termino);
+        // uniformiza tu formato JSON con status/data
+        echo json_encode(['status' => 'success', 'data' => $productos]);
+        exit;
       } else {
-        $res = $cotizacion->buscarCliente($term);
+        $clientes = $cotizacion->buscarCliente($termino);
+        echo json_encode(['status' => 'success', 'data' => $clientes]);
+        exit;
       }
-      echo json_encode(['status' => 'success', 'data' => $res]);
-      exit;
     }
 
     if (
@@ -149,91 +153,109 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
   case 'POST':
 
-    // Anulación de venta (soft-delete) con justificación
-    if (isset($_POST['action'], $_POST['idcotizacion']) && $_POST['action'] === 'eliminar') {
+    // → Anulación de cotización (soft-delete) con justificación
+    if (
+      isset($_POST['action'], $_POST['idcotizacion']) 
+      && $_POST['action'] === 'eliminar'
+    ) {
       $id = intval($_POST['idcotizacion']);
       $justificacion = trim($_POST['justificacion'] ?? '');
-      // ¡Ojo! Aquí debes usar tu método deleteCotizacion, no deleteVenta
       $ok = $cotizacion->deleteCotizacion($id, $justificacion);
       echo json_encode([
-        'status' => $ok ? 'success' : 'error',
-        'message' => $ok ? 'Cotización anulada.' : 'No se pudo anular la cotización.'
+        'status'  => $ok ? 'success' : 'error',
+        'message' => $ok 
+          ? 'Cotización anulada.' 
+          : 'No se pudo anular la cotización.'
       ]);
       exit;
     }
 
-    //captura el json de entrada
-    $input = file_get_contents('php://input');
-    error_log("Entrada POST: " . $input);
-
-    $dataJSON = json_decode($input, true);
-    if (!$dataJSON) {
-      error_log("Error: JSON inválido.");
-      echo json_encode(["status" => "error", "message" => "JSON inválido."]);
+    // → Validar que recibimos JSON
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+    if (stripos($contentType, 'application/json') === false) {
+      error_log("ERROR: Content-Type inválido: {$contentType}");
+      echo json_encode([
+        'status'  => 'error',
+        'message' => 'Se esperaba application/json'
+      ]);
       exit;
     }
 
-    //limpiar y validacion de datos
-    $idadmin = $_SESSION['login']['idcolaborador'] ?? 0;
-    $fechahora = Helper::limpiarCadena($dataJSON['fechahora'] ?? "");
-    $vigenciaInput = Helper::limpiarCadena($dataJSON['vigenciadias'] ?? "");
+    // → Leer el raw body UNA sola vez
+    $input = file_get_contents('php://input');
+    error_log("RAW POST INPUT: {$input}");
 
-    // Si el valor de vigenciadias es una fecha (contiene "-"), calculamos la diferencia en días.
-    if (strpos($vigenciaInput, "-") !== false) {
+    $dataJSON = json_decode($input, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      error_log("JSON inválido: " . json_last_error_msg());
+      echo json_encode([
+        'status'  => 'error',
+        'message' => 'JSON inválido.'
+      ]);
+      exit;
+    }
+
+    // → Extraer y sanitizar campos
+    $idadmin       = $_SESSION['login']['idcolaborador'] ?? 0;
+    $fechahora     = Helper::limpiarCadena($dataJSON['fechahora'] ?? '');
+    $vigenciaInput = Helper::limpiarCadena($dataJSON['vigenciadias'] ?? '');
+    $moneda        = Helper::limpiarCadena($dataJSON['moneda'] ?? '');
+    $idcliente     = intval($dataJSON['idcliente'] ?? 0);
+    $items         = $dataJSON['items'] ?? [];
+
+    // → Validar items
+    if (!is_array($items) || count($items) === 0) {
+      error_log("No se recibieron items o no es array: " . var_export($items, true));
+      echo json_encode([
+        'status'  => 'error',
+        'message' => 'No se enviaron ítems de cotización.'
+      ]);
+      exit;
+    }
+
+    // → Normalizar fecha/hora
+    if (empty($fechahora)) {
+      $fechahora = date('Y-m-d H:i:s');
+    } elseif (strpos($fechahora, ' ') === false) {
+      $fechahora .= ' ' . date('H:i:s');
+    }
+
+    // → Calcular vigencia en días
+    if (strpos($vigenciaInput, '-') !== false) {
       try {
-        $fechaVigencia = new DateTime($vigenciaInput);
-        // Usamos $fechahora para la fecha de cotización, o la fecha actual si no se definió
-        $fechaCotizacion = !empty($fechahora)
-          ? new DateTime($fechahora)
-          : new DateTime();
-        $intervalo = $fechaCotizacion->diff($fechaVigencia);
-        $vigenciadias = $intervalo->days;
+        $f2 = new DateTime($vigenciaInput);
+        $f1 = new DateTime($fechahora);
+        $vigenciadias = $f1->diff($f2)->days;
       } catch (Exception $e) {
-        error_log("Error al convertir la fecha de vigencia: " . $e->getMessage());
+        error_log("Error al parsear vigencia: " . $e->getMessage());
         $vigenciadias = 0;
       }
     } else {
-      // Si ya es un número (por ejemplo, enviado desde JavaScript), se usa directamente
       $vigenciadias = intval($vigenciaInput);
     }
 
-    // Si $fechahora está vacío, asignamos la fecha y hora actual
-    if (empty($fechahora)) {
-      $fechahora = date("Y-m-d H:i:s");
-    } elseif (strpos($fechahora, ' ') === false) {
-      $fechahora .= " " . date("H:i:s");
-    }
-
-    $moneda = Helper::limpiarCadena($dataJSON['moneda'] ?? "");
-    $idcliente = $dataJSON['idcliente'] ?? 0;
-    $items = $dataJSON['items'] ?? [];
-if (empty($items)) {
-  echo json_encode(["status" => "error", "message" => "No se enviaron ítems de cotización."]);
-  exit;
-}
-    error_log("Datos recibidos: " . print_r($dataJSON, true));
-
-    $cotizacion = new Cotizacion();
+    // → Registrar cotización y detalle
     $idCotInsertada = $cotizacion->registerCotizacion([
-  "fechahora"     => $fechahora,
-  "vigenciadias"  => $vigenciadias,
-  "moneda"        => $moneda,
-  "idcolaborador" => $idadmin,
-  "idcliente"     => $idcliente,
-  "items"         => $items
-]);
+      'fechahora'     => $fechahora,
+      'vigenciadias'  => $vigenciadias,
+      'moneda'        => $moneda,
+      'idcolaborador' => $idadmin,
+      'idcliente'     => $idcliente,
+      'items'         => $items
+    ]);
+
     if ($idCotInsertada > 0) {
       echo json_encode([
-        "status" => "success",
-        "message" => "Venta registrada con exito.",
-        "idcotizacion" => $idCotInsertada
+        'status'       => 'success',
+        'message'      => 'Cotización registrada con éxito.',
+        'idcotizacion' => $idCotInsertada
       ]);
     } else {
-      echo json_encode(["status" => "error", "message" => "No se pudo registrar la venta."]);
+      error_log("Fallo registerCotizacion, devolvió 0");
+      echo json_encode([
+        'status'  => 'error',
+        'message' => 'No se pudo registrar la cotización.'
+      ]);
     }
-    break;
-
+    exit;
 }
-
-
-?>
