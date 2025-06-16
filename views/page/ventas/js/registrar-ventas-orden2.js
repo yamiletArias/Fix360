@@ -35,8 +35,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const gruField = document.getElementById("ingresogrua");
   const hiddenIdPropietario = document.getElementById("hiddenIdPropietario");
   const inputClienteVisible = document.getElementById("inputClienteVisible");
+  hiddenIdPropietario.addEventListener("change", actualizarEstadoGuardar);
+
   numSerieInput.value = "";
   numComInput.value = "";
+  
   // 1) Función para habilitar/deshabilitar el botón “Guardar”
   function actualizarEstadoGuardar() {
     const tieneProductos = detalleVenta.length > 0;

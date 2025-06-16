@@ -46,14 +46,6 @@ require_once "../../partials/header.php";
             <input type="text" name="numcomprobante" id="numcom"
               class="form-control text-center input form-control-sm w-25 ms-2" required />
           </div>
-          <!-- <div class="col-md-7 d-flex align-items-center justify-content-end">
-            <label for="numserie" class="mb-0">N° serie:</label>
-            <input type="text" class="form-control input text-center form-control-sm w-25 ms-2" name="numserie"
-              id="numserie" required disabled />
-            <label for="numcom" class="mb-0 ms-2">N° comprobante:</label>
-            <input type="text" name="numcomprobante" id="numcom"
-              class="form-control text-center input form-control-sm w-25 ms-2" required disabled />
-          </div> -->
         </div>
         <!-- Sección Cliente, Fecha y Moneda -->
         <div class="row g-2 mt-3">
@@ -182,10 +174,6 @@ require_once "../../partials/header.php";
                 <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
                   <option value="">Eliga un tipo de servicio</option>
                   <?php
-                  // Ejemplo de carga con PHP (reemplaza con tu fuente real)
-                  // foreach($tusSubcategorias as $row) {
-                  //   echo "<option value=\"{$row['idsubcategoria']}\">{$row['subcategoria']}</option>";
-                  // }
                   ?>
                 </select>
                 <label for="subcategoria">Tipo de Servicio:</label>
@@ -397,11 +385,6 @@ require_once "../../partials/header.php";
       </div>
       <!-- Pie del Modal -->
       <div class="modal-footer">
-        <!-- Botón para registrar directamente si no existe el propietario -->
-        <!-- <button type="button" class="btn btn-sm btn-primary" id="btnRegistrarNuevo">
-          Registrar Nuevo
-        </button> -->
-
         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
