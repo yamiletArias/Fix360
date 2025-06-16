@@ -100,6 +100,13 @@ require_once "../../partials/header.php";
               <label for="undmedida">Und. de Medida</label>
             </div>
           </div>
+          
+           <div class="col-md-2">
+            <div class="form-floating mb-3">
+              <input type="number" class="form-control input" step="0.01" id="stockActual" name="stockActual" placeholder="Stock Actual" min="0" autocomplete="off" disabled />
+              <label for="stockActual">Stock Actual</label>
+            </div>
+          </div>
 
           <!-- PRECIO -->
           <!-- PRECIO DE COMPRA -->
@@ -123,13 +130,8 @@ require_once "../../partials/header.php";
 </div>
 
 
-          <!-- STOCK ACTUAL (solo lectura) -->
-          <div class="col-md-2">
-            <div class="form-floating mb-3">
-              <input type="number" class="form-control input" step="0.01" id="stockActual" name="stockActual" placeholder="Stock Actual" min="0" autocomplete="off" disabled />
-              <label for="stockActual">Stock Actual</label>
-            </div>
-          </div>
+          
+         
 
           <!-- STOCK MÍNIMO -->
           <div class="col-md-2">

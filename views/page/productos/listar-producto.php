@@ -23,7 +23,7 @@ require_once "../../partials/header.php";
           <th>Marca</th>
           <th>Subcategoria</th>
           <th>Descripcion</th>
-          <th>Precio</th>
+          <th>Precio V.</th>
           <th>Presentacion</th>
           <th>Cantidad</th>
           <th>Und. Medida</th>
