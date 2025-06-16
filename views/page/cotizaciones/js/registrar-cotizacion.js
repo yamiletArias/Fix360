@@ -1,515 +1,358 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const inputProductElement = document.getElementById("producto");
-  const inputPrecio = document.getElementById("precio");
-  const inputCantidad = document.getElementById("cantidad");
-  const inputDescuento = document.getElementById("descuento");
-  let clienteId = null;
-  let selectedProduct = {};
-  const agregarProductoBtn = document.getElementById("agregarProducto");
-  const tabla = document.querySelector("#tabla-detalle tbody");
-  const detalleCotizacion = [];
-  const fechaInput = document.getElementById("fecha");
-  const vigenciaDiasInput = document.getElementById("vigenciadias");
-  const monedaSelect = document.getElementById("moneda");
-  const btnFinalizarCotizacion = document.getElementById(
-    "btnFinalizarCotizacion"
-  );
+// views/page/cotizaciones/js/registrar-cotizacion.js
+document.addEventListener("DOMContentLoaded", () => {
+  // — Referencias DOM —
+  const inputProduct       = document.getElementById("producto");
+  const inputPrecio        = document.getElementById("precio");
+  const inputCantidad      = document.getElementById("cantidad");
+  const inputDescuento     = document.getElementById("descuento");
+  const btnAgregarProd     = document.getElementById("agregarProducto");
+  const tablaProductos     = document.querySelector("#tabla-detalle tbody");
 
-  // Función de debounce para evitar demasiadas llamadas en tiempo real
-  function debounce(func, delay) {
+  const fechaInput         = document.getElementById("fecha");
+  const vigenciaInput      = document.getElementById("vigenciadias");
+  const monedaSelect       = document.getElementById("moneda");
+  const btnGuardarCot      = document.getElementById("btnFinalizarCotizacion");
+
+  const btnToggleService   = document.getElementById("btnToggleService");
+  const serviceSection     = document.getElementById("serviceSection");
+  const serviceListCard    = document.getElementById("serviceListCard");
+  const tablaServicios     = document.querySelector("#tabla-detalle-servicios tbody");
+  const btnAgregarServ     = document.getElementById("btnAgregarDetalleServicio");
+  const selectSubcategoria = document.getElementById("subcategoria");
+  const selectServicio     = document.getElementById("servicio");
+  const inputPrecioServ    = document.getElementById("precioServicio");
+  const btnGuardarServicio = document.getElementById("btnGuardarServicio");
+
+  const detalleCotizacion  = [];
+  const detalleServicios   = [];
+
+  // Estado para autocompletar
+  let selectedProduct = {};
+  let diasVigencia    = 0;
+
+  // — Toggle sección de servicios (deshabilita botón tras primer clic) —
+  btnToggleService.addEventListener("click", e => {
+    e.preventDefault();
+    serviceSection.classList.remove("d-none");
+    serviceListCard.classList.remove("d-none");
+    btnToggleService.disabled = true;
+    btnToggleService.classList.remove("btn-success");
+    btnToggleService.classList.add("btn-secondary");
+    cargarSubcategorias();
+  });
+
+  // — Cargar subcategorías al mostrar sección de servicios —
+  function cargarSubcategorias() {
+    fetch(`${window.FIX360_BASE_URL}app/controllers/subcategoria.Controller.php?task=getServicioSubcategoria`)
+      .then(r => r.json())
+      .then(data => {
+        selectSubcategoria.innerHTML = '<option value="">Eliga un tipo de servicio</option>' + data.map(s => `<option value="${s.idsubcategoria}">${s.subcategoria}</option>`).join("");
+      })
+      .catch(err => console.error("Error al cargar subcategorías:", err));
+  }
+
+  // — Autocompletado de productos —
+  function debounce(fn, delay) {
     let timeout;
-    return function (...args) {
+    return (...args) => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), delay);
+      timeout = setTimeout(() => fn(...args), delay);
     };
   }
-
-  // Función de navegación con el teclado para autocompletar
-  function agregaNavegacion(input, itemsDiv) {
-    let currentFocus = -1;
-    input.addEventListener("keydown", function (e) {
-      const items = itemsDiv.getElementsByTagName("div");
-      if (!items.length) return;
-      if (e.key === "ArrowDown") {
-        currentFocus++;
-        addActive(items);
-      } else if (e.key === "ArrowUp") {
-        currentFocus--;
-        addActive(items);
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        if (currentFocus > -1) items[currentFocus].click();
-      }
-    });
-
-    function addActive(items) {
-      removeActive(items);
-      if (currentFocus >= items.length) currentFocus = 0;
-      if (currentFocus < 0) currentFocus = items.length - 1;
-      const el = items[currentFocus];
-      el.classList.add("autocomplete-active");
-      // esto hará que el elemento activo se vea
-      el.scrollIntoView({ block: "nearest" });
-    }
-
-    function removeActive(items) {
-      Array.from(items).forEach((i) =>
-        i.classList.remove("autocomplete-active")
-      );
-    }
+  function cerrarListas() {
+    document.querySelectorAll(".autocomplete-items").forEach(el => el.remove());
   }
-
-  // Función para mostrar opciones de productos (autocompletado)
-  function mostrarOpcionesProducto(input) {
+  function mostrarOpcionesProducto() {
     cerrarListas();
-    if (!input.value) return;
-    const searchTerm = input.value;
-    fetch(
-      `http://localhost/Fix360/app/controllers/Cotizacion.controller.php?q=${searchTerm}&type=producto`
-    )
-      .then((response) => response.json())
-      .then((obj) => {
-        const productos = obj.data || [];
-        const itemsDiv = document.createElement("div");
-        itemsDiv.setAttribute("id", "autocomplete-list-producto");
-        itemsDiv.setAttribute("class", "autocomplete-items");
-        input.parentNode.appendChild(itemsDiv);
-        if (productos.length === 0) {
-          const noResultsDiv = document.createElement("div");
-          noResultsDiv.textContent = "No se encontraron productos";
-          itemsDiv.appendChild(noResultsDiv);
-          return;
-        }
-        productos.forEach(function (producto) {
-          const optionDiv = document.createElement("div");
-          optionDiv.textContent = producto.subcategoria_producto;
-          optionDiv.addEventListener("click", function () {
-            input.value = producto.subcategoria_producto;
-            inputPrecio.value = producto.precio;
-            /* inputStock.value = producto.stock; */
+    if (!inputProduct.value) return;
+    fetch(`${window.FIX360_BASE_URL}app/controllers/Cotizacion.controller.php?q=${encodeURIComponent(inputProduct.value)}&type=producto`)
+      .then(r => r.json())
+      .then(json => {
+        const cont = document.createElement("div");
+        cont.className = "autocomplete-items";
+        inputProduct.parentNode.append(cont);
+        (json.data || []).forEach(prod => {
+          const opt = document.createElement("div");
+          opt.textContent = prod.subcategoria_producto;
+          opt.addEventListener("click", () => {
+            inputProduct.value = prod.subcategoria_producto;
+            inputPrecio.value = prod.precio;
             inputCantidad.value = 1;
             inputDescuento.value = 0;
-            selectedProduct = {
-              idproducto: producto.idproducto,
-              subcategoria_producto: producto.subcategoria_producto,
-              precio: producto.precio,
-            };
+            selectedProduct = { idproducto: prod.idproducto, precio: prod.precio };
             cerrarListas();
           });
-          itemsDiv.appendChild(optionDiv);
+          cont.append(opt);
         });
-        // Habilitar navegación por teclado en la lista de productos
-        agregaNavegacion(input, itemsDiv);
-      })
-      .catch((err) => console.error("Error al obtener los productos: ", err));
-  }
-
-  // Función para cerrar las listas de autocompletado
-  function cerrarListas(elemento) {
-    const items = document.getElementsByClassName("autocomplete-items");
-    while (items.length > 0) {
-      items[0].parentNode.removeChild(items[0]);
-    }
-  }
-
-  // Función para cerrar las listas de autocompletado
-  function cerrarListas(elemento) {
-    const items = document.getElementsByClassName("autocomplete-items");
-    for (let i = 0; i < items.length; i++) {
-      if (elemento !== items[i] && elemento !== inputProductElement) {
-        items[i].parentNode.removeChild(items[i]);
-      }
-    }
-  }
-
-  // Listeners para el autocompletado de productos usando debounce
-  const debouncedMostrarOpcionesProducto = debounce(
-    mostrarOpcionesProducto,
-    500
-  );
-  inputProductElement.addEventListener("input", function () {
-    debouncedMostrarOpcionesProducto(this);
-  });
-  inputProductElement.addEventListener("click", function () {
-    debouncedMostrarOpcionesProducto(this);
-  });
-  document.addEventListener("click", function (e) {
-    cerrarListas(e.target);
-  });
-
-  // --- Navegación con Enter entre campos de producto ---
-  inputProductElement.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      inputPrecio.focus();
-    }
-  });
-  inputPrecio.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      inputCantidad.focus();
-    }
-  });
-  inputCantidad.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      inputDescuento.focus();
-    }
-  });
-  inputDescuento.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      agregarProductoBtn.focus();
-      // o : agregarProductoBtn.click();
-    }
-  });
-
-  // Agregar producto al detalle de venta
-  agregarProductoBtn.addEventListener("click", function () {
-    // 1) Leer y validar campos
-    const nombre = inputProductElement.value.trim();
-    const precio = parseFloat(inputPrecio.value);
-    const cantidad = parseFloat(inputCantidad.value);
-    const descuento = parseFloat(inputDescuento.value) || 0;
-
-    if (
-      !nombre ||
-      isNaN(precio) ||
-      isNaN(cantidad) ||
-      precio <= 0 ||
-      cantidad <= 0
-    ) {
-      return alert("Por favor, completa todos los campos correctamente.");
-    }
-    if (estaDuplicado(selectedProduct.idproducto)) {
-      alert("Este producto ya ha sido agregado.");
-      resetCamposProducto();
-      return;
-    }
-
-    // 2) Calcular importe y preparar objeto detalle
-    const importe = (precio * cantidad - descuento).toFixed(2);
-    const detalle = {
-      idproducto: selectedProduct.idproducto,
-      producto: nombre,
-      precio,
-      cantidad,
-      descuento,
-      importe,
-    };
-    // Agregar al array
-    detalleCotizacion.push(detalle);
-
-    // 3) Crear la fila en la tabla
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.dataset.idproducto = detalle.idproducto;
-    nuevaFila.innerHTML = `
-    <td>${tabla.rows.length + 1}</td>
-    <td>${detalle.producto}</td>
-    <td>${detalle.precio.toFixed(2)}</td>
-    <td>${detalle.cantidad}</td>
-    <td>${detalle.descuento.toFixed(2)}</td>
-    <td>${detalle.importe}</td>
-    <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
-  `;
-    tabla.appendChild(nuevaFila);
-
-    // 4) Listener para el botón “X” (quitar)
-    nuevaFila
-      .querySelector(".btn-quitar")
-      .addEventListener("click", function () {
-        // 4.1) Eliminar del array usando el data-idproducto
-        const id = nuevaFila.dataset.idproducto;
-        const idx = detalleCotizacion.findIndex(
-          (d) => String(d.idproducto) === id
-        );
-        if (idx > -1) detalleCotizacion.splice(idx, 1);
-
-        // 4.2) Eliminar la fila del DOM
-        nuevaFila.remove();
-
-        // 4.3) Renumerar y recalcular totales
-        actualizarNumeros();
-        calcularTotales();
       });
-
-    // 5) Limpiar campos y recalcular totales
-    resetCamposProducto();
-    actualizarNumeros();
-    calcularTotales();
+  }
+  const debMostrar = debounce(mostrarOpcionesProducto, 300);
+  inputProduct.addEventListener("input", () => debMostrar());
+  inputProduct.addEventListener("click", () => debMostrar());
+  document.addEventListener("click", e => {
+    if (e.target !== inputProduct) cerrarListas();
   });
 
-  // Función para resetear los campos de entrada de producto
+  // — Navegación con Enter —
+  inputProduct.addEventListener("keydown", e => e.key === "Enter" && (e.preventDefault(), inputPrecio.focus()));
+  inputPrecio.addEventListener("keydown", e => e.key === "Enter" && (e.preventDefault(), inputCantidad.focus()));
+  inputCantidad.addEventListener("keydown", e => e.key === "Enter" && (e.preventDefault(), inputDescuento.focus()));
+  inputDescuento.addEventListener("keydown", e => e.key === "Enter" && (e.preventDefault(), btnAgregarProd.focus()));
+
+  // — Agregar producto —
+  btnAgregarProd.addEventListener("click", () => {
+    const nombre = inputProduct.value.trim();
+    const precio = parseFloat(inputPrecio.value);
+    const cant = parseFloat(inputCantidad.value);
+    const desc = parseFloat(inputDescuento.value) || 0;
+    if (!nombre || isNaN(precio) || isNaN(cant) || precio <= 0 || cant <= 0) {
+      return alert("Completa todos los campos correctamente");
+    }
+    if (detalleCotizacion.some(d => d.idproducto === selectedProduct.idproducto)) {
+      return alert("Ya agregaste este producto");
+    }
+    const importe = ((precio * cant) - desc).toFixed(2);
+    const det = { idproducto: selectedProduct.idproducto, producto: nombre, precio, cantidad: cant, descuento: desc, importe };
+    detalleCotizacion.push(det);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${tablaProductos.rows.length + 1}</td>
+      <td>${det.producto}</td>
+      <td>${det.precio.toFixed(2)}</td>
+      <td>${det.cantidad}</td>
+      <td>${det.descuento.toFixed(2)}</td>
+      <td>${det.importe}</td>
+      <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+    `;
+    tr.querySelector(".btn-quitar").addEventListener("click", () => {
+      const idx = detalleCotizacion.findIndex(d => d.idproducto === det.idproducto);
+      detalleCotizacion.splice(idx, 1);
+      tr.remove();
+      renumerar(tablaProductos);
+      calcularTotales();
+    });
+    tablaProductos.append(tr);
+    renumerar(tablaProductos);
+    calcularTotales();
+    resetCamposProducto();
+  });
+
   function resetCamposProducto() {
-    inputProductElement.value = "";
+    inputProduct.value = "";
     inputPrecio.value = "";
     inputCantidad.value = 1;
     inputDescuento.value = 0;
   }
 
-  function actualizarNumeros() {
-    const filas = tabla.getElementsByTagName("tr");
-    for (let i = 0; i < filas.length; i++) {
-      filas[i].children[0].textContent = i + 1;
-    }
+  // — Renumerar filas —
+  function renumerar(tbody) {
+    Array.from(tbody.rows).forEach((r, i) => r.cells[0].textContent = i + 1);
   }
 
+  // — Calcular totales (productos + servicios) —
   function calcularTotales() {
-    let totalImporte = 0;
-    let totalDescuento = 0;
-
-    document.querySelectorAll("#tabla-detalle tbody tr").forEach((fila) => {
-      const subtotal =
-        parseFloat(fila.querySelector("td:nth-child(6)").textContent) || 0;
-      const descuento =
-        parseFloat(fila.querySelector("td:nth-child(5)").textContent) || 0;
-      totalImporte += subtotal;
-      totalDescuento += descuento;
+    let totalImp = 0, totalDesc = 0;
+    detalleCotizacion.forEach(d => {
+      totalImp += parseFloat(d.importe);
+      totalDesc += d.descuento * d.cantidad;
     });
-
-    // Calcular IGV y Neto
-    const igv = totalImporte - totalImporte / 1.18;
-    const neto = totalImporte / 1.18;
-    document.getElementById("total").value = totalImporte.toFixed(2);
-    document.getElementById("totalDescuento").value = totalDescuento.toFixed(2);
+    detalleServicios.forEach(s => {
+      totalImp += parseFloat(s.importe);
+    });
+    const igv = totalImp - (totalImp / 1.18);
+    const neto = totalImp / 1.18;
+    document.getElementById("total").value = totalImp.toFixed(2);
+    document.getElementById("totalDescuento").value = totalDesc.toFixed(2);
     document.getElementById("igv").value = igv.toFixed(2);
     document.getElementById("neto").value = neto.toFixed(2);
   }
 
-  // Establecer fecha actual por defecto en ambos campos
-  const setFechaDefault = () => {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, "0");
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const year = today.getFullYear();
-    const formattedDate = `${year}-${month}-${day}`;
+  // — Fecha por defecto —
+  (() => {
+    const hoy = new Date(), pad = n => n.toString().padStart(2, "0");
+    const f = `${hoy.getFullYear()}-${pad(hoy.getMonth() + 1)}-${pad(hoy.getDate())}`;
+    fechaInput.value = f;
+    vigenciaInput.value = f;
+  })();
 
-    fechaInput.value = formattedDate;
-    vigenciaDiasInput.value = formattedDate;
-  };
-  setFechaDefault();
-
-  // Variable para almacenar días de vigencia calculados
-  let diasVigencia = 0;
-  // Evento para calcular días de vigencia al cambiar la fecha
-  vigenciaDiasInput.addEventListener("change", function () {
-    const fechaCotizacion = new Date(fechaInput.value);
-    const fechaVigencia = new Date(vigenciaDiasInput.value);
-
-    // Calcula diferencia en milisegundos y convierte a días
-    const diffTime = fechaVigencia - fechaCotizacion;
-    diasVigencia = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+  vigenciaInput.addEventListener("change", () => {
+    const f1 = new Date(fechaInput.value), f2 = new Date(vigenciaInput.value);
+    diasVigencia = Math.ceil((f2 - f1) / (1000 * 60 * 60 * 24));
     if (diasVigencia < 0) {
-      alert("La vigencia no puede ser menor a la fecha de cotización.");
-      vigenciaDiasInput.value = fechaInput.value; // Restablece la fecha
+      alert("Vigencia no puede ser anterior a la fecha");
+      vigenciaInput.value = fechaInput.value;
       diasVigencia = 0;
-    } else {
-      console.log(`Días de vigencia: ${diasVigencia}`);
     }
   });
 
-  // Verifica si el producto ya está en el detalle para evitar duplicados
-  function estaDuplicado(idproducto = 0) {
-    let estado = false;
-    let i = 0;
-    while (i < detalleCotizacion.length && !estado) {
-      if (detalleCotizacion[i].idproducto == idproducto) {
-        estado = true;
-      }
-      i++;
-    }
-    return estado;
-  }
-
-  // — Botón Guardar Cotización —
-  btnFinalizarCotizacion.addEventListener("click", function (e) {
-    e.preventDefault();
-
-    // Deshabilitamos el botón y cambiamos texto de inmediato
-    btnFinalizarCotizacion.disabled = true;
-    btnFinalizarCotizacion.textContent = "Guardando...";
-
-    // Validaciones básicas
-    if (!hiddenIdCliente.value) {
-      alert("Por favor, selecciona un cliente.");
-      btnFinalizarCotizacion.disabled = false;
-      btnFinalizarCotizacion.textContent = "Guardar";
+  // — Cargar servicios por subcategoría —
+  selectSubcategoria.addEventListener("change", async function () {
+    if (!this.value) {
+      selectServicio.innerHTML = '<option value="">Eliga un servicio</option>';
       return;
     }
-    if (detalleCotizacion.length === 0) {
-      alert("Por favor, agrega al menos un producto.");
-      btnFinalizarCotizacion.disabled = false;
-      btnFinalizarCotizacion.textContent = "Guardar";
-      return;
+    try {
+      selectServicio.innerHTML = '<option>Cargando...</option>';
+      const res = await fetch(`${window.FIX360_BASE_URL}app/controllers/Servicio.Controller.php?task=getServicioBySubcategoria&idsubcategoria=${this.value}`);
+      const datos = await res.json();
+      selectServicio.innerHTML = '<option value="">Eliga un servicio</option>' + datos.map(s => `<option value="${s.idservicio}">${s.servicio}</option>`).join("");
+    } catch (err) {
+      console.error(err);
+      selectServicio.innerHTML = '<option value="">Error al cargar</option>';
     }
+  });
 
-    // Diálogo de confirmación
-    Swal.fire({
-      title: "¿Deseas guardar la cotización?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#28a745",
-      cancelButtonColor: "#d33",
-    }).then((result) => {
-      if (!result.isConfirmed) {
-        // Si canceló, restauramos el estado del botón
-        btnFinalizarCotizacion.disabled = false;
-        btnFinalizarCotizacion.textContent = "Guardar";
-        return;
+  // — Modal para registrar nuevo servicio —
+  btnAgregarServicio.addEventListener("click", () => {
+    const idc = selectSubcategoria.value;
+    const txt = selectSubcategoria.selectedOptions[0]?.text || "";
+    if (!idc) return alert("Selecciona primero una subcategoría");
+    document.getElementById("modalSubcategoriaId").value = idc;
+    document.getElementById("modalSubcategoriaNombre").value = txt;
+    document.getElementById("modalServicioNombre").value = "";
+  });
+
+  btnGuardarServicio.addEventListener("click", async () => {
+    const idsubcategoria = document.getElementById("modalSubcategoriaId").value;
+    const nombreServicio = document.getElementById("modalServicioNombre").value.trim();
+    if (!nombreServicio) return alert("Ingresa el nombre del servicio");
+    try {
+      const res = await fetch(`${window.FIX360_BASE_URL}app/controllers/Servicio.Controller.php?task=registrarServicio`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `idsubcategoria=${idsubcategoria}&servicio=${encodeURIComponent(nombreServicio)}`
+      });
+      const json = await res.json();
+      if (json.status === "success") {
+        alert("Servicio registrado con éxito");
+        selectServicio.innerHTML += `<option value="${json.idservicio}">${nombreServicio}</option>`;
+        document.getElementById("ModalServicio").querySelector(".btn-close").click();
+      } else {
+        alert("Error al registrar el servicio");
       }
+    } catch (err) {
+      console.error(err);
+      alert("Fallo en la conexión");
+    }
+  });
 
-      // Preparamos el objeto a enviar
-      const data = {
-        fechahora: fechaInput.value.trim(),
-        vigenciadias: diasVigencia,
-        moneda: monedaSelect.value,
-        idcliente: hiddenIdCliente.value,
-        productos: detalleCotizacion,
-      };
+  // — Agregar detalle de servicio —
+  btnAgregarServ.addEventListener("click", () => {
+    const idserv = parseInt(selectServicio.value, 10);
+    const precio = parseFloat(inputPrecioServ.value);
+    if (!idserv || isNaN(precio) || precio <= 0) {
+      return alert("Completa todos los campos de servicio");
+    }
+    if (detalleServicios.some(s => s.idservicio === idserv)) {
+      return alert("Ya agregaste este servicio");
+    }
+    const nombreS = selectServicio.selectedOptions[0].text;
+    const importe = precio.toFixed(2);
+    detalleServicios.push({ idservicio: idserv, servicio: nombreS, precio, importe });
 
-      // Envío al servidor
-      fetch(
-        "http://localhost/Fix360/app/controllers/Cotizacion.controller.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      )
-        .then((response) => response.text())
-        .then((text) => {
-          console.log("Respuesta del servidor:", text);
-          try {
-            const json = JSON.parse(text);
-            if (json && json.status === "success") {
-              Swal.fire({
-                icon: "success",
-                title: "¡Cotización registrada con éxito!",
-                showConfirmButton: false,
-                timer: 1800,
-              }).then(() => {
-                window.location.href = "listar-cotizacion.php";
-              });
-            } else {
-              Swal.fire({
-                icon: "error",
-                title: "Error al registrar la cotización",
-                text: "Inténtalo nuevamente.",
-              });
-            }
-          } catch (e) {
-            console.error("No se pudo parsear JSON:", e);
-            Swal.fire({
-              icon: "error",
-              title: "Respuesta inesperada",
-              text: "El servidor no devolvió una respuesta válida.",
-            });
-          }
-        })
-        .catch(() => {
-          Swal.fire({
-            icon: "error",
-            title: "Fallo de conexión",
-            text: "No se pudo contactar al servidor.",
-          });
-        })
-        .finally(() => {
-          btnFinalizarCotizacion.disabled = false;
-          btnFinalizarCotizacion.textContent = "Guardar";
-        });
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${tablaServicios.rows.length + 1}</td>
+      <td>${nombreS}</td>
+      <td>${precio.toFixed(2)}</td>
+      <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+    `;
+    tr.querySelector(".btn-quitar").addEventListener("click", () => {
+      const idx = detalleServicios.findIndex(s => s.idservicio === idserv);
+      detalleServicios.splice(idx, 1);
+      tr.remove();
+      renumerar(tablaServicios);
+      calcularTotales();
     });
+    tablaServicios.append(tr);
+    inputPrecioServ.value = "";
+    renumerar(tablaServicios);
+    calcularTotales();
   });
-});
-document.addEventListener("DOMContentLoaded", () => {
-  // — variables del modal de Propietario —
-  const selectMetodo = document.getElementById("selectMetodo");
-  const vbuscado = document.getElementById("vbuscado");
-  const tablaRes = document
-    .getElementById("tabla-resultado")
-    .getElementsByTagName("tbody")[0];
-  const hiddenIdCli = document.getElementById("hiddenIdCliente");
-  const inputProp = document.getElementById("propietario");
 
-  let propietarioTimer;
-
-  // 1) Actualiza las opciones de búsqueda según Persona / Empresa
-  window.actualizarOpciones = function () {
-    const esEmpresa = document.getElementById("rbtnempresa").checked;
-    // redefinimos los métodos disponibles
-    selectMetodo.innerHTML = esEmpresa
-      ? '<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>'
-      : '<option value="dni">DNI</option><option value="nombre">Apellidos y Nombres</option>';
-  };
-
-  // 2) Función que invoca al controlador y pinta resultados
-  window.buscarPropietario = function () {
-    const tipo =
-      document.querySelector('input[name="tipoBusqueda"]:checked').id ===
-      "rbtnempresa"
-        ? "empresa"
-        : "persona";
-    const metodo = selectMetodo.value;
-    const valor = vbuscado.value.trim();
-    if (!valor) {
-      tablaRes.innerHTML = "";
-      return;
+  // — Guardar cotización —
+  btnGuardarCot.addEventListener("click", e => {
+    e.preventDefault();
+    if (!document.getElementById("hiddenIdCliente").value) {
+      return alert("Selecciona un cliente");
     }
-    fetch(
-      `http://localhost/fix360/app/controllers/propietario.controller.php?task=buscarPropietario&tipo=${tipo}&metodo=${metodo}&valor=${encodeURIComponent(
-        valor
-      )}`
-    )
-      .then((r) => r.json())
-      .then((data) => {
-        tablaRes.innerHTML = "";
-        data.forEach((item, i) => {
+    if (detalleCotizacion.length === 0 && detalleServicios.length === 0) {
+      return alert("Agrega al menos un producto o servicio");
+    }
+    btnGuardarCot.disabled = true;
+    btnGuardarCot.textContent = "Guardando...";
+    const payload = {
+      fechahora: fechaInput.value,
+      vigenciadias: diasVigencia,
+      moneda: monedaSelect.value,
+      idcliente: document.getElementById("hiddenIdCliente").value,
+      productos: detalleCotizacion,
+      servicios: detalleServicios
+    };
+    fetch(`${window.FIX360_BASE_URL}app/controllers/Cotizacion.controller.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(r => r.json())
+      .then(json => {
+        if (json.status === "success") {
+          Swal.fire({ icon: "success", title: "¡Registrado!", timer: 1500, showConfirmButton: false })
+            .then(() => location.href = "listar-cotizacion.php");
+        } else {
+          Swal.fire("Error", json.message || "No se pudo guardar", "error");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        Swal.fire("Error", "Fallo de conexión", "error");
+      })
+      .finally(() => {
+        btnGuardarCot.disabled = false;
+        btnGuardarCot.textContent = "Aceptar";
+      });
+  });
+
+  // — Modal propietario —
+  window.actualizarOpciones = function () {
+    const esEmp = document.getElementById("rbtnempresa").checked;
+    document.getElementById("selectMetodo").innerHTML = esEmp
+      ? '<option value="ruc">RUC</option><option value="razonsocial">Razón Social</option>'
+      : '<option value="dni">DNI</option><option value="nombre">Nombres</option>';
+  };
+  window.buscarPropietario = function () {
+    const tipo = document.querySelector('input[name="tipoBusqueda"]:checked').id === "rbtnempresa" ? "empresa" : "persona";
+    const met = document.getElementById("selectMetodo").value;
+    const val = document.getElementById("vbuscado").value.trim();
+    if (!val) return document.querySelector("#tabla-resultado tbody").innerHTML = "";
+    fetch(`${window.FIX360_BASE_URL}app/controllers/propietario.controller.php?task=buscarPropietario&tipo=${tipo}&metodo=${met}&valor=${encodeURIComponent(val)}`)
+      .then(r => r.json())
+      .then(data => {
+        const tb = document.querySelector("#tabla-resultado tbody");
+        tb.innerHTML = "";
+        data.forEach((it, i) => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${i + 1}</td>
-            <td>${item.nombre}</td>
-            <td>${item.documento}</td>
-            <td>
-              <button class="btn btn-success btn-sm" data-id="${
-                item.idcliente
-              }">
-                <i class="fa-solid fa-circle-check"></i>
-              </button>
-            </td>`;
-          tablaRes.appendChild(tr);
+            <td>${it.nombre}</td>
+            <td>${it.documento}</td>
+            <td><button class="btn btn-success btn-sm" data-id="${it.idcliente}"><i class="fa-solid fa-circle-check"></i></button></td>
+          `;
+          tb.append(tr);
         });
-      })
-      .catch(console.error);
+      });
   };
-
-  // 3) Dispara búsqueda con debounce al tipear o cambiar método
-  vbuscado.addEventListener("input", () => {
-    clearTimeout(propietarioTimer);
-    propietarioTimer = setTimeout(buscarPropietario, 300);
+  document.getElementById("tabla-resultado").addEventListener("click", e => {
+    const btn = e.target.closest(".btn-success");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const nombre = btn.closest("tr").cells[1].textContent;
+    document.getElementById("hiddenIdCliente").value = id;
+    document.getElementById("propietario").value = nombre;
+    document.querySelector("#miModal .btn-close").click();
   });
-  selectMetodo.addEventListener("change", () => {
-    clearTimeout(propietarioTimer);
-    propietarioTimer = setTimeout(buscarPropietario, 300);
-  });
-
-  // 4) Cuando el usuario hace click en “✔” asignamos ID y nombre, y cerramos modal
-  document
-    .querySelector("#tabla-resultado")
-    .addEventListener("click", function (e) {
-      const btn = e.target.closest(".btn-success");
-      if (!btn) return;
-      const id = btn.getAttribute("data-id");
-      const nombre = btn.closest("tr").cells[1].textContent;
-      hiddenIdCli.value = id;
-      inputProp.value = nombre;
-      // disparar evento change para que cargue vehículos, si aplica
-      hiddenIdCli.dispatchEvent(new Event("change"));
-      // cerrar modal
-      document.querySelector("#miModal .btn-close").click();
-    });
-
-  // Inicializamos las opciones al abrir el modal
+  document.getElementById("vbuscado").addEventListener("input", debounce(window.buscarPropietario, 300));
+  document.getElementById("selectMetodo").addEventListener("change", debounce(window.buscarPropietario, 300));
   actualizarOpciones();
 });
