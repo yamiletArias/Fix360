@@ -1005,7 +1005,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!codigo) return;
 
       fetch(
-        `${window.FIX360_BASE_URL
+        `${
+          window.FIX360_BASE_URL
         }app/controllers/Venta.controller.php?q=${encodeURIComponent(
           codigo
         )}&type=producto`
@@ -1153,8 +1154,7 @@ document.addEventListener("DOMContentLoaded", function () {
   btnFinalizarVenta.addEventListener("click", function (e) {
     e.preventDefault();
 
-    const hiddenIdCliente = document.getElementById("hiddenIdCliente");
-    // ——— VALIDACIÓN DE STOCK ANTES DE TODO ———
+    // — Validación de stock antes de todo —
     for (const tr of tabla.querySelectorAll("tr")) {
       const nombreProd = tr.cells[1].textContent.trim();
       const qtyInput = tr.querySelector(".cantidad-input");
@@ -1176,7 +1176,11 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
     }
-    if (detalleVenta.length === 0 && detalleServicios.length === 0) {
+
+    if (
+      tabla.querySelectorAll("tr").length === 0 &&
+      detalleServicios.length === 0
+    ) {
       return showToast(
         "Agrega al menos un producto o servicio.",
         "WARNING",
@@ -1195,21 +1199,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }).then((result) => {
       if (!result.isConfirmed) return;
 
-      // 1) Deshabilito botón y cambio texto
+      // Deshabilitar botón y cambiar texto
       btnFinalizarVenta.disabled = true;
       btnFinalizarVenta.textContent = "Guardando...";
 
-      // 2) Leo el tipo seleccionado y muestro el toast de “Registrando…”
+      // Reconstruir array de productos leyendo el DOM
+      const productosParaEnviar = Array.from(tabla.querySelectorAll("tr")).map(
+        (tr) => {
+          return {
+            idproducto: parseInt(tr.dataset.idproducto, 10),
+            precio: parseFloat(tr.querySelector(".precio-texto").textContent),
+            descuento: parseFloat(
+              tr.querySelector(".descuento-texto").textContent
+            ),
+            cantidad: parseInt(tr.querySelector(".cantidad-input").value, 10),
+          };
+        }
+      );
+
+      // Armar payload completo
       const tipoSeleccionado = document.querySelector(
         'input[name="tipo"]:checked'
       ).value;
-      if (tipoSeleccionado === "orden de trabajo") {
-        showToast("Registrando Orden de Trabajo…", "INFO", 2000);
-      } else {
-        showToast("Registrando Venta…", "INFO", 2000);
-      }
-
-      // 3) Armo el payload
       const data = {
         tipocom: tipoSeleccionado,
         fechahora: fechaInput.value.trim(),
@@ -1217,18 +1228,17 @@ document.addEventListener("DOMContentLoaded", function () {
         numserie: numSerieInput.value.trim(),
         numcom: numComInput.value.trim(),
         moneda: monedaSelect.value,
-        idpropietario: document.getElementById("hiddenIdPropietario").value,
-        idcliente: document.getElementById("hiddenIdCliente").value,
+        idpropietario: hiddenIdPropietario.value,
+        idcliente: hiddenIdCliente.value || null,
         idvehiculo: vehiculoSelect.value ? +vehiculoSelect.value : null,
-        kilometraje:
-          parseFloat(document.getElementById("kilometraje").value) || 0,
-        observaciones: document.getElementById("observaciones").value.trim(),
-        ingresogrua: document.getElementById("ingresogrua").checked ? 1 : 0,
-        productos: detalleVenta,
+        kilometraje: parseFloat(kmInput.value) || 0,
+        observaciones: obsField.value.trim(),
+        ingresogrua: gruField.checked ? 1 : 0,
+        productos: productosParaEnviar,
         servicios: detalleServicios,
       };
 
-      // 4) Llamada al backend
+      // Enviar al backend
       fetch("http://localhost/Fix360/app/controllers/Venta.controller.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1236,30 +1246,15 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then(async (res) => {
           const text = await res.text();
-          try {
-            return JSON.parse(text);
-          } catch {
-            throw new Error("Respuesta no es JSON válido");
-          }
+          return JSON.parse(text);
         })
         .then((json) => {
           if (json.status === "success") {
-            // --- NUEVO: elijo el mensaje final según tipoSeleccionado ---
-            if (tipoSeleccionado === "orden de trabajo") {
-              // Si es OT, muestro solo el número de orden (o ambos, pero con prefijo OT)
-              showToast(
-                `Guardado con éxito. Orden de Trabajo`,
-                "SUCCESS",
-                1500
-              );
-            } else {
-              // Caso normal: boleta/factura
-              showToast(
-                `Guardado con éxito. Venta #${json.idventa}`,
-                "SUCCESS",
-                1500
-              );
-            }
+            const msg =
+              tipoSeleccionado === "orden de trabajo"
+                ? "Guardado con éxito. Orden de Trabajo"
+                : `Guardado con éxito. Venta #${json.idventa}`;
+            showToast(msg, "SUCCESS", 1500);
             setTimeout(() => (location.href = "listar-ventas.php"), 1500);
           } else {
             Swal.fire(
