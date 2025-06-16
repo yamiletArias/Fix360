@@ -803,6 +803,7 @@ require_once "../../partials/_footer.php";
             if (!monto || monto <= 0) return alert('Monto inválido');
 
             const form = new FormData();
+            form.append('tipo', 'venta');
             form.append('idventa', idventa);
             form.append('monto', monto);
             form.append('idformapago', formapago);

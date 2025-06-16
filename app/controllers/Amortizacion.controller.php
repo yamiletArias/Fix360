@@ -37,83 +37,113 @@ require_once __DIR__ . '/../helpers/helper.php';
 $am = new Amortizacion();
 
 try {
-  // POST: creación de amortización para venta o compra
+  // ─── POST: creación de amortización o egreso ─────────────────────────────────────
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 2) Leer inputs
-    $monto = isset($_POST['monto']) ? (float) $_POST['monto'] : 0;
-    $fp = isset($_POST['idformapago']) ? (int) $_POST['idformapago'] : 0;
-    $numTran = !empty($_POST['numtransaccion'])
-      ? $_POST['numtransaccion']
-      : null;
-
-    // validaciones básicas
-    if ($monto <= 0 || $fp <= 0) {
-      throw new Exception('Parámetros inválidos', 400);
-    }
-
-    // 3) Determinar tipo y ID
-    if (isset($_POST['idventa'])) {
-      $tipo = 'venta';
-      $id = (int) $_POST['idventa'];
-    } elseif (isset($_POST['idcompra'])) {
-      $tipo = 'compra';
-      $id = (int) $_POST['idcompra'];
-    } else {
-      throw new Exception('idventa o idcompra faltante', 400);
-    }
-
-    // 4) Si viene, capturamos comprobante y justificación
+    // Leer inputs
+    $tipo = $_POST['tipo'] ?? null;           // 'venta' o 'compra'
+    $idventa = isset($_POST['idventa']) ? (int) $_POST['idventa'] : null;
+    $idcompra = isset($_POST['idcompra']) ? (int) $_POST['idcompra'] : null;
+    $id = $idventa ?? $idcompra;
+    $idformapago = (int) ($_POST['idformapago'] ?? 0);
+    $monto = (float) ($_POST['monto'] ?? 0);
+    $numTrans = $_POST['numtransaccion'] ?? null;
     $numcomprobante = $_POST['numcomprobante'] ?? null;
     $justificacion = $_POST['justificacion'] ?? null;
 
-    // 5) Llamada al modelo: ahora acepta 8 parámetros
-    $nuevo = $am->create(
+    // Validaciones básicas
+    if (
+      !in_array($tipo, ['venta', 'compra'], true) ||
+      !$id ||
+      $idformapago <= 0 ||
+      $monto <= 0
+    ) {
+      throw new Exception('Parámetros inválidos', 400);
+    }
+
+    // Llamada al modelo
+    $resultado = $am->create(
       $tipo,
       $id,
-      $fp,
+      $idformapago,
       $monto,
       $idadmin,
       $idcolaborador,
-      $numTran,
+      $numTrans,
       $numcomprobante,
       $justificacion
     );
 
-
     echo json_encode([
       'status' => 'success',
-      'message' => 'Amortización registrada y egreso (si aplica) generado',
-      'amortizacion' => $nuevo
+      'message' => $tipo === 'venta'
+        ? 'Amortización registrada'
+        : 'Egreso de compra registrado',
+      'data' => $resultado
     ]);
     exit;
   }
 
-  // GET: listar amortizaciones y totales
+  // ─── GET: listar amortizaciones o egresos ───────────────────────────────────────
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['idventa'])) {
+      // Venta → amortizaciones
       $tipo = 'venta';
       $id = (int) $_GET['idventa'];
+      if ($id <= 0) {
+        throw new Exception('ID de venta no válido', 400);
+      }
+
+      $info = $am->obtenerInfo($tipo, $id);
+      $data = $am->listBy($tipo, $id);
+
+      echo json_encode([
+        'status' => 'success',
+        'tipo' => 'venta',
+        'total_original' => (float) $info['total_original'],
+        'total_pagado' => (float) $info['total_pagado'],
+        'total_pendiente' => (float) $info['total_pendiente'],
+        'data' => $data
+      ]);
+      exit;
+
     } elseif (isset($_GET['idcompra'])) {
       $tipo = 'compra';
       $id = (int) $_GET['idcompra'];
-    } else {
-      throw new Exception('idventa o idcompra faltante', 400);
-    }
-    if ($id <= 0) {
-      throw new Exception('ID no válido', 400);
+      if ($id <= 0)
+        throw new Exception('ID de compra no válido', 400);
+
+      // 1) Sacamos totales
+      $info = $am->obtenerInfo($tipo, $id);
+
+      // 2) Sacamos egresos (los "pagos" de la compra)
+      $pdo = (new Conexion())->getConexion();
+      $sql = "SELECT e.idegreso,
+                   e.fecharegistro AS creado,
+                   f.formapago,
+                   e.monto,
+                   e.numcomprobante AS numtransaccion,
+                   e.justificacion,
+                   ( ? - SUM(e.monto) OVER (ORDER BY e.fecharegistro ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) ) AS saldo
+            FROM egresos e
+            LEFT JOIN formapagos f ON e.idformapago = f.idformapago
+            WHERE e.idcompra = ?
+            ORDER BY e.fecharegistro";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$info['total_original'], $id]);
+      $egresos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      echo json_encode([
+        'status' => 'success',
+        'tipo' => 'compra',
+        'total_original' => (float) $info['total_original'],
+        'total_pagado' => (float) $info['total_pagado'],
+        'total_pendiente' => (float) $info['total_pendiente'],
+        'data' => $egresos
+      ]);
+      exit;
     }
 
-    $info = $am->obtenerInfo($tipo, $id);
-    $data = $am->listBy($tipo, $id);
-
-    echo json_encode([
-      'status' => 'success',
-      'total_original' => (float) $info['total_original'],
-      'total_pagado' => (float) $info['total_pagado'],
-      'total_pendiente' => (float) $info['total_pendiente'],
-      'data' => $data
-    ]);
-    exit;
+    throw new Exception('idventa o idcompra faltante', 400);
   }
 
   throw new Exception('Método no permitido', 405);
@@ -128,12 +158,10 @@ try {
   exit;
 
 } catch (Exception $e) {
-  $code = $e->getCode() ?: 500;
-  http_response_code($code);
+  http_response_code($e->getCode() ?: 500);
   echo json_encode([
     'status' => 'error',
-    'message' => $e->getMessage(),
-    'detail' => $e->getMessage()
+    'message' => $e->getMessage()
   ]);
   exit;
 }

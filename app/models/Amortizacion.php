@@ -11,22 +11,7 @@ class Amortizacion extends Conexion
         $this->pdo = parent::getConexion();
     }
 
-    /**
-     * Crea una amortización para venta o compra.
-     * Si es compra, inserta también un egreso.
-     *
-     * @param string $tipo             'venta' o 'compra'
-     * @param int    $id               idventa o idcompra
-     * @param int    $idformapago
-     * @param float  $monto
-     * @param string $numTrans         Opcional: número de transacción
-     * @param int    $idadmin          quien registra el egreso
-     * @param int    $idcolaborador    quien recibe el dinero
-     * @param string $numcomprobante   opcional
-     * @param string $justificacion    opcional
-     * @return array
-     * @throws Exception
-     */
+    // Método principal para registrar amortización o compra
     public function create(
         string $tipo,
         int $id,
@@ -38,44 +23,45 @@ class Amortizacion extends Conexion
         ?string $numcomprobante = null,
         ?string $justificacion = null
     ): array {
-        // 1) Obtener info previa y validar monto
-        $info = $this->obtenerInfo($tipo, $id);
-        $saldoPrevio = (float) $info['total_pendiente'];
-        if ($monto > $saldoPrevio) {
-            throw new Exception("El monto de amortización no puede exceder el saldo restante");
+        $saldoPrevio = 0;
+        $nuevoSaldo = 0;
+        $estado = 'P';
+
+        if ($tipo === 'venta') {
+            $info = $this->obtenerInfo($tipo, $id);
+            $saldoPrevio = (float) $info['total_pendiente'];
+            if ($monto > $saldoPrevio) {
+                throw new Exception("El monto de amortización no puede exceder el saldo restante");
+            }
+            $nuevoSaldo = $saldoPrevio - $monto;
+            $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
         }
 
-        // 2) Calcular nuevo saldo y estado
-        $nuevoSaldo = $saldoPrevio - $monto;
-        $estado = $nuevoSaldo <= 0 ? 'C' : 'P';
-
-        // 3) Generar numTrans si no viene
         if (!$numTrans) {
             $numTrans = uniqid();
         }
 
-        // 4) Iniciar transacción
         $this->pdo->beginTransaction();
         try {
-            // 5) Insertar en amortizaciones
-            $sqlA = "INSERT INTO amortizaciones
-                (idventa, idcompra, idformapago, amortizacion, saldo, estado, numtransaccion)
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $paramsA = $tipo === 'venta'
-                ? [$id, null, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans]
-                : [null, $id, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans];
-            $stmtA = $this->pdo->prepare($sqlA);
-            $stmtA->execute($paramsA);
-            $lastId = $this->pdo->lastInsertId();
+            // Registro para VENTAS
+            if ($tipo === 'venta') {
+                $sql = "INSERT INTO amortizaciones 
+                        (idventa, idformapago, amortizacion, saldo, estado, numtransaccion)
+                        VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$id, $idformapago, $monto, $nuevoSaldo, $estado, $numTrans]);
+                $lastId = $this->pdo->lastInsertId();
+            }
 
-            // 6) Si es compra, insertar egreso
+            // Registro para COMPRAS
             if ($tipo === 'compra') {
-                $sqlE = "INSERT INTO egresos
-                    (idadmin, idcolaborador, idformapago, idcompra, concepto, monto, numcomprobante, justificacion)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                $concepto = "compra de insumos";
+                $sqlE = "INSERT INTO egresos 
+                         (idadmin, idcolaborador, idformapago, idcompra, concepto, monto, numcomprobante, justificacion)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $concepto = "Compra de insumos";
                 $numcomprobante = $numcomprobante ?: $numTrans;
-                $paramsE = [
+                $stmtE = $this->pdo->prepare($sqlE);
+                $stmtE->execute([
                     $idadmin,
                     $idcolaborador,
                     $idformapago,
@@ -84,27 +70,31 @@ class Amortizacion extends Conexion
                     $monto,
                     $numcomprobante,
                     $justificacion
-                ];
-                $stmtE = $this->pdo->prepare($sqlE);
-                $stmtE->execute($paramsE);
+                ]);
             }
 
-            // 7) Commit
             $this->pdo->commit();
 
-            // 8) Devolver datos de amortización
-            return [
-                'idamortizacion' => $lastId,
-                $tipo === 'venta' ? 'idventa' : 'idcompra' => $id,
-                'idformapago' => $idformapago,
-                'amortizacion' => number_format($monto, 2, '.', ''),
-                'saldo' => number_format($nuevoSaldo, 2, '.', ''),
-                'numtransaccion' => $numTrans,
-                'creado' => date('Y-m-d H:i:s')
-            ];
+            // Retorno según tipo
+            return $tipo === 'venta'
+                ? [
+                    'idamortizacion' => $lastId,
+                    'idventa' => $id,
+                    'idformapago' => $idformapago,
+                    'amortizacion' => number_format($monto, 2, '.', ''),
+                    'saldo' => number_format($nuevoSaldo, 2, '.', ''),
+                    'numtransaccion' => $numTrans,
+                    'creado' => date('Y-m-d H:i:s')
+                ]
+                : [
+                    'egreso' => 'registrado',
+                    'idcompra' => $id,
+                    'monto' => number_format($monto, 2, '.', ''),
+                    'numcomprobante' => $numcomprobante,
+                    'justificacion' => $justificacion
+                ];
 
         } catch (Exception $e) {
-            // Rollback en caso de error
             $this->pdo->rollBack();
             throw $e;
         }

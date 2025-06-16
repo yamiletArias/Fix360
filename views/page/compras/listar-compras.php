@@ -199,10 +199,10 @@ require_once "../../partials/_footer.php";
             let html;
             if (j2.status === 'success' && j2.data.length) {
                 const cnt = j2.data.length;
-                const mts = j2.data.map(a => parseFloat(a.amortizacion).toFixed(2)).join(', ');
-                html = `<p class="small"><strong>${cnt}</strong> amortización(es): ${mts}</p>`;
+                const mts = j2.data.map(a => parseFloat(a.monto).toFixed(2)).join(', ');
+                html = `<p class="small"><strong>${cnt}</strong> pago(s): ${mts}</p>`;
             } else {
-                html = '<p class="small text-muted">No hay amortizaciones previas.</p>';
+                html = '<p class="small text-muted">No hay pagos previos.</p>';
             }
             $('#modalAmortizar .resumen-amort').html(html);
         } catch {
@@ -382,74 +382,66 @@ require_once "../../partials/_footer.php";
                 });
 
                 // 2) Cargar amortizaciones y totales
+                // 2) Cargar pagos (egresos) y totales
                 fetch(`<?= SERVERURL ?>app/controllers/Amortizacion.controller.php?idcompra=${idcompra}`)
                     .then(r => r.json())
                     .then(json => {
                         if (json.status !== 'success') return;
 
-                        const amort = json.data;                            // array de amortizaciones
-                        const totalCompra = json.total_original;        // total original
-                        const amortizado = json.total_pagado;          // ya pagado
-                        const saldoPendiente = json.total_pendiente;       // queda por pagar
+                        const pagos = json.data;               // array de egresos/pagos
+                        const totalCompra = json.total_original;     // total original
+                        const totalPagado = json.total_pagado;       // ya pagado
+                        const saldoPendiente = json.total_pendiente;    // pendiente
 
-                        // Sólo si hay amortizaciones, agregamos la tabla
-                        if (amort.length) {
+                        // 1) Si hay pagos, inyectamos la tabla
+                        if (pagos.length > 0) {
                             let html = `
-                        <div class="amortizaciones-container mt-4">
-                            <h6>Amortizaciones</h6>
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Fecha</th>
-                                        <th>Nº Transacción</th>
-                                        <th>Monto</th>
-                                        <th>Forma de Pago</th>
-                                        <th>Saldo</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-
-                            amort.forEach((a, i) => {
-                                const dt = new Date(a.creado);
-                                const fecha = dt.toLocaleDateString('es-PE', {
-                                    day: '2-digit', month: '2-digit', year: 'numeric'
-                                });
-                                const hora = dt.toLocaleTimeString('es-PE', {
-                                    hour: '2-digit', minute: '2-digit'
-                                });
+      <div class="amortizaciones-container mt-4">
+        <h6>Pagos de la compra</h6>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Nº Transacción</th>
+              <th>Monto</th>
+              <th>Forma de Pago</th>
+              <th>Saldo</th>
+            </tr>
+          </thead>
+          <tbody>`;
+                            pagos.forEach((p, i) => {
+                                const dt = new Date(p.creado);
+                                const fecha = dt.toLocaleDateString('es-PE');
+                                const hora = dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
                                 html += `
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${fecha} ${hora}</td>
-                                    <td>${a.numtransaccion}</td>
-                                    <td>S/ ${parseFloat(a.amortizacion).toFixed(2)}</td>
-                                    <td>${a.formapago}</td>
-                                    <td>S/ ${parseFloat(a.saldo).toFixed(2)}</td>
-                                </tr>`;
+            <tr>
+              <td>${i + 1}</td>
+              <td>${fecha} ${hora}</td>
+              <td>${p.numtransaccion}</td>
+              <td>S/ ${parseFloat(p.monto).toFixed(2)}</td>
+              <td>${p.formapago}</td>
+              <td>S/ ${parseFloat(p.saldo).toFixed(2)}</td>
+            </tr>`;
                             });
-
                             html += `
-                                </tbody>
-                            </table>
-                        </div>`;
+          </tbody>
+        </table>
+      </div>`;
 
                             modal.find('.modal-body').append(html);
                         }
 
-                        // 3) Agregar bloque de totales siempre
+                        // 2) Siempre mostramos los totales, con o sin pagos:
                         const totalesHtml = `
-                        <div class="totales-container text-end pe-3 mt-3">
-                            <p><strong>Total Compra:</strong> S/ ${parseFloat(totalCompra).toFixed(2)}</p>
-                            <p><strong>Amortizado:</strong> S/ ${parseFloat(amortizado).toFixed(2)}</p>
-                            <p><strong>Saldo Pendiente:</strong> S/ ${parseFloat(saldoPendiente).toFixed(2)}</p>
-                        </div>
-                    `;
+      <div class="totales-container text-end pe-3 mt-3">
+        <p><strong>Total Compra:</strong> S/ ${parseFloat(totalCompra).toFixed(2)}</p>
+        <p><strong>Pagado:</strong>       S/ ${parseFloat(totalPagado).toFixed(2)}</p>
+        <p><strong>Saldo Pendiente:</strong> S/ ${parseFloat(saldoPendiente).toFixed(2)}</p>
+      </div>`;
                         modal.find('.modal-body').append(totalesHtml);
                     })
-                    .catch(err => {
-                        console.error("Error amortizaciones:", err);
-                    });
+                    .catch(err => console.error("Error cargando pagos:", err));
             },
             error() {
                 alert("Ocurrió un error al cargar el detalle de compra.");
@@ -540,6 +532,7 @@ require_once "../../partials/_footer.php";
             if (!monto || monto <= 0) return alert('Monto inválido');
 
             const form = new FormData();
+            form.append('tipo', 'compra');
             form.append('idcompra', idcompra);
             form.append('monto', monto);
             form.append('idformapago', formapago);
