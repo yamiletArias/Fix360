@@ -25,7 +25,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             // 2) Productos o Clientes
             if (isset($_GET['q']) && !empty($_GET['q'])) {
                 $termino = $_GET['q'];
-                if ($tipo == 'producto') {
+                if ($tipo === 'producto') {
                     echo json_encode($compra->buscarProducto($termino));
                     exit;
                 } else {
@@ -39,7 +39,7 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                     ? $_GET['modo']
                     : 'dia';
                 $fecha = $_GET['fecha'] ?: date('Y-m-d');
-    
+
                 $compras = $compra->listarPorPeriodoCompras($modo, $fecha);
                 echo json_encode(['status' => 'success', 'data' => $compras]);
                 exit;
@@ -75,11 +75,11 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
             echo json_encode(['status' => 'success', 'data' => $compra->getAll()]);
             exit;
 
-            // Obtener todas las compras
-            /* else {
-                echo json_encode($compra->getAll());
-            }
-            break; */
+        // Obtener todas las compras
+        /* else {
+            echo json_encode($compra->getAll());
+        }
+        break; */
 
         case 'POST':
             // Anulación de compra (soft-delete) con justificación
@@ -124,29 +124,35 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
                 echo json_encode(["status" => "error", "message" => "No se enviaron productos."]);
                 exit;
             }
-            error_log("Datos recibidos para compra: " . print_r($dataJSON, true));
-            // Registrar compra
-            $compra = new Compra();
-            $idCompraInsertada = $compra->registerCompras([
-                "fechacompra" => $fechacompra,
-                "tipocom" => $tipocom,
-                "numserie" => $numserie,
-                "numcom" => $numcom,
-                "moneda" => $moneda,
-                "idproveedor" => $idproveedor,
-                "idcolaborador" => $idadmin,
-                "productos" => $productos
-            ]);
-            if ($idCompraInsertada > 0) {
+            try {
+                // Intentamos registrar la compra y su detalle
+                $idCompra = $compra->registerCompras([
+                    "fechacompra" => $fechacompra,
+                    "tipocom" => $tipocom,
+                    "numserie" => $numserie,
+                    "numcom" => $numcom,
+                    "moneda" => $moneda,
+                    "idproveedor" => $idproveedor,
+                    "idcolaborador" => $idadmin,
+                    "productos" => $productos,
+                ]);
+
                 echo json_encode([
                     "status" => "success",
-                    "message" => "Compra registrada con exito.",
-                    "idcompra" => $idCompraInsertada
+                    "message" => "Compra registrada con éxito.",
+                    "idcompra" => $idCompra
                 ]);
-            } else {
-                echo json_encode(["status" => "error", "message" => "No se pudo registrar la compra."]);
+
+            } catch (Exception $e) {
+                // En caso de error, devolvemos el detalle al front
+                http_response_code(500);
+                echo json_encode([
+                    "status" => "error",
+                    "message" => $e->getMessage()
+                ]);
             }
-            break;
+            exit;
+
     }
 }
 ?>

@@ -61,88 +61,74 @@ class Compra extends Conexion
   // Buscar productos
   public function buscarProducto(string $termino): array
   {
-    $result = [];
     try {
-      $sql = "CALL buscar_producto(:termino)";
+      $sql = "CALL buscar_producto(:termino, 'compra')";
       $stmt = $this->pdo->prepare($sql);
       $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
       $stmt->execute();
-      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-      throw new Exception("Error al buscar productos: " . $e->getMessage());
+      throw new Exception("Error al buscar productos (compra): " . $e->getMessage());
     }
-    return $result;
   }
 
   //registrar compra y detalle compra
-  public function registerCompras($params = []): int
+  public function registerCompras(array $params): int
   {
+    $pdo = $this->pdo;
+    $pdo->beginTransaction();
     try {
-      $pdo = $this->pdo;
-      $pdo->beginTransaction();
+      error_log("Parametros spuRegisterCompra: " . print_r($params, true));
 
-      error_log("Parametros para spuRegisterCompra: " . print_r($params, true));
-
-      // Llamada al Stored Procedure spuRegisterCompra
-      $stmtCompra = $pdo->prepare("CALL spuRegisterCompra(?, ?, ?, ?, ?, ?, ?)");
-      $stmtCompra->execute([
+      $stmt = $pdo->prepare("CALL spuRegisterCompra(?, ?, ?, ?, ?, ?, ?)");
+      $stmt->execute([
         $params["fechacompra"],
         $params["tipocom"],
         $params["numserie"],
         $params["numcom"],
         $params["moneda"],
         $params["idproveedor"],
-        $params['idcolaborador']
+        $params["idcolaborador"],
       ]);
 
-      error_log("Stored Procedure spuRegisterCompra ejecutado.");
-
-      // Captura del resultado con idcompra
+      // Saco el idcompra
       $result = [];
       do {
-        $tmp = $stmtCompra->fetch(PDO::FETCH_ASSOC);
-        error_log("Resultado fetch: " . print_r($tmp, true));
-        if ($tmp && isset($tmp['idcompra'])) {
-          $result = $tmp;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && isset($row['idcompra'])) {
+          $result = $row;
           break;
         }
-      } while ($stmtCompra->nextRowset());
+      } while ($stmt->nextRowset());
+      $stmt->closeCursor();
 
-      $stmtCompra->closeCursor();
-
-      $idcompra = $result['idcompra'] ?? 0;
-
-      if (!$idcompra) {
-        error_log("SP ejecutado pero no devolvió ID de compra.");
-        throw new Exception("No se pudo obtener el id de la compra.");
+      if (empty($result['idcompra'])) {
+        throw new Exception("El SP no devolvió idcompra");
       }
+      $idcompra = (int) $result['idcompra'];
 
-      // Insertar detalle por producto
-      $stmtDetalle = $pdo->prepare("CALL spuInsertDetalleCompra(?, ?, ?, ?, ?)");
-      $idcompra = $result['idcompra'] ?? 0;
-
-      foreach ($params["productos"] as $producto) {
-        $stmtDetalle->execute([
-          $idcompra, // ← este es el idcompra generado que se pasa al detalle
-          $producto["idproducto"],
-          $producto["cantidad"],
-          $producto["precio"],
-          $producto["descuento"]
+      // Detalle
+      $stmtDet = $pdo->prepare("CALL spuInsertDetalleCompra(?, ?, ?, ?, ?)");
+      foreach ($params["productos"] as $prod) {
+        $stmtDet->execute([
+          $idcompra,
+          $prod["idproducto"],
+          $prod["cantidad"],
+          $prod["precio"],
+          $prod["descuento"],
         ]);
       }
 
       $pdo->commit();
-      error_log("Compra registrada con id: " . $idcompra);
       return $idcompra;
 
     } catch (PDOException $e) {
       $pdo->rollBack();
-      error_log("Error DB: " . $e->getMessage());
-      return 0;
-
-    } catch (Exception $ex) {
-      error_log("Error general: " . $ex->getMessage());
-      return 0;
+      // relanzamos con el mensaje de la base
+      throw new Exception("Error DB al registrar compra: " . $e->getMessage());
+    } catch (Exception $e) {
+      $pdo->rollBack();
+      throw $e;
     }
   }
 

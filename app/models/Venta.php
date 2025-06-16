@@ -148,17 +148,15 @@ class Venta extends Conexion
     // Buscar productos
     public function buscarProducto(string $termino): array
     {
-        $result = [];
         try {
-            $sql = "CALL buscar_producto(:termino)";
+            $sql = "CALL buscar_producto(:termino, 'venta')";
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
             $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            throw new Exception("Error al buscar productos: " . $e->getMessage());
+            throw new Exception("Error al buscar productos (venta): " . $e->getMessage());
         }
-        return $result;
     }
 
     // Mostrar monedas

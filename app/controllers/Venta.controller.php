@@ -27,6 +27,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $termino = $_GET['q'];
       if ($tipo === 'producto') {
         echo json_encode($venta->buscarProducto($termino));
+        exit;
       } else {
         echo json_encode($venta->buscarCliente($termino));
       }

@@ -226,7 +226,7 @@ BEGIN
     _descuento
   );
   -- 2) Actualizar precio en productos
-  UPDATE productos SET precio = _precioventa
+  UPDATE productos SET preciov = _precioventa
     WHERE idproducto = _idproducto;
 
 	IF _registrarMvto THEN
@@ -268,6 +268,39 @@ BEGIN
 END $$
 
 -- 6) PROCEDIMIENTO PARA BUSCAR PRODUCTO (producto, stock, precio)
+DROP PROCEDURE IF EXISTS buscar_producto;
+DELIMITER $$
+CREATE PROCEDURE buscar_producto(
+  IN termino_busqueda VARCHAR(255),
+  IN modo ENUM('venta','compra')
+)
+BEGIN
+  SELECT
+    P.idproducto,
+    CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
+    -- Elegimos precio según el modo: preciov para venta, precioc para compra
+    CASE
+      WHEN modo = 'venta'  THEN P.preciov
+      WHEN modo = 'compra' THEN P.precioc
+      ELSE NULL
+    END AS precio,
+    (
+      SELECT m2.saldorestante
+      FROM movimientos m2
+      WHERE m2.idkardex = k.idkardex
+      ORDER BY m2.idmovimiento DESC
+      LIMIT 1
+    ) AS stock
+  FROM productos P
+  JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
+  JOIN kardex       k ON P.idproducto     = k.idproducto
+  WHERE S.subcategoria LIKE CONCAT('%', termino_busqueda, '%')
+     OR P.descripcion   LIKE CONCAT('%', termino_busqueda, '%')
+     OR P.codigobarra   LIKE CONCAT('%', termino_busqueda, '%')
+  LIMIT 10;
+END $$
+
+/*
 DROP PROCEDURE IF EXISTS buscar_producto $$
 CREATE PROCEDURE buscar_producto(
   IN termino_busqueda VARCHAR(255)
@@ -292,6 +325,7 @@ BEGIN
      OR P.codigobarra   LIKE CONCAT('%', termino_busqueda, '%')
   LIMIT 10;
 END $$
+*/
 
 -- 7) PROCEDIMIENTO PARA MOSTRAR PROVEEDORES
 DROP PROCEDURE IF EXISTS spuGetProveedores $$
@@ -350,6 +384,7 @@ BEGIN
   DECLARE _idkardex      INT;
   DECLARE _saldorestante INT;
 
+  -- inserta detalle
   INSERT INTO detallecompra (
     idproducto,
     idcompra,
@@ -364,10 +399,12 @@ BEGIN
     _descuento
   );
 
+  -- **ACTUALIZO precioc en lugar de precio**
   UPDATE productos
-    SET precio = _preciocompra
+    SET precioc = _preciocompra
   WHERE idproducto = _idproducto;
 
+  -- resto de la lógica de kardex / movimientos
   SELECT idkardex
     INTO _idkardex
   FROM kardex
@@ -380,6 +417,7 @@ BEGIN
   WHERE idkardex = _idkardex
   ORDER BY idmovimiento DESC
   LIMIT 1;
+
   SET _saldorestante = IFNULL(_saldorestante, 0) + _cantidad;
 
   INSERT INTO movimientos (
