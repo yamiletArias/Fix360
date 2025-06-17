@@ -11,8 +11,8 @@ use Spipu\Html2Pdf\Html2Pdf;
 use Spipu\Html2Pdf\Exception\Html2PdfException;
 
 // — Parámetros de sesión / usuario —
-$colModel      = new Colaborador();
-$usuario       = $colModel->getById($idadmin);
+$colModel = new Colaborador();
+$usuario = $colModel->getById($idadmin);
 $usuarioNombre = $usuario['nombreCompleto'] ?? 'Usuario';
 
 // — ID de cotización por GET —
@@ -23,7 +23,7 @@ if (!$idcot) {
 
 // — Conexión y modelo —
 $cotiModel = new Cotizacion();
-$pdo       = $cotiModel->getPdo();
+$pdo = $cotiModel->getPdo();
 
 // 1) Recuperar todos los datos desde la vista
 $stmt = $pdo->prepare(
@@ -40,24 +40,34 @@ if (empty($rows)) {
 // 2) Armar cabecera tomando la primera fila
 $first = $rows[0];
 $info = [
-    'idcotizacion'      => $idcot,
-    'fechahora'         => $first['fechahora'],
-    'cliente'           => $first['cliente']      ?: 'Sin cliente',
-    'vigenciadias'      => $first['vigenciadias'] ?: 0,
-    'estado'            => $first['estado']       ?: '—',
-    'justificacion'     => $first['justificacion']?: '',
+    'idcotizacion' => $idcot,
+    'fechahora' => $first['fechahora'],
+    'cliente' => $first['cliente'] ?: 'Sin cliente',
+    'vigenciadias' => $first['vigenciadias'] ?: 0,
+    'estado' => $first['estado'] ?: '—',
+    'justificacion' => $first['justificacion'] ?: '',
 ];
 
 // 3) Detalle de productos
-$detalle = [];
+// 3) Separar productos y servicios
+$productos = [];
+$servicios = [];
 foreach ($rows as $r) {
-    $detalle[] = [
-        'producto'        => $r['producto'],
-        'cantidad'        => $r['cantidad'],
-        'precio'          => $r['precio'],
-        'descuento'       => $r['descuento'],
-        'total_producto'  => $r['total_producto'],
-    ];
+    if ($r['registro_tipo'] === 'producto') {
+        $productos[] = [
+            'descripcion' => $r['item_descripcion'],
+            'cantidad' => $r['cantidad'],
+            'precio' => $r['precio_unitario'],
+            'descuento' => $r['descuento_unitario'],
+            'total' => $r['total_linea'],
+        ];
+    } else { // servicio
+        $servicios[] = [
+            'tipo_servicio' => $r['tipo_servicio'],
+            'nombre' => $r['servicio_nombre'],
+            'precio' => $r['precio_servicio'],
+        ];
+    }
 }
 
 // 4) Capturar la plantilla HTML

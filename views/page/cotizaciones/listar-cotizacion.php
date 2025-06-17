@@ -47,7 +47,7 @@ require_once "../../partials/header.php";
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Cliente</th>
+                        <th>Propietario</th>
                         <th class="text-center">Total</th>
                         <th class="text-center">D. Vigencia</th>
                         <th class="text-center">Opciones</th>
@@ -126,7 +126,7 @@ require_once "../../partials/_footer.php";
     });
 </script>
 <script>
-    $(document).on('click', '.btn-ver-justificacion', async function() {
+    $(document).on('click', '.btn-ver-justificacion', async function () {
         const id = $(this).data('id');
         console.log('voy a pedir justificación para id=', id);
         $('#contenidoJustificacion').text('Cargando…');
@@ -195,7 +195,7 @@ require_once "../../partials/_footer.php";
                     productos.forEach((row, i) => {
                         $tbodyProd.append(`
             <tr>
-              <td>${i+1}</td>
+              <td>${i + 1}</td>
               <td>${row.producto}</td>
               <td class="text-center">${row.cantidad}</td>
               <td class="text-center">S/ ${parseFloat(row.precio).toFixed(2)}</td>
@@ -215,7 +215,7 @@ require_once "../../partials/_footer.php";
                     servicios.forEach((row, i) => {
                         $tbodyServ.append(`
             <tr>
-              <td class="text-center">${i+1}</td>
+              <td class="text-center">${i + 1}</td>
               <td class="text-center">${row.tiposervicio}</td>
               <td class="text-center">${row.nombreservicio}</td>
               <td class="text-center">S/ ${parseFloat(row.precio_servicio).toFixed(2)}</td>
@@ -261,30 +261,30 @@ require_once "../../partials/_footer.php";
                 dataSrc: "data"
             },
             columns: [{ // Columna 1: Número de fila
-                    data: null,
-                    render: (data, type, row, meta) => meta.row + 1
-                }, // Cierra columna 1
-                { // Columna 2: cliente
-                    data: "cliente",
-                    defaultContent: "No disponible",
-                    class: 'text-start'
-                }, // Cierra columna 2
-                { // Columna 3: precio total
-                    data: "total",
-                    defaultContent: "0.00",
-                    class: 'text-center',
-                    render: (data) => `$ ${parseFloat(data).toFixed(2)}`
-                }, // Cierra columna 3
-                { // Columna 4: dias de vigencia
-                    data: "vigencia",
-                    defaultContent: "No disponible",
-                    class: 'text-center'
-                }, // Cierra columna 4
-                {
-                    data: null,
-                    class: "text-center",
-                    render: renderOpciones
-                }
+                data: null,
+                render: (data, type, row, meta) => meta.row + 1
+            }, // Cierra columna 1
+            { // Columna 2: cliente
+                data: "cliente",
+                defaultContent: "No disponible",
+                class: 'text-start'
+            }, // Cierra columna 2
+            { // Columna 3: precio total
+                data: "total",
+                defaultContent: "0.00",
+                class: 'text-center',
+                render: (data) => `S/ ${parseFloat(data).toFixed(2)}`
+            }, // Cierra columna 3
+            { // Columna 4: dias de vigencia
+                data: "vigencia",
+                defaultContent: "No disponible",
+                class: 'text-center'
+            }, // Cierra columna 4
+            {
+                data: null,
+                class: "text-center",
+                render: renderOpciones
+            }
             ], // Cierra columns
             language: {
                 lengthMenu: "Mostrar _MENU_ registros por página",
@@ -315,30 +315,30 @@ require_once "../../partials/_footer.php";
                 }
             },
             columns: [{
-                    data: null,
-                    render: (d, t, r, m) => m.row + 1
-                },
-                {
-                    data: "cliente",
-                    class: "text-start",
-                    defaultContent: "—"
-                },
-                {
-                    data: "total",
-                    class: "text-center",
-                    defaultContent: "—",
-                    render: (data) => data ? `$${parseFloat(data).toFixed(2)}` : '—'
-                },
-                {
-                    data: "vigencia",
-                    class: "text-center",
-                    defaultContent: "—"
-                },
-                {
-                    data: null,
-                    class: "text-center",
-                    render: function(data, type, row) {
-                        return `
+                data: null,
+                render: (d, t, r, m) => m.row + 1
+            },
+            {
+                data: "cliente",
+                class: "text-start",
+                defaultContent: "—"
+            },
+            {
+                data: "total",
+                class: "text-center",
+                defaultContent: "—",
+                render: (data) => data ? `$${parseFloat(data).toFixed(2)}` : '—'
+            },
+            {
+                data: "vigencia",
+                class: "text-center",
+                defaultContent: "—"
+            },
+            {
+                data: null,
+                class: "text-center",
+                render: function (data, type, row) {
+                    return `
                             <button class="btn btn-primary btn-sm btn-ver-justificacion"
                                 data-id="${row.idcotizacion}"
                                 data-bs-toggle="modal"
@@ -352,8 +352,8 @@ require_once "../../partials/_footer.php";
                                     data-bs-target="#miModal">
                                 <i class='fa-solid fa-clipboard-list'></i>
                             </button>`;
-                    }
                 }
+            }
             ],
             language: {
                 lengthMenu: "Mostrar _MENU_ registros por página",
@@ -419,7 +419,7 @@ require_once "../../partials/_footer.php";
         });
 
         // eliminación con justificación
-        $(document).on('click', '.btnEliminar', function() {
+        $(document).on('click', '.btnEliminar', function () {
             const idv = $(this).data('id');
             $('#justificacion').val('');
             $('#btnEliminarCotizacion').data('id', idv);
@@ -427,7 +427,7 @@ require_once "../../partials/_footer.php";
         });
 
         // confirmar eliminación
-        $(document).on('click', '#btnEliminarCotizacion', async function() {
+        $(document).on('click', '#btnEliminarCotizacion', async function () {
             const just = $('#justificacion').val().trim();
             const idv = $(this).data('id');
             if (!just) {
@@ -438,10 +438,10 @@ require_once "../../partials/_footer.php";
                 return;
             }
             $.post(API, {
-                    action: 'eliminar',
-                    idcotizacion: idv,
-                    justificacion: just
-                },
+                action: 'eliminar',
+                idcotizacion: idv,
+                justificacion: just
+            },
                 res => {
                     if (res.status === 'success') {
                         showToast('Cotización eliminada', 'SUCCESS', 1500);
@@ -455,7 +455,7 @@ require_once "../../partials/_footer.php";
             );
         });
 
-        $(document).on('click', '.btn-detalle', function() {
+        $(document).on('click', '.btn-detalle', function () {
             const idcotizacion = $(this).data('id');
             verDetalleCotizacion(idcotizacion);
             $('#miModal').modal('show');
@@ -495,7 +495,7 @@ require_once "../../partials/_footer.php";
                         <div class="form-floating">
                             <input type="text" disabled class="form-control input" id="modeloInput"
                                 placeholder="Cliente">
-                            <label for="modeloInput">Cliente: </label>
+                            <label for="modeloInput">Propietario: </label>
                         </div>
                     </div>
                     <div class="col-md-6">

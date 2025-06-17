@@ -871,20 +871,28 @@ BEGIN
   END IF;
 
   SELECT
-    v.idcotizacion AS id,
-    v.cliente,
-    SUM(v.precio) AS total,
-    v.vigencia,
+    d.idcotizacion   AS id,
+    d.cliente,
+    -- Sumamos el total de productos y servicios
+    SUM(
+      COALESCE(d.total_linea,    0)
+      + COALESCE(d.precio_servicio,0)
+    )                AS total,
+    d.vigenciadias  AS vigencia,
     CASE
-      WHEN DATE_ADD(DATE(v.fechahora), INTERVAL v.vigencia DAY) >= CURRENT_DATE()
+      WHEN DATE_ADD(DATE(d.fecha), INTERVAL d.vigenciadias DAY) >= CURRENT_DATE()
         THEN 'vigente'
       ELSE 'expirada'
-    END AS estado_vigencia,
-    DATE(v.fechahora) AS fecha
-  FROM vs_cotizaciones v
-  WHERE DATE(v.fechahora) BETWEEN start_date AND end_date
-  GROUP BY v.idcotizacion, v.cliente, v.vigencia, DATE(v.fechahora)
-  ORDER BY DATE(v.fechahora);
+    END             AS estado_vigencia,
+    DATE(d.fecha)   AS fecha
+  FROM vista_detalle_cotizacion_pdf d
+  WHERE DATE(d.fecha) BETWEEN start_date AND end_date
+  GROUP BY
+    d.idcotizacion,
+    d.cliente,
+    d.vigenciadias,
+    DATE(d.fecha)
+  ORDER BY DATE(d.fecha);
 END $$
 
 DELIMITER ;

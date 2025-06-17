@@ -237,6 +237,125 @@ WHERE v.estado = TRUE
 DROP VIEW IF EXISTS vista_detalle_cotizacion_pdf;
 CREATE VIEW vista_detalle_cotizacion_pdf AS
 
+-- === 1) DETALLE DE PRODUCTOS ===
+SELECT
+  c.idcotizacion,
+  c.fechahora            AS fecha,
+  c.vigenciadias,
+
+  -- Propietario de la cotización
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  -- Cliente de la cotización
+  COALESCE(
+    CASE 
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
+
+  -- Campos de producto
+  CONCAT(su.subcategoria,' ',pr.descripcion)     AS item_descripcion,
+  dc.cantidad,
+  dc.precio                                     AS precio_unitario,
+  dc.descuento                                  AS descuento_unitario,
+  ROUND(dc.precio * dc.cantidad * (1 - dc.descuento/100), 2) AS total_linea,
+
+  -- Campos de servicio (nulos aquí)
+  NULL                                          AS tipo_servicio,
+  NULL                                          AS servicio_nombre,
+  NULL                                          AS mecanico,
+  NULL                                          AS precio_servicio,
+
+  'producto'                                    AS registro_tipo
+
+FROM cotizaciones c
+  LEFT JOIN clientes     propc ON c.idcliente     = propc.idcliente
+  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
+
+  LEFT JOIN clientes     cte   ON c.idcliente      = cte.idcliente
+  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
+
+  JOIN detallecotizacion dc  ON dc.idcotizacion   = c.idcotizacion
+  JOIN productos          pr ON pr.idproducto     = dc.idproducto
+  JOIN subcategorias      su ON su.idsubcategoria = pr.idsubcategoria
+
+WHERE c.estado = TRUE
+  AND dc.idproducto IS NOT NULL
+
+UNION ALL
+
+-- === 2) DETALLE DE SERVICIOS ===
+SELECT
+  c.idcotizacion,
+  c.fechahora            AS fecha,
+  c.vigenciadias,
+
+  -- Propietario
+  COALESCE(
+    CASE 
+      WHEN propc.idempresa IS NOT NULL THEN epc.nomcomercial
+      WHEN propc.idpersona IS NOT NULL THEN CONCAT(ppc.nombres,' ',ppc.apellidos)
+    END,
+    'Sin propietario'
+  ) AS propietario,
+
+  -- Cliente
+  COALESCE(
+    CASE 
+      WHEN cte.idpersona IS NOT NULL THEN CONCAT(p.apellidos,' ',p.nombres)
+      WHEN cte.idempresa IS NOT NULL THEN e.nomcomercial
+    END,
+    'Cliente anónimo'
+  ) AS cliente,
+
+  -- Campos de producto (nulos aquí)
+  NULL                                           AS item_descripcion,
+  NULL                                           AS cantidad,
+  NULL                                           AS precio_unitario,
+  NULL                                           AS descuento_unitario,
+  NULL                                           AS total_linea,
+
+  -- Campos de servicio
+  sc.subcategoria                               AS tipo_servicio,
+  se.servicio                                   AS servicio_nombre,
+  NULL                                          AS mecanico,          -- no registrado en cotización
+  dc.precio                                     AS precio_servicio,
+
+  'servicio'                                    AS registro_tipo
+
+FROM cotizaciones c
+  LEFT JOIN clientes     propc ON c.idcliente     = propc.idcliente
+  LEFT JOIN empresas     epc   ON propc.idempresa  = epc.idempresa
+  LEFT JOIN personas     ppc   ON propc.idpersona  = ppc.idpersona
+
+  LEFT JOIN clientes     cte   ON c.idcliente      = cte.idcliente
+  LEFT JOIN personas     p     ON cte.idpersona    = p.idpersona
+  LEFT JOIN empresas     e     ON cte.idempresa    = e.idempresa
+
+  JOIN detallecotizacion dc  ON dc.idcotizacion   = c.idcotizacion
+  JOIN servicios           se ON se.idservicio     = dc.idservicio
+  JOIN subcategorias       sc ON sc.idsubcategoria = se.idsubcategoria
+
+WHERE c.estado = TRUE
+  AND dc.idservicio IS NOT NULL
+
+ORDER BY idcotizacion, registro_tipo;
+
+
+/*
+DROP VIEW IF EXISTS vista_detalle_cotizacion_pdf;
+CREATE VIEW vista_detalle_cotizacion_pdf AS
+
 SELECT
   c.idcotizacion,
   c.fechahora,
@@ -261,7 +380,7 @@ LEFT JOIN empresas e             ON cli.idempresa = e.idempresa
 LEFT JOIN personas p             ON cli.idpersona = p.idpersona
 LEFT JOIN detallecotizacion dc   ON c.idcotizacion = dc.idcotizacion
 LEFT JOIN productos pr           ON dc.idproducto = pr.idproducto
-WHERE c.estado = TRUE;
+WHERE c.estado = TRUE;*/
 
 -- ************************* VISTA DE AMORTIZACIÓN *************************
 -- 1) VISTA PARA VER EL TOTAL DE LAS VENTAS (ID)
