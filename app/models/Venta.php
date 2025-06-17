@@ -466,7 +466,6 @@ class Venta extends Conexion
         // Preparo placeholders para las consultas IN (...)
         $placeholders = implode(',', array_fill(0, count($idsOT), '?'));
 
-        // 1.1) Consultar cuántos propietarios distintos hay entre esas ventas (OT)
         // 1.1) Obtener directamente todos los idpropietario para esas OT y luego filtrar en PHP
         $sqlProp = "
             SELECT idpropietario
@@ -478,6 +477,28 @@ class Venta extends Conexion
         $stmtProp = $this->pdo->prepare($sqlProp);
         $stmtProp->execute($idsOT);
         $propRows = $stmtProp->fetchAll(PDO::FETCH_COLUMN, 0); // Array de idpropietario
+        $sqlCli = "
+        SELECT DISTINCT idcliente
+        FROM ventas
+        WHERE idventa IN ($placeholders)
+          AND tipocom = 'orden de trabajo'
+          AND estado = TRUE
+    ";
+        $stmtCli = $this->pdo->prepare($sqlCli);
+        $stmtCli->execute($idsOT);
+        $clientes = $stmtCli->fetchAll(PDO::FETCH_COLUMN, 0);
+
+        if (empty($clientes)) {
+            // Ninguna OT tenía cliente → dejamos NULL
+            $idClienteCombinada = null;
+        } else {
+            // Aseguramos que sean todos iguales:
+            $unicos = array_unique($clientes);
+            if (count($unicos) > 1) {
+                throw new Exception("Las OT seleccionadas tienen diferentes clientes.");
+            }
+            $idClienteCombinada = (int) $unicos[0];
+        }
 
         // Elimina duplicados:
         $propUnicos = array_unique($propRows);
@@ -517,8 +538,6 @@ class Venta extends Conexion
 
         // 3) Obtener los detalles de productos y servicios de cada OT
         $det = $this->getDetallesOt($idsOT);
-        //   - $det['productos'] → array de [ ['idproducto'=>..., 'cantidad'=>..., 'precio'=>..., 'descuento'=>...], ... ]
-        //   - $det['servicios'] → array de [ ['idorden'=>..., 'idservicio'=>..., 'idmecanico'=>..., 'precio'=>...], ... ]
 
         // 4) Iniciar transacción
         $this->pdo->beginTransaction();
@@ -549,9 +568,6 @@ class Venta extends Conexion
             if (!$idcolab) {
                 throw new Exception("No hay colaborador logueado para asignar a la orden.");
             }
-
-            // Supongamos que no hay cliente en la venta combinada → usamos 0 o NULL
-            $idClienteCombinada = 0;
 
             // Podemos dejar observaciones en blanco (o usar $algunasObservaciones si las tuvieras)
             $observaciones = '';
@@ -625,16 +641,14 @@ class Venta extends Conexion
 
             // 4.5') ——> Re-asignar amortizaciones de las OT originales a la nueva venta
             if (!empty($amortPrevias)) {
-                // Preparamos placeholders e índices
+                // Preparamos placeholders para el IN (...)
                 $inOt = implode(',', array_fill(0, count($idsOT), '?'));
                 $sqlUpd = "
-      UPDATE amortizaciones
-      SET idventa = ?, idcompra = NULL
-      WHERE idventa IN ($inOt)
-    ";
+                    UPDATE amortizaciones
+                    SET idventa = ?
+                    WHERE idventa IN ($inOt)
+                    ";
                 $stmtUpd = $this->pdo->prepare($sqlUpd);
-                // El primer parámetro para execute() es newVentaId,
-                // luego pasamos todos los idsOT en el mismo array:
                 $paramsUpd = array_merge([$newVentaId], $idsOT);
                 $stmtUpd->execute($paramsUpd);
             }

@@ -73,7 +73,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $modo = in_array($_GET['modo'], ['dia', 'semana', 'mes'], true) ? $_GET['modo'] : 'dia';
       $fecha = $_GET['fecha'] ?: date('Y-m-d');
 
+      // Llamas al modelo, que ejecuta tu SP spListOTPorPeriodo
       $ots = $venta->listarPorPeriodoOT($modo, $fecha);
+
+      // **AÑADE ESTE PASO**: Garantiza que cada fila tenga estado_pago
+      foreach ($ots as &$ot) {
+        // si total_pendiente existe y es 0, 'pagado', si no 'pendiente'
+        if (isset($ot['total_pendiente'])) {
+          $ot['estado_pago'] = ($ot['total_pendiente'] <= 0) ? 'pagado' : 'pendiente';
+        } else {
+          // en caso de que falte total_pendiente, dejamos 'pendiente' por defecto
+          $ot['estado_pago'] = 'pendiente';
+        }
+      }
+      unset($ot);
+
       echo json_encode([
         'status' => 'success',
         'data' => $ots

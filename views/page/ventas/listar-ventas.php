@@ -497,10 +497,7 @@ require_once "../../partials/_footer.php";
                 title="Detalle OT">
             <i class="fa-solid fa-clipboard-list"></i>
         </button>
-        <button title="Pdf" class="btn btn-outline-dark btn-sm btn-descargar-pdf"
-                onclick="descargarPDF('${row.id}')">
-        <i class="fa-solid fa-file-pdf"></i>
-        </button>`;
+        `;
     }
     function marcarActivo(btn) {
         filtros.forEach(b => b.classList.toggle('active', b === btn));
