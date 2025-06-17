@@ -412,6 +412,7 @@ class Venta extends Conexion
             // 4) Detalle de productos
             if (!empty($params['productos'])) {
                 $stmtProd = $pdo->prepare("CALL spuInsertDetalleVenta(?,?,?,?,?,?,?)");
+                $updFisico = $pdo->prepare("UPDATE productos SET cantidad = cantidad - ? WHERE idproducto = ?");
                 foreach ($params['productos'] as $prod) {
                     $stmtProd->execute([
                         $idventa,
@@ -423,6 +424,11 @@ class Venta extends Conexion
                         true
                     ]);
                 }
+                $updFisico->execute([
+                    $prod['cantidad'],      // cuántas unidades vendo
+                    $prod['idproducto'],    // de qué producto
+                ]);
+
             }
 
             // 5) Detalle de servicios (solo si hay orden y servicios)
