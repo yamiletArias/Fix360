@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   numSerieInput.value = "";
   numComInput.value = "";
-  
+
   // 1) Función para habilitar/deshabilitar el botón “Guardar”
   function actualizarEstadoGuardar() {
     const tieneProductos = detalleVenta.length > 0;
@@ -75,6 +75,25 @@ document.addEventListener("DOMContentLoaded", function () {
       showToast("Error al cargar servicios.", "ERROR", 1500);
     }
   }
+  async function cargarMecanicos() {
+  try {
+    const resp = await fetch(
+      `${FIX360_BASE_URL}app/controllers/mecanico.controller.php?task=getAllMecanico`
+    );
+    const data = await resp.json();
+    // Limpia y añade la opción por defecto
+    selectMecanico.innerHTML = '<option value="">Eliga un mecánico</option>';
+    data.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item.idcolaborador;
+      opt.textContent = item.nombres;
+      selectMecanico.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Error al cargar mecánicos:", err);
+    showToast("No se pudieron cargar los mecánicos.", "ERROR", 1500);
+  }
+}
 
   document
     .getElementById("subcategoria")
@@ -318,11 +337,13 @@ document.addEventListener("DOMContentLoaded", function () {
     return detalleVenta.some((d) => d.idproducto == idproducto);
   }
 
-  //cotizacion
+  // Cotización → Venta
   const API_BASE = window.FIX360_BASE_URL + "app/controllers/";
   const params = new URLSearchParams(window.location.search);
   const cotId = params.get("id");
+
   if (cotId) {
+    cargarMecanicos();
     // — 1) CARGAR CABECERA —
     fetch(
       `${API_BASE}cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`
@@ -334,20 +355,18 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
         // — Propietario —
-        hiddenIdPropietario.value = data.idcliente; // clienteCot → propietario
-        hiddenIdCliente.value = 0; // clienteVenta = NULL
-        inputProp.value = data.cliente; // nombre en “Propietario”
+        hiddenIdPropietario.value = data.idcliente;
+        hiddenIdCliente.value = 0;
+        inputProp.value = data.cliente;
 
         // — Vehículo —
-        // Limpio el select y, si hay uno, lo agrego y selecciono
         vehiculoSelect.innerHTML = "";
         if (data.idvehiculo) {
           const optVeh = document.createElement("option");
           optVeh.value = data.idvehiculo;
-          optVeh.textContent = data.vehiculo; // por ejemplo la placa
+          optVeh.textContent = data.vehiculo;
           vehiculoSelect.appendChild(optVeh);
           vehiculoSelect.value = data.idvehiculo;
-          // Desbloquea el botón de agregar servicios si usas esa lógica
           btnToggleService.disabled = false;
         }
 
@@ -355,142 +374,194 @@ document.addEventListener("DOMContentLoaded", function () {
         prevKilometraje = parseFloat(data.ultimo_km) || 0;
         kmInput.value = prevKilometraje > 0 ? prevKilometraje : "";
 
-        // Disparamos el change y recalculamos el estado de “Guardar”
+        // Recalcular estado de “Guardar”
         hiddenIdPropietario.dispatchEvent(new Event("change"));
         actualizarEstadoGuardar();
       })
       .catch(console.error);
 
-    // — 2) CARGAR DETALLE DE PRODUCTOS —
+    // — 2) CARGAR DETALLE DE PRODUCTOS Y SERVICIOS —
     fetch(`${API_BASE}Detcotizacion.controller.php?idcotizacion=${cotId}`)
       .then((r) => r.json())
       .then((items) => {
+        let tieneServicios = false;
+
         items.forEach((item) => {
-          const precio = parseFloat(item.precio);
-          const cantidad = parseInt(item.cantidad, 10);
-          const descuento = parseFloat(item.descuento);
+          const precio = parseFloat(item.precio) || 0;
+          const cantidad = parseInt(item.cantidad, 10) || 0;
+          const descuento = parseFloat(item.descuento) || 0;
+          const importe = ((precio - descuento) * cantidad).toFixed(2);
 
-          // — Validaciones de stock —
-          if (stock <= 0) {
-            alert(
-              `El producto "${item.producto}" no tiene stock disponible para la venta.`
-            );
-            return; // salta al siguiente item
-          }
-          if (cantidad > stock) {
-            alert(
-              `La cantidad solicitada (${cantidad}) excede el stock disponible (${stock}) de "${item.producto}".`
-            );
-            return;
-          }
-          const importe = (precio - descuento) * cantidad;
+          if (item.tipo === "producto") {
+            // —— PRODUCTO ——
+            const tr = document.createElement("tr");
+            tr.dataset.idproducto = item.idproducto;
+            tr.innerHTML = `
+            <td>0</td>
+            <td>${item.producto}</td>
+            <td><span class="precio-texto">${precio.toFixed(2)}</span></td>
+            <td>
+              <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
+                <button class="btn btn-outline-secondary btn-decrement">−</button>
+                <input
+                  type="number"
+                  class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
+                  value="${cantidad}"
+                  min="1"
+                  max="${item.stockDisponible}"
+                >
+                <button class="btn btn-outline-secondary btn-increment">＋</button>
+              </div>
+            </td>
+            <td><span class="descuento-texto">${descuento.toFixed(
+              2
+            )}</span></td>
+            <td class="importe-cell">${importe}</td>
+            <td><button class="btn btn-danger btn-sm btn-quitar">X</button></td>
+          `;
+            tabla.appendChild(tr);
 
-          // 1) Creo la fila TR
-          const tr = document.createElement("tr");
-          tr.dataset.idproducto = item.idproducto;
-          tr.innerHTML = `
-      <td>0</td>
-      <td>${item.producto}</td>
-      <td>
-        <span class="precio-texto">${precio.toFixed(2)}</span>
-      </td>
-      <td>
-        <div class="input-group input-group-sm cantidad-control" style="width:8rem;">
-          <button class="btn btn-outline-secondary btn-decrement" type="button">−</button>
-          <input type="number"
-                 class="form-control text-center p-0 border-0 bg-transparent cantidad-input"
-                 value="${cantidad}"
-                 min="1"
-                 max="${stock}">
-          <button class="btn btn-outline-secondary btn-increment" type="button">＋</button>
-        </div>
-      </td>
-      <td>
-        <span class="descuento-texto">${descuento.toFixed(2)}</span>
-      </td>
-      <td class="importe-cell">${importe.toFixed(2)}</td>
-      <td>
-        <button class="btn btn-danger btn-sm btn-quitar">X</button>
-      </td>
-    `;
-          tabla.appendChild(tr);
+            // Listeners de cantidad y eliminación
+            const decBtn = tr.querySelector(".btn-decrement");
+            const incBtn = tr.querySelector(".btn-increment");
+            const qtyInput = tr.querySelector(".cantidad-input");
+            const precioSpan = tr.querySelector(".precio-texto");
+            const descuentoSpan = tr.querySelector(".descuento-texto");
+            const importeCell = tr.querySelector(".importe-cell");
+            const quitarBtn = tr.querySelector(".btn-quitar");
 
-          // 3) Lo agrego también al array detalleVenta (igual que en tu “Agregar” manual)
-          detalleVenta.push({
-            idproducto: item.idproducto,
-            producto: item.producto,
-            precio: precio,
-            cantidad: cantidad,
-            descuento: descuento,
-            importe: importe.toFixed(2),
-          });
+            function actualizarLineaProducto() {
+              let q = parseInt(qtyInput.value, 10) || 1;
+              if (q < 1) q = 1;
+              qtyInput.value = q;
 
-          // — AHORA, asigno los listeners para que funcione igual que en “Agregar producto” —
+              const p = parseFloat(precioSpan.textContent) || 0;
+              const d = parseFloat(descuentoSpan.textContent) || 0;
+              const imp = ((p - d) * q).toFixed(2);
+              importeCell.textContent = imp;
 
-          // obtengo referencias dentro de la fila recién creada
-          const decBtn = tr.querySelector(".btn-decrement");
-          const incBtn = tr.querySelector(".btn-increment");
-          const qtyInput = tr.querySelector(".cantidad-input");
-          const importeCell = tr.querySelector(".importe-cell");
-          const precioSpan = tr.querySelector(".precio-texto");
-          const descuentoSpan = tr.querySelector(".descuento-texto");
-          const quitarBtn = tr.querySelector(".btn-quitar");
+              const idx = detalleVenta.findIndex(
+                (dv) => dv.idproducto === item.idproducto
+              );
+              if (idx >= 0) {
+                detalleVenta[idx].cantidad = q;
+                detalleVenta[idx].importe = imp;
+              }
 
-          // función que recalcula esta línea cuando cambie cantidad
-          function actualizarLinea() {
-            // 1) leo cantidad como entero
-            let qty = parseInt(qtyInput.value, 10) || 1;
-            if (qty < 1) qty = 1;
-            qtyInput.value = qty;
-
-            // 2) leo precio y descuento desde los spans
-            const precioValor = parseFloat(precioSpan.textContent) || 0;
-            const descuentoValor = parseFloat(descuentoSpan.textContent) || 0;
-
-            // 3) calculo nuevo importe y lo muestro
-            const netoUnit = precioValor - descuentoValor;
-            const nuevoImporte = netoUnit * qty;
-            importeCell.textContent = nuevoImporte.toFixed(2);
-
-            // 4) actualizo ese producto en el array detalleVenta
-            const idx = detalleVenta.findIndex(
-              (d) => d.idproducto === item.idproducto
-            );
-            if (idx >= 0) {
-              detalleVenta[idx].cantidad = qty;
-              detalleVenta[idx].importe = nuevoImporte.toFixed(2);
+              actualizarNumeros();
+              calcularTotales();
+              actualizarEstadoGuardar();
             }
 
-            // 5) renumero filas y recalculo totales generales
-            actualizarNumeros();
-            calcularTotales();
+            decBtn.addEventListener("click", () => {
+              qtyInput.stepDown();
+              actualizarLineaProducto();
+            });
+            incBtn.addEventListener("click", () => {
+              qtyInput.stepUp();
+              actualizarLineaProducto();
+            });
+            qtyInput.addEventListener("input", actualizarLineaProducto);
+            quitarBtn.addEventListener("click", () => {
+              tr.remove();
+              const idx = detalleVenta.findIndex(
+                (dv) => dv.idproducto === item.idproducto
+              );
+              if (idx >= 0) detalleVenta.splice(idx, 1);
+              actualizarNumeros();
+              calcularTotales();
+              actualizarEstadoGuardar();
+            });
+
+            detalleVenta.push({
+              idproducto: item.idproducto,
+              producto: item.producto,
+              precio,
+              cantidad,
+              descuento,
+              importe,
+            });
+          } else if (item.tipo === "servicio") {
+            tieneServicios = true;
+
+            // 1) Crea la fila
+            const trS = document.createElement("tr");
+            trS.dataset.idservicio = item.idservicio;
+
+            // 2) Número de fila
+            const tdNum = document.createElement("td");
+            tdNum.textContent = tablaServ.rows.length + 1;
+
+            // 3) Servicio
+            const tdServ = document.createElement("td");
+            tdServ.textContent = item.nombreservicio;
+
+            // 4) Mecánico (clonamos el select que ya tiene todas las opciones)
+            const tdMec = document.createElement("td");
+            const mecSelect = selectMecanico.cloneNode(true);
+            mecSelect.id = ""; // eliminamos el id duplicado
+            mecSelect.value = ""; // por defecto ninguno
+            mecSelect.addEventListener("change", () => {
+              const idx = detalleServicios.findIndex(
+                (s) => s.idservicio === item.idservicio
+              );
+              if (idx >= 0)
+                detalleServicios[idx].idmecanico = parseInt(
+                  mecSelect.value,
+                  10
+                );
+            });
+            tdMec.appendChild(mecSelect);
+
+            // 5) Precio
+            const tdPre = document.createElement("td");
+            tdPre.textContent = parseFloat(
+              item.precio_servicio || item.precio
+            ).toFixed(2);
+
+            // 6) Acciones (botón X)
+            const tdAcc = document.createElement("td");
+            const btnQuitar = document.createElement("button");
+            btnQuitar.className = "btn btn-danger btn-sm";
+            btnQuitar.textContent = "X";
+            btnQuitar.addEventListener("click", () => {
+              const idx = detalleServicios.findIndex(
+                (s) => s.idservicio === item.idservicio
+              );
+              if (idx >= 0) detalleServicios.splice(idx, 1);
+              trS.remove();
+              actualizarNumerosServicios();
+              calcularTotales();
+              actualizarEstadoGuardar();
+            });
+            tdAcc.appendChild(btnQuitar);
+
+            // 7) Anexa celdas y fila
+            trS.append(tdNum, tdServ, tdMec, tdPre, tdAcc);
+            tablaServ.appendChild(trS);
+
+            // 8) Agrega al array detalleServicios
+            detalleServicios.push({
+              idservicio: item.idservicio,
+              servicio: item.nombreservicio,
+              idmecanico: null, // se establecerá al cambiar el select
+              precio: parseFloat(item.precio_servicio || item.precio),
+            });
           }
+        });
 
-          // listeners para “−” y “＋”
-          decBtn.addEventListener("click", () => {
-            qtyInput.stepDown();
-            actualizarLinea();
-          });
-          incBtn.addEventListener("click", () => {
-            qtyInput.stepUp();
-            actualizarLinea();
-          });
-          qtyInput.addEventListener("input", actualizarLinea);
+        // — 3) Mostrar sección de servicios si hay alguno —
+        if (tieneServicios) {
+          document.getElementById("serviceSection").classList.remove("d-none");
+          document.getElementById("serviceListCard").classList.remove("d-none");
+          btnToggleService.disabled = true;
+          btnToggleService.classList.replace("btn-success", "btn-secondary");
+          obsField.disabled = gruField.disabled = false;
+        }
 
-          // listener para quitar la fila
-          quitarBtn.addEventListener("click", () => {
-            tr.remove();
-            const idx = detalleVenta.findIndex(
-              (d) => d.idproducto === item.idproducto
-            );
-            if (idx >= 0) detalleVenta.splice(idx, 1);
-            actualizarNumeros();
-            calcularTotales();
-          });
-        }); // fin foreach
-
-        // Finalmente, renumero y recalculo TOTALES generales
+        // — 4) Renumerar y recalcular totales/estado —
         actualizarNumeros();
+        actualizarNumerosServicios();
         calcularTotales();
         actualizarEstadoGuardar();
       })
@@ -1162,19 +1233,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const nombreProd = tr.cells[1].textContent.trim();
       const qtyInput = tr.querySelector(".cantidad-input");
       const qty = parseInt(qtyInput.value, 10) || 0;
-      const maxStock = parseInt(qtyInput.getAttribute("max"), 10) || 0;
+      const maxAttr = qtyInput.getAttribute("max");
 
-      if (maxStock <= 0) {
+      const maxStock = maxAttr !== null ? parseInt(maxAttr, 10) : Infinity;
+
+      if (maxStock === 0) {
         return Swal.fire(
           "Error de stock",
           `El producto "${nombreProd}" no tiene unidades disponibles.`,
-          "error"
-        );
-      }
-      if (qty > maxStock) {
-        return Swal.fire(
-          "Error de stock",
-          `La cantidad solicitada (${qty}) excede el stock disponible (${maxStock}) de "${nombreProd}".`,
           "error"
         );
       }

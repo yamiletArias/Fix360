@@ -363,8 +363,8 @@ require_once "../../partials/_footer.php";
                             <td>${s.tiposervicio ?? '-'}</td>
                             <td>${s.nombreservicio ?? '-'}</td>
                             <td>${s.mecanico ?? '-'}</td>
-                            <td>${s.precio_servicio != null
-                                ? parseFloat(s.precio_servicio).toFixed(2) + ' S/'
+                            <td>S/ ${s.precio_servicio != null
+                                ? parseFloat(s.precio_servicio).toFixed(2)
                                 : '-'
                             }</td>
                         </tr>
