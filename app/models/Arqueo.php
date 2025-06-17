@@ -23,7 +23,7 @@ class Arqueo extends Conexion
             AND a.idventa IS NOT NULL
             AND DATE(a.creado) = :fecha
         GROUP BY f.idformapago, f.formapago
-        ORDER BY f.idformapago
+        ORDER BY f.idformapago 
     ";
 
     $stmt = $this->pdo->prepare($sql);

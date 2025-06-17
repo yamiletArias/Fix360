@@ -1015,7 +1015,7 @@ SELECT
   COALESCE((
     SELECT SUM(a.amortizacion)
     FROM amortizaciones a
-    WHERE a.estado = 'P'
+    WHERE a.estado = 'C'
       AND DATE(a.creado) < f.fecha
   ), 0)
   -
@@ -1032,7 +1032,7 @@ SELECT
   COALESCE((
     SELECT SUM(a.amortizacion)
     FROM amortizaciones a
-    WHERE a.estado = 'P'
+    WHERE a.estado = 'C'
       AND DATE(a.creado) = f.fecha
   ), 0) AS ingreso_efectivo,
 
@@ -1050,7 +1050,7 @@ SELECT
     COALESCE((
       SELECT SUM(a.amortizacion)
       FROM amortizaciones a
-      WHERE a.estado = 'P'
+      WHERE a.estado = 'C'
         AND DATE(a.creado) < f.fecha
     ), 0)
     -
@@ -1066,7 +1066,7 @@ SELECT
   COALESCE((
     SELECT SUM(a.amortizacion)
     FROM amortizaciones a
-    WHERE a.estado = 'P'
+    WHERE a.estado = 'C'
       AND DATE(a.creado) = f.fecha
   ), 0)
   AS total_efectivo,
@@ -1078,7 +1078,7 @@ SELECT
         COALESCE((
           SELECT SUM(a.amortizacion)
           FROM amortizaciones a
-          WHERE a.estado = 'P'
+          WHERE a.estado = 'C'
             AND DATE(a.creado) < f.fecha
         ), 0)
         -
@@ -1094,7 +1094,7 @@ SELECT
       COALESCE((
         SELECT SUM(a.amortizacion)
         FROM amortizaciones a
-        WHERE a.estado = 'P'
+        WHERE a.estado = 'C'
           AND DATE(a.creado) = f.fecha
       ), 0)
     )
@@ -1112,7 +1112,7 @@ FROM (
   -- Solo días con amortizaciones P o egresos A
   SELECT DATE(creado) AS fecha
   FROM amortizaciones
-  WHERE estado = 'P'
+  WHERE estado = 'C'
 
   UNION
 
