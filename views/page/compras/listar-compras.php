@@ -229,10 +229,10 @@ require_once "../../partials/_footer.php";
     function renderOpciones(data, type, row) {
         const pagado = row.estado_pago === 'pagado';
         const btnAmort = pagado
-            ? `<button class="btn btn-success btn-sm" disabled title="Pago completo">
+            ? `<button title="Pagado" class="btn btn-success btn-sm" disabled title="Pago completo">
            <i class="fa-solid fa-check"></i>
          </button>`
-            : `<button class="btn btn-warning btn-sm btn-amortizar"
+            : `<button title="Realizar Pagos" class="btn btn-warning btn-sm btn-amortizar"
            data-id="${row.id}"
            data-bs-toggle="modal"
            data-bs-target="#modalAmortizar">
@@ -240,11 +240,11 @@ require_once "../../partials/_footer.php";
          </button>`;
 
         return `
-      <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
+      <button title="Eliminar" class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id}">
         <i class="fa-solid fa-trash"></i>
       </button>
       ${btnAmort}
-      <button class="btn btn-info btn-sm btn-detalle"
+      <button title="Detalle de compra" class="btn btn-info btn-sm btn-detalle"
               data-id="${row.id}"
               data-bs-toggle="modal"
               data-bs-target="#miModal">

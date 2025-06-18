@@ -194,31 +194,33 @@ require_once "../../partials/header.php";
 
 <!-- Modal de registrar producto (versión compacta con estilos) -->
 <div class="modal fade" id="miModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-md" style="margin-top: 20px;">
-    <div class="modal-content" style="background-color: #fff; color: #000;">
+  <div class="modal-dialog modal-lg" style="margin-top: 20px;">
+    <div class="modal-content bg-white text-dark">
       <div class="modal-header">
         <h5 class="modal-title">Registrar producto</h5>
         <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <form id="form-nuevo-producto" autocomplete="off">
-          <div class="row g-3">
+        <form id="form-nuevo-producto" method="POST" enctype="multipart/form-data" autocomplete="off">
+          <div class="row gx-3 gy-2">
 
-            <!-- <div class="col-12">
-              <div class="form-floating mb-1">
-                <input type="text" class="form-control input" id="codigobarra" name="codigobarra" placeholder="Código de barras" autocomplete="off" autofocus />
+            <!-- Código de Barras -->
+            <div class="col-md-6">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="codigobarra" name="codigobarra"
+                  placeholder="Código de barras" autocomplete="off" autofocus>
                 <label for="codigobarra">Código de Barras</label>
               </div>
-            </div> -->
+            </div>
 
             <!-- Marca -->
-            <div class="col-12">
-              <div class="form-floating input-group mb-1">
-                <select class="form-select" id="marca" name="idmarca" style="color: black;" required>
-                  <option value="">Seleccione una opcion</option>
+            <div class="col-md-6">
+              <div class="form-floating input-group">
+                <select class="form-select text-dark" id="marca" name="idmarca" required>
+                  <option value="" class="text-dark">Seleccione una opción</option>
                 </select>
-                <label for="marca">Marca:</label>
-                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                <label for="marca">Marca</label>
+                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
                   data-bs-target="#modalMarca">
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -226,13 +228,13 @@ require_once "../../partials/header.php";
             </div>
 
             <!-- Categoría -->
-            <div class="col-12">
-              <div class="form-floating input-group mb-1">
-                <select class="form-select" id="categoria" name="categoria" style="color: black;" required>
-                  <option value="">Seleccione una opcion</option>
+            <div class="col-md-6">
+              <div class="form-floating input-group">
+                <select class="form-select text-dark" id="categoria" name="categoria" required>
+                  <option value="" class="text-dark">Seleccione una opción</option>
                 </select>
-                <label for="categoria">Categoría:</label>
-                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                <label for="categoria">Categoría</label>
+                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
                   data-bs-target="#modalCategoria">
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -240,13 +242,13 @@ require_once "../../partials/header.php";
             </div>
 
             <!-- Subcategoría -->
-            <div class="col-12">
-              <div class="form-floating input-group mb-1">
-                <select class="form-select" id="subcategoria" name="subcategoria" style="color: black;" required>
-                  <option value="">Seleccione una opcion</option>
+            <div class="col-md-6">
+              <div class="form-floating input-group">
+                <select class="form-select text-dark" id="subcategoria" name="subcategoria" required>
+                  <option value="" class="text-dark">Seleccione una opción</option>
                 </select>
-                <label for="subcategoria">Subcategoría:</label>
-                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                <label for="subcategoria">Subcategoría</label>
+                <button type="button" class="btn btn-sm btn-success ms-2" data-bs-toggle="modal"
                   data-bs-target="#modalSubcategoria">
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -254,91 +256,104 @@ require_once "../../partials/header.php";
             </div>
 
             <!-- Descripción -->
-            <div class="col-12">
+            <div class="col-md-6">
               <div class="form-floating">
-                <textarea class="form-control input" id="descripcion" name="descripcion" placeholder="Descripción"
+                <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Descripción"
                   style="height: 70px;"></textarea>
                 <label for="descripcion">Descripción</label>
               </div>
             </div>
 
             <!-- Presentación -->
-            <div class="col-12">
+            <div class="col-md-6">
               <div class="form-floating">
-                <input type="text" class="form-control input" id="presentacion" name="presentacion"
-                  placeholder="Presentación" />
+                <input type="text" class="form-control" id="presentacion" name="presentacion" placeholder="Presentación"
+                  autocomplete="off">
                 <label for="presentacion">Presentación</label>
               </div>
             </div>
 
             <!-- Cantidad -->
-            <div class="col-6">
+            <div class="col-md-3">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" id="cantidad" name="cantidad"
-                  placeholder="Cantidad" min="0" />
+                <input type="number" class="form-control" id="cantidad" name="cantidad" step="0.1"
+                  placeholder="Cantidad" min="0">
                 <label for="cantidad">Cantidad</label>
               </div>
             </div>
 
-            <!-- Unidad de Medida -->
-            <div class="col-6">
+            <!-- Und. de Medida -->
+            <div class="col-md-3">
               <div class="form-floating">
-                <input type="text" class="form-control input" id="undmedida" name="undmedida"
-                  placeholder="Unidad de Medida" />
-                <label for="undmedida">Und. de Medida</label>
+                <input type="text" class="form-control" id="undmedida" name="undmedida" placeholder="Und. Medida">
+                <label for="undmedida">Und. Medida</label>
               </div>
             </div>
 
-            <!-- Precio -->
-            <div class="col-6">
+            <!-- Precio de Compra -->
+            <div class="col-md-3">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" id="precio" name="precio"
-                  placeholder="Precio" min="0" />
-                <label for="precio">Precio</label>
+                <input type="number" class="form-control" id="precioc" name="precioc" step="0.1"
+                  placeholder="Precio de Compra" min="0">
+                <label for="precioc">Precio de Compra</label>
+              </div>
+            </div>
+
+            <!-- Precio de Venta -->
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input type="number" class="form-control" id="preciov" name="preciov" step="0.1"
+                  placeholder="Precio de Venta" min="0">
+                <label for="preciov">Precio de Venta</label>
               </div>
             </div>
 
             <!-- Stock Actual -->
-            <div class="col-6">
+            <div class="col-md-4">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" id="stockInicial" name="stockInicial"
-                  placeholder="Stock Actual" min="0" />
+                <input type="number" class="form-control" id="stockInicial" name="stockInicial" step="0.1"
+                  placeholder="Stock Actual" min="0" value="0">
                 <label for="stockInicial">Stock Actual</label>
               </div>
             </div>
 
             <!-- Stock Mínimo -->
-            <div class="col-6">
+            <div class="col-md-4">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" id="stockmin" name="stockmin"
-                  placeholder="Stock min." min="0" />
-                <label for="stockmin">Stock min.</label>
+                <input type="number" class="form-control" id="stockmin" name="stockmin" step="0.1"
+                  placeholder="Stock Mín." min="0">
+                <label for="stockmin">Stock Mín.</label>
               </div>
             </div>
 
             <!-- Stock Máximo -->
-            <div class="col-6">
+            <div class="col-md-4">
               <div class="form-floating">
-                <input type="number" class="form-control input" step="0.1" id="stockmax" name="stockmax"
-                  placeholder="Stock max." min="0" />
-                <label for="stockmax">Stock max.</label>
+                <input type="number" class="form-control" id="stockmax" name="stockmax" step="0.1"
+                  placeholder="Stock Máx." min="0">
+                <label for="stockmax">Stock Máx.</label>
               </div>
             </div>
 
             <!-- Imagen -->
             <div class="col-12">
-              <label for="img" class="form-label">Imagen del producto:</label>
-              <input type="file" class="form-control input-img" id="img" name="img" accept="image/png, image/jpeg" />
+              <label for="img" class="form-label">Imagen del producto</label>
+              <input type="file" class="form-control" id="img" name="img" accept="image/png, image/jpeg">
             </div>
 
           </div>
         </form>
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary btn-sm" id="btnRegistrarProducto"
-          form="form-nuevo-producto">Guardar</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" id="btnRegistrarProducto">
+          Guardar
+        </button>
       </div>
+
     </div>
   </div>
 </div>
@@ -540,68 +555,51 @@ require_once "../../partials/_footer.php";
 </script>
 
 <script>
-  document.getElementById("btnRegistrarProducto").addEventListener("click", function (e) {
-    e.preventDefault();
+  document.getElementById("btnRegistrarProducto").addEventListener("click", function () {
     const form = document.getElementById("form-nuevo-producto");
     const formData = new FormData(form);
 
-    fetch("http://localhost/fix360/app/controllers/producto.controller.php", {
+    fetch("<?= SERVERURL ?>app/controllers/producto.controller.php", {
       method: "POST",
       body: formData
     })
-      .then(response => response.json())
+      .then(r => r.json())
       .then(resp => {
         if (resp.rows > 0) {
-          showToast('Producto registrado exitosamente.', 'SUCCESS', 1500);
+          showToast(resp.success, 'SUCCESS', 1500);
 
-          // Obtener subcategoría y descripción para formar el nombre del producto
-          const subcategoriaText = document.getElementById("subcategoria")
-            .options[document.getElementById("subcategoria").selectedIndex].text;
-          const descripcion = document.getElementById("descripcion").value;
-          const inputBusqueda = document.getElementById("producto");
-          if (inputBusqueda) {
-            inputBusqueda.value = `${subcategoriaText} ${descripcion}`;
-          }
-          // ← aquí las dos líneas nuevas:
+          // Leer valores del modal
+          const subcat = document.getElementById("subcategoria").selectedOptions[0].text;
+          const desc = document.getElementById("descripcion").value.trim();
+          const stockM = document.getElementById("stockInicial").value;
+          const priceM = document.getElementById("precioc").value;
+
+          // Volcar al formulario principal
+          document.getElementById("producto").value = `${subcat} ${desc}`;
+          document.getElementById("stock").value = stockM;
+          document.getElementById("preciocompra").value = priceM;
+
+          // Guardar en selectedProduct
+          selectedProduct.idproducto = resp.idproducto;
+          selectedProduct.subcategoria_producto = `${subcat} ${desc}`;
+          selectedProduct.stock = parseFloat(stockM);
+          selectedProduct.precio = parseFloat(priceM);
+
+          // Inicializar compra
           document.getElementById("cantidadcompra").value = 1;
           document.getElementById("descuento").value = 0;
 
-          // **** Actualización clave: asignar el id retornado al objeto global selectedProduct ****
-          // Se asume que la respuesta JSON ahora incluye la propiedad "idproducto" obtenida en PHP.
-          selectedProduct.idproducto = resp.idproducto;
-          selectedProduct.subcategoria_producto = `${subcategoriaText} ${descripcion}`;
-          selectedProduct.precio = document.getElementById("precio").value;
-          // nueva línea para jalarlo al formulario de compra:
-          document.getElementById("preciocompra").value = selectedProduct.precio;
-          // 1) captura la cantidad ingresada en el modal:
-          const modalCantidad = document.getElementById("stockInicial").value;
-          // 2) asígnala al campo stock del formulario principal:
-          document.getElementById("stock").value = modalCantidad;
-          selectedProduct.stock = parseInt(modalCantidad, 10);
-          // Cerrar el modal correctamente.
+          // Cerrar modal y resetear
           const modalEl = document.getElementById('miModal');
-          let modalInstance = bootstrap.Modal.getInstance(modalEl);
-          if (!modalInstance) {
-            modalInstance = new bootstrap.Modal(modalEl);
-          }
+          const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
           modalInstance.hide();
-
-          // Eliminar backdrop manualmente.
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) backdrop.remove();
-
-          // Quitar la clase modal-open y restaurar el scroll.
-          document.body.classList.remove('modal-open');
-          document.body.style.overflow = '';
-
-          // Limpiar el formulario del modal
           form.reset();
         } else {
-          showToast('Hubo un error al registrar el producto.', 'ERROR', 1500);
+          showToast('No se pudo registrar el producto.', 'ERROR', 1500);
         }
       })
       .catch(err => {
-        console.error("Error en la solicitud:", err);
+        console.error(err);
         showToast('Error de conexión al registrar.', 'ERROR', 1500);
       });
   });

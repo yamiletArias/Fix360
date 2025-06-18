@@ -236,9 +236,23 @@ BEGIN
       FROM tipomovimientos
       WHERE flujo = 'salida' AND tipomov = 'venta'
       LIMIT 1;
-	
-    -- 4) Calcular saldo y registrar movimiento
+
+    -- 4.1) Validar cantidad válida (> 0)
+    IF _cantidad <= 0 THEN
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Error: La cantidad del movimiento debe ser mayor que cero.';
+    END IF;
+
+    -- 4.2) Calcular saldo restante
     SET _saldoNuevo = calcularSaldoRestante(_idkardex, _cantidad);
+
+    -- 4.3) Validar stock suficiente
+    IF _saldoNuevo < 0 THEN
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Error: Stock insuficiente para registrar la venta.';
+    END IF;
+
+    -- 4.4) Insertar movimiento
     INSERT INTO movimientos (
       idkardex, idtipomov, fecha,
       cantidad, preciounit, saldorestante
@@ -246,7 +260,7 @@ BEGIN
       _idkardex, _idtipomov, CURDATE(),
       _cantidad, _precioventa, _saldoNuevo
     );
-    END IF;
+  END IF;
 END $$
 
 -- 5) PROCEDIMIENTO PARA OBTENER MONEDAS DE VENTAS
@@ -299,6 +313,7 @@ BEGIN
      OR P.codigobarra   LIKE CONCAT('%', termino_busqueda, '%')
   LIMIT 10;
 END $$
+-- CALL buscar_producto('prueba', 'venta');
 
 DROP PROCEDURE IF EXISTS buscar_producto_cot $$
 CREATE PROCEDURE buscar_producto_cot(

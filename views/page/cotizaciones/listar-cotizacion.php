@@ -339,7 +339,7 @@ require_once "../../partials/_footer.php";
                 class: "text-center",
                 render: function (data, type, row) {
                     return `
-                            <button class="btn btn-primary btn-sm btn-ver-justificacion"
+                            <button title="jusrificacion" class="btn btn-primary btn-sm btn-ver-justificacion"
                                 data-id="${row.idcotizacion}"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalVerJustificacion">
@@ -374,11 +374,11 @@ require_once "../../partials/_footer.php";
         <button title="Eliminar" class="btn btn-danger btn-sm btnEliminar" data-id="${row.id}">
             <i class="fa-solid fa-trash"></i>
         </button>
-        <button class="btn btn-info btn-sm"
+        <button title="Detalle de cotizacion" class="btn btn-info btn-sm"
                 onclick="verDetalleCotizacion(${row.id}, '${row.cliente}')">
             <i class='fa-solid fa-clipboard-list'></i>
         </button>
-        <button class="btn btn-success btn-sm"
+        <button title="Registrar a venta" class="btn btn-success btn-sm"
                 onclick="window.location='../ventas/registrar-ventas-orden.php?id=${row.id}'">
             <i class="fa-solid fa-arrow-right-to-bracket"></i>
         </button>
