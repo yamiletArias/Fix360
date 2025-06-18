@@ -464,9 +464,9 @@ class Venta extends Conexion
      */
     public function combinarOtYCrearVenta(array $idsOT, string $tipocom, string $numserie, string $numcom): int
     {
-        // 1) Validar que haya al menos dos OT y que todas pertenezcan al mismo propietario
-        if (count($idsOT) < 2) {
-            throw new Exception("Debes combinar al menos dos OT.");
+        // 1) Validar que haya al menos 1 OT y que todas pertenezcan al mismo propietario
+        if (count($idsOT) < 1) {
+            throw new Exception("Debes combinar al menos una OT.");
         }
 
         // Preparo placeholders para las consultas IN (...)

@@ -723,7 +723,7 @@ require_once "../../partials/_footer.php";
         // cada vez que (re)señalas un checkbox:
         $(document).on('change', '.select-ot', () => {
             const seleccionadas = $('.select-ot:checked');
-            if (seleccionadas.length < 2) {
+            if (seleccionadas.length < 1) {
                 // al menos 2 para combinar
                 $btnCombinar.prop('disabled', true);
             } else {
