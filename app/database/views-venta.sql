@@ -1011,116 +1011,108 @@ CREATE VIEW vista_resumen_arqueo AS
 SELECT
   f.fecha,
 
-  -- SALDO ANTERIOR (solo amortizaciones P y egresos A antes de f.fecha)
+  /* SALDO ANTERIOR */
   COALESCE((
     SELECT SUM(a.amortizacion)
     FROM amortizaciones a
-    WHERE a.estado = 'C'
+    WHERE a.estado IN ('P','C')
       AND DATE(a.creado) < f.fecha
-  ), 0)
+  ),0)
   -
   COALESCE((
     SELECT SUM(e.monto)
     FROM egresos e
-    JOIN vista_conceptos_egresos c USING(concepto)
-    WHERE DATE(e.creado) < f.fecha
-      AND e.estado = 'A'
-  ), 0)
+    WHERE e.estado = 'A'
+      AND DATE(e.creado) < f.fecha
+  ),0)
   AS saldo_anterior,
 
-  -- INGRESO EFECTIVO DEL DÍA (solo amortizaciones 'P' en f.fecha)
+  /* INGRESO DIARIO, pero lo llamamos ingreso_efectivo para el modelo */
   COALESCE((
     SELECT SUM(a.amortizacion)
     FROM amortizaciones a
-    WHERE a.estado = 'C'
+    WHERE a.estado IN ('P','C')
       AND DATE(a.creado) = f.fecha
-  ), 0) AS ingreso_efectivo,
+  ),0)
+  AS ingreso_efectivo,
 
-  -- EGRESOS DEL DÍA (solo egresos 'A' en f.fecha)
-  COALESCE((
-    SELECT SUM(e.monto)
-    FROM egresos e
-    JOIN vista_conceptos_egresos c USING(concepto)
-    WHERE DATE(e.creado) = f.fecha
-      AND e.estado = 'A'
-  ), 0) AS total_egresos,
-
-  -- TOTAL EFECTIVO (saldo anterior + ingreso del día)
+  /* TOTAL EFECTIVO = saldo_anterior + ingreso_efectivo */
   (
+    /* saldo anterior neto */
     COALESCE((
-      SELECT SUM(a.amortizacion)
-      FROM amortizaciones a
-      WHERE a.estado = 'C'
-        AND DATE(a.creado) < f.fecha
-    ), 0)
+      SELECT SUM(a2.amortizacion)
+      FROM amortizaciones a2
+      WHERE a2.estado IN ('P','C')
+        AND DATE(a2.creado) < f.fecha
+    ),0)
     -
     COALESCE((
-      SELECT SUM(e.monto)
-      FROM egresos e
-      JOIN vista_conceptos_egresos c USING(concepto)
-      WHERE DATE(e.creado) < f.fecha
-        AND e.estado = 'A'
-    ), 0)
+      SELECT SUM(e2.monto)
+      FROM egresos e2
+      WHERE e2.estado = 'A'
+        AND DATE(e2.creado) < f.fecha
+    ),0)
   )
   +
+  /* ingresos del día */
   COALESCE((
-    SELECT SUM(a.amortizacion)
-    FROM amortizaciones a
-    WHERE a.estado = 'C'
-      AND DATE(a.creado) = f.fecha
-  ), 0)
+    SELECT SUM(a3.amortizacion)
+    FROM amortizaciones a3
+    WHERE a3.estado IN ('P','C')
+      AND DATE(a3.creado) = f.fecha
+  ),0)
   AS total_efectivo,
 
-  -- TOTAL EN CAJA (no negativo)
+  /* EGRESOS DEL DÍA */
+  COALESCE((
+    SELECT SUM(e4.monto)
+    FROM egresos e4
+    WHERE e4.estado = 'A'
+      AND DATE(e4.creado) = f.fecha
+  ),0)
+  AS total_egresos,
+
+  /* TOTAL CAJA = total_efectivo − total_egresos */
   GREATEST(
     (
       (
+        /* mismo cálculo de total_efectivo */
         COALESCE((
-          SELECT SUM(a.amortizacion)
-          FROM amortizaciones a
-          WHERE a.estado = 'C'
-            AND DATE(a.creado) < f.fecha
-        ), 0)
+          SELECT SUM(a5.amortizacion)
+          FROM amortizaciones a5
+          WHERE a5.estado IN ('P','C')
+            AND DATE(a5.creado) < f.fecha
+        ),0)
         -
         COALESCE((
-          SELECT SUM(e.monto)
-          FROM egresos e
-          JOIN vista_conceptos_egresos c USING(concepto)
-          WHERE DATE(e.creado) < f.fecha
-            AND e.estado = 'A'
-        ), 0)
+          SELECT SUM(e5.monto)
+          FROM egresos e5
+          WHERE e5.estado = 'A'
+            AND DATE(e5.creado) < f.fecha
+        ),0)
       )
       +
       COALESCE((
-        SELECT SUM(a.amortizacion)
-        FROM amortizaciones a
-        WHERE a.estado = 'C'
-          AND DATE(a.creado) = f.fecha
-      ), 0)
+        SELECT SUM(a6.amortizacion)
+        FROM amortizaciones a6
+        WHERE a6.estado IN ('P','C')
+          AND DATE(a6.creado) = f.fecha
+      ),0)
     )
     -
     COALESCE((
-      SELECT SUM(e.monto)
-      FROM egresos e
-      JOIN vista_conceptos_egresos c USING(concepto)
-      WHERE DATE(e.creado) = f.fecha
-        AND e.estado = 'A'
-    ), 0)
-  , 0) AS total_caja
+      SELECT SUM(e6.monto)
+      FROM egresos e6
+      WHERE e6.estado = 'A'
+        AND DATE(e6.creado) = f.fecha
+    ),0)
+  ,0) AS total_caja
 
 FROM (
-  -- Solo días con amortizaciones P o egresos A
-  SELECT DATE(creado) AS fecha
-  FROM amortizaciones
-  WHERE estado = 'C'
-
+  SELECT DISTINCT DATE(creado) AS fecha FROM amortizaciones
   UNION
-
-  SELECT DATE(creado) AS fecha
-  FROM egresos
-  WHERE estado = 'A'
+  SELECT DISTINCT DATE(creado)       FROM egresos
 ) AS f
-
 ORDER BY f.fecha;
 
 /*

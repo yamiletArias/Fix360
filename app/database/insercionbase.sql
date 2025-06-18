@@ -147,6 +147,11 @@ INSERT INTO rolvistas (idrol,idvista) VALUES
 (1,39);
 -- select * from roles
 -- select * from vistas
+-- PERMISOS PARA LOS JEFE MECANICOS
+INSERT INTO rolvistas (idrol,idvista) VALUES
+(2,1),
+(2,22),
+(2,24);
 -- PERMISOS PARA LOS MECANICOS
 INSERT INTO rolvistas (idrol,idvista) VALUES
 (3,1),

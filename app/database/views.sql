@@ -217,7 +217,7 @@ LEFT JOIN roles r
   ON co.idrol = r.idrol
 LEFT JOIN personas p
   ON co.idpersona = p.idpersona
-WHERE r.rol = 'mecanico';
+WHERE r.rol = 'mecanico' OR r.rol = 'Jefe mecanico';
 
 -- 12) Componentes (lista completa)
 DROP VIEW IF EXISTS vwComponentes;
