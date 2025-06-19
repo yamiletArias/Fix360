@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   const selectServicio = document.getElementById("servicio");
   const selectMecanico = document.getElementById("mecanico");
+  let mecanicosCache = null;
   const inputPrecioServicio = document.getElementById("precioServicio");
   const fechaInput = document.getElementById("fechaIngreso");
   const monedaSelect = document.getElementById("moneda");
@@ -39,6 +40,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
   numSerieInput.value = "";
   numComInput.value = "";
+
+  async function cargarMecanicos() {
+    // Si ya tenemos datos, no volvemos a fetch, solo repoblamos:
+    if (Array.isArray(mecanicosCache)) {
+      repoblarSelect(mecanicosCache);
+      return;
+    }
+
+    try {
+      const resp = await fetch(
+        `${FIX360_BASE_URL}app/controllers/mecanico.controller.php?task=getAllMecanico`
+      );
+      if (!resp.ok) throw new Error(`Status ${resp.status}`);
+      const data = await resp.json();
+      mecanicosCache = data; // ← cacheamos
+      repoblarSelect(mecanicosCache);
+    } catch (err) {
+      console.error("Error al cargar mecánicos:", err);
+      showToast("No se pudieron cargar los mecánicos.", "ERROR", 1500);
+    }
+  }
+
+  function repoblarSelect(lista) {
+    selectMecanico.innerHTML = '<option value="">Eliga un mecánico</option>';
+    lista.forEach((item) => {
+      const opt = document.createElement("option");
+      opt.value = item.idcolaborador;
+      opt.textContent = item.nombres;
+      selectMecanico.appendChild(opt);
+    });
+  }
+
+  // Llamada inicial
+  cargarMecanicos();
 
   // 1) Función para habilitar/deshabilitar el botón “Guardar”
   function actualizarEstadoGuardar() {
@@ -75,25 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
       showToast("Error al cargar servicios.", "ERROR", 1500);
     }
   }
-  async function cargarMecanicos() {
-  try {
-    const resp = await fetch(
-      `${FIX360_BASE_URL}app/controllers/mecanico.controller.php?task=getAllMecanico`
-    );
-    const data = await resp.json();
-    // Limpia y añade la opción por defecto
-    selectMecanico.innerHTML = '<option value="">Eliga un mecánico</option>';
-    data.forEach(item => {
-      const opt = document.createElement('option');
-      opt.value = item.idcolaborador;
-      opt.textContent = item.nombres;
-      selectMecanico.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("Error al cargar mecánicos:", err);
-    showToast("No se pudieron cargar los mecánicos.", "ERROR", 1500);
-  }
-}
 
   document
     .getElementById("subcategoria")
