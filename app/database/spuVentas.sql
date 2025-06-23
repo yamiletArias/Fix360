@@ -292,22 +292,21 @@ BEGIN
   SELECT
     P.idproducto,
     CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
-    -- Elegimos precio según el modo: preciov para venta, precioc para compra
     CASE
       WHEN modo = 'venta'  THEN P.preciov
       WHEN modo = 'compra' THEN P.precioc
       ELSE NULL
     END AS precio,
-    (
-      SELECT m2.saldorestante
-      FROM movimientos m2
-      WHERE m2.idkardex = k.idkardex
-      ORDER BY m2.idmovimiento DESC
-      LIMIT 1
-    ) AS stock
+    IFNULL((
+  SELECT m2.saldorestante
+	  FROM movimientos m2
+	  WHERE m2.idkardex = k.idkardex
+	  ORDER BY m2.idmovimiento DESC
+	  LIMIT 1
+	), 0) AS stock
   FROM productos P
   JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
-  JOIN kardex       k ON P.idproducto     = k.idproducto
+  LEFT JOIN kardex k    ON P.idproducto = k.idproducto
   WHERE S.subcategoria LIKE CONCAT('%', termino_busqueda, '%')
      OR P.descripcion   LIKE CONCAT('%', termino_busqueda, '%')
      OR P.codigobarra   LIKE CONCAT('%', termino_busqueda, '%')
@@ -316,6 +315,7 @@ END $$
 -- CALL buscar_producto('prueba', 'venta');
 
 DROP PROCEDURE IF EXISTS buscar_producto_cot $$
+DELIMITER $$
 CREATE PROCEDURE buscar_producto_cot(
   IN termino_busqueda VARCHAR(255)
 )
@@ -324,16 +324,16 @@ BEGIN
     P.idproducto,
     CONCAT(S.subcategoria, ' ', P.descripcion) AS subcategoria_producto,
     P.preciov,
-    (
+    IFNULL((
       SELECT m2.saldorestante
       FROM movimientos m2
       WHERE m2.idkardex = k.idkardex
       ORDER BY m2.idmovimiento DESC
       LIMIT 1
-    ) AS stock
+    ), 0) AS stock
   FROM productos P
   JOIN subcategorias S ON P.idsubcategoria = S.idsubcategoria
-  JOIN kardex k       ON P.idproducto     = k.idproducto
+  LEFT JOIN kardex k   ON P.idproducto = k.idproducto
   WHERE S.subcategoria LIKE CONCAT('%', termino_busqueda, '%')
      OR P.descripcion   LIKE CONCAT('%', termino_busqueda, '%')
      OR P.codigobarra   LIKE CONCAT('%', termino_busqueda, '%')
@@ -386,6 +386,7 @@ END $$
 
 -- 9) PROCEDIMIENTO PARA REGISTRAR DETALLE DE COMPRA
 DROP PROCEDURE IF EXISTS spuInsertDetalleCompra $$
+DELIMITER $$
 CREATE PROCEDURE spuInsertDetalleCompra (
   IN _idcompra     INT,
   IN _idproducto   INT,
@@ -397,7 +398,7 @@ BEGIN
   DECLARE _idkardex      INT;
   DECLARE _saldorestante INT;
 
-  -- inserta detalle
+  -- 1. Insertar detalle de la compra
   INSERT INTO detallecompra (
     idproducto,
     idcompra,
@@ -412,18 +413,25 @@ BEGIN
     _descuento
   );
 
-  -- **ACTUALIZO precioc en lugar de precio**
+  -- 2. Actualizar el precio de compra del producto
   UPDATE productos
     SET precioc = _preciocompra
   WHERE idproducto = _idproducto;
 
-  -- resto de la lógica de kardex / movimientos
+  -- 3. Verificar si existe el kardex para ese producto
   SELECT idkardex
     INTO _idkardex
   FROM kardex
   WHERE idproducto = _idproducto
   LIMIT 1;
 
+  -- 4. Si no existe, crearlo
+  IF _idkardex IS NULL THEN
+    INSERT INTO kardex (idproducto) VALUES (_idproducto);
+    SET _idkardex = LAST_INSERT_ID();
+  END IF;
+
+  -- 5. Obtener saldo restante anterior
   SELECT saldorestante
     INTO _saldorestante
   FROM movimientos
@@ -431,8 +439,10 @@ BEGIN
   ORDER BY idmovimiento DESC
   LIMIT 1;
 
+  -- Si no hay movimientos previos, el saldo comienza en 0
   SET _saldorestante = IFNULL(_saldorestante, 0) + _cantidad;
 
+  -- 6. Registrar movimiento de entrada (compra)
   INSERT INTO movimientos (
     idkardex,
     idtipomov,
