@@ -210,7 +210,7 @@ $id = intval($_GET['id'] ?? 0);
           </div>
         </div>
         <div class="table-container">
-          <table class="table table-striped table-bordered">
+          <table id="tabla-detalle-productos-modal" class="table table-striped table-bordered">
             <thead>
               <tr>
                 <th>#</th>

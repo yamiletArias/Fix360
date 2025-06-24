@@ -143,6 +143,7 @@ class Vehiculo extends Conexion
      * @return array   Un único arreglo asociativo con los campos del vehículo y:
      *                 - idcliente_propietario
      *                 - propietario
+     *      -vehiculo_propietario
      */
     public function getVehiculoConPropietario(int $idvehiculo): array
     {
