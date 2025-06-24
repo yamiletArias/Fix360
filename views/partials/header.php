@@ -398,8 +398,8 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
           </li>
 
           <!-- 4) Sección “Inventario” (solo rol 1) -->
-          <?php if ($idrol === 3 || $idrol === 1): ?>
-            <?php if ($idrol === 3 || $idrol === 1): ?>
+          <?php if ($idrol === 3 || $idrol === 1 || $idrol === 2): ?>
+            <?php if ($idrol === 3 || $idrol === 1 || $idrol === 2): ?>
               <li class="nav-item nav-category"><span class="nav-link">Inventario</span></li>
             <?php endif; ?>
             <?php if ($idrol === 1): ?>
@@ -416,8 +416,8 @@ $restantes       = $totalHoy - count($hoyParaMostrar);
                 </a>
               </li>
             <?php endif; ?>
-            <!-- 2) “Órdenes de Servicio” (rol = 3 o rol = 1) -->
-            <?php if ($idrol === 3 || $idrol === 1): ?>
+            <!-- 2) “Órdenes de Servicio” (rol = 3 o rol = 1 o Rol = 2) -->
+            <?php if ($idrol === 3 || $idrol === 1 || $idrol === 2): ?>
               <li class="nav-item">
                 <a class="nav-link" href="<?= SERVERURL ?>views/page/ordenservicios/listar-ordenes.php">
                   <span class="menu-title">Órdenes de Servicio</span>
