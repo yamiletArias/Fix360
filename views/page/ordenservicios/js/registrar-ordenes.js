@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
   actualizarOpciones();
   setFechaDefault();
   cargarSubcategorias();
-  cargarMecanicos();
+  /*   cargarMecanicos(); */
 
   // 6) Eventos de selects
   const subc = document.getElementById("subcategoria");
@@ -324,7 +324,7 @@ function cargarSubcategorias() {
 /**
  * Carga mecánicos en el select.
  */
-function cargarMecanicos() {
+/* function cargarMecanicos() {
   fetch(
     `${SERVERURL}app/controllers/mecanico.controller.php?task=getAllMecanico`
   )
@@ -340,7 +340,7 @@ function cargarMecanicos() {
       )
     )
     .catch(console.error);
-}
+} */
 
 /**
  * Carga servicios según subcategoría.

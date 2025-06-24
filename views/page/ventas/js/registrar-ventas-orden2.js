@@ -1,7 +1,7 @@
 window.alert = function (msg, type = "WARNING", duration = 2000) {
   showToast(msg, type, duration);
 };
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   // Variables y elementos
   const hiddenIdCliente = document.getElementById("hiddenIdCliente");
   const inputProp = document.getElementById("propietario");
@@ -71,9 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
       selectMecanico.appendChild(opt);
     });
   }
-
-  // Llamada inicial
-  cargarMecanicos();
+  await cargarMecanicos();
 
   // 1) Función para habilitar/deshabilitar el botón “Guardar”
   function actualizarEstadoGuardar() {
@@ -200,10 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // --- Funcionalidades para fecha predeterminada ---
-  document.addEventListener("DOMContentLoaded", () => {
-    setFechaDefault();
-  });
+  setFechaDefault();
 
   function setFechaDefault() {
     const input = document.getElementById("fechaIngreso");
@@ -359,7 +354,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const cotId = params.get("id");
 
   if (cotId) {
-    cargarMecanicos();
+    /* cargarMecanicos(); */
     // — 1) CARGAR CABECERA —
     fetch(
       `${API_BASE}cotizacion.controller.php?action=getSoloCliente&idcotizacion=${cotId}`
