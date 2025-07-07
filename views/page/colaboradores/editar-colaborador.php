@@ -202,7 +202,9 @@ if ($id <= 0) {
             if (u === originalUsername && !p) return true;
 
             // Caso 2: cambió usuario (u ≠ original) → exige password
-            if (u !== originalUsername && (!p || p.length < 6)) return false;
+            if (u !== originalUsername) {
+    return u.length >= 3;
+  }
 
             // Caso 3: quiere cambiar sólo pass (u === original) → exige password
             if (u === originalUsername && p && p.length < 6) return false;
