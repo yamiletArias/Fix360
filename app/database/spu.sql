@@ -1489,17 +1489,16 @@ END $$
 DROP PROCEDURE IF EXISTS spUpdateColaborador $$
 CREATE PROCEDURE spUpdateColaborador(
     IN  _idcolaborador   INT,
-    IN  _nombres          VARCHAR(50),
-    IN  _apellidos        VARCHAR(50),
-    IN  _direccion        VARCHAR(70),
-    IN  _correo           VARCHAR(100),
-    IN  _telprincipal     VARCHAR(20),
-    IN  _idrol            INT,
-    IN  _fechainicio      DATE,
-    IN  _fechafin         DATE,
-    -- ahora pueden ser NULL o ''
-    IN  _namuser          VARCHAR(50),
-    IN  _passuser         VARCHAR(255)
+    IN  _nombres         VARCHAR(50),
+    IN  _apellidos       VARCHAR(50),
+    IN  _direccion       VARCHAR(70),
+    IN  _correo          VARCHAR(100),
+    IN  _telprincipal    VARCHAR(20),
+    IN  _idrol           INT,
+    IN  _fechainicio     DATE,
+    IN  _fechafin        DATE,
+    IN  _namuser         VARCHAR(50),
+    IN  _passuser        VARCHAR(255)
 )
 proc_block: BEGIN
     DECLARE v_idpersona      INT;
@@ -1508,7 +1507,6 @@ proc_block: BEGIN
     DECLARE v_old_fchIni     DATE;
     DECLARE v_old_fchFin     DATE;
     DECLARE v_new_idcontrato INT;
-    DECLARE v_hashed_pwd     VARCHAR(64);
 
     -- 1) Obtener contrato y persona
     SELECT c.idcontrato INTO v_idcontrato
@@ -1572,23 +1570,17 @@ proc_block: BEGIN
          WHERE idcontrato = v_idcontrato;
     END IF;
 
-    -- 5) Preparar hash de contraseña si corresponde
-    SET v_hashed_pwd = CASE
-                         WHEN _passuser IS NULL THEN NULL            -- no tocar
-                         WHEN _passuser = ''   THEN NULL            -- limpiar
-                         ELSE SHA2(_passuser,256)                   -- nuevo hash
-                       END;
-
-    -- 6) Actualizar usuario/contraseña en colaboradores
+    -- 5) Actualizar usuario y contraseña solamente si vienen valores no vacíos
     UPDATE colaboradores
        SET namuser  = CASE
-                        WHEN _namuser  IS NULL THEN namuser      -- no tocar
-                        WHEN _namuser  = ''   THEN NULL          -- limpiar
-                        ELSE _namuser                           -- nuevo valor
+                        WHEN _namuser  IS NULL
+                          OR _namuser  = ''    THEN namuser
+                        ELSE _namuser
                       END,
            passuser = CASE
-                        WHEN _passuser IS NULL THEN passuser    -- no tocar
-                        ELSE v_hashed_pwd                       -- NULL o hash
+                        WHEN _passuser IS NULL
+                          OR _passuser = ''    THEN passuser
+                        ELSE SHA2(_passuser,256)
                       END
      WHERE idcolaborador = _idcolaborador;
 
