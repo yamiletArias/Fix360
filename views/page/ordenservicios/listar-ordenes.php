@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Si es “salida” → confirm + POST para registrar fecha de salida
     if (btn.dataset.action === 'salida') {
-      if (!confirm('¿Registrar fecha de salida?')) return;
+      if (!(await ask('¿Registrar fecha de salida?', 'Órdenes de Servicio'))) return;
       try {
         const resp = await fetch(API, {
           method: 'POST',
